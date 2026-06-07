@@ -1,0 +1,235 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "caixin_market_overview",
+      "description": "获取A股主要指数实时行情（上证、深证、沪深300、创业板等）",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8765/invoke",
+        "body_template": "{\"tool\": \"caixin_market_overview\", \"args\": {}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "caixin_search",
+      "description": "按关键词搜索A股股票或公司，返回 id、名称、股票代码、类型。调用 caixin_stock_news 前必须先用此工具获取股票 id。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "搜索关键词，如股票名称或代码，例如 '比亚迪' 或 '002594'"
+          }
+        },
+        "required": ["keyword"]
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8765/invoke",
+        "body_template": "{\"tool\": \"caixin_search\", \"args\": {\"keyword\": \"{{keyword}}\"}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "caixin_hot_stocks",
+      "description": "获取财新实时热门股票榜（按搜索热度排序），适合快速了解当前市场关注焦点",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "description": "返回数量，默认10，最大50",
+            "default": 10
+          }
+        }
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8765/invoke",
+        "body_template": "{\"tool\": \"caixin_hot_stocks\", \"args\": {\"size\": {{size}}}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "caixin_stock_rank",
+      "description": "获取A股个股排行榜，支持按市值、涨跌幅、成交额排序",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "description": "返回数量，默认10",
+            "default": 10
+          },
+          "type": {
+            "type": "string",
+            "description": "排序字段",
+            "enum": ["totValue", "changeRate", "tradAmt"],
+            "default": "totValue"
+          },
+          "isAsc": {
+            "type": "boolean",
+            "description": "是否升序，false=降序（默认）",
+            "default": false
+          }
+        }
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8765/invoke",
+        "body_template": "{\"tool\": \"caixin_stock_rank\", \"args\": {\"size\": {{size}}, \"type\": \"{{type}}\", \"isAsc\": {{isAsc}}}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "caixin_industry_rank",
+      "description": "获取A股行业板块排行，含行业涨跌幅、龙头股信息",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "description": "返回数量，默认10",
+            "default": 10
+          },
+          "type": {
+            "type": "string",
+            "description": "排序字段: totValue(市值) | changeRate(涨跌幅)",
+            "enum": ["totValue", "changeRate"],
+            "default": "changeRate"
+          },
+          "isAsc": {
+            "type": "boolean",
+            "description": "是否升序，false=降序（默认）",
+            "default": false
+          }
+        }
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8765/invoke",
+        "body_template": "{\"tool\": \"caixin_industry_rank\", \"args\": {\"size\": {{size}}, \"type\": \"{{type}}\", \"isAsc\": {{isAsc}}}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "caixin_index_rank",
+      "description": "获取A股指数排行（沪深各大指数涨跌幅对比）",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "description": "返回数量，默认8",
+            "default": 8
+          }
+        }
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8765/invoke",
+        "body_template": "{\"tool\": \"caixin_index_rank\", \"args\": {\"size\": {{size}}}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "caixin_stock_news",
+      "description": "获取指定股票的财新相关新闻。必须先用 caixin_search 获取股票 id，再传入此函数。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "股票唯一 id，来自 caixin_search 或 caixin_hot_stocks 的返回值，不是股票代码"
+          },
+          "size": {
+            "type": "integer",
+            "description": "返回新闻条数，默认5",
+            "default": 5
+          },
+          "page": {
+            "type": "integer",
+            "description": "页码，默认1",
+            "default": 1
+          }
+        },
+        "required": ["id"]
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8765/invoke",
+        "body_template": "{\"tool\": \"caixin_stock_news\", \"args\": {\"id\": \"{{id}}\", \"size\": {{size}}, \"page\": {{page}}}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "caixin_hk_indices",
+      "description": "获取香港主要股票指数实时行情（恒生指数、国企指数等）",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8765/invoke",
+        "body_template": "{\"tool\": \"caixin_hk_indices\", \"args\": {}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "caixin_hk_industry",
+      "description": "获取香港股市行业板块排行",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "description": "返回数量，默认10",
+            "default": 10
+          },
+          "orderField": {
+            "type": "string",
+            "description": "排序字段: totValue(市值) | changeRate(涨跌幅)",
+            "enum": ["totValue", "changeRate"],
+            "default": "changeRate"
+          }
+        }
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8765/invoke",
+        "body_template": "{\"tool\": \"caixin_hk_industry\", \"args\": {\"size\": {{size}}, \"orderField\": \"{{orderField}}\"}}"
+      }
+    }
+  }
+]

@@ -1,0 +1,363 @@
+{
+  "extraction_date": "2026-05-12",
+  "pilot_note": "5篇抽样提取结果，用于提示词设计与批量入库参考",
+  "total_signals": 21,
+  "files_processed": 5,
+  "results": [
+    {
+      "source_file": "251019四维度训练营-总结.md",
+      "date": "2025-10-19",
+      "signals": [
+        {
+          "sector": "鸿蒙产业链",
+          "sub_sector": "软件/芯片/终端",
+          "driver_type": "事件催化",
+          "logic": "华为11月28日鸿蒙星光盛典，三大预期（纯国产系统、Mate80中国心、消费电子产业链）驱动炒作窗口",
+          "hard_data": [
+            {"metric": "盛典日期", "value": "2025-11-28", "unit": "日"},
+            {"metric": "炒作结束时间窗口", "value": "11月15日前（老鸟），可延长至盛典前", "unit": ""},
+            {"metric": "封单参考（常山北明）", "value": "6亿", "unit": "元"}
+          ],
+          "key_stocks": ["常山北明"],
+          "timeline": "11月15日前炒作高峰期，11月28日盛典为终点",
+          "risk": "捷荣技术等标的无业绩改善仅为情绪炒作，需区分情绪与价值",
+          "info_gap": "市场尚未充分认知Mate80成熟制程突破的可能性",
+          "confidence": "P1"
+        },
+        {
+          "sector": "A股市场情绪",
+          "sub_sector": "整体市场",
+          "driver_type": "事件催化",
+          "logic": "市场处于情绪冰点，不受控事件主导导致涨跌随机性极强，传统情绪周期循环失效",
+          "hard_data": [
+            {"metric": "触及涨停", "value": "54", "unit": "个"},
+            {"metric": "实际涨停", "value": "37", "unit": "个"},
+            {"metric": "触及跌停", "value": "32", "unit": "个"},
+            {"metric": "实际跌停", "value": "23", "unit": "个"},
+            {"metric": "成交金额", "value": "<2", "unit": "万亿"}
+          ],
+          "key_stocks": [],
+          "timeline": "当前处于情绪冰点阶段",
+          "risk": "冰点判断可在当日14:45确认（涨停<40个+跌停大幅攀升）",
+          "info_gap": "市场已知但尚未充分定价冰点后的修复机会",
+          "confidence": "P0"
+        }
+      ]
+    },
+    {
+      "source_file": "251113四维度训练营-总结.md",
+      "date": "2025-11-13",
+      "signals": [
+        {
+          "sector": "锂电池材料",
+          "sub_sector": "VC（碳酸亚乙烯酯）",
+          "driver_type": "供给紧缺",
+          "logic": "山东某企业停产检修导致VC单日跳涨，核心涨价环节之一",
+          "hard_data": [
+            {"metric": "VC单日跳涨量", "value": "4.5万", "unit": "吨"}
+          ],
+          "key_stocks": ["华盛锂电", "多氟多", "天赐材料", "海科新能", "孚日股份", "永太科技"],
+          "timeline": "涨价持续至山东企业复产",
+          "risk": "VC复产即暴跌，跌幅或达20%-30%，须密切跟踪复产动态",
+          "info_gap": "市场已部分定价，但复产时间存在信息差",
+          "confidence": "P0"
+        },
+        {
+          "sector": "锂电池材料",
+          "sub_sector": "DMC（碳酸二甲酯）",
+          "driver_type": "涨价驱动",
+          "logic": "有机硅行业会议达成涨价共识，DMC当日涨价，目标价明确",
+          "hard_data": [
+            {"metric": "DMC当日涨幅", "value": "1500", "unit": "元/吨"},
+            {"metric": "DMC目标价", "value": "1.35万", "unit": "元/吨"}
+          ],
+          "key_stocks": ["东岳硅材"],
+          "timeline": "行业会议后持续跟踪涨价进度",
+          "risk": "东岳硅材当日未达涨停，不及预期",
+          "info_gap": "行业会议涨价共识信息可通过AI工具盘前获取，存在信息差优势",
+          "confidence": "P1"
+        },
+        {
+          "sector": "锂电池材料",
+          "sub_sector": "碳酸锂",
+          "driver_type": "涨价驱动",
+          "logic": "摩根大通大幅上调碳酸锂目标价，长期看好",
+          "hard_data": [
+            {"metric": "2026年目标价（上调前）", "value": "7万", "unit": "元/吨"},
+            {"metric": "2026年目标价（上调后）", "value": "9万", "unit": "元/吨"},
+            {"metric": "长期目标价", "value": "10万", "unit": "元/吨"}
+          ],
+          "key_stocks": ["融捷股份", "中大矿业", "盛新锂能", "国成矿业", "雅化集团", "永兴材料"],
+          "timeline": "2026年目标价上调，长期持续看好",
+          "risk": "需跟踪大宗商品价格波动",
+          "info_gap": "大行目标价上调属市场公开信息但幅度超预期",
+          "confidence": "P1"
+        },
+        {
+          "sector": "锂电池材料",
+          "sub_sector": "六氟磷酸锂",
+          "driver_type": "涨价驱动",
+          "logic": "六氟磷酸锂价格稳定高位，振华金属因SOFC需求增长提价",
+          "hard_data": [
+            {"metric": "主流价格", "value": "13万", "unit": "元/吨"}
+          ],
+          "key_stocks": ["振华金属", "天赐材料", "多氟多"],
+          "timeline": "价格稳定在13万/吨高位",
+          "risk": "无明显风险提示",
+          "info_gap": "价格高位稳定但市场关注度不够",
+          "confidence": "P2"
+        },
+        {
+          "sector": "储能",
+          "sub_sector": "储能电池",
+          "driver_type": "需求爆发",
+          "logic": "海博思创与宁德时代签订巨额采购协议，年均采购量远超当前销量",
+          "hard_data": [
+            {"metric": "采购协议量", "value": "200G瓦", "unit": "GWh"},
+            {"metric": "协议期限", "value": "3年", "unit": "年"}
+          ],
+          "key_stocks": ["海博思创", "宁德时代", "亿纬锂能", "固德威", "德业股份", "上能电器"],
+          "timeline": "未来三年持续采购",
+          "risk": "高位利好出尽是利空，通威股份2022年7月涨停后从64元跌至25元长期未回升",
+          "info_gap": "市场已部分定价但年均采购量远超当前销量的信息差仍在",
+          "confidence": "P1"
+        },
+        {
+          "sector": "有色金属",
+          "sub_sector": "锡",
+          "driver_type": "供给紧缺",
+          "logic": "印尼打击走私+国内产量下降，锡供需缺口扩大价格逼近历史高位",
+          "hard_data": [
+            {"metric": "10月精炼锡出口同比降幅", "value": "53", "unit": "%"},
+            {"metric": "国内1-10月产量同比降幅", "value": "2.6", "unit": "%"},
+            {"metric": "库存位置", "value": "接近五年新低", "unit": ""},
+            {"metric": "价格", "value": "逼近30万", "unit": "元/吨"}
+          ],
+          "key_stocks": ["兴业银锡"],
+          "timeline": "印尼打击走私持续，供需缺口短期难缓解",
+          "risk": "价格已处高位，追高有风险",
+          "info_gap": "印尼打击走私导致出口大降的数据市场尚未充分认知",
+          "confidence": "P1"
+        },
+        {
+          "sector": "有色金属",
+          "sub_sector": "锑金属",
+          "driver_type": "涨价驱动",
+          "logic": "锑金属目标价明确，华钰矿业全球储量居前",
+          "hard_data": [
+            {"metric": "目标价", "value": "25万", "unit": "元/吨"}
+          ],
+          "key_stocks": ["华钰矿业"],
+          "timeline": "目标价25万/吨",
+          "risk": "无明显风险提示",
+          "info_gap": "华钰矿业全球储量居前但市场关注度不足",
+          "confidence": "P2"
+        },
+        {
+          "sector": "光模块",
+          "sub_sector": "AI算力配套",
+          "driver_type": "需求爆发",
+          "logic": "谷歌TPU7+英伟达服务器双驱动，2026年光模块需求增量明确",
+          "hard_data": [
+            {"metric": "谷歌TPU7光模块需求", "value": "1200万", "unit": "支"},
+            {"metric": "英伟达服务器光模块需求", "value": "2000万", "unit": "支"},
+            {"metric": "2026年总需求预估", "value": "3000万", "unit": "支"}
+          ],
+          "key_stocks": [],
+          "timeline": "2026年需求释放",
+          "risk": "当前国内科技板块情绪较弱，仅作为长期跟踪方向",
+          "info_gap": "光模块总需求3000万支的数据市场尚未充分定价",
+          "confidence": "P1"
+        },
+        {
+          "sector": "贵金属",
+          "sub_sector": "黄金/白银",
+          "driver_type": "涨价驱动",
+          "logic": "全球政府军备性购金潮，各国进入囤货式购金周期",
+          "hard_data": [
+            {"metric": "现货黄金价格", "value": "突破4230", "unit": "美元/盎司"},
+            {"metric": "沪银主力合约涨幅", "value": ">5", "unit": "%"}
+          ],
+          "key_stocks": [],
+          "timeline": "囤货式购金周期持续中",
+          "risk": "趋势持续性决定后续空间",
+          "info_gap": "全球政府购金潮的持续性市场认知不足",
+          "confidence": "P1"
+        }
+      ]
+    },
+    {
+      "source_file": "251218四维度训练营-总结.md",
+      "date": "2025-12-18",
+      "signals": [
+        {
+          "sector": "AI算力基础设施",
+          "sub_sector": "火山引擎调度",
+          "driver_type": "需求爆发",
+          "logic": "火山引擎日均调度量持续高速增长，与数据中心建设延期形成矛盾，未来AI占用服务器需求比例大幅上升",
+          "hard_data": [
+            {"metric": "5月日均调度量", "value": "16.4万亿", "unit": "次/日"},
+            {"metric": "9月日均调度量", "value": "30万亿", "unit": "次/日"},
+            {"metric": "12月日均调度量", "value": "50万亿", "unit": "次/日"}
+          ],
+          "key_stocks": [],
+          "timeline": "5月至12月调度量3倍增长，持续加速中",
+          "risk": "数据中心建设延期形成供给矛盾",
+          "info_gap": "调度量7个月增长3倍的数据市场尚未充分认知其对服务器需求的冲击",
+          "confidence": "P0"
+        },
+        {
+          "sector": "有色金属",
+          "sub_sector": "镍",
+          "driver_type": "供给紧缺",
+          "logic": "印尼下调镍开采配额+修改定价公式+打击非法采矿，结构性抬升全球获取成本",
+          "hard_data": [],
+          "key_stocks": [],
+          "timeline": "印尼政策组合拳持续影响",
+          "risk": "政策执行力度存在不确定性",
+          "info_gap": "资金可能从其他有色品种迁移至镍板块，存在预期差",
+          "confidence": "P2"
+        },
+        {
+          "sector": "商业航天",
+          "sub_sector": "卫星及卫星通信",
+          "driver_type": "事件催化",
+          "logic": "商业航天持续一个月热点发酵，卫星标的进可攻退可守",
+          "hard_data": [],
+          "key_stocks": ["中国卫星", "顺灏股份", "通宇通讯", "上海瀚讯"],
+          "timeline": "已持续一个月热度",
+          "risk": "热点持续性需跟踪",
+          "info_gap": "卫星标的仍为核心，市场可能过度关注火箭端而忽略卫星端",
+          "confidence": "P2"
+        },
+        {
+          "sector": "AI应用",
+          "sub_sector": "AI健康应用",
+          "driver_type": "需求爆发",
+          "logic": "蚂蚁旗下AI健康应用阿福月活冲上苹果应用排行榜第三",
+          "hard_data": [
+            {"metric": "月活用户", "value": "1500万", "unit": "万"}
+          ],
+          "key_stocks": [],
+          "timeline": "当前持续发酵",
+          "risk": "AI应用端商业化变现能力待验证",
+          "info_gap": "1500万月活数据市场关注度不足",
+          "confidence": "P2"
+        },
+        {
+          "sector": "存储芯片",
+          "sub_sector": "存储",
+          "driver_type": "事件催化",
+          "logic": "美光盘前涨14%，大概率带动存储板块行情",
+          "hard_data": [
+            {"metric": "美光涨幅", "value": "14", "unit": "%"}
+          ],
+          "key_stocks": [],
+          "timeline": "事件驱动型短期行情",
+          "risk": "映射行情的持续性",
+          "info_gap": "美光涨幅对A股存储板块的传导存在时间差",
+          "confidence": "P2"
+        }
+      ]
+    },
+    {
+      "source_file": "260301四维度训练营-总结.md",
+      "date": "2026-03-01",
+      "signals": [
+        {
+          "sector": "化工",
+          "sub_sector": "甲醇等化工品",
+          "driver_type": "供给紧缺",
+          "logic": "伊朗关闭霍尔木兹海峡，伊朗作为全球核心甲醇等化工品出口国，海峡封锁直接冲击全球化工品供给",
+          "hard_data": [
+            {"metric": "霍尔木兹海峡占全球原油海运贸易量", "value": "20", "unit": "%"},
+            {"metric": "海峡每日原油运输量", "value": "2000万", "unit": "桶/日"},
+            {"metric": "全球每日原油需求", "value": "1亿", "unit": "桶/日"},
+            {"metric": "替代管道总容量", "value": "260", "unit": "桶/日"}
+          ],
+          "key_stocks": ["金牛化工"],
+          "timeline": "海峡封锁期间持续影响，中长期可能二次发酵",
+          "risk": "高开3%以内有入场性价比，高开7%-8%无操作价值；军事行动可能快速结束导致行情逆转",
+          "info_gap": "化工板块存在认知差，市场一致预期原油黄金但忽视化工供给冲击",
+          "confidence": "P0"
+        },
+        {
+          "sector": "原油",
+          "sub_sector": "能源",
+          "driver_type": "供给紧缺",
+          "logic": "霍尔木兹海峡封锁造成全球20%原油供给缺口",
+          "hard_data": [
+            {"metric": "理论供给缺口", "value": "20", "unit": "%"},
+            {"metric": "原油高开预期", "value": "约8", "unit": "%"}
+          ],
+          "key_stocks": [],
+          "timeline": "短期高开回落，中长期可能二次发酵",
+          "risk": "场外投资者绝对禁止追高；欧佩克紧急会议讨论增产将压制价格；军事行动可能快速结束",
+          "info_gap": "市场已充分定价，仅适合提前埋伏者兑现",
+          "confidence": "P0"
+        },
+        {
+          "sector": "太空经济",
+          "sub_sector": "军工/航天",
+          "driver_type": "事件催化",
+          "logic": "两会通稿可能出现军工、太空经济新概念增量",
+          "hard_data": [],
+          "key_stocks": [],
+          "timeline": "两会期间（2026年3月）",
+          "risk": "本次美军行动中太空部队仅坐标监控支持，军工板块炒作排序大幅靠后，仅脉冲行情",
+          "info_gap": "市场对两会新增量概念的预期差",
+          "confidence": "P2"
+        }
+      ]
+    },
+    {
+      "source_file": "260506四维度训练营-总结.md",
+      "date": "2026-05-06",
+      "signals": [
+        {
+          "sector": "AI算力芯片",
+          "sub_sector": "华为昇腾",
+          "driver_type": "需求爆发",
+          "logic": "字节跳动确认采购华为昇腾950PR芯片，证实国产算力大规模放量，云厂商多条腿走路策略确立",
+          "hard_data": [
+            {"metric": "采购金额", "value": "56亿", "unit": "美元"},
+            {"metric": "昇腾芯片单价", "value": "约7万", "unit": "元"},
+            {"metric": "英伟达芯片单价", "value": "约20万", "unit": "元"},
+            {"metric": "昇腾液冷投入倍数", "value": "3", "unit": "倍"}
+          ],
+          "key_stocks": ["高新发展"],
+          "timeline": "5月14日前后地缘缓和利好科技，订单已确认",
+          "risk": "昇腾TCO未必优于英伟达（功耗高+单卡Token产出效率低），国产替代≠全面利好",
+          "info_gap": "TCO成本推演打破市场线性认知，昇腾综合成本未必占优",
+          "confidence": "P0"
+        },
+        {
+          "sector": "新能源电池产业链",
+          "sub_sector": "碳酸锂+六氟磷酸锂",
+          "driver_type": "涨价驱动",
+          "logic": "碳酸锂价格从底部反弹，六氟磷酸锂价格回升，电池排产环比增长，行业基本面改善但市场认知不充分",
+          "hard_data": [
+            {"metric": "电池排产环比增长", "value": "10", "unit": "%"}
+          ],
+          "key_stocks": [],
+          "timeline": "当前持续改善中",
+          "risk": "资金仍高度集中在科技板块，电池链上涨空间大于下行风险但需等待资金切换",
+          "info_gap": "市场对这些数据的认知不够充分，电池链可作为科技仓位的向下看跌保护期权",
+          "confidence": "P1"
+        },
+        {
+          "sector": "CCL/铜箔",
+          "sub_sector": "AI硬件上游材料",
+          "driver_type": "需求爆发",
+          "logic": "日本休市期间A股CCL、铜箔标的抢跑涨停，反映资金对AI硬件上游材料的迫切布局",
+          "hard_data": [],
+          "key_stocks": [],
+          "timeline": "日本产业链联动（日东纺、三井金属），次日预期延续",
+          "risk": "抢跑行为可能透支次日预期",
+          "info_gap": "透支明日预期的抢跑行为反映资金极度饥渴",
+          "confidence": "P2"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,291 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "gts_kb",
+      "description": "钢铁社语义知识库检索（最强工具）。自然语言查询，返回来自外资研报、会议纪要、产业公众号的原文片段。适合查供需数据、开工率、产能利用率、AI供应链等独有行业数据。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "自然语言查询，例如 'CoWoS产能利用率' 或 '光模块800G需求预测'"
+          },
+          "start_date": {
+            "type": "string",
+            "description": "开始日期 YYYY-MM-DD，不传则不限"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "结束日期 YYYY-MM-DD，不传则不限"
+          },
+          "file_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["外资研报", "国内研报", "会议纪要", "公告", "产业公众号"]
+            },
+            "description": "限定来源类型，不传则全类型检索"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "返回片段数，默认5",
+            "default": 5
+          }
+        },
+        "required": ["query"]
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8766/invoke",
+        "body_template": "{\"tool\": \"gts_kb\", \"args\": {\"query\": \"{{query}}\", \"start_date\": \"{{start_date}}\", \"end_date\": \"{{end_date}}\", \"file_types\": {{file_types}}, \"limit\": {{limit}}}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "gts_foreign_report",
+      "description": "钢铁社外资研报搜索。覆盖高盛、摩根士丹利、摩根大通、花旗、野村、瑞银等主流投行。返回研报标题、中文摘要、发布时间、标的。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "关键词，例如 'TPU' 或 '半导体设备'"
+          },
+          "securities": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "股票代码列表，例如 ['600000.SH']，可选"
+          },
+          "start_date": {
+            "type": "string",
+            "description": "开始日期 YYYY-MM-DD"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "结束日期 YYYY-MM-DD"
+          },
+          "size": {
+            "type": "integer",
+            "description": "返回数量，默认10",
+            "default": 10
+          },
+          "page": {
+            "type": "integer",
+            "description": "页码，默认1",
+            "default": 1
+          }
+        },
+        "required": []
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8766/invoke",
+        "body_template": "{\"tool\": \"gts_foreign_report\", \"args\": {\"keyword\": \"{{keyword}}\", \"securities\": {{securities}}, \"start_date\": \"{{start_date}}\", \"end_date\": \"{{end_date}}\", \"size\": {{size}}, \"page\": {{page}}}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "gts_summary",
+      "description": "钢铁社会议纪要搜索。包含路演纪要、调研纪要、产业链会议纪要。供需数字质量高。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "关键词"
+          },
+          "securities": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "股票代码列表，可选"
+          },
+          "start_date": {
+            "type": "string",
+            "description": "开始日期 YYYY-MM-DD"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "结束日期 YYYY-MM-DD"
+          },
+          "size": {
+            "type": "integer",
+            "description": "返回数量，默认10",
+            "default": 10
+          },
+          "page": {
+            "type": "integer",
+            "description": "页码，默认1",
+            "default": 1
+          }
+        },
+        "required": []
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8766/invoke",
+        "body_template": "{\"tool\": \"gts_summary\", \"args\": {\"keyword\": \"{{keyword}}\", \"securities\": {{securities}}, \"start_date\": \"{{start_date}}\", \"end_date\": \"{{end_date}}\", \"size\": {{size}}, \"page\": {{page}}}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "gts_report",
+      "description": "钢铁社国内研报搜索（试用账号限1个月内）。返回研报标题、摘要、机构、发布日期。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "关键词"
+          },
+          "securities": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "股票代码列表，可选"
+          },
+          "start_date": {
+            "type": "string",
+            "description": "开始日期 YYYY-MM-DD"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "结束日期 YYYY-MM-DD"
+          },
+          "size": {
+            "type": "integer",
+            "description": "返回数量，默认10",
+            "default": 10
+          },
+          "page": {
+            "type": "integer",
+            "description": "页码，默认1",
+            "default": 1
+          }
+        },
+        "required": []
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8766/invoke",
+        "body_template": "{\"tool\": \"gts_report\", \"args\": {\"keyword\": \"{{keyword}}\", \"securities\": {{securities}}, \"start_date\": \"{{start_date}}\", \"end_date\": \"{{end_date}}\", \"size\": {{size}}, \"page\": {{page}}}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "gts_valuation",
+      "description": "钢铁社估值分析。返回单只股票的 PE/PB/PS/PEG/PCF 及历史分位数（3年）。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "security_code": {
+            "type": "string",
+            "description": "股票代码，例如 '600519.SH'"
+          },
+          "start_date": {
+            "type": "string",
+            "description": "开始日期 YYYY-MM-DD，可选"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "结束日期 YYYY-MM-DD，可选"
+          }
+        },
+        "required": ["security_code"]
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8766/invoke",
+        "body_template": "{\"tool\": \"gts_valuation\", \"args\": {\"security_code\": \"{{security_code}}\", \"start_date\": \"{{start_date}}\", \"end_date\": \"{{end_date}}\"}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "gts_financial",
+      "description": "钢铁社财务报表。返回三大报表（利润表/资产负债表/现金流量表），支持年度和季度。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "security_code": {
+            "type": "string",
+            "description": "股票代码，例如 '600519.SH'"
+          },
+          "statement": {
+            "type": "string",
+            "description": "报表类型",
+            "enum": ["income", "balance", "cashflow"],
+            "default": "income"
+          },
+          "period": {
+            "type": "string",
+            "description": "期间类型",
+            "enum": ["annual", "quarterly"],
+            "default": "annual"
+          },
+          "report_type": {
+            "type": "string",
+            "description": "报告期类型，可选，例如 'Q1'/'Q2'/'Q3'/'Q4'"
+          }
+        },
+        "required": ["security_code"]
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8766/invoke",
+        "body_template": "{\"tool\": \"gts_financial\", \"args\": {\"security_code\": \"{{security_code}}\", \"statement\": \"{{statement}}\", \"period\": \"{{period}}\", \"report_type\": \"{{report_type}}\"}}"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "gts_quote",
+      "description": "钢铁社日K行情（备用，Tushare 不可用时使用）。返回 OHLCV + 前复权数据。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "securities": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "股票代码列表，例如 ['600519.SH', '000858.SZ']"
+          },
+          "start_date": {
+            "type": "string",
+            "description": "开始日期 YYYY-MM-DD"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "结束日期 YYYY-MM-DD，默认今天"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "每只股票最多返回条数，默认250",
+            "default": 250
+          }
+        },
+        "required": ["securities"]
+      },
+      "action": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8766/invoke",
+        "body_template": "{\"tool\": \"gts_quote\", \"args\": {\"securities\": {{securities}}, \"start_date\": \"{{start_date}}\", \"end_date\": \"{{end_date}}\", \"limit\": {{limit}}}}"
+      }
+    }
+  }
+]

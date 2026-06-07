@@ -1,0 +1,1957 @@
+[
+  {
+    "date": "2024-03-18",
+    "direction": "BULL",
+    "sig_type": "REBOUND",
+    "signal_text": "反弹、3090承压（上沿3084）",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-03-22",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "回调（下沿2993）",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-03-28",
+    "direction": "BULL",
+    "sig_type": "REBOUND",
+    "signal_text": "反弹、3090承压（上沿3077）",
+    "operation": "",
+    "hot_sectors": "上涨热点：顺周期、新能源、有⾊",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-04-10",
+    "direction": "BEAR",
+    "sig_type": "CAUTION",
+    "signal_text": "调整，下沿3014，收3027",
+    "operation": "",
+    "hot_sectors": "上涨热点：飞⾏汽车、⼯程机械、黄⾦",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-04-11",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "⽀撑，下沿3012",
+    "operation": "",
+    "hot_sectors": "上涨热点：⼯程机械、电⼒、低空经济、飞⾏汽车",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-04-15",
+    "direction": "BULL",
+    "sig_type": "REBOUND",
+    "signal_text": "反弹，上沿3065",
+    "operation": "",
+    "hot_sectors": "⼤涨：中字头、保险、券商、银⾏、⽩酒、锂电池 量化受限，又因量化在⼩尾盘做指数增强，导致⼩微盘⼤跌",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-04-16",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "回调，下沿3004",
+    "operation": "",
+    "hot_sectors": "上涨热点：中字头 微盘继续⼤跌",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-04-17",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "反包，明显情绪改善 上沿3070",
+    "operation": "",
+    "hot_sectors": "微盘股回升 上涨热点：飞⾏汽车，铜缆",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-04-18",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "冲击年线，上沿3010",
+    "operation": "",
+    "hot_sectors": "上涨热点：飞⾏汽车，低空经济，⼩家电",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-04-19",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "震荡盘整，下沿3055",
+    "operation": "",
+    "hot_sectors": "上涨热点：⽯油 下跌：锂电池、机器⼈ CPO先抑后扬",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-04-29",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "站上年线，上沿3114",
+    "operation": "撒⽹泛科技，开超市：买⼊量⼦科技（国盾量⼦） 内存（雅克科技） 创新药（百利天恒、贝达药业） GPU（海光信息） ⽌盈联瑞新材、中际旭创（技术）神州信息（涨停板成交量过⼤）",
+    "hot_sectors": "上涨热点：房地产开发（事件驱动型） 汽车拆解（事件驱动型） 锂电池（宁德时代，开盘买⼊5%盈利）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-05-07",
+    "direction": "BEAR",
+    "sig_type": "CAUTION",
+    "signal_text": "⼤盘微调整",
+    "operation": "科兴制药如果下均线，⽌盈⼀半",
+    "hot_sectors": "上涨热点：燃料、成飞、国防 英伟达⼤涨3%，但CPO⼤跌5% 下跌：AI硬件、⼩家电、量⼦、化⼯、⾦属 消费冲⾼回落、合成⽣物⽐较温和",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-05-27",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3100点稳住了",
+    "operation": "前提：⼤盘没有系统性风险（收盘阳包阴） 早盘⼤幅上涨不追！ 早盘⼤幅下杀不割！ 趋势票汇总： 电⽹设备｜许继电⽓、东⽅电⼦ 消费电⼦｜蓝思科技 ⼩家电出海｜九号公司 医美｜巨⼦⽣物 物流｜嘉友国际 中药｜千⾦药业 买了不看的： 化⼯｜万华化学 ⽕电｜国电电⼒ 银⾏｜招商银⾏ ⾼抛低吸的： 运营商｜中国移动",
+    "hot_sectors": "上涨热点：电⽹设备（东⽅电⼦、许继电⽓）⾛⾼，午后微微回落 ⼯程机械较弱的⾛⾼回落，⼩家电修复（⼩熊电器午后盘中跳⽔） 物流、猪⾁ 中国移动回100（90～110⾼抛低吸） 银⾏护盘",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-06-05",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "标的研究：探讨三花智控内在价值 ⽴⾝之本：汽车热管理系统，电⼦膨胀阀，帮助机器⼈执⾏动作，全球市占率60%，基本垄断；其他业务：家电、机器⼈ 汽车零部件增长放缓，但机器⼈版块接⼒，空间巨⼤。经过深挖，Tesla机器⼈（包括华为机器⼈）除三花外，别⽆选择 全A股前10%的好公司，增长率20%，股本回报率（ROE）18%，净资产收益率9%，安全边际⾮常⾼，可预测性⾮常强 ⽬前：23块，值32～33块，PE历史：17～65，PE（TTM）：29，⽬前市盈率是近5年最低⽔平，没有泡沫 哪些机构在买三花智控？富国朱少醒、摩根",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-06-11",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "上证 -1%",
+    "operation": "北⽅华创（设备） 通富微电（封测） 中芯国际（晶元代⼯）",
+    "hot_sectors": "下跌：船运、集装箱、环保⼤跌；电⼒、电⽹设备、⼯程机械 （招商轮船、中集集团 -8%，兴蓉环境 -5%，柳⼯ -3%，中国核 电、许继电⽓ -2%） ⼩家电调整尚未结束，⽩酒⼤跌 （茅台 -3%，关注，企稳可能是机会） 上涨热点：半导体、光刻胶",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-09-30",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "⼤涨 成交额2.6万亿",
+    "operation": "",
+    "hot_sectors": "上涨热点：券商、半导体",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-10-01",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "中国的市场是政策市，国家让我们⼲什么我们就⼲什么。 ⽜市⼀般联动逻辑： （1）⾦融（地产）-（2）⽩马-（3）科技-（4）主题（⼩盘）-（5）低价（⼩盘） ⾦融先⾏，⽩马绩优股，科技拔估值——普涨 10.8:（1）已经过了；（2）9.27、9.30、10.8三个交易⽇⽩马⾏情，因为外资、机构回来了（其习惯是买龙头⽩马，净申购最多的是沪深300ETF）； 当前医药在⽩马绩优逻辑，等⼩盘主题轮动时，有了财政政策的可能变化，医疗的主题性的机会可能和消费医疗相关。 ⽬前阶段 ⽬前，是⽜市的“启动期”，⼀般来说，⾷品饮料、计算机、⾮银⾦融、地产，表现⽐较好。 下⼀步，是⽜市的“确认期”，⼀般来说，医药（消费）和科技，涨的⽐较多（历史不是完全⼀致，简单做参考）。 ⽬前跌的最多的是，2019-2021年⽩马⽜⾥涨的多的医药、新能源。 后续对新质⽣产⼒的⽀持会有更多的政策——重点关注医药（消费）和科技。 怎么办？ ⽜市初期，快速抓住动量机会，享受β，分歧之后，回归基本⾯，注重α。 收⼿，观察核⼼指标变化，“财政上杠杆”的情况 散户在⽜市亏的最多 主要原因是： 1、⼀开始不信，等跑步进场已经是⾼点； 2、“倒⾦字塔式”加仓，⼤部分仓位在⾼点； 3、⾮要轮动，追涨杀跌。",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-10-08",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "叙事：涨停开盘，回落，V字反转 成交额3.4万亿 明天增量资⾦是否撑得住呢？",
+    "operation": "⼼态⽐技术重要 1、获利卖出留底仓 （1）通过获利卖出，留底仓的⽅式，改善⾃⼰的⼼态 2、熊市思维向⽜市思维的转变 （1）⽜市没有这么快结束，调整不会很深，回调加仓，有的是机会 总结：⼤涨卖出，回调加仓 不要在早盘⼤⾼开的时候买",
+    "hot_sectors": "上涨热点：科技，科创",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-10-09",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "⼤跌 市场回调的时候，是⽐较好的买点 成交额2.9万亿",
+    "operation": "⾸先，确认是⽜市 “⽜回头”不要恐慌，加仓，加仓，⽜市没有A字杀。（港股不⾏） ⽌盈的资⾦都在等，现在博弈的是“回调多少”——5%？10%？ 周六开发布会，周⼏加仓 如果“⽜回头”20%，是⾮常好的机会。 ⽌盈策略 1、设置“利润保护位”，⽐如要保住利润的 3/4 或 2/3，随着利润的提升，动态提升 2、放量⼤涨时减仓 20%",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-10-10",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2.1万亿",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-10-11",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1.57万亿",
+    "operation": "券商如果没有⾛完，叠加国企改⾰预期，中⾦公司和银河证券的合并消息，港股和A股 的巨⼤差价，HK中⾦公司将成为优秀的中线投资标的，配置50-100w的仓位",
+    "hot_sectors": "中⾦公司异动起涨（盘后收到⽴案调查函）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-10-14",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "⼼态：急涨之后的急跌，是⽜市初期肯定会出现的，因为⽆法维持3万多亿的天量，也是预期不稳和信息时代的正常现象。但只要⽜市预期没变，其实是好事。这次上的快、调的快，再上也会很快。 熊市的惯性是：利好⼤家不信，涨了赶紧卖。⽜市思维：⽜市是⼀定有泡沫的，“享受泡沫”，跌了都是买的时候（⽜市后期要警惕“⽜市思维”）。 复盘：10.7：⾹港市场空头⽐例为11%（常年维持在10%～30%）；10.8：券商指数全部涨停（极值）； 10.9-10.11：分歧加⼤，⾹港市场空头⽐例增加，发改委开会不及预期、银⾏收到窗⼜指导降温；10号、11号出现剧烈的单边下⾏局⾯。 压⼒位：3670点套了6万亿左右，这部分钱⼀定要在接下来的11⽉初（美国⼤选前后）冲过去，这样才能再上⼀个新台阶。 增量资⾦：外资机构在等待房地产销售数据（量涨价稳）。 政策预期：理论上经济越差，政策越好；现在⾼层很关注资本市场对政策的反应，财政部的发布会是给市场吃定⼼丸的。不⽤担⼼政策！ 我们是全世界国有资本最强的国家，我们是宏观调控能⼒最强的国家。这次⽜市属于国家意志，相信国家，不要添乱。 我们绝⼤多数⾏业已经被教育、洗礼过了（互联⽹公司已经见不到要“跟政策博弈”的了），但⾦融⾏业没有经历过这种洗礼。 预测：本周震荡就会结束。 A股依然历史低位，平均股息率依然有3%，国家意志是要股市长期稳定上涨，起到财富效应。 公司分析：股票的实质还是⼀家家上市公司，上市公司的业绩总跟宏观经济、产业周期、新产品相联系。公司所在⾏业的特点，研发费⽤、销售费⽤⽐例，公司的壁垒到底是什么。",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-10-29",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "⼀些基本认识：10⽉8号，3万5千亿的成交额对应全市场9%的换⼿率，基本相当于历次⽜市最⾼⽔平，每次达到这个成交额后，会回调后再次上涨 “电风扇”市，快速轮动⾏情，没有单边主线，需要基本⾯加持 ⽜市后期，破净的票会急剧减少 ⽬前风格：对经济的预期改善，最弱红利，最强主题、科技 后期风格：经济基本⾯改善后，进⼊景⽓驱动风格——成长股，有基本⾯的⼤盘蓝筹为重点，机构主场",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-10-30",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "题材⼤涨",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-10-31",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "题材⼤涨，尾盘回落",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-01",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "⾼位题材⼤跌 2.2万亿",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-02",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "稀⼟（云南锗业、中国稀⼟、北⽅稀⼟） 1、强⽜市品种：能跑出很强的超额收益 2、周期品种：PMI反转成⽴的话，基本⾯有改善机会，⽬前处于⼤周期转换前夜 3、已经放量：北⽅稀⼟冲破底部区域 4、刺激因素：缅甸上周⼀对我们的稀⼟出⼜封锁",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-04",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1.7万亿",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-05",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2.3万亿",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-06",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2.6万亿，震荡，2828家上涨",
+    "operation": "三花降仓位，有⾊⾦属筹码派发 配置A股，港股可能收到流动性压制，港股明天降仓位 进⼊⾏情第⼆阶段",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-07",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2.5万亿，4528家上涨",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-08",
+    "direction": "BEAR",
+    "sig_type": "CAUTION",
+    "signal_text": "早盘⾼开，临近中午回落 2.7万亿，3046家下跌",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-11",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "市场流动性充裕——流动性就是⽔，⼀定会流到有机会的地⽅。 市场特征：不再是存量交易（零和）格局，⽽是增量交易格局。 经济企稳的预期时间：11.30-12.24，PPI上⾏，房地产开⼯、竣⼯数据上⾏，有⾊、化⼯品价格上涨，⼯资上涨等，机械、化⼯，20倍以下的全部消灭 看清别⼈的⼈性，战胜⾃⼰的⼈性",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-12",
+    "direction": "BEAR",
+    "sig_type": "CAUTION",
+    "signal_text": "2.5万亿，调整，3773家下跌",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-13",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "买⽅情况：1、公募，6万亿持仓处于历史⾼位，没有加仓空间。 2、私募，5万亿，平均80%仓位，⽬前关注在中证500的范围内，空间还有，但也不⼤。 3、外资，因汇率贬值⽽卖出。 4、社保，4500亿，规模较⼩。 5、保险资⾦，⽬前10%（总额35万亿），最⾼30%，加仓空间很⼤，主要关注⾼股息。 6、游资，市场监管，暂时休息。 7、散户，⼤部分都是8成以上的⾼仓位，乌合之众，⽆法集中。增量资⾦也不⼤。 成长股推⼿：私募、公募调仓、游资、散户",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-14",
+    "direction": "BEAR",
+    "sig_type": "CAUTION",
+    "signal_text": "1.8万亿，缩量调整，4849家下跌",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-15",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "锂电池（固态电池）产业链 锂电池需求端：车端、储能端，CAGR25%-30%，主要玩家宁德时代、科⼤⽴德、正德、天赐材料（六氟） 如果没有外部因素推进，明年年中达到供需平衡 ⽬前使⽤的液态锂电池（分正极、负极、隔膜）：1）接近能量密度上限；2）热失控的安全问题；3）锂枝晶导致的隔膜刺穿。 固态电池（包括正极、负极、固态电解质）是锂电池的终极形态：1）设计简单；2）能量密度上限⾼（500）；3）抑制锂枝晶。 主要看电解质：1）聚合物（制备相对简单，电导率低）；2）⽆机物【氧化物（电化学稳定性⾼、电导率低）、硫化物（机构关注，电导率⾼，容易氧化，见⽔汽易爆，产业化进度偏慢，华为专利有突破）、卤化物（宁德时代，⽔汽敏感）】；3）复 制备：⼲法（固态电池）、湿法（液态电池） 离产业化还远：国家给8家车企拨款64个亿，要求27、28年全固态电池上车，30年前商业化（有望30年达到10%市场渗透率）要解决制备成本问题（如国产硫化锂）、充电时间长的问题、循环充电寿命问题等。",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-19",
+    "direction": "BULL",
+    "sig_type": "REBOUND",
+    "signal_text": "⽌跌反弹",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-21",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1.6万亿",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-11-25",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "为何不该恐慌",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-02-04",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "AI-半导体｜Deepseek带来的变化 Deepseek：通⽤类基础模型（⾮应⽤模型），过去⼀年内迭代了10次，开源，MOE，多模态 闭源不⼀定⽐开源强，利空OpenAI（闭源）；算⼒对最终结果的影响不是决定性的，利空英伟达、寒武纪 利好： ⼩⽶：占据多数AI端侧、挖⾛了Deepseek⼀个核⼼负责⼈ Deepseek会加快云服务的渗透率和需求量，云需求刚刚开始，利好：算⼒服务器 字节（⾖包）：投⼊最多，向多模态发展 阿⾥（通义千问）：公有云，在帮助企业做标注和适配，企业⽤户多，可以收费 未来的算⼒卡⽤量，尤其是推理侧算⼒卡⽤量，还会增加 互联⽹应⽤公司，叠加端侧公司 端侧：芯⽚、模组、⼿机芯⽚ AI端侧具有⾮常⼤的机会",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-02-16",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "⼩⽶、中芯国际、腾讯、阿⾥巴巴、韦尔股份（CMOS）、澜起科技、深信服、恒⽣电⼦、神州泰岳 从⽇本、韩国看中国发展，⽆惧回撤的标的产⽣在：新能源汽车、半导体",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-02-18",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "分歧震荡，很多个股冲⾼回落，但港股、机器⼈表现亮眼，⼩⽶⼤涨7%",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-02-20",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "冯⼩平，清华智谱 AI 创新⽣态负责⼈ AI的消费者，兼具⽣产者的⾝份：“pro-sumer” 内容（⽆聊）→⽂稿→视频（趣味化形态）：Notebook LM（Google）+VEED（可以看Karpathy的播客，On Spotify） AI 学习助理：Learn About（⽂字、视频、相关话题） AI 搜索：DeepSearch、⼼流AI（输出思维导图、播客）、秘塔、Perplexity（分语⾔搜索） AI集合站：Monica AI应⽤黄页：Toolify 代码助⼿：RD Agent（根据论⽂写代码） 财务计算：Wolfram | Alpha AI 硬件（今年爆发⽅向）：AI眼镜（实时翻译、导航、搭讪神器 I-XRAY） ⽬的",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-03-03",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "⽜市多急跌，但不会跌跌不休，整固期最多5-6个交易⽇ 机器⼈挤泡沫 核⼼资产低位继续布局 军⼯-固态电池-激光",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-03-05",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "以产业投资⼈的视⾓看待投资机会 机构看好要买，但短期涨得过于快，不能追涨进场承受回撤 聚焦核⼼，未来有景⽓度，预期明朗的产业上，回调是投资机会——不要上错车 垂直领域AI应⽤、机器⼈ 标的：易点天下（分析⽤户偏好）、能科科技（制造业数据，⼯业数字孪⽣，军⼯、航天、电⼒设备领域，西门⼦、华为合作伙伴）、星环科技（数据搬运⼯，分布式数据库）、赛意信息、达梦数据 军⼯：虽然信息不透明，但竞争格局很好，军⼯周期底部，开始⾛右侧 光威复材（碳纤维）、臻雷科技、菲利华、航天电器、复旦微电、紫光国微",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-03-09",
+    "direction": "BEAR",
+    "sig_type": "CAUTION",
+    "signal_text": "多头循环⾏情 1、进⼆退⼀，⼤跌应有补仓信⼼； 2、为避免回撤，⼤涨应减仓，同时留出之后补仓的现⾦； 3、不追涨，在主线范围内，买跌到位，跌不动的。 消息⾯：机器⼈3-4⽉持续有信息催化，握住产业链核⼼——⼤仓位进AI、机器⼈的核⼼公司 机器⼈产业链 ⼩⽶机器⼈、智元机器⼈（接替宇树，成为新的机器⼈热点）：中⼤⼒德（RV减速器）、绿地谐波（谐波减速器）、奥⽐中光（视觉）、富临精⼯、兆威机电（灵巧⼿⽼龙头） 重点推荐：多⾯开花：***富临精⼯ 第⼀曲线：有技术能提⾼电池的⾼压密度，打开成本下降的空间；第⼆曲线：智能汽车电⼦⽔泵；第三曲线：⼈形机器⼈领域，与智元机器⼈合资做电关节模组 卡倍亿 汽车限速器，⼩⽶机器⼈供应商",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-03-14",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "消费带头，冲上3400",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-03-29",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "⽜总：西降不容易，东升挡不住，⼆季度A股⼤概率胜出港股 周⼀：中信证券组织参观EAST（东⽅超环）的商业实验室（BEST），中国核聚变三堆：星⽕堆、BEST堆、环流堆，可控核聚变引爆热点：政策强化、预期差（50年→5年）、AI云⽤能源、副产品：氚，军⼯应⽤。龙⼀：合锻智能 合锻智能、久盛电器、联创光电 HK邮储银⾏：第六⼤⾏，2000亿特别国债；⼴发证券：股权争夺，粤民投即将成为实控⼈；⼩⽶长期看好，等跌完 ⽑⼽平是庄股；泡泡玛特15倍PS了，⾼估了 ⾦融AI Agent⽜基科技AI 下周指数会带量上攻，“相信中国就是相信明天，投资中国就是投资未来” 新凯莱，⾏业照妖镜，整个半导体设备版块不好说",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-03-31",
+    "direction": "BEAR",
+    "sig_type": "CAUTION",
+    "signal_text": "4000家下跌，1.22万亿",
+    "operation": "",
+    "hot_sectors": "下午，以算⼒版块带动企稳 可控核聚变：合锻智能尾盘翘（跌停）板",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-04-01",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1.13万亿",
+    "operation": "",
+    "hot_sectors": "上涨热点：港股消费（⽑⼽平、卫龙美味）、黄⾦（⽼铺黄⾦）、 互联⽹（阿⾥、腾讯）率先反弹 可控核聚变：合锻智能涨停 ⼩⽶上午“企稳”，午后带量下杀5%",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-04-07",
+    "direction": "BEAR",
+    "sig_type": "CAUTION",
+    "signal_text": "5284家下跌，上证暴跌8% 1.59万亿",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-04-08",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "企稳，1.63万亿",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-04-09",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1.7万亿",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-04-12",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1.61万亿",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-04-13",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1.35万亿",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-04-14",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4552：757 缩量，1.28万亿",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-04-17",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3127：2039 缩量，9995亿",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-05-06",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4962：379，节后⾸⽇，普涨 1.3万亿",
+    "operation": "",
+    "hot_sectors": "普涨",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-05-07",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3293：1891，⾼开低⾛ 1.5万亿",
+    "operation": "",
+    "hot_sectors": "上涨热点：军⼯（成飞、导弹）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-05-26",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3成冗余，中微公司",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-06-08",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "新消费：⽼铺黄⾦、⽑⼽平 科技：CPO、PCB、卫星航天（6⽉）",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-06-09",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4121：1094，1.3万亿，收3399.77",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-06-13",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "849：4477，1.5万亿，收3377.00",
+    "operation": "",
+    "hot_sectors": "军⼯",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-06-15",
+    "direction": "BEAR",
+    "sig_type": "CAUTION",
+    "signal_text": "科技、AI：上周五机构增仓，继续回调是买⼊机会 提⽰风险：1、创新药、泡泡玛特筹码松动，不是追的好位置； 2、阿⾥巴巴“⼼⽆⼤志，抱负不够”； 3、汽车整车价格战，暂避；",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-06-16",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3559：1641，1.2万亿，收3388.73",
+    "operation": "",
+    "hot_sectors": "上涨热点：西藏天路、⾼争民爆、CPO、PCB、⼩⽶、港股券商",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-06-23",
+    "direction": "BULL",
+    "sig_type": "REBOUND",
+    "signal_text": "4446：844，1.1万亿， 低开⾼⾛，强势反弹，收3381",
+    "operation": "",
+    "hot_sectors": "上涨热点：银⾏（空间不⼤）、跨境⽀付、数字货币 CPO、PCB调整",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-07-04",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1169：4120，1.4万亿，收3472.32",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-07-07",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3254：1977，1.2万亿，收3473.13",
+    "operation": "",
+    "hot_sectors": "下跌：消费电⼦ 上涨热点：军⼯",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-07-08",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4283：981，1.5万亿，收3497.48",
+    "operation": "从2024.9.24开始，因主导⼒量从游资、私募、量化向机构、国家队平准基⾦交权，连板 数已经不再能够充分体现市场情绪周期的变化",
+    "hot_sectors": "上涨热点：光伏、PCB、CPO、消费电⼦ 下跌：保险、电⼒、零⾷",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-07-14",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3179：2064，1.5万亿，收3519.65",
+    "operation": "",
+    "hot_sectors": "上涨热点：机器⼈",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-07-17",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3536：1611，1.5万亿，收3516.83",
+    "operation": "配置思维，提前布局 算⼒、AI与现实的结合（机器⼈）",
+    "hot_sectors": "上涨热点：机器⼈、军⼯、创新药、消费电⼦",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-07-28",
+    "direction": "BEAR",
+    "sig_type": "CAUTION",
+    "signal_text": "市场有流动性，⽆风险利率进⼀步下⾏ 保险、创新药 短线：铜冠铜钵、⽣益科技、芯碁微装、中欣氟材",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-07-31",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1019：4133，1.9万亿，收3573.21",
+    "operation": "",
+    "hot_sectors": "上涨热点：云计算、创新药 下跌：⾮银⾦融、消费、基建、军⼯ CPO冲⾼回落",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-08-01",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3307：1909，1.6万亿，收 3559.95",
+    "operation": "",
+    "hot_sectors": "下跌：半导体、⾮银⾦融、英伟达链、消费、基建、军⼯",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-08-04",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3877：1312，1.5万亿，收3583.31",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-08-05",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3903：1327，1.6万亿，收3617.60",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-08-06",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3357：1817，1.7万亿，收3633.99",
+    "operation": "然哥：泡泡玛特、创新药、AI应⽤：快⼿、腾讯 机器⼈（PEEK、控制-索⾠科技、视觉-奥⽐中光）、军⼯（建设⼯业）、液冷（思泉 新材、川环科技、英维克）、两云（云天励飞、云从科技） 卫星（航天科技、上海瀚讯、奥普光电）",
+    "hot_sectors": "上涨热点：机器⼈、军⼯",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-08-11",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "距离3674只有⼀步之遥 快涨容易急跌，如果涨的特别快（的突破3674），坚持不到9.3，就会有特别⼤的回调 如果⾛出慢⽜则⽐较好，最好在50点的区间之内，横盘1-2周 跌⽐较难，场外等待⼊场的钱还是⽐较多的 国家队的KPI就是3700点以上，涨多了就会卖",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-08-12",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2084：3167，1.9万亿，收3665.92",
+    "operation": "A、普涨市场：成交量2万亿以上，指数领跑 B、主题轮动市场：成交量1.5-1.8万亿，同时容纳2-3条主题线，需要耐⼼，要拿先⼿， 切记追涨杀跌 散户：有⾊、CPO、PCB、⾮银⾦融 北向：港股、国债 机构：国家队有退出，险资加速⼊场 国产AI（龙头：寒武纪） 观察：⽑⼽平（量化进⼊）",
+    "hot_sectors": "下跌：机器⼈ 上涨热点：半导体（核⼼：中芯国际、寒武纪、华虹半导体、盛科 通信）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-08-13",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2733：2458，2.2万亿，收3683.46",
+    "operation": "⽜市的操作是仓位的问题 “逼空”⾏情——上涨趋势的个股，不考虑是否“⾼位”",
+    "hot_sectors": "上涨热点：科技：英伟达链、果链、机器⼈、医药",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-08-14",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "735：4648，2.3万亿，收3666.44",
+    "operation": "ETF时代的投资⽅法论：指数打底、权重拉升 买“看得见”的正在起（好的）变化的公司——发现好公司，不参与轮动，以认知变现",
+    "hot_sectors": "下跌：英伟达链、半导体（冲⾼回落） 上涨热点：国产算⼒",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-08-15",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4625：644，2.2万亿，收3696.77",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-08-18",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4037：1222，2.8万亿，收3728.03",
+    "operation": "进攻：创新药、AI 北证50、中际旭创、阳光电源、盛科通信",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-08-21",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2099：2896，2.42万亿，收3771.10",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-08-22",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2803：2396，2.5万亿，收3825.76",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-01",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3208：2086，2.7万亿，收3875.53",
+    "operation": "热点标的：贴线慢慢加，控制仓位",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-02",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1259：4056，2.9万亿，收3858.13",
+    "operation": "冰点⽇，进⼊第四周期 率先反弹的，是已经出清的——机器⼈ 价值⼤票，如果结束会在⼭顶给你很长的时间，从容离开 寒武纪：横盘震荡，跌不下去，⼤跌加仓 影⽯创新：市值管理中 ⼤涨没跟上，买后排的跟风垃圾，是最亏钱的⾏为 暂时回避芯⽚、通信等，等⽌跌",
+    "hot_sectors": "上涨热点：机器⼈（拓普）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-03",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "823：4560，2.4万亿，收3813.56",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-04",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2297：2990，2.5万亿，收3765.88",
+    "operation": "第四周期的要点 ⼀、仓位 第四周期的隔夜仓位，应控制在“即便吃满调整也能接受”的程度（3成以下） ⼆、时间 第四周期没有那么容易结束（3888也不那么容易冲上去，不⽤担⼼踏空） 可能有第⼆冰点",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-05",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4857：473，2.3万亿，收3812.51",
+    "operation": "固态电池跌下来就是机会",
+    "hot_sectors": "上涨热点：固态电池",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-15",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1916：3375，2.28万亿，收3860.50",
+    "operation": "",
+    "hot_sectors": "上涨热点：机器⼈",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-16",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3629：1689，2.34万亿，收3861.87",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-17",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2504：2757，2.4万亿，收3876.34",
+    "operation": "对“⾮核⼼、跟风补涨”的标的不要预期过⾼",
+    "hot_sectors": "上涨热点：机器⼈、芯⽚",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-18",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1027：4350，3.1万亿，收3831.66",
+    "operation": "不要在涨的时候推仓位 ⼗⼀前注意减仓，注意Q3业绩",
+    "hot_sectors": "上涨热点：机器⼈、芯⽚，热点版块抱团",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-19",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1911：3404，2.3万亿，收3820.09",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-22",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2175：3153，2.1万亿，收3828.58",
+    "operation": "T链：拓普、三花、长盈精密、 恒⽴液压【特斯拉计划于2025年9⽉中下旬对恒⽴液压进⾏审⼚，特斯拉Optimus第三代 对丝杠精度要求提升⾄C3级以上，恒⽴液压需依赖进⼜磨床设备保障量产稳定性，国产 替代⼚商（如震裕、双林等）已退出竞争】",
+    "hot_sectors": "上涨热点：机器⼈弱修复（超预期）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-23",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1108：4266，2.5万亿，收3821.83",
+    "operation": "“科技飞轮”：钱在科技企业间循环流动 全⾯拥抱国产半导体——科技硬件的利好⼤概率会持续 国内云服务：三⼤运营商，加上阿⾥巴巴 注意（NVdia Rubin带来的）铜缆和PCB之间的跷跷板效应 财报逻辑：先炒预告、后炒财报 先披露的财报/预告⼀般⽐较好； 在预告截⽌披露前（e.g.10⽉15⽇）前⼀两天，会出现⽐较差的预告 消费公司，可能有明显的季度性 可以⽤单⼀公司推测全⾏业（e.g. 半导体设备） 关于核⼼炸板时的操作指导： 长川，作为本次半导体设备的核⼼，它炸板的时候，其他的半导体设备⼀⼿都不要买， 要买就买长川；它回封的时候，买其他的半导体标的。",
+    "hot_sectors": "上涨热点：半导体设备（中微公司 etc.）、机器⼈",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-24",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4458：853，2.3万亿，收3853.64",
+    "operation": "抛弃杂⽑，向核⼼集中 半导体设备：长川科技； 科技硬件：AI算⼒ OCS： 液冷（MLCP）：英维克； 空⼼光纤：长飞光纤； 机器⼈：T链 消费电⼦：⽴讯精密； 固态电池：先导智能； 芯⽚版块⼤发酵，缩容向上，今天没涨停的，明天跑快点",
+    "hot_sectors": "午前：半导体（局部热点）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-25",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1477：3877，2.4万亿，收3853.30",
+    "operation": "国外算⼒：不强，未形成合⼒ 国内算⼒：更看好⼀点",
+    "hot_sectors": "上涨热点：液冷（英维克）、锂电（TCL中环、亿纬锂能）、AI 硬件（新易盛）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-26",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1805：3414，2.16万亿，收3828.11",
+    "operation": "⽑⽼师爬⼭去的时候，市场⼀般不太好",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-09-29",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3576：1658，2.2万亿（只放量了1%）， 收3862.53 低开⾄3809.54，⾼⾛⾄3881.00（14:07） 后回落，收3862.53，中阳线反包",
+    "operation": "宁德时代：风险可控，单⽇10%以上的下跌，⼤资⾦⽐你开⼼ 第⼀周期⼀半不会超过20天，如果超过了，很可能是经过了⼀个很弱的第⼆周期⽽没有 察觉，要⼩⼼集中释放的抛压 有量⽆价：通威股份 核⼼会给你容错",
+    "hot_sectors": "上涨热点：宁德时代产业链、证券、半导体、科技硬件、机器⼈",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-09",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3115：2186，2.7万亿，收3933.97",
+    "operation": "新版块集中爆发，旧版块倍快速抛弃 对市场上涨过了，正在调整的版块，不要博弈它的⼆波 可控核聚变爆发⽇：今天没涨停的⼀定不是核⼼，在今⽇涨停的标的中寻找核⼼ 如何做：⼀、分析最有价值的环节 1、⾼温超导、磁体系统，共40%，永⿍、西部超导 2、真空室/杜⽡底座、第⼀壁、偏滤器，30%，合锻智能、安泰科技、国光电⽓ 3、电源系统，20%，旭光电⼦ ⼆、六选⼀，做⼀进⼆ 资源，每天早上看⼀眼价格，资⾦矿业（铜、⾦），跌了⾛ ⽇内最强核电，可能切（轮动）其他版块",
+    "hot_sectors": "上涨热点：核电、资源、稀⼟、芯⽚（AMD⽅向）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-10",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2774：2536，2.5万亿，收3897.03",
+    "operation": "“定位核⼼是要以核⼼作为锚点，去审视整个市场的规律和变化，不是⽆脑追龙头，死 也要死在龙头上；定位情绪周期是要理解情绪的产⽣和博弈关系，让⾃⼰跳出情绪，站 在情绪主动性的⼀⽅去审视市场，⽽不是被动跟随，刻⾈求剑。”",
+    "hot_sectors": "科技⼤跌",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-13",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1684：3634，2.4万亿，收3889.50",
+    "operation": "华虹公司这种⼤票直接A杀可能性不⼤，跌下去需要的时间⽐较长，即便⽇内⼤跌也会 有修复",
+    "hot_sectors": "上涨热点：半导体（新凯莱⽅向，14号灰度最后⼀天，15号兑 现）、可控核聚变（⼀波流）、稀⼟（已经开始炒上游） 不考虑国产软件（业绩差，软件涨硬件也会涨，没必要做） ——不要对指数有太⼤预期",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-14",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1734：3554，2.5万亿，收3865.23",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-15",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4333：950，2.1万亿，收3912.21",
+    "operation": "科技标的向上会有压⼒",
+    "hot_sectors": "上涨热点：电⼒设备、机器⼈（特斯拉链）、科技硬件、医药",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-16",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1177：4171，1.9万亿，收3916.23",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-17",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "602：4783，1.9万亿，收3839.76",
+    "operation": "关于“顶部”：A字尖顶很难回到原⾼； 缓慢上升、下降的顶，经常会再试探前⾼，不能过则成为M顶",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-20",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4064：1253，1.7万亿，收3863.89",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-21",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4628：729，1.9万亿，收3916.33",
+    "operation": "依然看科技回调后的机会 中际旭创、新易盛，拿了NVdia 58%的份额 新易盛还有Google的订单",
+    "hot_sectors": "上涨热点：科技硬件",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-22",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2280：2965，1.7万亿，收3913.76",
+    "operation": "",
+    "hot_sectors": "上涨热点：国企、深地经济",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-23",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2994：2302，1.6万亿，收3922.41",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-24",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3028：2274，2.0万亿，收3950.31",
+    "operation": "1、⽌损：3936画条线，跌破要减仓 2、⽌盈：指数如果⾼开在2%，减仓，不要忘了祖训“⾼开必砸” 3、耐⼼：不要总是“埋伏轮动”，很多时候不有效， ⽽要关⼼资⾦去了哪些地⽅，强者恒强 4、关于“上不上”：问问⾃⼰这只标的（的基本⾯、逻辑、市场认可度）如果明天跌 8%，你愿不愿意买 5、关于财报⽇：财报⽇前如果没有涨，财报超预期就会涨； 财报⽇前如果已经涨过了，财报⽇⼤概率会兑现",
+    "hot_sectors": "上涨热点：芯⽚、科技硬件（考虑最硬核的PCB、光模块、液冷升 级⽅向）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-27",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3361：1862，2.3万亿，收3996.94",
+    "operation": "拿到了最好的仓位，好好享受，⼤票⾛A杀的概率⾮常⼩",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-28",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2366：2908，2.1万亿，收3988.22",
+    "operation": "缩⼩关注范围⾄核⼼个股 尝试挖掘（核⼼）独⽴个股，不要到处挖掘补涨 指数⽇内⾼位不要追⾼",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-29",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2672：2621，2.3万亿，收4016.33",
+    "operation": "北交所不持续",
+    "hot_sectors": "上涨热点：电⼒、⼯业⾦属、光伏",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-30",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1242：4100，2.4万亿，收3986.90",
+    "operation": "",
+    "hot_sectors": "下跌：科技硬件",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-10-31",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3760：1553，2.3万亿，收3954.79",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-03",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3535：1801，2.1万亿，收3976.52",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-04",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1630：3650，1.9万亿，收3960.19",
+    "operation": "找偏低位题材的核⼼标的，将仓位移动过去",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-05",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3380：1905，1.9万亿，收3969.25",
+    "operation": "市场⼤幅度低开时（上证-1%），不要急着做决策 ⼀般能等到向上修正，修正之后看⼒量再决定",
+    "hot_sectors": "上涨热点：光伏、电⼒（机游携⼿）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-06",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2880：2388，2.05万亿，收4007.76",
+    "operation": "短线操作：涨了要，跌了不要，破了MA5不能接直接⾛ 趋势操作：涨的过分了跑，⽌跌了接 逻辑、资⾦双决定：逻辑决定是否可以做，资⾦决定做不做",
+    "hot_sectors": "下跌：福建（⼀波流结束）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-07",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2101：3162，2.0万亿，收3997.56",
+    "operation": "",
+    "hot_sectors": "上涨热点：变压器、电源、化⼯、有机硅",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-10",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3376：1957，2.17万亿，收4018.60",
+    "operation": "第⼀周期⼤跌要敢抄底",
+    "hot_sectors": "外资买，内资压",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-11",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2785：2504，2.0万亿，收4002.76",
+    "operation": "趋势标的可以结合周K管理仓位",
+    "hot_sectors": "上涨热点：消费、光伏",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-12",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1758：3563，1.9万亿，收4000.14",
+    "operation": "涨了⾮常⼤⼀段后，往往要花两倍的时间进⾏休整",
+    "hot_sectors": "上涨热点：消费、医药、CPO",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-13",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3953：1338，2.0万亿，收4029.50",
+    "operation": "第⼀周期要找出主线题材并集中 拿到门票的：电⼒、光伏（特变电⼯）、储能（阳光电源）",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-14",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1961：3323，2.0万亿，收3990.49",
+    "operation": "",
+    "hot_sectors": "上涨热点：锂电（固态电池）、消费、医药",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-17",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2584：2726，1.9万亿，收3972.03",
+    "operation": "",
+    "hot_sectors": "上涨热点：锂电池、AI应⽤",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-18",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1278：4106，1.9万亿，收3939.81",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-19",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1200：4175，1.7万亿，收3946.74",
+    "operation": "托市⽤的是50ETF和300ETF 1.5万亿应该是成交量底",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-20",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1453：3850，1.7万亿，收3931.05",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-21",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "354：5072，2.0万亿，收3834.89",
+    "operation": "锂电池最有价值的公司：宁德时代",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-24",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4228：1104，1.7万亿，收3836.77",
+    "operation": "机构补仓：硬件⽅向，不会是软件 AI硬件还没杀透（空间），但也就只有⼀步之遥 调整时间也快到了 机构趋势标的：卖⽅枯竭买点 情绪标的：最热买法",
+    "hot_sectors": "上涨热点：AI应⽤、军⼯",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-25",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4300：993，1.8万亿，收3870.02",
+    "operation": "OCS线看Google 跌停 ＜ 10，风险基本出清（反弹得到认可） 在指数⼤涨的⾏情下，⾼位连板往往会快速退潮",
+    "hot_sectors": "上涨热点：OCS、量⼦",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-26",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1692：3593，1.8万亿，收3864.18",
+    "operation": "这⼀年来，市场追求价值股，很难⽤连板⾼度来锚定市场情绪 在以前，⾼⾝位的连板标的⽐低⾝位的多，意味着市场的风险倒挂，⼀般在第⼆周期才 会出现",
+    "hot_sectors": "上涨热点：CW光源、EML光芯⽚（光模块上游）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-27",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2790：2447，1.7万亿，收3875.26",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-11-28",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4122：1193，1.6万亿，收3888.60",
+    "operation": "因为指数⾛强时的强监管，和指数⾛弱时⼤胖⼿的托市，熨平了连板标的上涨和退潮时 的波动，导致以连板⾼度定义情绪周期在今年不怎么有效",
+    "hot_sectors": "上涨热点：消费、数据传输",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-01",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3398：1872，1.9万亿，收3914.01",
+    "operation": "对市场有两种态度：⼀、预测；⼆、倾听 这两种⽅法是互相⼲扰的，往往倾听⽐预测更重要 ——基于市场给的信息的观察、推测是靠谱的，猜测是不必要的 左青龙右⽩虎，买什么⽩酒，买什么消费，买什么银⾏",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-02",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1544：3740，1.6万亿，收3897.71",
+    "operation": "情绪短线标的AB法：《4纬度短线训练营》11⽉5⽇第43期 关于⼆波：e.g.航天发展，第⼆波第三个板（第⼀波5个板），后⾯开到5板、6板是⼩概 率事件，所以今天不参与博弈 ⾼标出监管情绪⾼涨往往见光死——预测周四合富中国",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-03",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1443：3876，1.7万亿，收3878.00",
+    "operation": "不赌事件（e.g.朱雀3回收成功与否） 全民关注的时候（e.g.⽕箭发射开始直播），追涨的动作有危险 尽早进核⼼，不要买后排（尤其是版块涨了2-3天后再买没涨起来的后排） 做交易要懂得休息",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-04",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1455：3878，1.5万亿，收3875.79",
+    "operation": "",
+    "hot_sectors": "上涨热点：机器⼈（冲⾼回落，没有标的涨停——机构摇摆） 商业航天（中国卫星、航天机电双龙头） 半导体（长坡厚雪，今天再动第⼀天）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-05",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4387：975，1.7万亿，收3902.81",
+    "operation": "",
+    "hot_sectors": "上涨热点：商业航天、科技硬件、福建",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-08",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3409：1866，2.0万亿，收3924.08",
+    "operation": "航天核⼼标的的冲⾼回落怎么想？ 可能回调么？可能 接么？接",
+    "hot_sectors": "上涨热点：商业航天、科技硬件、福建",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-09",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1308：4058，1.9万亿，收3909.52",
+    "operation": "在⼀个板块涨起来的时候，买那些⾮核⼼的2%、3%的标的，没有意义 ——买核⼼，或者买⽔下",
+    "hot_sectors": "商业航天不再扩容",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-10",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2435：2844，1.7万亿，收3900.50",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-11",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1030：4377，1.8万亿，收3878.32",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-12",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2683：2612，2.1万亿，收3889.35 跌停 > 10，暂时不认为第四周期结束 多看少动",
+    "operation": "",
+    "hot_sectors": "上涨热点：商业航天、核聚变、电⼒、芯⽚",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-15",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2314：2968，1.8万亿，收3867.92",
+    "operation": "⾏业趋势/短期热点 ⾏业趋势的交易⽅式：低吸不追涨，持股时间要偏长，e.g.半导体的⾃主可控 短期热点的交易⽅式：持股时间偏短",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-16",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1091：4302，1.7万亿，收3824.81",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-17",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3626：1635，1.8万亿，收3870.28",
+    "operation": "指数反弹是否有效 多因素判断：1、价格过前期⾼点；2、放量；3、利空因素的扭转（e.g.⽇本央⾏发出不 应过早加息的信息）",
+    "hot_sectors": "上涨热点：光模块（Google、华为⽅向，联特科技、光迅科技）、 PCB、液冷：英维克 机构在⽤真实资⾦交易Google带来的增量（从资⾦的量、主动性、 ⾯上判断），可能有趋势 商业航天要难受⼏天，降仓位",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-18",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2845：2416，1.7万亿，收3876.37 跌停 ＜ 10 第⼀周期，市场转好的时候要敢做",
+    "operation": "短线热点：通常由事件、消息或情绪驱动 短线热点要追⾼（“买⾼卖更⾼”） 趋势⾏情：由基本⾯、产业周期或宏观经济的实质性变化驱动 趋势⾏情要低吸（不要追⾼） 趋势标的也可以⾛短线热点 如何判断短线热点：看“板” 《Gartner技术成熟度曲线》 热点发酵-情绪上升-资⾦博弈-冰点通杀-基本⾯筑底-后续",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-19",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4477：905，1.7万亿，收3890.45",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-22",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2984：2265，1.9万亿，收3917.36 价值配置盘（机构风格）驱动的上涨周期",
+    "operation": "每次的第⼀周期，市场要涨⼀些偏好的题材，并且轮动 ——关注板块先⼿机会 砰砰的连着往上⼲，就到了第⼆周期",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-23",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1512：3856，1.9万亿，收3919.98",
+    "operation": "解决问题：观察到⼀个板块强，追进去跌了怎么办？ 在最强板块的启动开始，AB法铺5%～10%的底仓 如果最强标的下跌，（前提：）如果逻辑够硬，等跌15%加⼀倍仓位 ——⼩鲍⽼师与然哥的⽅法⼀致：逻辑硬，刚启动，以“耐得住，买跌，加仓”应对 第⼀周期细节补充 1、第⼀周期往往是轮动⾏情，T⽇某⼀板块爆发，T+1⽇同板块涨起来的⾸板不看、不 追，往往是补涨起来的后排垃圾 2、好的板块⾥做低吸，第⼀周期追⾼没必要",
+    "hot_sectors": "上涨热点：OCS、液冷（***英维克）、商业航天（歇了） 英维克超预期⾛强，使它有可能成为这个第⼀周期的重要信号标的 每次都有可能以液冷（英维克）带动AI硬件的资⾦回流 英维克跌下来甚⾄可以加仓",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-24",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4128：1137，1.88万亿，收3940.95 重述：价值配置盘（机构风格）驱动的上 涨周期——科技硬件",
+    "operation": "商业航天如果下跌，会是⼀个很好的买点 如果不回调，继续逼空式上涨，可以不做 轮动⾏情怎么做？ “迎财神”，在1-3个喜欢的板块等着，轮到就做 不可能所有板块都覆盖到",
+    "hot_sectors": "上涨热点：商业航天、福建、海南、科技硬件",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-25",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3773：1473，1.93万亿，收3959.62",
+    "operation": "",
+    "hot_sectors": "机器⼈第⼀天，没展现出持续性",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-26",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1866：3414，2.18万亿，收3963.68 游资：商业航天；机构：资源股",
+    "operation": "兴业银锡价格包含80的银价，银价很可能涨到100 天齐锂业、赣锋锂业价格包含15万/吨的碳酸锂价格 碳酸锂因开采技术进步、资源⾜够、国家调控的原因，价格很难⼤幅上涨 可以做第⼆周期的商业航天的补涨、扩散",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-29",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1995：3332，2.1万亿，收3965.28 （+0%）",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2025-12-30",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1840：3481，2.1万亿，收3965.12 （-0%） 第⼆天沪指⼏乎⽆波动——控盘 控盘的⽬的是什么？",
+    "operation": "踏空机器⼈怎么办？ 还会有⾏情，从今天涨停的（⾸版）标的中选择",
+    "hot_sectors": "机器⼈（再起） 三花智控涨停——体现机游混打风格 7%以下机构，7%以上游资 每⼀次机游混打风格，都⽐较好交易 特斯拉擎天柱：***五洲新春 三花、拓普、万向、浙江荣泰等，也是特斯拉标的，逻辑正，但增 量不在他们⾝上，不是那么核⼼，可以当作热点加趋势标的 上涨热点：AI硬件",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-01",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2474：2776，2.04万亿，收3968.84",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-05",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4185：1168，2.5万亿，收4023.42",
+    "operation": "如何解决“标的选的好，但是拿不住，经常卖飞”的问题？ 1、“经常卖飞”，代表选择标的的能⼒很强； 2、“拿不住”代表看得太短，过于在乎⽇内波动； 解决⽅案：具备长期逻辑的标的，设⼀个加容忍度的⽌损点 未到⽌损线，不去在意⽇内的波动，不要频繁交易 做有产业逻辑的赛道龙头 五洲新春、三花智控，跌下来低吸",
+    "hot_sectors": "脑机接⼜（热点）爆发⽇，今天没有涨停的⼀律不看 ⼀字连板不好接，有换⼿才有市场地位",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-06",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4108：1222，2.8万亿，收4083.67",
+    "operation": "资源股：涨价时候计算器按的噼啪响，越涨越便宜，越跌越贵 锂：价格到15万时差不多预期兑现 第⼆周期结束锚定锋龙股份",
+    "hot_sectors": "上涨热点：脑机接⼜、商业航天（卫星地⾯站：航天环宇）、锂 下跌：光通信",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-07",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2173：3190，2.9万亿，收4085.77 第⼆周期，要控制仓位 第三周期会⽐较惨烈",
+    "operation": "情绪和叙事定价 vs 现⾦流定价 情绪和叙事定价：0-1时，⾝份的转变（e.g.医药公司开始从跟随靶点研发、CRO变为创 新、License-out的25年6-7⽉份） 现⾦流定价：消息兑现时，⼀旦市场发现BD签完了，钱也没有马上进来，利润还需要 等，定价模型马上切换 市场开始问“你赚的钱能不能持续呀”，没有答案的资产，价格⼀定会回撤",
+    "hot_sectors": "1、PCB 2、CPO设备：华⼯科技，突破震荡区间 3、智驾（随索菱股份的断板告⼀段落）：索菱股份(断板) 4、中韩半导体：继续⼤涨 5、脑机接⼜：创新医疗、南京熊猫继续⼀字板 三博脑科⾼位放巨量未封板、美好医疗板上开，20cm连太⾼不具 备性价⽐ 上涨热点：CPO、存储（中韩半导体ETF）、脑机接⼜ 光通讯（cw光源｜源杰科技、AOC｜长芯博创、空⼼光纤｜长飞 光纤）、半导体设备",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-08",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3731：1595，2.8万亿，收4082.98",
+    "operation": "",
+    "hot_sectors": "上涨热点：商业航天",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-09",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3920：1349，3.15万亿，收4120.43",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-12",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4144：1182，3.64万亿，收4165.29",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-13",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1535：3601，3.65万亿，收4138.76",
+    "operation": "情绪周期论对市场的指导意义 对游资票、热点板块依然具备指导意义（e.g.商业航天、可控核聚变） 对低位趋势标的，反⽽因为热点的“鲸落”⽽获得了机会（e.g.PCB上游、光通信） ——现在市场情绪周期明显与景⽓周期产⽣了割裂， 不能以情绪周期的转弱，判断景⽓周期的强弱",
+    "hot_sectors": "下跌：商业航天、核聚变",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-14",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2747：2592，3.94万亿，收4126.09",
+    "operation": "",
+    "hot_sectors": "上涨热点：光通信资⾦回流",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-15",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2230：3121，2.9万亿，收4112.60",
+    "operation": "",
+    "hot_sectors": "上涨热点：光通信",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-16",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2371：2973，3.0万亿，收4101.91",
+    "operation": "",
+    "hot_sectors": "上涨热点：半导体设备、光通信",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-19",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3527：1828，2.7万亿，收4114.00",
+    "operation": "",
+    "hot_sectors": "上涨热点：电⼒、半导体、医药",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-20",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2233：3102，2.8万亿，收4113.65",
+    "operation": "",
+    "hot_sectors": "上涨热点：电⼒",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-21",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3096：2197，2.6万亿，收4116.94",
+    "operation": "机构买单的特点：Twap 整半点的时间，⼀段时间（如15m）/接⼀段相同时间（如15m）的均匀算法买单 如何做的好 1、对基本⾯有极强的信⼼（e.g.芯碁微装），只做跌下来有信⼼加仓的标的； 2、仓位不要⼀次上太满，初次建仓限于10%，可以5%-20%滚动操作； 3、画好⽌损线，不到⽌损线⽌盈时（如涨的太快）留底仓； 4、⽬前市场分时线不具备持续性，逢拉必砸，不要反应太快，“不动”是王道。",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-25",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3941：1390，3.1万亿，收4136.16",
+    "operation": "太空光伏——技术没有强护城河，看供应关系 SpaceX链：钧达股份、东⽅⽇升、赛伍技术、迈为股份、双良节能",
+    "hot_sectors": "上涨热点：太空光伏、航天",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-26",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1604：3771，3.28万亿，收4132.61",
+    "operation": "",
+    "hot_sectors": "太空光伏（健康调整）、下跌：航天",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-27",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1928：3454，2.9万亿，收4139.90",
+    "operation": "",
+    "hot_sectors": "上涨热点：光模块、光模块上游、资源",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-28",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1739：3640，2.99万亿，收4151.24",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-29",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1803：3566，3.26万亿，收4157.98",
+    "operation": "",
+    "hot_sectors": "上涨热点：资源（稀⼟）、⽩酒、地产、保险 下跌：科创、半导体",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-01-30",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2453：2896，2.8万亿，收4117.95 第四周期等待⼀个指数中阳线结束",
+    "operation": "",
+    "hot_sectors": "上涨热点：光通信",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-02-02",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "771：4652，2.6万亿，收4015.75",
+    "operation": "科技硬件：关注2⽉4⽇AMD、Google财报",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-02-03",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4856：532，2.5万亿，收4067.74 指数中阳线",
+    "operation": "",
+    "hot_sectors": "普涨",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-02-04",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3254：2130，2.5万亿，收4102.20",
+    "operation": "",
+    "hot_sectors": "上涨热点：太空光伏",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-02-05",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1618：3719，2.18万亿，收4075.92 ⼤跌",
+    "operation": "科技硬件：NVdia + Open AI⽣态、Google⽣态",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-02-06",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2749：2550，2.16万亿，收4065.58",
+    "operation": "国内研报实效性不强",
+    "hot_sectors": "上涨热点：光伏、机器⼈、电池、化⼯",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-02-23",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "春节长假，马年⼤吉",
+    "operation": "明天是好的做⾸板的⽇⼦",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-02-24",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4006：1392，2.21万亿，收4117.41",
+    "operation": "1、明天是好的做⼀进⼆的⽇⼦ 2、“封板率”66.6%是冷暖分界线 3、关注明⽇跌停数据（跌停下降为利好） Q：长飞光纤尾盘封单⾦额越来越少，应该卖么？ A：⼤票连板概率不⾼，可以⾛⼀部分，看（外部市场）锚定再接回来",
+    "hot_sectors": "长飞光纤继续涨停 上涨热点：化⼯、⽯油、⽩银、智能电⽹、光通信 下跌：影视、消费",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-02-25",
+    "direction": "BEAR",
+    "sig_type": "CAUTION",
+    "signal_text": "3748：1609，2.48万亿，收4147.23 跌停数下跌",
+    "operation": "涨价题材相对好做",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-02-26",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2485：2870，2.5万亿，收4146.63",
+    "operation": "第⼀周期，好东西都会涨，追着买⽐较难受 拉起可以少⾛⼀点，等跌回来还能涨",
+    "hot_sectors": "上涨热点：PCB",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-02-27",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3271：2066，2.5万亿，收4162.88",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-02",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1142：4282，3.0万亿，收4182.59",
+    "operation": "",
+    "hot_sectors": "上涨热点：⽯油、光通讯 下跌：太空光伏",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-03",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "643：4807，3.1万亿，收4122.68",
+    "operation": "",
+    "hot_sectors": "上涨热点：油服、天然⽓、航运、矿产资源",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-04",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1745：3640，2.4万亿，收4082.47",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-05",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4079：1306，2.39万亿，收4108.57",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-06",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4260：1154，2.2万亿，收4124.19",
+    "operation": "",
+    "hot_sectors": "上涨热点：油⽓（趋势）",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-09",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1423：3964，2.6万亿，收4096.60",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-10",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4536：850，2.4万亿，收4123.14",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-11",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2060：3284，2.5万亿，收4133.43",
+    "operation": "两条主线交易逻辑：战争继续，做油⽓ / 抛弃战争因素，做科技",
+    "hot_sectors": "上涨热点：科技硬件、光伏、储能、化⼯",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-12",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1494：3893，2.44万亿，收4129.10",
+    "operation": "",
+    "hot_sectors": "上涨热点：电⽹、化⼯",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-13",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "1502：3828，2.42万亿，收4095.45",
+    "operation": "光 → PCB → 液冷",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-16",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2843：2494，2.32万亿，收4084.79",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-17",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "867：4541，2.22万亿，收4049.91",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-18",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "3554：1831，2.06万亿，收4062.98",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-19",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "505：4955，2.1万亿，收4006.55",
+    "operation": "",
+    "hot_sectors": "上涨热点：电⽹、算⼒",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-20",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "662：4786，2.3万亿，收3957.05 跌破4000点",
+    "operation": "新能源产业研究：infolink-group.com",
+    "hot_sectors": "上涨热点：光伏设备、光通信",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-23",
+    "direction": "BEAR",
+    "sig_type": "CAUTION",
+    "signal_text": "305：5172，2.4万亿，收3813.28 ⽆差别加速下杀，恐慌盘，收盘76跌停 中证1000下跌已1000点",
+    "operation": "⼩鲍⽼师：根据4⽉底政治局会议、财报季结束，认为4⽉底会迎来低点反弹",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-24",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "5136：329，2.1万亿，收3881.28",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-25",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4874：560，2.4万亿，收3931.84",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-26",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "916：4493，1.94万亿，收3889.08",
+    "operation": "",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-27",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "4337：1073，1.86万亿，收3913.72",
+    "operation": "",
+    "hot_sectors": "上涨热点：锂电、电⼒、化⼯、医药、算⼒",
+    "source": "old_trend"
+  },
+  {
+    "date": "2026-03-30",
+    "direction": "NEUTRAL",
+    "sig_type": "GENERAL",
+    "signal_text": "2868：2464，1.92万亿，收3923.29",
+    "operation": "战争结束：还是做光、科技硬件",
+    "hot_sectors": "",
+    "source": "old_trend"
+  },
+  {
+    "date": "2024-05-13",
+    "direction": "BEAR",
+    "sig_type": "SELL_ACTION",
+    "signal_text": "选择的版块：1、电信（中国移动）、银⾏（招商银⾏）、地产（少配）、腾讯压舱 2、创新药+合成⽣物：鲁抗医药（边际未放量）、药明⽣物（未出卖点） 3、消费：珀莱雅、三只松⿏、青岛⾷品 4、出海：主线逻辑，⼩家电（⽯头科技）、电⼒设备（四⽅股份） 5、物流（嘉友国际） 注意：1、别瞎买，建仓要谨慎，减少亏损——不应买科技 2、看好的逻辑要重仓——嘉友国际、⽯头科技、腾讯等",
+    "operation": "选择的版块：1、电信（中国移动）、银⾏（招商银⾏）、地产（少配）、腾讯压舱 2、创新药+合成⽣物：鲁抗医药（边际未放量）、药明⽣物（未出卖点） 3、消费：珀莱雅、三只松⿏、青岛⾷品 4、出海：主线逻辑，⼩家电（⽯头科技）、电⼒设备（四⽅股份） 5、物流（嘉友国际） 注意：1、别瞎买，建仓要谨慎，减少亏损——不应买科技 2、看好的逻辑要重仓——嘉友国际、⽯头科技、腾讯等",
+    "hot_sectors": "上涨热点：电⼒设备出海",
+    "source": "old_operation"
+  },
+  {
+    "date": "2024-09-27",
+    "direction": "BULL",
+    "sig_type": "BUY_ACTION",
+    "signal_text": "仓位可以打满 但⼼理不要有“⽜市”的笃定性，不要忽略基本⾯ 不要“赌博式”搏上涨 不要⼀加仓就赔钱，加仓的时间点要注意 “场内⽌盈，场外分歧”必然产⽣波动，可能表现为券商、⽩酒、地产失速 如果券商、⽩酒、地产回调，这时候散户照以前的逻辑可能加仓 但其实，应该转移仓位⾄“超跌”——芯⽚、半导体、存储、医药 之后，回调后的核⼼资产理性上涨，茅指数、宁指数",
+    "operation": "仓位可以打满 但⼼理不要有“⽜市”的笃定性，不要忽略基本⾯ 不要“赌博式”搏上涨 不要⼀加仓就赔钱，加仓的时间点要注意 “场内⽌盈，场外分歧”必然产⽣波动，可能表现为券商、⽩酒、地产失速 如果券商、⽩酒、地产回调，这时候散户照以前的逻辑可能加仓 但其实，应该转移仓位⾄“超跌”——芯⽚、半导体、存储、医药 之后，回调后的核⼼资产理性上涨，茅指数、宁指数",
+    "hot_sectors": "上涨热点：券商、地产、CRO、医美、⽩酒、芯⽚",
+    "source": "old_operation"
+  },
+  {
+    "date": "2025-10-12",
+    "direction": "BULL",
+    "sig_type": "BUY_ACTION",
+    "signal_text": "不要空⼿接飞⼑（在“空⽅衰竭”前随着⽇内分时线过早抄底），要等它掉下来砸到地上",
+    "operation": "不要空⼿接飞⼑（在“空⽅衰竭”前随着⽇内分时线过早抄底），要等它掉下来砸到地上",
+    "hot_sectors": "",
+    "source": "old_operation"
+  },
+  {
+    "date": "2026-01-22",
+    "direction": "BULL",
+    "sig_type": "SECTOR_BULLISH",
+    "signal_text": "看多: 商业航天（跨年龙回头，分支优先国家队、卫星）、AI服务器",
+    "operation": "",
+    "hot_sectors": "商业航天（跨年龙回头，分支优先国家队、卫星）、AI服务器",
+    "main_line": "复盘，从宏观数据解读、核心行业逻辑拆解、情绪周期判断、板块热点分析、\n心影响，也深入AI服务器、商业航天、机器人、算力等热门赛道的炒作逻辑，\n金呈现向A股市场偏斜的迹象。结合盘面表现，科技硬件板块出现异动，二者",
+    "source": "dim2_bull"
+  },
+  {
+    "date": "2026-04-26",
+    "direction": "BULL",
+    "sig_type": "SECTOR_BULLISH",
+    "signal_text": "看多: 同花顺上的\"2026",
+    "operation": "",
+    "hot_sectors": "同花顺上的\"2026",
+    "main_line": "第二，两大核心缺口的产业逻辑全景。老师明确给出了 2026 年的两大投资主线：\n联成一条完整的逻辑链。特别是光纤板块，老师区分了现货价格和协议价的传导时\n个背景下，科技成长板块为什么还能有机会？老师给出了核心逻辑：算力紧缺是",
+    "source": "dim2_bull"
+  }
+]

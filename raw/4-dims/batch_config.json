@@ -1,0 +1,1 @@
+{"batch_size": 5, "total_files": 128, "total_batches": 26, "output_dir": "llm_batch_output", "db_path": "../../db/recap.db", "raw_dir": "."}

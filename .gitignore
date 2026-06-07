@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 数据库（正源在 Database/ 公共数据层，项目内不落库）
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+
+# FUSE/云同步残骸
+.fuse_hidden*
+.DS_Store
+
+# 凭证（只存 Database/.env 或环境变量，绝不入库）
+credentials/api_keys.json
+credentials/cookies.json
+*.env
+
+# 日志
+logs/
