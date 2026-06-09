@@ -28,6 +28,8 @@ from exec_logger import ExecLogger, init_log_table
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 import config
+from lib.logger import get_logger
+logger = get_logger(__name__)
 DB_PATH = config.RECAP_DB
 
 # 从环境变量读取 token，回退到硬编码

@@ -12,6 +12,8 @@ import sqlite3
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 import config
+# tools/ 非包，加入 sys.path 以便 import cycle_quant
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), 'tools'))
 RECAP_DB = config.RECAP_DB
 MARKET_DB = config.MARKET_DB
 
@@ -24,9 +26,9 @@ def enhance_cycle_quant():
     
     logger.info("=== 句芒行情数据融合 ===\n")
     
-    # 1. 获取句芒行情数据
+    # 1. 获取句芒行情数据（列名对齐 market_data.db: limit_up/limit_down/max_consecutive/volume_trillion）
     mcur.execute("""
-        SELECT trade_date, limit_up_count, limit_down_count, max_consecutive
+        SELECT trade_date, limit_up, limit_down, max_consecutive, volume_trillion
         FROM daily_market
     """)
     market_data = {r[0]: r for r in mcur.fetchall()}
@@ -61,48 +63,47 @@ def enhance_cycle_quant():
     rcur.execute("SELECT date FROM cycle_quant ORDER BY date")
     dates = [r[0] for r in rcur.fetchall()]
     
+    # 适配 cycle_quant.calculate_score 当前接口（旧 calculate_emotion_score 已不存在）
+    from cycle_quant import calculate_score
+
     for date in dates:
-        if date in market_data:
-            md = market_data[date]
+        mkey = date.replace('-', '')   # cycle_quant 用 YYYY-MM-DD，market_data 用 YYYYMMDD
+        if mkey in market_data:
+            md = market_data[mkey]
             limit_up = md[1]
             limit_down = md[2]
             consecutive = md[3]
-            north = north_data.get(date)
-            
-            # 计算各指标打分
-            from cycle_quant import calculate_emotion_score
-            
-            # 主线持续性：板块连续出现天数 / 5 取整 (满分10)
-            theme_score = min(10, max_theme_days // 5 * 10 // 10)
-            
-            data = {
-                'limit_up': limit_up,
-                'limit_down': limit_down,
-                'consecutive_limit': consecutive,
-                'volume_trillion': None,  # 保持原有
-                'up_down_ratio': None,    # 暂缺
-                'north_flow_billion': north,
-                'theme_continuity_days': max_theme_days,
-            }
-            
-            result = calculate_emotion_score(data)
-            
+            volume = md[4]            # volume_trillion（修复退化：此前恒为 None）
+            north = north_data.get(mkey)
+
+            result = calculate_score(
+                limit_up=limit_up, limit_down=limit_down,
+                consecutive=consecutive, volume=volume,
+                north=north, theme_days=max_theme_days,
+            )
+            sc = result['details']   # {limit_up,limit_down,consecutive,volume,north,theme_continuity}
+
+            # 可用指标数 + 置信度（calculate_score 不返回，这里自算）
+            avail = sum(1 for v in (limit_up, limit_down, consecutive, volume, north, max_theme_days)
+                        if v is not None)
+            confidence = round(avail / 6, 2)
+
             rcur.execute("""
-                UPDATE cycle_quant 
+                UPDATE cycle_quant
                 SET total_score = ?, cycle_stage = ?,
                     score_limit_up = ?, score_limit_down = ?,
                     score_consecutive_limit = ?, score_volume = ?,
                     score_north_flow = ?, score_theme_continuity = ?,
                     available_indicators = ?, confidence = ?,
                     limit_up = ?, limit_down = ?, consecutive_limit = ?,
-                    north_flow_billion = ?, theme_continuity_days = ?
+                    volume_trillion = ?, north_flow_billion = ?, theme_continuity_days = ?
                 WHERE date = ?
             """, (result['total_score'], result['cycle_stage'],
-                  result['scores']['limit_up'], result['scores']['limit_down'],
-                  result['scores']['consecutive_limit'], result['scores']['volume'],
-                  result['scores']['north_flow'], result['scores']['theme_continuity'],
-                  result['available_indicators'], result['confidence'],
-                  limit_up, limit_down, consecutive, north, max_theme_days, date))
+                  sc['limit_up'], sc['limit_down'],
+                  sc['consecutive'], sc['volume'],
+                  sc['north'], sc['theme_continuity'],
+                  avail, confidence,
+                  limit_up, limit_down, consecutive, volume, north, max_theme_days, date))
             updated += 1
     
     rdb.commit()
