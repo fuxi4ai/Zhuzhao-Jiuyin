@@ -45,19 +45,21 @@ def enhance_cycle_quant():
     up_col = 'up_count' if 'up_count' in cols else None
     down_col = 'down_count' if 'down_count' in cols else None
     
-    # 4. 计算主线持续性 (板块连续出现天数)
-    logger.info("📊 计算主线持续性...")
-    mcur.execute("""
-        SELECT sector_name, COUNT(*) as days
-        FROM sector_daily
-        GROUP BY sector_name
-    """)
-    theme_days = {r[0]: r[1] for r in mcur.fetchall()}
-    
-    # 取最长连续板块作为主线持续性
-    max_theme_days = max(theme_days.values()) if theme_days else 0
-    logger.info(f"   最长连续板块: {max_theme_days} 天")
-    
+    # 4. 主线持续性 = 当日主线代表ETF相对沪深300超额收益连续为正天数（替代旧版全局常数）
+    import theme_strength
+    # 硬保护：没拉 theme_etf_daily 就不要写退化分
+    has_etf = mcur.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='theme_etf_daily'").fetchone()
+    etf_rows = mcur.execute("SELECT COUNT(*) FROM theme_etf_daily").fetchone()[0] if has_etf else 0
+    if etf_rows == 0:
+        logger.error("❌ market_data.db 无 theme_etf_daily 数据。请先在终端跑 "
+                     "scripts/fetch_theme_etf.py 拉取 ETF 行情，再跑本脚本。已中止，未写库。")
+        rdb.close(); mdb.close(); return
+    logger.info(f"📊 主线持续性: 用 theme_etf_daily({etf_rows}行)超额连续为正天数")
+    alias_rows = rcur.execute("SELECT canonical_name, aliases FROM sector_alias").fetchall()
+    mainline_by_date = dict(rcur.execute(
+        "SELECT date, main_line FROM dim2_sector_themes WHERE main_line IS NOT NULL").fetchall())
+
     # 5. 更新 cycle_quant
     updated = 0
     rcur.execute("SELECT date FROM cycle_quant ORDER BY date")
@@ -76,15 +78,20 @@ def enhance_cycle_quant():
             volume = md[4]            # volume_trillion（修复退化：此前恒为 None）
             north = north_data.get(mkey)
 
+            # 当日主线 → 代表ETF → 超额收益连续为正天数（无主线/无锚则 None）
+            tdays, _theme, _etfs = theme_strength.theme_continuity_days(
+                mainline_by_date.get(date), date, mdb, alias_rows)
+            theme_days_val = tdays if _etfs else None
+
             result = calculate_score(
                 limit_up=limit_up, limit_down=limit_down,
                 consecutive=consecutive, volume=volume,
-                north=north, theme_days=max_theme_days,
+                north=north, theme_days=theme_days_val,
             )
             sc = result['details']   # {limit_up,limit_down,consecutive,volume,north,theme_continuity}
 
             # 可用指标数 + 置信度（calculate_score 不返回，这里自算）
-            avail = sum(1 for v in (limit_up, limit_down, consecutive, volume, north, max_theme_days)
+            avail = sum(1 for v in (limit_up, limit_down, consecutive, volume, north, theme_days_val)
                         if v is not None)
             confidence = round(avail / 6, 2)
 
@@ -103,7 +110,7 @@ def enhance_cycle_quant():
                   sc['consecutive'], sc['volume'],
                   sc['north'], sc['theme_continuity'],
                   avail, confidence,
-                  limit_up, limit_down, consecutive, volume, north, max_theme_days, date))
+                  limit_up, limit_down, consecutive, volume, north, theme_days_val, date))
             updated += 1
     
     rdb.commit()
