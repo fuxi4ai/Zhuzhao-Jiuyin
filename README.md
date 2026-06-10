@@ -14,7 +14,7 @@
 | 层 | 位置 | 谁的 |
 |----|------|------|
 | **工作脚本/工具** | 本项目 `tools/` `scripts/` `news/` | 烛阴（本项目） |
-| **数据** | `Database/烛照九阴/`（recap.db / news.db）+ `Database/Market-Data/`（公共行情，只读） | 单一可信源 |
+| **数据** | `Database/烛照九阴/`（recap.db；news.db 财新试验已归档 archive/，2026-06-10）+ `Database/Market-Data/`（公共行情，只读） | 单一可信源 |
 | **记忆/方法论/性格** | `brain/agents/烛阴/` | brain 记忆系统 |
 | **产业逻辑（渊图）** | `Database/行业研究/` | CC 渊图正源，烛阴**只读引用** |
 

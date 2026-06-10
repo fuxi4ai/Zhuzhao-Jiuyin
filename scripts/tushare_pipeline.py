@@ -32,16 +32,17 @@ from lib.logger import get_logger
 logger = get_logger(__name__)
 DB_PATH = config.RECAP_DB
 
-# 从环境变量读取 token，回退到硬编码
-TUSHARE_TOKEN = os.environ.get('TUSHARE_TOKEN',
-    '32999e6a58e9b207de0d22b60c70ace0f88ddb015d5320dc57956231')
-
+# token 只读 Database/.env（或环境变量），绝不入项目代码（数据真实性/泄密铁律）
 API_INTERVAL = 0.4  # tushare 5000积分: 200次/分钟
 
 
 def get_pro():
     import tushare as ts
-    ts.set_token(TUSHARE_TOKEN)
+    config.load_env()                       # 读 Database/.env → os.environ（已存在不覆盖）
+    token = os.environ.get('TUSHARE_TOKEN')
+    if not token:
+        sys.exit('❌ 未找到 TUSHARE_TOKEN（请配 Database/.env 或导出环境变量），不再有硬编码回退')
+    ts.set_token(token)
     return ts.pro_api()
 
 

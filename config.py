@@ -46,7 +46,7 @@ DATABASE_ROOT = _find_database_root(PROJECT_ROOT)
 
 # ─── 烛阴自有库（可写）────────────────────────────────────────
 RECAP_DB = str(DATABASE_ROOT / "烛照九阴" / "recap.db")
-NEWS_DB = str(DATABASE_ROOT / "烛照九阴" / "news.db")
+NEWS_DB = str(DATABASE_ROOT / "烛照九阴" / "archive" / "news_财新试验_20260511.db")  # 2026-06-10 归档，财新搁置
 
 # ─── 公共/外部资源（只读引用）────────────────────────────────
 MARKET_DB = str(DATABASE_ROOT / "Market-Data" / "market_data.db")

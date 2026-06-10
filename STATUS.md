@@ -10,7 +10,7 @@
 | 项目 | 值 |
 |------|------|
 | **复盘库** | `Database/烛照九阴/recap.db`（2.2 MB，29 表）|
-| **新闻库** | `Database/烛照九阴/news.db`（155 KB）|
+| **新闻库** | 已归档 `archive/news_财新试验_20260511.db`（财新搁置，单源=小鲍课件→recap.db，2026-06-10）|
 | **公共行情库** | `Database/Market-Data/market_data.db`（207 MB，121.9 万行，句芒维护·只读）|
 | **课件语料** | `Database/烛照九阴/Raw-Recap/`（206 份，只读第三方语料）|
 | **数据范围** | recap_daily 2025-10-14 ~ 2026-06-03 |
@@ -81,7 +81,7 @@
 
 | 项 | 说明 |
 |----|------|
-| news_events 表 = 0 | 新闻事件层尚未落数据（news_raw/cleaned 各 17）|
+| news_events 表 = 0 | 不再启用：课件管线落 dim1/dim2/industry_signals/recap_daily，news.db 已归档（2026-06-10）|
 | ~~cycle_compare 报错~~ | ✅ G011 已修（补回 compare_cycles/normalize_stage）。但量化阶段退化（85 条 83 判冰点），双轨一致率仅 37.6%，待用公共行情库重算量化分 |
 | emotion_stage 29 条空 | 多为 2026-05 后新录入未标注情绪阶段 |
 | __pycache__ 残留 | 云同步 FUSE 挂载禁止删除旧 .pyc，已由 .gitignore 屏蔽，无害 |

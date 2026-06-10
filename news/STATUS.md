@@ -1,7 +1,7 @@
 # 📰 新闻模块 · STATUS
 
 > **最后更新**: 2026-06-06（大修，对齐 D7 信源收窄）
-> **模块版本**: v2.0 · 库: `Database/烛照九阴/news.db`
+> **模块版本**: v2.0 · 库: 已归档 `Database/烛照九阴/archive/news_财新试验_20260511.db`（2026-06-10）
 
 ---
 
@@ -11,7 +11,7 @@
 |------|-----|
 | news_raw | 17 条 |
 | news_cleaned | 17 条 |
-| news_events | 0 条（事件层待落数据） |
+| news_events | 0 条（不再启用，课件管线落 recap.db 维度表） |
 | source_config | 3 条 |
 | fetch_log | 0 条 |
 
@@ -43,7 +43,7 @@
 
 | 项 | 说明 |
 |----|------|
-| news_events 落数据 | 事件聚类层尚空（news_events=0） |
+| ~~news_events 落数据~~ | 已裁决不启用：单源课件→recap.db 维度表（2026-06-10） |
 | BAILIAN 去除 | LLM 步骤改由九儿亲做（D7），脚本只做取数+正则+落库 |
 
 ---
