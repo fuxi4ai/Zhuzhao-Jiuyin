@@ -5,7 +5,14 @@
 非破坏：不动既有 position_guidance。dry-run 默认，--commit 才落盘。"""
 import sqlite3, json, os, sys, argparse
 
-DB = "/sessions/adoring-busy-cori/mnt/Documents/Database/烛照九阴/recap.db"
+import os as _os
+def _docs():  # 向上找 Documents（Mac 与任意 Cowork 沙箱会话都适用，勿写死 /sessions/xxx）
+    p=_os.path.dirname(_os.path.abspath(__file__))
+    while p!='/':
+        if _os.path.basename(p)=='Documents': return p
+        p=_os.path.dirname(p)
+    return _os.path.expanduser('~/Documents')
+DB = _os.path.join(_docs(),"Database/烛照九阴/recap.db")
 BUNDLE = os.path.join(os.path.dirname(__file__), "pos_bundle.json")
 
 # date -> (min, max, repr, stance, conf)  —— 九儿逐日判读（总仓位立场；层=成=0.1）
