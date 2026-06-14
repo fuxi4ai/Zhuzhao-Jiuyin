@@ -136,6 +136,38 @@
 
 ---
 
+## G013 — 日报自动化漏「情绪引擎回填」一步（提案改 SKILL）⏳
+
+**日期**: 2026-06-14 | **发现人**: CC + 烛阴（手动补跑暴露）
+
+**问题**: 定时任务 `zhuzhao-market-fetch-daily-report` 的 SKILL 第 6 步只写「跑 `tools/gen_daily_report.py`」，但 `gen_daily_report` **不自管情绪回填**——它只读 recap.db 里 `emotion_cycle` 现有值。四表行情更新到新交易日后，若不先跑情绪引擎，日报情绪周期会**卡在上一已回填日**。
+
+**根因**: SKILL 把「拉行情 → 出日报」当成两步，漏了中间的「情绪引擎按新行情回填 emotion_cycle」。手动补跑时必须显式 `python3 tools/emotion_engine_v2.py --apply` 才把 06-12 评分（51.8·春）算出来。
+
+**影响（待验证）**: 周一 06-15 07:00 定时任务按现 SKILL 跑，**情绪周期大概率同样卡旧日**——日报行情是新日、情绪分是旧日，口径错位。
+
+**提案解法（propose-then-confirm，未直改）**: 在 zhuzhao SKILL 第 6 步「生成日报」**之前**插入一步：`python3 tools/emotion_engine_v2.py --apply`（沙箱写 recap.db 实测无 I/O 错，引擎自带备份）。待 Doctor 批准后改 SKILL。⏳
+
+---
+
+## G014 — 美股锚补不动＝网络白名单，非缺依赖
+
+**日期**: 2026-06-14 | **发现人**: CC（实测确认）
+
+**问题**: 沙箱里 `fetch_us_anchor.py` 三信源全失败，易误判为缺包。
+
+**根因（实测）**: **不是缺依赖**——yfinance / tushare 都能现场 `pip install --break-system-packages` 装上。真因是**网络白名单**：
+- Yahoo 主机 `query1.finance.yahoo.com` / `query2.finance.yahoo.com` / `fc.yahoo.com` / `finance.yahoo.com` → 代理 **403 Forbidden**（yfinance 装上也连不出去，取 0 行）
+- `stooq.com` → 同样 403
+- 仅 `api.waditu.com`（tushare）通，但 `us_daily_adj` 试用态限频 **1次/分钟**，19 只票 ~20 分钟，撞沙箱单条 bash **45s 上限** + 后台进程不跨调用存活 → 一次拉不全（只抢到首票 AAPL）。
+
+**解法**:
+- 沙箱要补 → 需把 Yahoo（query1/2.finance.yahoo.com、fc.yahoo.com）或 stooq.com 加进网络白名单。
+- 不加白名单 → Mac 本地 `python3 scripts/fetch_us_anchor.py --from YYYY-MM-DD`（yfinance 不走该代理，秒回）= 当前唯一可靠路。
+- A股四表无此问题，api.waditu.com 够用。⏳
+
+---
+
 ## 统计
 
 | 类别 | 总数 | 已改正 | 待处理 |
@@ -144,8 +176,9 @@
 | SQL | 3 | 3 | 0 |
 | 数据质量 | 2 | 2 | 0 |
 | NLP | 2 | 1 | 1 |
-| 外部 API | 1 | 1 | 0 |
+| 外部 API | 2 | 1 | 1 |
 | 算法 | 1 | 1 | 0 |
 | 路径/迁移 | 1 | 1 | 0 |
 | 代码接口 | 1 | 0 | 1 |
-| **总计** | **12** | **10** | **2** |
+| 自动化/流程 | 1 | 0 | 1 |
+| **总计** | **14** | **10** | **4** |

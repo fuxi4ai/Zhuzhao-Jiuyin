@@ -1,0 +1,1352 @@
+table	id	label	disc	prec	theme	tier	gap_status	gap_desc	date_realized	excess_cum	excess_peak	closed_date
+industry_signals	1	事件催化/商业航天	20251124	day	商业航天/卫星	alias	closed	兑现完毕（峰值+62.9%，历时34日）已轮动（窗口内走完）	20251127	0.5656	0.6288	20260113
+industry_signals	2	技术升级/固态电池	20251124	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+5.8%→+0.5%，46日）已轮动（窗口内走完）	20251205	0.0051	0.0585	20260129
+industry_signals	3	需求爆发/海风	20251124	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	4	涨价驱动/金属锑	20251124	day	有色金属	hint	closed	兑现完毕（峰值+40.0%，历时47日）已轮动（窗口内走完）	20251127	0.313	0.3997	20260130
+industry_signals	5	事件催化/摩尔线程	20251124	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+20.5%，历时48日）已轮动（窗口内走完）	20251125	0.1545	0.2049	20260202
+industry_signals	6	情绪周期/冰点修复	20251124	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	7	技术升级/AI芯片	20251125	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+20.5%，历时47日）已轮动（窗口内走完）	20251126	0.1545	0.2049	20260202
+industry_signals	8	技术升级/谷歌链	20251125	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+20.2%，历时50日）已轮动（窗口内走完）	20251126	0.1434	0.2021	20260205
+industry_signals	9	需求爆发/货币宽松	20251125	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	10	需求爆发/风电	20251125	day	光伏	alias	closed	兑现完毕（峰值+16.0%，历时45日）已轮动（窗口内走完）	20251205	0.0928	0.1599	20260129
+industry_signals	11	情绪周期/反弹有效	20251125	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	12	需求爆发/光模块	20251126	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+12.7%，历时14日）已轮动（窗口内走完）	20251127	0.0671	0.1273	20251216
+industry_signals	13	事件催化/商业航天	20251126	day	商业航天/卫星	alias	closed	兑现完毕（峰值+64.6%，历时32日）已轮动（窗口内走完）	20251127	0.5826	0.6458	20260113
+industry_signals	14	需求爆发/特斯拉机器人	20251126	day	机器人	alias	closed	兑现完毕（峰值+14.2%，历时44日）已轮动（窗口内走完）	20251127	0.0733	0.1417	20260129
+industry_signals	15	事件催化/工业富联	20251126	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	16	情绪周期/连板回归	20251126	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	17	事件催化/反内卷	20251127	day	机器人	alias	closed	兑现完毕（峰值+14.1%，历时43日）已轮动（窗口内走完）	20251204	0.0724	0.1409	20260129
+industry_signals	18	供给紧缺/国产替代	20251127	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+16.8%，历时48日）已轮动（窗口内走完）	20251208	0.1093	0.168	20260205
+industry_signals	19	涨价驱动/锂电池材料	20251127	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.6%，历时80日）已轮动（窗口内走完）	20251205	0.0742	0.1265	20260331
+industry_signals	20	事件催化/朱雀三号	20251127	day	商业航天/卫星	alias	closed	兑现完毕（峰值+64.5%，历时31日）已轮动（窗口内走完）	20251128	0.5817	0.6449	20260113
+industry_signals	21	情绪周期/赚钱效应下降	20251127	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	22	需求爆发/英伟达	20251029	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+10.1%，历时69日）已轮动（窗口内走完）	20251125	0.042	0.1007	20260205
+industry_signals	23	需求爆发/特高压	20251029	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+10.1%，历时69日）已轮动（窗口内走完）	20251125	0.042	0.1007	20260205
+industry_signals	24	事件催化/多晶硅收储	20251029	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.7%，历时101日）已轮动（窗口内走完）	20251030	0.0547	0.107	20260331
+industry_signals	25	情绪周期/牛市确认	20251029	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	26	技术升级/光进铜退	20251029	day	有色金属	hint	closed	兑现完毕（峰值+39.4%，历时65日）已轮动（窗口内走完）	20251105	0.3077	0.3944	20260130
+industry_signals	27	涨价驱动/钨	20251029	day	钨/小金属	hint	closed	兑现完毕·深回吐（峰值+6.7%→+0.2%，18日）已轮动（窗口内走完）	20251105	0.0022	0.0669	20251124
+industry_signals	28	需求爆发/AI算力	20251030	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+9.8%，历时33日）已轮动（窗口内走完）	20251117	0.0379	0.0981	20251216
+industry_signals	29	涨价驱动/VLCC	20251030	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	30	涨价驱动/六氟磷酸锂	20251030	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.2%，历时100日）已轮动（窗口内走完）	20251124	0.0499	0.1022	20260331
+industry_signals	31	涨价驱动/三花智控	20251030	day	机器人	alias	closed	兑现完毕·深回吐（峰值+9.6%→+2.8%，63日）已轮动（窗口内走完）	20251114	0.0281	0.0965	20260129
+industry_signals	32	技术升级/中际旭创	20251030	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	33	涨价驱动/六氟磷酸锂	20251031	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.7%，历时99日）已轮动（窗口内走完）	20251124	0.0443	0.0966	20260331
+industry_signals	34	技术升级/EML光芯片	20251031	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+15.4%，历时67日）已轮动（窗口内走完）	20251125	0.0948	0.1535	20260205
+industry_signals	35	需求爆发/特斯拉机器人	20251031	day	机器人	alias	closed	兑现完毕·深回吐（峰值+8.3%→+1.4%，62日）已轮动（窗口内走完）	20251114	0.0142	0.0826	20260129
+industry_signals	36	涨价驱动/六氟磷酸锂	20251103	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.6%，历时98日）已轮动（窗口内走完）	20251124	0.0337	0.086	20260331
+industry_signals	37	涨价驱动/晶圆代工	20251103	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+16.1%，历时63日）已轮动（窗口内走完）	20251124	0.111	0.1614	20260202
+industry_signals	38	供给紧缺/原油化工	20251103	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	39	供给紧缺/存储芯片	20251103	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+15.7%，历时66日）已轮动（窗口内走完）	20251125	0.0984	0.1571	20260205
+industry_signals	40	技术升级/AI大模型	20251103	day	AI软件/应用	alias	closed	兑现完毕（峰值+10.9%，历时53日）已轮动（窗口内走完）	20251229	0.0357	0.1086	20260119
+industry_signals	41	涨价驱动/铝	20251104	day	有色金属	hint	closed	兑现完毕（峰值+42.2%，历时61日）已轮动（窗口内走完）	20251105	0.3358	0.4225	20260130
+industry_signals	42	需求爆发/海外电网	20251104	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+13.2%，历时96日）已轮动（窗口内走完）	20251210	0.0819	0.1321	20260330
+industry_signals	43	需求爆发/国产芯片	20251104	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+15.7%，历时62日）已轮动（窗口内走完）	20251124	0.1067	0.1571	20260202
+industry_signals	44	需求爆发/特斯拉机器人	20251104	day	机器人	alias	closed	兑现完毕（峰值+10.4%，历时60日）已轮动（窗口内走完）	20251114	0.0358	0.1042	20260129
+industry_signals	45	涨价驱动/增碳剂	20251104	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	46	技术升级/薄膜沉积	20251104	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+15.7%，历时62日）已轮动（窗口内走完）	20251124	0.1067	0.1571	20260202
+industry_signals	47	情绪周期/小冰点	20251030	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	48	情绪周期/第四周期冰点	20251031	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	49	情绪周期/第一次冰点修复	20251103	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	50	情绪周期/下行周期	20251104	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	51	事件催化/公募分类库	20251104	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+15.7%，历时62日）已轮动（窗口内走完）	20251124	0.1067	0.1571	20260202
+industry_signals	52	VLCC运价/船舶	20251030	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	53	AI算力/英伟达	20251030	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+9.8%，历时33日）已轮动（窗口内走完）	20251117	0.0379	0.0981	20251216
+industry_signals	54	光模块/送样壁垒	20251030	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+9.8%，历时33日）已轮动（窗口内走完）	20251117	0.0379	0.0981	20251216
+industry_signals	55	光模块/业绩高增	20251030	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+9.8%，历时33日）已轮动（窗口内走完）	20251117	0.0379	0.0981	20251216
+industry_signals	56	机器人/三花智控	20251030	day	机器人	alias	closed	兑现完毕·深回吐（峰值+9.6%→+2.8%，63日）已轮动（窗口内走完）	20251114	0.0281	0.0965	20260129
+industry_signals	57	稀土/成本压力	20251030	day	稀土	hint	closed	兑现完毕（峰值+10.7%，历时56日）已轮动（窗口内走完）	20251113	0.0561	0.1074	20260120
+industry_signals	58	六氟磷酸锂/锂电材料	20251030	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.2%，历时100日）已轮动（窗口内走完）	20251124	0.0499	0.1022	20260331
+industry_signals	59	赛力斯/业绩缺口	20251030	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	60	机器人/T0总装	20251031	day	机器人	alias	closed	兑现完毕·深回吐（峰值+8.3%→+1.4%，62日）已轮动（窗口内走完）	20251114	0.0142	0.0826	20260129
+industry_signals	61	光模块/硅光EML	20251031	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+13.7%，历时32日）已轮动（窗口内走完）	20251117	0.0766	0.1368	20251216
+industry_signals	62	CCL上游/铜箔玻纤布	20251031	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.4%，历时67日）已轮动（窗口内走完）	20251125	0.0948	0.1535	20260205
+industry_signals	63	GPU采购/韩国	20251031	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.4%，历时67日）已轮动（窗口内走完）	20251125	0.0948	0.1535	20260205
+industry_signals	64	六氟磷酸锂/涨价11万	20251103	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.6%，历时98日）已轮动（窗口内走完）	20251124	0.0337	0.086	20260331
+industry_signals	65	存储芯片/韩国	20251103	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+15.7%，历时66日）已轮动（窗口内走完）	20251125	0.0984	0.1571	20260205
+industry_signals	66	OPEC+增产暂停/原油	20251103	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	67	台积电涨价/先进制程	20251103	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.7%，历时66日）已轮动（窗口内走完）	20251125	0.0984	0.1571	20260205
+industry_signals	68	Meta大模型/人才争夺	20251103	day	AI软件/应用	alias	closed	兑现完毕（峰值+10.9%，历时53日）已轮动（窗口内走完）	20251229	0.0357	0.1086	20260119
+industry_signals	69	特斯拉股东会/英伟达财报	20251103	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.7%，历时66日）已轮动（窗口内走完）	20251125	0.0984	0.1571	20260205
+industry_signals	70	铝价突破/中线看涨	20251104	day	有色金属	hint	closed	兑现完毕（峰值+42.2%，历时61日）已轮动（窗口内走完）	20251105	0.3358	0.4225	20260130
+industry_signals	71	电费补贴50%/国产芯片	20251104	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+15.7%，历时62日）已轮动（窗口内走完）	20251124	0.1067	0.1571	20260202
+industry_signals	72	特斯拉机器人/量产时间表	20251104	day	机器人	alias	closed	兑现完毕（峰值+10.4%，历时60日）已轮动（窗口内走完）	20251114	0.0358	0.1042	20260129
+industry_signals	73	SOFC金属铬盐/海外电网	20251104	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+13.2%，历时96日）已轮动（窗口内走完）	20251210	0.0819	0.1321	20260330
+industry_signals	74	增碳剂涨价	20251104	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	75	成熟制程转先进制程	20251104	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+15.7%，历时62日）已轮动（窗口内走完）	20251124	0.1067	0.1571	20260202
+industry_signals	76	需求爆发/AI数据中心	20251105	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+16.5%，历时64日）已轮动（窗口内走完）	20251125	0.1063	0.165	20260205
+industry_signals	77	需求爆发/欧洲储能	20251105	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+6.8%→+1.6%，96日）已轮动（窗口内走完）	20251124	0.0157	0.068	20260331
+industry_signals	78	事件催化/特斯拉机器人	20251105	day	机器人	alias	closed	兑现完毕（峰值+11.0%，历时59日）已轮动（窗口内走完）	20251114	0.0421	0.1105	20260129
+industry_signals	79	供给紧缺/产能上限	20251105	day	有色金属	hint	closed	兑现完毕（峰值+42.0%，历时60日）已轮动（窗口内走完）	20251106	0.3329	0.4196	20260130
+industry_signals	80	事件催化/时间表变动	20251105	day	商业航天/卫星	alias	closed	兑现完毕（峰值+66.2%，历时47日）已轮动（窗口内走完）	20251127	0.5988	0.662	20260113
+industry_signals	81	需求爆发/数据中心供电	20251106	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+14.7%，历时63日）已轮动（窗口内走完）	20251125	0.0881	0.1468	20260205
+industry_signals	82	涨价驱动/六氟磷酸锂	20251106	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+6.5%→+1.3%，95日）已轮动（窗口内走完）	20251124	0.0128	0.0651	20260331
+industry_signals	83	技术升级/固体氧化物燃料电池	20251106	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+6.5%→+1.3%，95日）已轮动（窗口内走完）	20251124	0.0128	0.0651	20260331
+industry_signals	84	需求爆发/光芯片	20251106	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+14.7%，历时63日）已轮动（窗口内走完）	20251125	0.0881	0.1468	20260205
+industry_signals	85	事件催化/小鹏发布	20251106	day	机器人	alias	closed	兑现完毕（峰值+10.6%，历时58日）已轮动（窗口内走完）	20251114	0.0378	0.1062	20260129
+industry_signals	86	供给紧缺/反内卷	20251106	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+13.1%，历时94日）已轮动（窗口内走完）	20251210	0.0813	0.1314	20260330
+industry_signals	87	涨价驱动/航空燃油	20251106	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	88	情绪周期/周期转换	20251106	day	电力/电网/算电协同/燃气轮机	hint	closed	兑现完毕（峰值+13.1%，历时94日）已轮动（窗口内走完）	20251210	0.0813	0.1314	20260330
+industry_signals	89	技术升级/金刚石钻头	20251109	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+15.8%，历时62日）已轮动（窗口内走完）	20251125	0.0989	0.1577	20260205
+industry_signals	90	涨价驱动/产能	20251109	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	91	涨价驱动/SAF	20251109	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	92	技术升级/半导体材料	20251109	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+15.3%，历时59日）已轮动（窗口内走完）	20251124	0.1021	0.1525	20260202
+industry_signals	93	情绪周期/第一周期	20251109	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	94	涨价驱动/电解液	20251109	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+6.7%→+1.5%，94日）已轮动（窗口内走完）	20251124	0.0152	0.0675	20260331
+industry_signals	95	事件催化/情绪周期	20251019	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	96	事件催化/鸿蒙产业链	20251019	day	消费电子/华为/鸿蒙	alias	closed	兑现完毕（峰值+8.7%，历时12日）已轮动（窗口内走完）	20251024	0.0353	0.0868	20251104
+industry_signals	97	需求爆发/GPU芯片	20251019	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+10.2%，历时10日）已轮动（窗口内走完）	20251024	0.0475	0.1024	20251031
+industry_signals	98	事件催化/成交量冰点	20251020	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+8.4%，历时9日）已轮动（窗口内走完）	20251024	0.029	0.0839	20251031
+industry_signals	99	涨价驱动/动力煤	20251020	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	100	技术升级/固态电池	20251020	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.9%，历时23日）已轮动（窗口内走完）	20251029	0.042	0.0985	20251120
+industry_signals	101	技术升级/大模型	20251020	day	AI软件/应用	alias	closed	兑现完毕（峰值+15.3%，历时63日）已轮动（窗口内走完）	20251229	0.0804	0.1533	20260119
+industry_signals	102	需求爆发/动力电池	20251020	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.9%，历时23日）已轮动（窗口内走完）	20251029	0.042	0.0985	20251120
+industry_signals	103	事件催化/成交量	20251021	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	104	需求爆发/特高压	20251021	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	105	技术升级/光模块	20251021	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+6.7%→+0.2%，8日）已轮动（窗口内走完）	20251024	0.0017	0.0668	20251031
+industry_signals	106	事件催化/国企改革	20251021	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	107	涨价驱动/钨	20251022	day	钨/小金属	hint	closed	兑现完毕（峰值+9.4%，历时9日）已轮动（窗口内走完）	20251023	0.0383	0.0938	20251104
+industry_signals	108	涨价驱动/动力煤	20251022	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	109	事件催化/HBM/存储	20251022	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+5.2%→-0.3%，7日）已轮动（窗口内走完）	20251024	-0.0025	0.0523	20251031
+industry_signals	110	事件催化/BD授权	20251022	day	创新药/医药/CRO	alias	closing	兑现中·回撤近警戒（峰值+0.1%→现-12.4%）	20251110	-0.124	0.001	
+industry_signals	111	技术升级/PCB材料	20251022	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+5.2%→-0.3%，7日）已轮动（窗口内走完）	20251024	-0.0025	0.0523	20251031
+industry_signals	112	需求爆发/机器人上游	20251022	day	机器人	alias	closed	兑现完毕·深回吐（峰值+8.8%→+2.0%，69日）已轮动（窗口内走完）	20251114	0.0199	0.0883	20260129
+industry_signals	113	事件催化/重建需求	20251022	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	114	事件催化/风格切换	20251022	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	115	事件催化/四中全会	20251023	day	商业航天/卫星	alias	closed	兑现完毕（峰值+68.0%，历时56日）已轮动（窗口内走完）	20251024	0.6164	0.6796	20260113
+industry_signals	116	事件催化/深圳国企改革	20251023	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	117	事件催化/量子计算	20251023	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	118	事件催化/特斯拉机器人	20251023	day	机器人	alias	closed	兑现完毕·深回吐（峰值+9.3%→+2.5%，68日）已轮动（窗口内走完）	20251114	0.0247	0.0931	20260129
+industry_signals	119	涨价驱动/钽	20251023	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	120	事件催化/股份注销	20251023	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	121	涨价驱动/VC添加剂	20251112	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.5%，历时91日）已轮动（窗口内走完）	20251124	0.0532	0.1055	20260331
+industry_signals	122	涨价驱动/铜	20251112	day	有色金属	hint	closed	兑现完毕（峰值+39.7%，历时55日）已轮动（窗口内走完）	20251127	0.3098	0.3965	20260130
+industry_signals	123	供给紧缺/铝	20251112	day	有色金属	hint	closed	兑现完毕（峰值+39.7%，历时55日）已轮动（窗口内走完）	20251127	0.3098	0.3965	20260130
+industry_signals	124	供给过剩/硅片降价	20251112	day	光伏	hint	closed	兑现完毕（峰值+10.6%，历时54日）已轮动（窗口内走完）	20251124	0.0388	0.1058	20260129
+industry_signals	125	情绪周期/第一周期	20251112	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	126	涨价驱动/黄金白银	20251113	day	黄金/贵金属	hint	closed	兑现完毕（峰值+24.8%，历时54日）已轮动（窗口内走完）	20251121	0.185	0.2482	20260130
+industry_signals	127	涨价驱动/VC添加剂	20251113	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.2%→+2.0%，90日）已轮动（窗口内走完）	20251124	0.0201	0.0724	20260331
+industry_signals	128	涨价驱动/有机硅DMC	20251113	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	129	涨价驱动/碳酸锂	20251113	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.2%→+2.0%，90日）已轮动（窗口内走完）	20251124	0.0201	0.0724	20260331
+industry_signals	130	涨价驱动/六氟磷酸锂	20251113	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.2%→+2.0%，90日）已轮动（窗口内走完）	20251124	0.0201	0.0724	20260331
+industry_signals	131	供给紧缺/锡	20251113	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	132	需求爆发/1.6T光模块	20251113	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+18.2%，历时23日）已轮动（窗口内走完）	20251117	0.1218	0.182	20251216
+industry_signals	133	涨价驱动/振华金属	20251113	day	有色金属	hint	closed	兑现完毕（峰值+36.5%，历时54日）已轮动（窗口内走完）	20251127	0.2785	0.3652	20260130
+industry_signals	134	涨价驱动/黄金白银	20251113	day	黄金/贵金属	hint	closed	兑现完毕（峰值+24.8%，历时54日）已轮动（窗口内走完）	20251121	0.185	0.2482	20260130
+industry_signals	135	涨价驱动/锂电池材料	20251113	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.2%→+2.0%，90日）已轮动（窗口内走完）	20251124	0.0201	0.0724	20260331
+industry_signals	136	需求爆发/储能电池采购	20251113	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.2%→+2.0%，90日）已轮动（窗口内走完）	20251124	0.0201	0.0724	20260331
+industry_signals	137	供给紧缺/锡铝锑	20251113	day	钨/小金属	hint	closed	兑现完毕（峰值+26.0%，历时54日）已轮动（窗口内走完）	20251219	0.1783	0.26	20260130
+industry_signals	138	情绪周期/第一周期	20251113	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.2%→+2.0%，90日）已轮动（窗口内走完）	20251124	0.0201	0.0724	20260331
+industry_signals	139	技术升级/固态电池	20251116	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时89日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	140	涨价驱动/碳酸锂	20251116	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时89日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	141	情绪周期/游资风险	20251116	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	142	事件催化/流感疫苗	20251116	day	创新药/医药/CRO	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-19.3%）	20251120	-0.1929	0.0	
+industry_signals	143	涨价驱动/碳酸锂	20251117	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+7.7%，历时88日）已轮动（窗口内走完）	20251124	0.0247	0.0771	20260331
+industry_signals	144	技术升级/固态电池	20251117	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+7.7%，历时88日）已轮动（窗口内走完）	20251124	0.0247	0.0771	20260331
+industry_signals	145	需求爆发/钠电池	20251117	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+7.7%，历时88日）已轮动（窗口内走完）	20251124	0.0247	0.0771	20260331
+industry_signals	146	需求爆发/OCS交换机	20251117	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+19.8%，历时56日）已轮动（窗口内走完）	20251125	0.1395	0.1983	20260205
+industry_signals	147	涨价驱动/碳酸锂	20251110	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.4%，历时93日）已轮动（窗口内走完）	20251124	0.0413	0.0937	20260331
+industry_signals	148	涨价驱动/电解液添加剂	20251110	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.4%，历时93日）已轮动（窗口内走完）	20251124	0.0413	0.0937	20260331
+industry_signals	149	涨价驱动/硅片	20251110	day	光伏	hint	closed	兑现完毕·深回吐（峰值+7.1%→+0.4%，56日）已轮动（窗口内走完）	20251124	0.0039	0.0709	20260129
+industry_signals	150	事件催化/央行储备	20251110	day	黄金/贵金属	hint	closed	兑现完毕（峰值+27.4%，历时57日）已轮动（窗口内走完）	20251121	0.2105	0.2737	20260130
+industry_signals	151	需求爆发/免税	20251110	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	152	供给紧缺/动力煤	20251110	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	153	需求爆发/代工	20251110	day	半导体/芯片/半导体材料	hint	closed	兑现完毕（峰值+16.1%，历时58日）已轮动（窗口内走完）	20251124	0.1103	0.1607	20260202
+industry_signals	154	涨价驱动/有机硅	20251110	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	155	涨价驱动/磷化工	20251110	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	156	供给紧缺/数据中心电力	20251110	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+16.8%，历时61日）已轮动（窗口内走完）	20251125	0.1092	0.1679	20260205
+industry_signals	157	技术升级/燃料电池	20251110	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.4%，历时93日）已轮动（窗口内走完）	20251124	0.0413	0.0937	20260331
+industry_signals	158	涨价驱动/硅料	20251110	day	光伏	alias	closed	兑现完毕·深回吐（峰值+7.1%→+0.4%，56日）已轮动（窗口内走完）	20251124	0.0039	0.0709	20260129
+industry_signals	159	供给紧缺/光器件	20251111	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+17.5%，历时25日）已轮动（窗口内走完）	20251117	0.1147	0.1749	20251216
+industry_signals	160	技术升级/固态电池	20251111	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时92日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	161	技术升级/钙钛矿	20251111	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+16.9%，历时57日）已轮动（窗口内走完）	20251124	0.1187	0.1691	20260202
+industry_signals	162	技术升级/BC电池	20251111	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时92日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	163	涨价驱动/硅片龙头	20251111	day	光伏	hint	closed	兑现完毕·深回吐（峰值+6.6%→-0.1%，55日）已轮动（窗口内走完）	20251124	-0.0007	0.0664	20260129
+industry_signals	164	需求爆发/储能电池	20251111	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时92日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	165	涨价驱动/电池材料	20251111	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时92日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	166	涨价驱动/钨铬	20251111	day	钨/小金属	hint	closed	兑现完毕（峰值+29.0%，历时56日）已轮动（窗口内走完）	20251219	0.2083	0.29	20260130
+industry_signals	167	事件催化/交割期	20251111	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	168	涨价驱动/VC添加剂	20251112	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.5%，历时91日）已轮动（窗口内走完）	20251124	0.0532	0.1055	20260331
+industry_signals	169	供给紧缺/反内卷政策	20251112	day	光伏	alias	closed	兑现完毕（峰值+10.6%，历时54日）已轮动（窗口内走完）	20251124	0.0388	0.1058	20260129
+industry_signals	170	供给紧缺/收储托底	20251112	day	光伏	alias	closed	兑现完毕（峰值+10.6%，历时54日）已轮动（窗口内走完）	20251124	0.0388	0.1058	20260129
+industry_signals	171	事件催化/商业航天	20251112	day	商业航天/卫星	alias	closed	兑现完毕（峰值+65.1%，历时42日）已轮动（窗口内走完）	20251127	0.5881	0.6513	20260113
+industry_signals	172	需求爆发/数据中心	20251120	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+19.0%，历时53日）已轮动（窗口内走完）	20251125	0.1316	0.1904	20260205
+industry_signals	173	涨价驱动/碳酸锂	20251120	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.2%，历时85日）已轮动（窗口内走完）	20251124	0.0693	0.1217	20260331
+industry_signals	174	涨价驱动/估值修复	20251120	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	175	涨价驱动/金属	20251120	day	有色金属	hint	closed	兑现完毕（峰值+36.5%，历时49日）已轮动（窗口内走完）	20251127	0.2784	0.3651	20260130
+industry_signals	176	涨价驱动/金属	20251120	day	有色金属	hint	closed	兑现完毕（峰值+36.5%，历时49日）已轮动（窗口内走完）	20251127	0.2784	0.3651	20260130
+industry_signals	177	涨价驱动/VC	20251120	day	商业航天/卫星	alias	closed	兑现完毕（峰值+66.4%，历时36日）已轮动（窗口内走完）	20251127	0.6004	0.6636	20260113
+industry_signals	178	技术升级/光通信	20251120	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+16.4%，历时18日）已轮动（窗口内走完）	20251125	0.1034	0.1636	20251216
+industry_signals	179	事件催化/国产替代	20251120	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+19.0%，历时53日）已轮动（窗口内走完）	20251125	0.1316	0.1904	20260205
+industry_signals	180	事件催化/政策	20251120	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	181	供给紧缺/VLCC	20251123	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	182	技术升级/灵巧手	20251123	day	机器人	alias	closed	兑现完毕（峰值+14.1%，历时47日）已轮动（窗口内走完）	20251127	0.0726	0.141	20260129
+industry_signals	183	涨价驱动/碳酸锂	20251123	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+6.3%→+0.9%，47日）已轮动（窗口内走完）	20251124	0.0092	0.0625	20260129
+industry_signals	184	事件催化/发射	20251124	day	商业航天/卫星	alias	closed	兑现完毕（峰值+62.9%，历时34日）已轮动（窗口内走完）	20251127	0.5656	0.6288	20260113
+industry_signals	185	技术升级/产业化	20251124	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+5.8%→+0.5%，46日）已轮动（窗口内走完）	20251205	0.0051	0.0585	20260129
+industry_signals	186	需求爆发/欧洲招标	20251124	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	187	事件催化/出口政策	20251124	day	有色金属	hint	closed	兑现完毕（峰值+40.0%，历时47日）已轮动（窗口内走完）	20251127	0.313	0.3997	20260130
+industry_signals	188	事件催化/IPO	20251124	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	189	涨价驱动/碳酸锂	20251117	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+7.7%，历时88日）已轮动（窗口内走完）	20251124	0.0247	0.0771	20260331
+industry_signals	190	涨价驱动/VC	20251117	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+7.7%，历时88日）已轮动（窗口内走完）	20251124	0.0247	0.0771	20260331
+industry_signals	191	需求爆发/储能	20251117	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+7.7%，历时88日）已轮动（窗口内走完）	20251124	0.0247	0.0771	20260331
+industry_signals	192	技术升级/固态电池	20251117	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+7.7%，历时88日）已轮动（窗口内走完）	20251124	0.0247	0.0771	20260331
+industry_signals	193	供给紧缺/存储芯片	20251117	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+19.8%，历时56日）已轮动（窗口内走完）	20251125	0.1395	0.1983	20260205
+industry_signals	194	需求爆发/OCS	20251117	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+19.8%，历时56日）已轮动（窗口内走完）	20251125	0.1395	0.1983	20260205
+industry_signals	195	供给紧缺/中芯国际	20251118	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+17.6%，历时52日）已轮动（窗口内走完）	20251124	0.1258	0.1761	20260202
+industry_signals	196	需求爆发/半导体设备	20251118	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+17.6%，历时52日）已轮动（窗口内走完）	20251124	0.1258	0.1761	20260202
+industry_signals	197	涨价驱动/碳酸锂	20251118	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.1%，历时87日）已轮动（窗口内走完）	20251124	0.0489	0.1012	20260331
+industry_signals	198	涨价驱动/磷酸铁锂	20251118	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	199	需求爆发/钠电池	20251118	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.1%，历时87日）已轮动（窗口内走完）	20251124	0.0489	0.1012	20260331
+industry_signals	200	需求爆发/柔直换流阀	20251118	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	201	供给紧缺/重稀土	20251119	day	稀土	hint	closed	兑现完毕（峰值+16.6%，历时42日）已轮动（窗口内走完）	20251210	0.1142	0.1655	20260120
+industry_signals	202	涨价驱动/VC	20251119	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	203	涨价驱动/AI	20251119	day	AI软件/应用	alias	closed	兑现完毕（峰值+16.4%，历时41日）已轮动（窗口内走完）	20251229	0.0908	0.1637	20260119
+industry_signals	204	需求爆发/OCS	20251119	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+19.1%，历时54日）已轮动（窗口内走完）	20251125	0.1321	0.1908	20260205
+industry_signals	205	涨价驱动/碳酸锂	20251119	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.2%，历时86日）已轮动（窗口内走完）	20251124	0.0599	0.1123	20260331
+industry_signals	206	事件催化/风电招标	20251119	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	207	供给紧缺/锂电隔膜	20251119	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.2%，历时86日）已轮动（窗口内走完）	20251124	0.0599	0.1123	20260331
+industry_signals	208	事件催化/AI融资	20251119	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	209	事件催化/摩尔线程	20251119	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+18.6%，历时51日）已轮动（窗口内走完）	20251124	0.1359	0.1862	20260202
+industry_signals	210	事件催化/英伟达财报	20251119	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+19.1%，历时54日）已轮动（窗口内走完）	20251125	0.1321	0.1908	20260205
+industry_signals	211	煤炭/数据中心用电	20251202	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+15.3%，历时45日）已轮动（窗口内走完）	20251208	0.0944	0.1531	20260205
+industry_signals	212	稀土/出口许可证	20251202	day	稀土	hint	closed	兑现完毕（峰值+17.4%，历时33日）已轮动（窗口内走完）	20251210	0.1229	0.1742	20260120
+industry_signals	213	商业航天/可回收火箭	20251202	day	商业航天/卫星	alias	closed	兑现完毕（峰值+62.0%，历时28日）已轮动（窗口内走完）	20251204	0.5569	0.6201	20260113
+industry_signals	214	CRDO/ACE有源铜缆	20251202	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.3%，历时45日）已轮动（窗口内走完）	20251208	0.0944	0.1531	20260205
+industry_signals	215	震荡市情绪	20251202	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	216	卫星互联网/千帆星座	20251203	day	商业航天/卫星	alias	closed	兑现完毕（峰值+63.0%，历时27日）已轮动（窗口内走完）	20251204	0.5672	0.6304	20260113
+industry_signals	217	英伟达/TIDAR AI	20251203	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.6%，历时44日）已轮动（窗口内走完）	20251208	0.0977	0.1565	20260205
+industry_signals	218	西芒杜铁矿	20251203	day	有色金属	hint	closed	兑现完毕（峰值+35.6%，历时40日）已轮动（窗口内走完）	20251204	0.2698	0.3565	20260130
+industry_signals	219	AI初创/Anthropic IPO	20251203	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	220	乌金矿涨价	20251203	day	有色金属	hint	closed	兑现完毕（峰值+35.6%，历时40日）已轮动（窗口内走完）	20251204	0.2698	0.3565	20260130
+industry_signals	221	Marvell收购光子芯片	20251203	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+19.0%，历时41日）已轮动（窗口内走完）	20251208	0.1393	0.1897	20260202
+industry_signals	222	芯片/摩尔线程+沐曦+长鑫	20251203	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+19.0%，历时41日）已轮动（窗口内走完）	20251208	0.1393	0.1897	20260202
+industry_signals	223	市场情绪偏弱	20251203	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	224	钨矿涨价	20251204	day	钨/小金属	hint	closed	兑现完毕（峰值+27.4%，历时39日）已轮动（窗口内走完）	20251219	0.1926	0.2743	20260130
+industry_signals	225	机器人/特朗普行政命令	20251204	day	机器人	alias	closed	兑现完毕（峰值+13.2%，历时38日）已轮动（窗口内走完）	20260108	0.0639	0.1323	20260129
+industry_signals	226	天然气/欧盟禁俄	20251204	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	227	机器人/氮化镓驱动电机	20251204	day	机器人	alias	closed	兑现完毕（峰值+13.2%，历时38日）已轮动（窗口内走完）	20260108	0.0639	0.1323	20260129
+industry_signals	228	铜/供给紧张	20251204	day	有色金属	hint	closed	兑现完毕（峰值+35.6%，历时39日）已轮动（窗口内走完）	20251217	0.2689	0.3556	20260130
+industry_signals	229	钨矿持续涨价	20251204	day	钨/小金属	hint	closed	兑现完毕（峰值+27.4%，历时39日）已轮动（窗口内走完）	20251219	0.1926	0.2743	20260130
+industry_signals	230	核电/小型核反应堆	20251204	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	231	商业航天/中国卫星	20251204	day	商业航天/卫星	alias	closed	兑现完毕（峰值+60.8%，历时26日）已轮动（窗口内走完）	20251210	0.5448	0.608	20260113
+industry_signals	232	半导体设备/长鑫长江存储	20251204	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+17.0%，历时40日）已轮动（窗口内走完）	20251208	0.1201	0.1704	20260202
+industry_signals	233	机器人/特斯拉V3	20251204	day	机器人	alias	closed	兑现完毕（峰值+13.2%，历时38日）已轮动（窗口内走完）	20260108	0.0639	0.1323	20260129
+industry_signals	234	市场情绪冰点	20251204	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	235	涨价驱动/硫铁矿	20251130	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	236	供给紧缺/磷酸铁锂	20251130	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	237	涨价驱动/碳酸锂	20251130	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.6%，历时79日）已轮动（窗口内走完）	20251205	0.0641	0.1165	20260331
+industry_signals	238	需求爆发/AI消费电子	20251130	day	消费电子/华为/鸿蒙	alias	closed	兑现完毕·深回吐（峰值+8.9%→+2.0%，46日）已轮动（窗口内走完）	20251222	0.0195	0.0885	20260204
+industry_signals	239	技术升级/OCS	20251130	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+16.4%，历时47日）已轮动（窗口内走完）	20251208	0.1049	0.1637	20260205
+industry_signals	240	涨价驱动/贵金属	20251130	day	黄金/贵金属	hint	closed	兑现完毕（峰值+22.2%，历时43日）已轮动（窗口内走完）	20251210	0.1591	0.2223	20260130
+industry_signals	241	事件催化/商业航天	20251130	day	商业航天/卫星	alias	closed	兑现完毕（峰值+62.6%，历时30日）已轮动（窗口内走完）	20251204	0.5632	0.6264	20260113
+industry_signals	242	情绪周期/市场情绪	20251130	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	243	涨价驱动/存储芯片	20251201	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+15.2%，历时46日）已轮动（窗口内走完）	20251208	0.0929	0.1516	20260205
+industry_signals	244	涨价驱动/CCL覆铜板	20251201	day	有色金属	hint	closed	兑现完毕（峰值+35.8%，历时42日）已轮动（窗口内走完）	20251203	0.2709	0.3576	20260130
+industry_signals	245	涨价驱动/白银铜	20251201	day	黄金/贵金属	hint	closed	兑现完毕（峰值+22.3%，历时42日）已轮动（窗口内走完）	20251210	0.1599	0.2231	20260130
+industry_signals	246	技术升级/VDP垂直供电	20251201	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.2%，历时46日）已轮动（窗口内走完）	20251208	0.0929	0.1516	20260205
+industry_signals	247	技术升级/GaN驱动	20251201	day	机器人	alias	closed	兑现完毕（峰值+13.6%，历时41日）已轮动（窗口内走完）	20251204	0.0675	0.1359	20260129
+industry_signals	248	需求爆发/AI手机	20251201	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+15.2%，历时46日）已轮动（窗口内走完）	20251208	0.0929	0.1516	20260205
+industry_signals	249	事件催化/商业航天	20251201	day	商业航天/卫星	alias	closed	兑现完毕（峰值+62.3%，历时29日）已轮动（窗口内走完）	20251204	0.5594	0.6226	20260113
+industry_signals	250	事件催化/美联储降息	20251201	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	251	事件催化/日本加息	20251201	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	252	情绪周期/连板梯队	20251201	day	创新药/医药/CRO	alias	closing	兑现中·回撤近警戒（峰值+0.6%→现-25.9%）	20251209	-0.2586	0.0061	
+industry_signals	253	涨价驱动/稀土	20251202	day	稀土	hint	closed	兑现完毕（峰值+17.4%，历时33日）已轮动（窗口内走完）	20251210	0.1229	0.1742	20260120
+industry_signals	254	涨价驱动/铬化工	20251202	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	255	涨价驱动/ACE有源铜缆	20251202	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.3%，历时45日）已轮动（窗口内走完）	20251208	0.0944	0.1531	20260205
+industry_signals	256	需求爆发/卫星地面基站	20251202	day	商业航天/卫星	alias	closed	兑现完毕（峰值+62.0%，历时28日）已轮动（窗口内走完）	20251204	0.5569	0.6201	20260113
+industry_signals	257	事件催化/商业航天	20251202	day	商业航天/卫星	alias	closed	兑现完毕（峰值+62.0%，历时28日）已轮动（窗口内走完）	20251204	0.5569	0.6201	20260113
+industry_signals	258	供给紧缺/黑钨精矿	20251207	day	钨/小金属	hint	closed	兑现完毕（峰值+26.9%，历时38日）已轮动（窗口内走完）	20251219	0.187	0.2687	20260130
+industry_signals	259	涨价驱动/有机硅DMC	20251207	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	260	技术升级/华为升腾	20251207	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+18.2%，历时39日）已轮动（窗口内走完）	20251208	0.1312	0.1816	20260202
+industry_signals	261	事件催化/SpaceX上市	20251207	day	商业航天/卫星	alias	closed	兑现完毕（峰值+58.7%，历时25日）已轮动（窗口内走完）	20251210	0.5234	0.5866	20260113
+industry_signals	262	事件催化/长征十二甲发射	20251207	day	商业航天/卫星	alias	closed	兑现完毕（峰值+58.7%，历时25日）已轮动（窗口内走完）	20251210	0.5234	0.5866	20260113
+industry_signals	263	事件催化/美联储降息+日本加息	20251207	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	264	事件催化/保险资金入市	20251207	day	券商/金融	alias	closing	兑现中·回撤近警戒（峰值+2.9%→现-22.1%）	20251215	-0.221	0.0294	
+industry_signals	265	涨价驱动/铜铝银	20251207	day	有色金属	hint	closed	兑现完毕（峰值+33.9%，历时38日）已轮动（窗口内走完）	20251217	0.252	0.3387	20260130
+industry_signals	266	技术升级/CW光源+光芯片	20251207	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+14.9%，历时42日）已轮动（窗口内走完）	20251208	0.0901	0.1489	20260205
+industry_signals	267	需求爆发/小型核反应堆	20251207	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	268	需求爆发/特斯拉机器人	20251207	day	机器人	alias	closed	兑现完毕（峰值+12.9%，历时37日）已轮动（窗口内走完）	20260108	0.0601	0.1285	20260129
+industry_signals	269	供给紧缺/火箭合金材料	20251207	day	商业航天/卫星	alias	closed	兑现完毕（峰值+58.7%，历时25日）已轮动（窗口内走完）	20251210	0.5234	0.5866	20260113
+industry_signals	270	事件催化/政治局会议	20251208	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	271	情绪周期/量能放量	20251208	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	272	供给紧缺/芯片禁令+TPU需求	20251208	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+11.7%，历时41日）已轮动（窗口内走完）	20251222	0.0583	0.1171	20260205
+industry_signals	273	技术升级/华为产业链Q1密集发布	20251208	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	274	供给紧缺/3D打印火箭材料	20251208	day	商业航天/卫星	alias	closed	兑现完毕（峰值+58.0%，历时24日）已轮动（窗口内走完）	20251210	0.5165	0.5797	20260113
+industry_signals	275	技术升级/光隔离器+高速铜缆	20251208	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+11.7%，历时41日）已轮动（窗口内走完）	20251222	0.0583	0.1171	20260205
+industry_signals	276	需求爆发/NVlink+电子部产能	20251208	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+11.7%，历时41日）已轮动（窗口内走完）	20251222	0.0583	0.1171	20260205
+industry_signals	277	需求爆发/锂电主材切换	20251208	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.5%，历时73日）已轮动（窗口内走完）	20251222	0.0629	0.1152	20260331
+industry_signals	278	情绪周期/第三周期特征	20251208	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	279	事件催化/美联储利率决议	20251209	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	280	事件催化/英伟达出口许可	20251209	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+9.7%，历时40日）已轮动（窗口内走完）	20251222	0.0378	0.0965	20260205
+industry_signals	281	供给紧缺/HBM4延期	20251209	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+9.7%，历时40日）已轮动（窗口内走完）	20251222	0.0378	0.0965	20260205
+industry_signals	282	涨价驱动/锂电储能二线涨价	20251209	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.3%，历时72日）已轮动（窗口内走完）	20251222	0.0612	0.1135	20260331
+industry_signals	283	事件催化/长征十二甲发射窗口	20251209	day	商业航天/卫星	alias	closed	兑现完毕（峰值+58.0%，历时23日）已轮动（窗口内走完）	20251210	0.517	0.5802	20260113
+industry_signals	284	涨价驱动/多晶硅	20251209	day	光伏	alias	closed	兑现完毕（峰值+15.6%，历时35日）已轮动（窗口内走完）	20251223	0.0891	0.1562	20260129
+industry_signals	285	涨价驱动/储能锂电	20251209	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.3%，历时72日）已轮动（窗口内走完）	20251222	0.0612	0.1135	20260331
+industry_signals	286	涨价驱动/多晶硅	20251209	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	287	事件催化/火箭发射	20251209	day	商业航天/卫星	alias	closed	兑现完毕（峰值+58.0%，历时23日）已轮动（窗口内走完）	20251210	0.517	0.5802	20260113
+industry_signals	288	情绪周期/第三周期	20251209	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	289	需求爆发/CPI拐点	20251210	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	290	涨价驱动/锂电隔膜	20251210	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.3%，历时71日）已轮动（窗口内走完）	20251222	0.0704	0.1227	20260331
+industry_signals	291	事件催化/逼仓	20251210	day	黄金/贵金属	hint	closed	兑现完毕（峰值+23.4%，历时35日）已轮动（窗口内走完）	20251211	0.1703	0.2336	20260130
+industry_signals	292	需求爆发/机器人	20251210	day	机器人	alias	closed	兑现完毕（峰值+12.5%，历时34日）已轮动（窗口内走完）	20260108	0.0567	0.1251	20260129
+industry_signals	293	技术升级/国产芯片替代	20251210	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+16.0%，历时36日）已轮动（窗口内走完）	20251222	0.1095	0.1599	20260202
+industry_signals	294	事件催化/地产债务	20251210	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	295	事件催化/密集事件窗口	20251210	day	消费电子/华为/鸿蒙	alias	closed	兑现完毕·深回吐（峰值+6.4%→-0.5%，38日）已轮动（窗口内走完）	20251222	-0.0049	0.0641	20260204
+industry_signals	296	技术升级/芯片扩产	20251210	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+16.0%，历时36日）已轮动（窗口内走完）	20251222	0.1095	0.1599	20260202
+industry_signals	297	需求爆发/电网投资	20251211	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+16.7%，历时69日）已轮动（窗口内走完）	20260112	0.117	0.1672	20260330
+industry_signals	298	涨价驱动/钨	20251211	day	钨/小金属	hint	closed	兑现完毕（峰值+26.1%，历时34日）已轮动（窗口内走完）	20251219	0.1791	0.2608	20260130
+industry_signals	299	事件催化/风电解禁	20251211	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	300	需求爆发/AI算力	20251211	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+8.4%，历时38日）已轮动（窗口内走完）	20260114	0.0257	0.0841	20260205
+industry_signals	301	事件催化/美联储政策	20251211	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	302	情绪周期/第四周期	20251211	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	303	事件催化/定增重组	20251211	day	商业航天/卫星	alias	closed	兑现完毕（峰值+54.2%，历时21日）已轮动（窗口内走完）	20251212	0.4787	0.5419	20260113
+industry_signals	304	事件催化/债务危机	20251214	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	305	事件催化/避险	20251214	day	黄金/贵金属	hint	closed	兑现完毕（峰值+21.7%，历时33日）已轮动（窗口内走完）	20260108	0.1542	0.2174	20260130
+industry_signals	306	技术升级/购置税	20251214	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.3%，历时69日）已轮动（窗口内走完）	20251222	0.0711	0.1234	20260331
+industry_signals	307	供给紧缺/产能	20251214	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+16.4%，历时34日）已轮动（窗口内走完）	20251222	0.1134	0.1638	20260202
+industry_signals	308	事件催化/IPO	20251214	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+10.6%，历时37日）已轮动（窗口内走完）	20251222	0.0468	0.1055	20260205
+industry_signals	309	事件催化/发射	20251214	day	商业航天/卫星	alias	closed	兑现完毕（峰值+53.1%，历时20日）已轮动（窗口内走完）	20251218	0.4679	0.5311	20260113
+industry_signals	310	需求爆发/数据中心供电	20251214	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+10.6%，历时37日）已轮动（窗口内走完）	20251222	0.0468	0.1055	20260205
+industry_signals	311	情绪周期/市场周期	20251214	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	312	事件催化/汇率	20251214	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	313	事件催化/收益率	20251214	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	314	供给紧缺/质疑	20251214	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+10.6%，历时37日）已轮动（窗口内走完）	20251222	0.0468	0.1055	20260205
+industry_signals	315	事件催化/出口政策	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	316	涨价驱动/反内卷	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	317	需求爆发/补贴	20251215	day	光伏	alias	closed	兑现完毕（峰值+16.3%，历时31日）已轮动（窗口内走完）	20251223	0.0956	0.1627	20260129
+industry_signals	318	事件催化/整合	20251215	day	有色金属	hint	closed	兑现完毕（峰值+34.9%，历时32日）已轮动（窗口内走完）	20251217	0.2622	0.3489	20260130
+industry_signals	319	需求爆发/销量	20251215	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.2%，历时68日）已轮动（窗口内走完）	20251222	0.0697	0.122	20260331
+industry_signals	320	情绪周期/冰点	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	321	事件催化/风险因子	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	322	事件催化/票房	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	323	事件催化/股权	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	324	事件催化/汇率	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	325	事件催化/CPI	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	326	需求爆发/超额装机	20251215	day	光伏	alias	closed	兑现完毕（峰值+16.3%，历时31日）已轮动（窗口内走完）	20251223	0.0956	0.1627	20260129
+industry_signals	327	事件催化/延期	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	328	涨价驱动/估值	20251216	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	329	事件催化/人民币	20251216	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	330	技术升级/L3L4	20251216	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	331	技术升级/定增	20251216	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+5.2%→-0.2%，30日）已轮动（窗口内走完）	20251222	-0.0017	0.0517	20260129
+industry_signals	332	需求爆发/产能	20251216	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+13.7%，历时35日）已轮动（窗口内走完）	20251222	0.0778	0.1365	20260205
+industry_signals	333	技术升级/存储	20251216	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+13.7%，历时35日）已轮动（窗口内走完）	20251222	0.0778	0.1365	20260205
+industry_signals	334	情绪周期/冰点	20251216	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	335	技术升级/L3自动驾驶	20251216	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	336	供给紧缺/谷歌订单	20251216	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+13.7%，历时35日）已轮动（窗口内走完）	20251222	0.0778	0.1365	20260205
+industry_signals	337	技术升级/昇腾950	20251216	day	半导体/芯片/半导体材料	hint	closed	兑现完毕（峰值+19.1%，历时32日）已轮动（窗口内走完）	20251222	0.1402	0.1906	20260202
+industry_signals	338	需求爆发/AI芯片国产替代	20251216	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+19.1%，历时32日）已轮动（窗口内走完）	20251222	0.1402	0.1906	20260202
+industry_signals	339	事件催化/IRA法案	20251216	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+5.2%→-0.2%，30日）已轮动（窗口内走完）	20251222	-0.0017	0.0517	20260129
+industry_signals	340	涨价驱动/白银	20251217	day	黄金/贵金属	hint	closed	兑现完毕（峰值+21.0%，历时30日）已轮动（窗口内走完）	20260108	0.1463	0.2096	20260130
+industry_signals	341	涨价驱动/钨	20251217	day	钨/小金属	hint	closed	兑现完毕（峰值+25.2%，历时30日）已轮动（窗口内走完）	20251219	0.1707	0.2525	20260130
+industry_signals	342	需求爆发/AI扩张	20251217	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+7.4%→+1.5%，34日）已轮动（窗口内走完）	20260114	0.0154	0.0739	20260205
+industry_signals	343	需求爆发/谷歌订单	20251217	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+11.3%，历时34日）已轮动（窗口内走完）	20251222	0.0543	0.113	20260205
+industry_signals	344	需求爆发/AI扩张	20251217	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+7.4%→+1.5%，34日）已轮动（窗口内走完）	20260114	0.0154	0.0739	20260205
+industry_signals	345	供给紧缺/碳酸锂涨价	20251217	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.7%，历时66日）已轮动（窗口内走完）	20251222	0.0642	0.1165	20260331
+industry_signals	346	事件催化/券商合并	20251217	day	券商/金融	alias	closing	兑现中·回撤近警戒（峰值+0.9%→现-24.1%）	20251224	-0.2411	0.0094	
+industry_signals	347	供给紧缺/印尼镍政策	20251218	day	有色金属	hint	closed	兑现完毕（峰值+34.3%，历时29日）已轮动（窗口内走完）	20251219	0.256	0.3427	20260130
+industry_signals	348	事件催化/甲骨文债务	20251218	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+12.1%，历时33日）已轮动（窗口内走完）	20251222	0.0623	0.1211	20260205
+industry_signals	349	需求爆发/AI调用量	20251218	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+12.1%，历时33日）已轮动（窗口内走完）	20251222	0.0623	0.1211	20260205
+industry_signals	350	涨价驱动/美光	20251218	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+12.1%，历时33日）已轮动（窗口内走完）	20251222	0.0623	0.1211	20260205
+industry_signals	351	需求爆发/AI应用	20251218	day	AI软件/应用	alias	closed	兑现完毕（峰值+21.5%，历时20日）已轮动（窗口内走完）	20251229	0.1423	0.2151	20260119
+industry_signals	352	事件催化/长征十二甲	20251218	day	商业航天/卫星	alias	closed	兑现完毕（峰值+47.0%，历时16日）已轮动（窗口内走完）	20251224	0.4068	0.47	20260113
+industry_signals	353	需求爆发/降息预期	20251218	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	354	周期转折/第四转第一周期	20251218	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	355	事件催化/中东地缘	20251230	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	356	技术升级/特斯拉供应链	20251230	day	商业航天/卫星	alias	closed	兑现完毕（峰值+35.5%，历时8日）已轮动（窗口内走完）	20251231	0.2919	0.3551	20260113
+industry_signals	357	事件催化/金融IT	20251230	day	券商/金融	alias	closing	兑现中·回撤近警戒（峰值+2.7%→现-22.4%）	20251231	-0.2238	0.0266	
+industry_signals	358	事件催化/跨年主题	20251230	day	机器人	alias	closed	兑现完毕·深回吐（峰值+8.9%→+2.0%，20日）已轮动（窗口内走完）	20260108	0.0201	0.0885	20260129
+industry_signals	359	事件催化/委内瑞拉局势	20260104	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	360	事件催化/超级IPO	20260104	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+9.2%，历时24日）已轮动（窗口内走完）	20260107	0.0331	0.0918	20260205
+industry_signals	361	事件催化/IPO影子股	20260104	day	商业航天/卫星	alias	closed	兑现完毕（峰值+27.4%，历时7日）已轮动（窗口内走完）	20260108	0.2105	0.2737	20260113
+industry_signals	362	涨价驱动/估值重估	20260104	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+9.2%，历时24日）已轮动（窗口内走完）	20260107	0.0331	0.0918	20260205
+industry_signals	363	事件催化/宇树IPO	20260104	day	机器人	alias	closed	兑现完毕·深回吐（峰值+8.9%→+2.1%，19日）已轮动（窗口内走完）	20260108	0.0208	0.0892	20260129
+industry_signals	364	需求爆发/资金迁移	20260105	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	365	事件催化/马斯克量产	20260105	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	366	需求爆发/政策驱动	20260105	day	电力/电网/算电协同/燃气轮机	hint	closed	兑现完毕（峰值+21.8%，历时54日）已轮动（窗口内走完）	20260112	0.1679	0.218	20260330
+industry_signals	367	事件催化/DeepSeek发布	20260105	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	368	涨价驱动/底部回升	20260105	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.5%，历时55日）已轮动（窗口内走完）	20260107	0.0722	0.1246	20260331
+industry_signals	369	涨价驱动/供给紧缺	20260105	day	有色金属	hint	closed	兑现完毕（峰值+26.6%，历时19日）已轮动（窗口内走完）	20260109	0.1796	0.2663	20260130
+industry_signals	370	技术升级/封装演进	20260105	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕·深回吐（峰值+7.8%→+1.9%，23日）已轮动（窗口内走完）	20260107	0.0195	0.0782	20260205
+industry_signals	371	涨价驱动/覆铜板	20251228	day	有色金属	hint	closed	兑现完毕（峰值+28.6%，历时23日）已轮动（窗口内走完）	20251230	0.1991	0.2858	20260130
+industry_signals	372	涨价驱动/锂矿	20251228	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.2%，历时59日）已轮动（窗口内走完）	20260107	0.0396	0.0919	20260331
+industry_signals	373	供给紧缺/储能	20251228	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.2%，历时59日）已轮动（窗口内走完）	20260107	0.0396	0.0919	20260331
+industry_signals	374	供给紧缺/停产检修	20251228	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	375	事件催化/科创板	20251228	day	商业航天/卫星	alias	closed	兑现完毕（峰值+36.7%，历时10日）已轮动（窗口内走完）	20251231	0.3033	0.3665	20260113
+industry_signals	376	情绪周期/第二周期	20251228	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	377	事件催化/外汇掉期	20251228	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	378	事件催化/外汇掉期	20251229	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	379	需求爆发/特斯拉	20251229	day	机器人	alias	closed	兑现完毕（峰值+11.9%，历时21日）已轮动（窗口内走完）	20260108	0.0503	0.1187	20260129
+industry_signals	380	需求爆发/华为算力	20251229	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+6.0%→-0.3%，48日）已轮动（窗口内走完）	20260114	-0.0027	0.06	20260317
+industry_signals	381	需求爆发/户用储能	20251229	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.7%，历时58日）已轮动（窗口内走完）	20260107	0.055	0.1074	20260331
+industry_signals	382	涨价驱动/利润分化	20251229	day	机器人	alias	closed	兑现完毕（峰值+11.9%，历时21日）已轮动（窗口内走完）	20260108	0.0503	0.1187	20260129
+industry_signals	383	事件催化/保证金上调	20251229	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.7%，历时58日）已轮动（窗口内走完）	20260107	0.055	0.1074	20260331
+industry_signals	384	情绪周期/第二周期	20251229	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	385	事件催化/地缘冲突	20251230	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	386	事件催化/数字人民币	20251230	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	387	情绪周期/控盘	20251230	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	388	涨价驱动/模拟芯片	20251221	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+18.8%，历时29日）已轮动（窗口内走完）	20251222	0.1377	0.188	20260202
+industry_signals	389	供给紧缺/磷肥	20251221	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	390	供给紧缺/铝	20251221	day	有色金属	hint	closed	兑现完毕（峰值+32.7%，历时28日）已轮动（窗口内走完）	20251222	0.2405	0.3272	20260130
+industry_signals	391	涨价驱动/光纤	20251221	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+8.5%，历时32日）已轮动（窗口内走完）	20260114	0.0264	0.0848	20260205
+industry_signals	392	技术升级/AI算力	20251221	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+8.5%，历时32日）已轮动（窗口内走完）	20260114	0.0264	0.0848	20260205
+industry_signals	393	事件催化/汇率	20251221	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	394	事件催化/情绪周期	20251221	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	395	事件催化/商业航天	20251221	day	商业航天/卫星	alias	closed	兑现完毕（峰值+46.6%，历时15日）已轮动（窗口内走完）	20251224	0.4026	0.4658	20260113
+industry_signals	396	需求爆发/智能驾驶	20251221	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	397	涨价驱动/黄金	20251222	day	黄金/贵金属	hint	closed	兑现完毕（峰值+19.5%，历时27日）已轮动（窗口内走完）	20260108	0.1314	0.1946	20260130
+industry_signals	398	需求爆发/消费	20251222	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	399	涨价驱动/光伏	20251222	day	光伏	alias	closed	兑现完毕（峰值+18.5%，历时26日）已轮动（窗口内走完）	20251223	0.1179	0.185	20260129
+industry_signals	400	事件催化/商业航天	20251222	day	商业航天/卫星	alias	closed	兑现完毕（峰值+45.8%，历时14日）已轮动（窗口内走完）	20251224	0.3948	0.458	20260113
+industry_signals	401	供给紧缺/PCB材料	20251222	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+9.2%，历时31日）已轮动（窗口内走完）	20260107	0.0334	0.0921	20260205
+industry_signals	402	需求爆发/半导体设备	20251222	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+16.8%，历时28日）已轮动（窗口内走完）	20260105	0.1172	0.1676	20260202
+industry_signals	403	技术升级/光通信	20251222	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+6.3%→+0.1%，53日）已轮动（窗口内走完）	20260114	0.0006	0.0633	20260317
+industry_signals	404	事件催化/情绪周期	20251222	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+16.8%，历时28日）已轮动（窗口内走完）	20260105	0.1172	0.1676	20260202
+industry_signals	405	涨价驱动/有色金属	20251223	day	有色金属	hint	closed	兑现完毕（峰值+31.0%，历时26日）已轮动（窗口内走完）	20251230	0.2229	0.3096	20260130
+industry_signals	406	需求爆发/光热发电	20251223	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	407	事件催化/科技硬件	20251223	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+5.1%→-0.7%，30日）已轮动（窗口内走完）	20260114	-0.0072	0.0513	20260205
+industry_signals	408	事件催化/情绪周期	20251223	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	409	涨价驱动/钨	20251223	day	钨/小金属	hint	closed	兑现完毕（峰值+21.5%，历时26日）已轮动（窗口内走完）	20251230	0.1331	0.2148	20260130
+industry_signals	410	技术升级/洁净室	20251223	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+16.3%，历时27日）已轮动（窗口内走完）	20260105	0.1123	0.1627	20260202
+industry_signals	411	供给紧缺/铜	20251223	day	有色金属	hint	closed	兑现完毕（峰值+31.0%，历时26日）已轮动（窗口内走完）	20251230	0.2229	0.3096	20260130
+industry_signals	412	事件催化/光热发电	20251223	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	413	需求爆发/人民币升值	20251224	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	414	需求爆发/美元降息	20251224	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	415	事件催化/抢出口	20251224	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+15.3%，历时26日）已轮动（窗口内走完）	20260105	0.1026	0.1529	20260202
+industry_signals	416	涨价驱动/原材料	20251224	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕·深回吐（峰值+7.9%→+2.0%，29日）已轮动（窗口内走完）	20260107	0.0203	0.0791	20260205
+industry_signals	417	涨价驱动/金属逼空	20251224	day	有色金属	hint	closed	兑现完毕（峰值+30.8%，历时25日）已轮动（窗口内走完）	20251230	0.2211	0.3078	20260130
+industry_signals	418	涨价驱动/储能	20251224	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.5%，历时61日）已轮动（窗口内走完）	20260107	0.0428	0.0951	20260331
+industry_signals	419	涨价驱动/碳酸锂	20251224	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.5%，历时61日）已轮动（窗口内走完）	20260107	0.0428	0.0951	20260331
+industry_signals	420	需求爆发/电力瓶颈	20251224	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+17.8%，历时60日）已轮动（窗口内走完）	20260112	0.1282	0.1784	20260330
+industry_signals	421	事件催化/火箭	20251224	day	商业航天/卫星	alias	closed	兑现完毕（峰值+45.4%，历时12日）已轮动（窗口内走完）	20251225	0.3908	0.454	20260113
+industry_signals	422	技术升级/重组上市	20251224	day	机器人	alias	closed	兑现完毕（峰值+15.6%，历时24日）已轮动（窗口内走完）	20260108	0.0875	0.1559	20260129
+industry_signals	423	涨价驱动/纸浆	20251224	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	424	技术升级/洁净室趋势	20251225	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+15.8%，历时25日）已轮动（窗口内走完）	20260105	0.1079	0.1583	20260202
+industry_signals	425	技术升级/光模块	20251225	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+5.2%→-1.1%，50日）已轮动（窗口内走完）	20260114	-0.0107	0.0521	20260317
+industry_signals	426	技术升级/液冷	20251225	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+8.2%→+2.3%，28日）已轮动（窗口内走完）	20260107	0.0231	0.0819	20260205
+industry_signals	427	技术升级/PCB	20251225	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+8.2%→+2.3%，28日）已轮动（窗口内走完）	20260107	0.0231	0.0819	20260205
+industry_signals	428	技术升级/SRAM	20251225	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕·深回吐（峰值+8.2%→+2.3%，28日）已轮动（窗口内走完）	20260107	0.0231	0.0819	20260205
+industry_signals	429	技术升级/核心零部件	20251225	day	机器人	alias	closed	兑现完毕（峰值+12.8%，历时23日）已轮动（窗口内走完）	20260108	0.06	0.1284	20260129
+industry_signals	430	事件催化/核聚变	20251225	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	431	事件催化/地缘风险	20251225	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	432	事件催化/第一周期回调	20251223	day	商业航天/卫星	alias	closed	兑现完毕（峰值+50.3%，历时13日）已轮动（窗口内走完）	20251224	0.4398	0.5031	20260113
+industry_signals	433	事件催化/逼空行情	20251224	day	有色金属	hint	closed	兑现完毕（峰值+30.8%，历时25日）已轮动（窗口内走完）	20251230	0.2211	0.3078	20260130
+industry_signals	434	事件催化/进入第二周期	20251225	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	435	事件催化/季度末调仓	20251225	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	436	需求爆发/人民币升值	20251225	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	437	技术升级/特斯拉供应链	20251230	day	机器人	alias	closed	兑现完毕·深回吐（峰值+8.9%→+2.0%，20日）已轮动（窗口内走完）	20260108	0.0201	0.0885	20260129
+industry_signals	438	事件催化/原油涨价	20251230	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	439	技术升级/数字人民币	20251230	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	440	第二周期/情绪信号	20251230	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	441	事件催化/油气开采	20260104	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	442	事件催化/超级IPO	20260104	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+9.2%，历时24日）已轮动（窗口内走完）	20260107	0.0331	0.0918	20260205
+industry_signals	443	事件催化/影子股	20260104	day	商业航天/卫星	alias	closed	兑现完毕（峰值+27.4%，历时7日）已轮动（窗口内走完）	20260108	0.2105	0.2737	20260113
+industry_signals	444	技术升级/GPU估值	20260104	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+9.2%，历时24日）已轮动（窗口内走完）	20260107	0.0331	0.0918	20260205
+industry_signals	445	第二周期/情绪信号	20260104	day	商业航天/卫星	alias	closed	兑现完毕（峰值+27.4%，历时7日）已轮动（窗口内走完）	20260108	0.2105	0.2737	20260113
+industry_signals	446	技术升级/特斯拉供应链	20260104	day	机器人	alias	closed	兑现完毕·深回吐（峰值+8.9%→+2.1%，19日）已轮动（窗口内走完）	20260108	0.0208	0.0892	20260129
+industry_signals	447	需求爆发/卫星运营	20260104	day	商业航天/卫星	alias	closed	兑现完毕（峰值+27.4%，历时7日）已轮动（窗口内走完）	20260108	0.2105	0.2737	20260113
+industry_signals	448	事件催化/业绩预告	20260104	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	449	事件催化/脑机接口	20260105	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	450	涨价驱动/金属	20260105	day	有色金属	hint	closed	兑现完毕（峰值+26.6%，历时19日）已轮动（窗口内走完）	20260109	0.1796	0.2663	20260130
+industry_signals	451	技术升级/PCB封装	20260105	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+7.8%→+1.9%，23日）已轮动（窗口内走完）	20260107	0.0195	0.0782	20260205
+industry_signals	452	需求爆发/储能政策	20260105	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.5%，历时55日）已轮动（窗口内走完）	20260107	0.0722	0.1246	20260331
+industry_signals	453	涨价驱动/碳酸锂	20260105	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.5%，历时55日）已轮动（窗口内走完）	20260107	0.0722	0.1246	20260331
+industry_signals	454	事件催化/DeepSeek	20260105	day	有色金属	hint	closed	兑现完毕（峰值+26.6%，历时19日）已轮动（窗口内走完）	20260109	0.1796	0.2663	20260130
+industry_signals	455	需求爆发/保险资金	20260105	day	券商/金融	alias	closing	兑现中·回撤近警戒（峰值+2.6%→现-22.5%）	20260122	-0.2246	0.0258	
+industry_signals	456	事件催化/标的筛选	20260105	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	457	技术升级/卫星运营	20260105	day	商业航天/卫星	alias	closed	兑现完毕（峰值+26.4%，历时6日）已轮动（窗口内走完）	20260108	0.2007	0.2639	20260113
+industry_signals	458	需求爆发/洁净室	20260105	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕·深回吐（峰值+7.8%→+1.9%，23日）已轮动（窗口内走完）	20260107	0.0195	0.0782	20260205
+industry_signals	459	第二周期尾声/情绪信号	20260105	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	460	技术升级/固态电池	20260105	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.5%，历时55日）已轮动（窗口内走完）	20260107	0.0722	0.1246	20260331
+industry_signals	461	涨价驱动/黄金	20260121	day	黄金/贵金属	hint	closed	兑现完毕（峰值+13.2%，历时7日）已轮动（窗口内走完）	20260123	0.0687	0.132	20260130
+industry_signals	462	情绪周期/亏钱效应	20260121	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	463	事件催化/减持	20260121	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	464	供给紧缺/ABF载板	20260122	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+32.2%，历时82日）已轮动（窗口内走完）	20260212	0.253	0.3218	20260601
+industry_signals	465	供给紧缺/变压器	20260122	day	电力/电网/算电协同/燃气轮机	hint	closed	兑现完毕（峰值+18.6%，历时41日）已轮动（窗口内走完）	20260226	0.1358	0.186	20260330
+industry_signals	466	涨价驱动/天然气	20260122	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	467	技术升级/核电	20260122	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+32.2%，历时82日）已轮动（窗口内走完）	20260212	0.253	0.3218	20260601
+industry_signals	468	情绪周期/第三周期	20260122	day	商业航天/卫星	alias	closed	兑现完毕·深回吐（峰值+10.5%→-2.4%，20日）已轮动（窗口内走完）	20260225	-0.0245	0.1047	20260227
+industry_signals	469	事件催化/SpaceX	20260122	day	商业航天/卫星	alias	closed	兑现完毕·深回吐（峰值+10.5%→-2.4%，20日）已轮动（窗口内走完）	20260225	-0.0245	0.1047	20260227
+industry_signals	470	涨价驱动/贵金属	20260125	day	黄金/贵金属	hint	closed	兑现完毕（峰值+10.3%，历时5日）已轮动（窗口内走完）	20260126	0.04	0.1032	20260130
+industry_signals	471	需求爆发/太空光伏	20260125	day	光伏	alias	closing	兑现中·回撤近警戒（峰值+3.8%→现-14.2%）	20260202	-0.1424	0.0377	
+industry_signals	472	涨价驱动/氨纶	20260125	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	473	涨价驱动/铼金属	20260125	day	有色金属	hint	closed	兑现完毕·深回吐（峰值+11.4%→-3.4%，54日）已轮动（窗口内走完）	20260416	-0.0342	0.1138	20260420
+industry_signals	474	事件催化/亚马逊卫星	20260125	day	商业航天/卫星	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-28.6%）	20260225	-0.2863	0.0	
+industry_signals	475	事件催化/矿物部长会议	20260125	day	稀土	hint	closed	兑现完毕（峰值+9.3%，历时21日）已轮动（窗口内走完）	20260206	0.0366	0.0931	20260303
+industry_signals	476	情绪周期/连板监管	20260125	day	黄金/贵金属	hint	closed	兑现完毕（峰值+10.3%，历时5日）已轮动（窗口内走完）	20260126	0.04	0.1032	20260130
+industry_signals	477	涨价驱动/黄金	20260126	day	黄金/贵金属	hint	closed	兑现完毕·深回吐（峰值+7.6%→+1.3%，4日）已轮动（窗口内走完）	20260127	0.0128	0.076	20260130
+industry_signals	478	事件催化/印度疫情	20260126	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	479	需求爆发/英国户储	20260126	day	光伏	alias	closed	兑现完毕·深回吐（峰值+6.8%→+0.3%，39日）已轮动（窗口内走完）	20260202	0.0028	0.068	20260330
+industry_signals	480	需求爆发/算力招标	20260126	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+30.5%，历时59日）已轮动（窗口内走完）	20260318	0.2522	0.3053	20260428
+industry_signals	481	情绪周期/第四周期	20260126	day	商业航天/卫星	alias	closing	兑现中·回撤近警戒（峰值+0.6%→现-20.3%）	20260225	-0.2031	0.0063	
+industry_signals	482	技术升级/国家队	20260127	day	商业航天/卫星	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-20.9%）	20260225	-0.2094	0.0	
+industry_signals	483	技术升级/国产化	20260127	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+26.9%，历时78日）已轮动（窗口内走完）	20260403	0.1836	0.2694	20260529
+industry_signals	484	供给紧缺/地缘冲突	20260113	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	485	涨价驱动/乌金矿	20260113	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	486	涨价驱动/碳化钨粉	20260113	day	钨/小金属	hint	closed	兑现完毕（峰值+17.0%，历时29日）已轮动（窗口内走完）	20260224	0.1143	0.1703	20260303
+industry_signals	487	需求爆发/出口欧盟	20260113	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	488	情绪周期/第二周期末端	20260113	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	489	技术升级/存储芯片扩产	20260115	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+35.7%，历时87日）已轮动（窗口内走完）	20260121	0.288	0.3568	20260601
+industry_signals	490	需求爆发/海风拍卖	20260115	day	商业航天/卫星	alias	closed	兑现完毕·深回吐（峰值+10.7%→-2.2%，25日）已轮动（窗口内走完）	20260225	-0.0223	0.1069	20260227
+industry_signals	491	涨价驱动/钨精矿	20260115	day	钨/小金属	hint	closed	兑现完毕（峰值+15.0%，历时27日）已轮动（窗口内走完）	20260224	0.0939	0.1499	20260303
+industry_signals	492	涨价驱动/组件电池片	20260115	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.0%，历时47日）已轮动（窗口内走完）	20260130	0.0677	0.12	20260331
+industry_signals	493	情绪周期/第三周期	20260115	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	494	涨价驱动/先进封装	20260118	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+33.4%，历时86日）已轮动（窗口内走完）	20260121	0.2649	0.3337	20260601
+industry_signals	495	涨价驱动/天然铀	20260118	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	496	需求爆发/光模块	20260118	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+28.1%，历时65日）已轮动（窗口内走完）	20260318	0.2281	0.2811	20260428
+industry_signals	497	事件催化/商业航天	20260118	day	商业航天/卫星	alias	closed	兑现完毕·深回吐（峰值+9.5%→-3.4%，24日）已轮动（窗口内走完）	20260225	-0.0345	0.0947	20260227
+industry_signals	498	需求爆发/电网投资	20260118	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+19.6%，历时45日）已轮动（窗口内走完）	20260226	0.1456	0.1957	20260330
+industry_signals	499	情绪周期/第三周期	20260118	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	500	涨价驱动/存储芯片	20260119	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+34.4%，历时85日）已轮动（窗口内走完）	20260121	0.2755	0.3443	20260601
+industry_signals	501	需求爆发/欧洲能源危机	20260119	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	502	技术升级/擎天柱V3	20260119	day	机器人	alias	closed	兑现完毕·深回吐（峰值+6.6%→+1.4%，82日）已轮动（窗口内走完）	20260130	0.0143	0.0661	20260527
+industry_signals	503	情绪周期/第三周期修复	20260119	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	504	事件催化/民间投资担保	20260120	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	505	需求爆发/德国补贴	20260120	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	506	涨价驱动/CPU	20260120	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+36.1%，历时84日）已轮动（窗口内走完）	20260121	0.2923	0.3611	20260601
+industry_signals	507	需求爆发/欧洲能源危机	20260120	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	508	情绪周期/第三周期冰点修复	20260120	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+17.4%，历时43日）已轮动（窗口内走完）	20260226	0.1238	0.174	20260330
+industry_signals	509	涨价驱动/半导体	20260128	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+25.5%，历时77日）已轮动（窗口内走完）	20260403	0.1696	0.2553	20260529
+industry_signals	510	涨价驱动/云服务	20260128	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+31.1%，历时78日）已轮动（窗口内走完）	20260212	0.2427	0.3115	20260601
+industry_signals	511	事件催化/商业航天	20260128	day	商业航天/卫星	alias	closing	兑现中·回撤近警戒（峰值+1.1%→现-18.6%）	20260225	-0.1856	0.0113	
+industry_signals	512	事件催化/生物燃料	20260128	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	513	事件催化/卫星通信	20260128	day	商业航天/卫星	alias	closing	兑现中·回撤近警戒（峰值+1.1%→现-18.6%）	20260225	-0.1856	0.0113	
+industry_signals	514	供给过剩/铝	20260128	day	有色金属	hint	closing	兑现中·回撤近警戒（峰值+0.9%→现-29.6%）	20260416	-0.2963	0.0089	
+industry_signals	515	供给紧缺/稀土	20260129	day	稀土	hint	closed	兑现完毕（峰值+8.4%，历时17日）已轮动（窗口内走完）	20260206	0.0274	0.0839	20260303
+industry_signals	516	需求爆发/AI硬件	20260129	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+34.6%，历时77日）已轮动（窗口内走完）	20260212	0.2776	0.3464	20260601
+industry_signals	517	涨价驱动/化工	20260129	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	518	涨价驱动/资源	20260129	day	黄金/贵金属	hint	closing	兑现中·回撤近警戒（峰值+0.0%→现-27.0%）	20260327	-0.2696	0.0	
+industry_signals	519	事件催化/商业航天	20260129	day	商业航天/卫星	alias	closing	兑现中·回撤近警戒（峰值+3.5%→现-16.2%）	20260225	-0.1621	0.0348	
+industry_signals	520	需求爆发/储能	20260131	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.2%，历时36日）已轮动（窗口内走完）	20260202	0.0694	0.1217	20260331
+industry_signals	521	涨价驱动/化工	20260131	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	522	事件催化/商业航天	20260131	day	商业航天/卫星	alias	closing	兑现中·回撤近警戒（峰值+3.9%→现-15.8%）	20260225	-0.1582	0.0387	
+industry_signals	523	需求爆发/电网设备	20260202	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+18.7%，历时34日）已轮动（窗口内走完）	20260226	0.137	0.1872	20260330
+industry_signals	524	需求爆发/SAF	20260202	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	525	涨价驱动/化工	20260202	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	526	事件催化/固态电池	20260202	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.4%，历时35日）已轮动（窗口内走完）	20260306	0.0614	0.1137	20260331
+industry_signals	527	事件催化/科技财报	20260202	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+26.5%，历时54日）已轮动（窗口内走完）	20260318	0.2124	0.2654	20260428
+industry_signals	528	需求爆发/关键矿产	20260203	day	钨/小金属	hint	closed	兑现完毕（峰值+13.9%，历时14日）已轮动（窗口内走完）	20260224	0.0831	0.1391	20260303
+industry_signals	529	事件催化/商业航天	20260203	day	商业航天/卫星	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-19.7%）	20260225	-0.1969	0.0	
+industry_signals	530	技术升级/太空光伏	20260203	day	光伏	alias	closed	兑现完毕·深回吐（峰值+5.6%→-0.9%，33日）已轮动（窗口内走完）	20260318	-0.0093	0.0558	20260330
+industry_signals	531	需求爆发/AI应用	20260203	day	AI软件/应用	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-28.5%）	20260416	-0.2855	0.0	
+industry_signals	532	技术升级/光互联	20260203	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+32.2%，历时74日）已轮动（窗口内走完）	20260212	0.253	0.3218	20260601
+industry_signals	533	情绪第四周期/分化集中	20260203	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	534	情绪第四周期/题材切换	20260129	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	535	情绪第四周期/冰点阶段	20260131	day	黄金/贵金属	hint	closing	兑现中·回撤近警戒（峰值+4.0%→现-20.6%）	20260327	-0.2064	0.0402	
+industry_signals	536	情绪第四周期/冰点转折	20260202	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	537	情绪第四周期→第一周期/冰点修复	20260203	day	商业航天/卫星	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-19.7%）	20260225	-0.1969	0.0	
+industry_signals	538	六氟磷酸锂/锂电	20260106	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+13.2%，历时54日）已轮动（窗口内走完）	20260107	0.0797	0.1321	20260331
+industry_signals	539	存储芯片	20260106	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+8.4%→+2.5%，22日）已轮动（窗口内走完）	20260107	0.0251	0.0838	20260205
+industry_signals	540	脑机接口	20260106	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	541	CPO/硅光子	20260106	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+6.9%→+1.1%，22日）已轮动（窗口内走完）	20260114	0.011	0.0694	20260205
+industry_signals	542	HBM	20260106	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+8.4%→+2.5%，22日）已轮动（窗口内走完）	20260107	0.0251	0.0838	20260205
+industry_signals	543	磷酸铁锂/锂电	20260107	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.1%，历时53日）已轮动（窗口内走完）	20260114	0.0686	0.1209	20260331
+industry_signals	544	算力招标	20260107	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+5.7%→-0.1%，21日）已轮动（窗口内走完）	20260114	-0.001	0.0575	20260205
+industry_signals	545	煤炭	20260107	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	546	硅铁/差别电价	20260107	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	547	半导体设备	20260107	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+10.4%，历时18日）已轮动（窗口内走完）	20260114	0.0541	0.1045	20260202
+industry_signals	548	多晶硅/光伏	20260108	day	光伏	alias	closed	兑现完毕（峰值+13.7%，历时15日）已轮动（窗口内走完）	20260114	0.0697	0.1367	20260129
+industry_signals	549	可控核聚变	20260108	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	550	军工	20260108	day	军工	alias	closed	兑现完毕·深回吐（峰值+10.4%→+1.5%，12日）已轮动（窗口内走完）	20260121	0.0146	0.1043	20260126
+industry_signals	551	自动驾驶	20260108	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	552	光伏出口退税	20260111	day	光伏	alias	closed	兑现完毕（峰值+14.3%，历时14日）已轮动（窗口内走完）	20260114	0.0762	0.1432	20260129
+industry_signals	553	AI大模型	20260111	day	AI软件/应用	alias	closed	兑现完毕·深回吐（峰值+12.9%→-12.8%，64日）已轮动（窗口内走完）	20260416	-0.1277	0.1287	20260420
+industry_signals	554	AI数据中心	20260111	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+6.2%→+0.3%，19日）已轮动（窗口内走完）	20260114	0.0028	0.0616	20260205
+industry_signals	555	小核酸药物	20260111	day	创新药/医药/CRO	alias	closing	兑现中·回撤近警戒（峰值+2.8%→现-24.2%）	20260204	-0.2415	0.0282	
+industry_signals	556	SOFC供电	20260111	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+6.2%→+0.3%，19日）已轮动（窗口内走完）	20260114	0.0028	0.0616	20260205
+industry_signals	557	商业航天3D打印	20260111	day	商业航天/卫星	alias	closed	兑现完毕·深回吐（峰值+9.4%→-6.3%，29日）已轮动（窗口内走完）	20260225	-0.0625	0.0941	20260227
+industry_signals	558	商业航天区域规划	20260111	day	商业航天/卫星	alias	closed	兑现完毕·深回吐（峰值+9.4%→-6.3%，29日）已轮动（窗口内走完）	20260225	-0.0625	0.0941	20260227
+industry_signals	559	碳酸锂/光伏抢出口	20260111	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.3%，历时51日）已轮动（窗口内走完）	20260114	0.0611	0.1134	20260331
+industry_signals	560	机器人/IPO	20260111	day	机器人	alias	closed	兑现完毕·深回吐（峰值+7.3%→+1.3%，18日）已轮动（窗口内走完）	20260130	0.0132	0.0733	20260204
+industry_signals	561	SpaceX卫星	20260112	day	商业航天/卫星	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-31.4%）	20260225	-0.3137	0.0	
+industry_signals	562	市场情绪/量能	20260112	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	563	供给紧缺/印尼减产	20260204	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	564	需求爆发/海外订单	20260204	day	电力/电网/算电协同/燃气轮机	hint	closed	兑现完毕（峰值+18.9%，历时32日）已轮动（窗口内走完）	20260226	0.1386	0.1887	20260330
+industry_signals	565	事件催化/嘉能可出售	20260204	day	有色金属	hint	closed	兑现完毕·深回吐（峰值+10.1%→-3.2%，46日）已轮动（窗口内走完）	20260416	-0.0319	0.101	20260420
+industry_signals	566	涨价驱动/高端CCL	20260204	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+35.6%，历时73日）已轮动（窗口内走完）	20260212	0.2873	0.3561	20260601
+industry_signals	567	涨价驱动/VLCC运价	20260204	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	568	需求爆发/抢出口	20260204	day	光伏	alias	closing	兑现中·回撤近警戒（峰值+3.4%→现-14.6%）	20260318	-0.1462	0.0339	
+industry_signals	569	技术升级/OCS/CPO	20260204	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+29.0%，历时52日）已轮动（窗口内走完）	20260318	0.2365	0.2896	20260428
+industry_signals	570	供给紧缺/涨价驱动	20260208	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+6.1%→-1.0%，21日）已轮动（窗口内走完）	20260212	-0.0098	0.0612	20260317
+industry_signals	571	涨价驱动/AI服务器电源	20260208	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+6.1%→-1.0%，21日）已轮动（窗口内走完）	20260212	-0.0098	0.0612	20260317
+industry_signals	572	需求爆发/Token消耗	20260208	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕·深回吐（峰值+6.1%→-1.0%，21日）已轮动（窗口内走完）	20260212	-0.0098	0.0612	20260317
+industry_signals	573	涨价驱动/氧化镨钕	20260208	day	稀土	hint	closed	兑现完毕（峰值+14.9%，历时11日）已轮动（窗口内走完）	20260209	0.0922	0.1487	20260303
+industry_signals	574	涨价驱动/中间体	20260208	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	575	涨价驱动/高端CCL	20260208	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+6.1%→-1.0%，21日）已轮动（窗口内走完）	20260212	-0.0098	0.0612	20260317
+industry_signals	576	需求爆发/海外订单	20260208	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+6.1%→-1.0%，21日）已轮动（窗口内走完）	20260212	-0.0098	0.0612	20260317
+industry_signals	577	涨价驱动/金价突破	20260209	day	黄金/贵金属	hint	closed	兑现完毕·深回吐（峰值+6.2%→-3.4%，30日）已轮动（窗口内走完）	20260327	-0.0335	0.0621	20260331
+industry_signals	578	供给紧缺/哈萨克斯坦	20260209	day	钨/小金属	hint	closed	兑现完毕（峰值+15.6%，历时10日）已轮动（窗口内走完）	20260224	0.1003	0.1563	20260303
+industry_signals	579	事件催化/海外授权	20260209	day	创新药/医药/CRO	alias	closed	兑现完毕（峰值+9.1%，历时37日）已轮动（窗口内走完）	20260316	0.0395	0.0909	20260410
+industry_signals	580	涨价驱动/分散黑	20260209	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	581	技术升级/特斯拉擎天柱	20260209	day	机器人	alias	closed	兑现完毕（峰值+10.1%，历时67日）已轮动（窗口内走完）	20260304	0.0494	0.1011	20260527
+industry_signals	582	涨价驱动/超预期	20260210	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	583	涨价驱动/数据中心	20260210	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+34.2%，历时69日）已轮动（窗口内走完）	20260212	0.2737	0.3425	20260601
+industry_signals	584	涨价驱动/全线涨价	20260210	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	585	涨价驱动/覆铜板	20260428	day	有色金属	hint	closed	兑现完毕·深回吐（峰值+5.4%→-4.0%，23日）已轮动（窗口内走完）	20260601	-0.0398	0.0544	20260603
+industry_signals	586	涨价驱动/光上游	20260428	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+24.6%，峰值+24.6%）	20260506	0.2459	0.2459	
+industry_signals	587	需求爆发/液冷	20260428	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+21.8%，历时21日）已轮动（窗口内走完）	20260430	0.1495	0.2183	20260601
+industry_signals	588	需求爆发/AI基础设施	20260429	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	589	事件催化/特种机器人	20260429	day	机器人	alias	closed	兑现完毕（峰值+16.2%，历时17日）已轮动（窗口内走完）	20260430	0.1102	0.162	20260527
+industry_signals	590	技术升级/光检测	20260429	day	光模块/CPO/光通信/光纤	hint	closing	主升兑现中（25日，累计+25.6%，峰值+25.6%）	20260506	0.2558	0.2558	
+industry_signals	591	涨价驱动/电解液	20260429	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	592	需求爆发/电池	20260429	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+5.2%→-0.2%，16日）已轮动（窗口内走完）	20260515	-0.0021	0.052	20260526
+industry_signals	593	供给紧缺/原油	20260429	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	594	技术升级/存储	20260505	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+20.8%，历时19日）已轮动（窗口内走完）	20260511	0.1395	0.2083	20260601
+industry_signals	595	需求爆发/海外电力	20260505	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+8.4%，历时12日）已轮动（窗口内走完）	20260506	0.0318	0.0843	20260521
+industry_signals	596	需求爆发/国产GPU	20260506	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+17.8%，历时18日）已轮动（窗口内走完）	20260511	0.1094	0.1782	20260601
+industry_signals	597	供给紧缺/光芯片	20260506	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+17.8%，历时18日）已轮动（窗口内走完）	20260511	0.1094	0.1782	20260601
+industry_signals	598	涨价驱动/电池上游	20260506	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+4.0%→现-7.2%）	20260515	-0.0722	0.0401	
+industry_signals	599	事件催化/航天	20260506	day	商业航天/卫星	alias	closing	兑现初期（启动5日，累计-11.1%）	20260603	-0.1113	0.0464	
+industry_signals	600	涨价驱动/电池材料	20251116	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时89日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	601	涨价驱动/锂矿	20251116	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时89日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	602	技术升级/固态电池	20251116	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时89日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	603	事件催化/医药	20251116	day	创新药/医药/CRO	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-19.3%）	20251120	-0.1929	0.0	
+industry_signals	604	事件催化/AI算力	20251116	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+20.0%，历时22日）已轮动（窗口内走完）	20251117	0.1394	0.1996	20251216
+industry_signals	605	需求爆发/光伏	20251116	day	光伏	alias	closed	兑现完毕·深回吐（峰值+9.1%→+2.4%，52日）已轮动（窗口内走完）	20251124	0.024	0.0911	20260129
+industry_signals	606	事件催化/回购注销	20251019	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	607	涨价驱动/存储芯片	20251019	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+10.2%，历时10日）已轮动（窗口内走完）	20251024	0.0475	0.1024	20251031
+industry_signals	608	需求爆发/动力电池	20251020	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.9%，历时23日）已轮动（窗口内走完）	20251029	0.042	0.0985	20251120
+industry_signals	609	事件催化/情绪周期	20251020	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	610	技术升级/液冷散热	20251020	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+8.4%，历时9日）已轮动（窗口内走完）	20251024	0.029	0.0839	20251031
+industry_signals	611	技术升级/光模块	20251021	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+6.7%→+0.2%，8日）已轮动（窗口内走完）	20251024	0.0017	0.0668	20251031
+industry_signals	612	事件催化/国企改革	20251021	day	消费电子/华为/鸿蒙	alias	closing	兑现进行（118日，累计+4.3%）	20251024	0.0431	0.0431	
+industry_signals	613	涨价驱动/存储芯片	20251022	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+5.2%→-0.3%，7日）已轮动（窗口内走完）	20251024	-0.0025	0.0523	20251031
+industry_signals	614	技术升级/存储芯片	20251022	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+5.2%→-0.3%，7日）已轮动（窗口内走完）	20251024	-0.0025	0.0523	20251031
+industry_signals	615	事件催化/创新药	20251022	day	创新药/医药/CRO	alias	closing	兑现中·回撤近警戒（峰值+0.1%→现-12.4%）	20251110	-0.124	0.001	
+industry_signals	616	涨价驱动/钨	20251022	day	钨/小金属	hint	closed	兑现完毕（峰值+9.4%，历时9日）已轮动（窗口内走完）	20251023	0.0383	0.0938	20251104
+industry_signals	617	技术升级/PCB	20251022	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+5.2%→-0.3%，7日）已轮动（窗口内走完）	20251024	-0.0025	0.0523	20251031
+industry_signals	618	需求爆发/工程机械	20251022	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	619	涨价驱动/六氟磷酸锂	20251023	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.0%，历时20日）已轮动（窗口内走完）	20251029	0.0433	0.0998	20251120
+industry_signals	620	技术升级/机器人	20251023	day	机器人	alias	closed	兑现完毕·深回吐（峰值+9.3%→+2.5%，68日）已轮动（窗口内走完）	20251114	0.0247	0.0931	20260129
+industry_signals	621	事件催化/政策	20251023	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	622	涨价驱动/石油	20251023	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	623	涨价驱动/白银	20251026	day	黄金/贵金属	hint	closed	兑现完毕（峰值+26.5%，历时68日）已轮动（窗口内走完）	20251107	0.2017	0.2649	20260130
+industry_signals	624	技术升级/1.6T	20251026	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+12.1%，历时37日）已轮动（窗口内走完）	20251027	0.0608	0.121	20251216
+industry_signals	625	技术升级/Rubin架构	20251026	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+12.6%，历时72日）已轮动（窗口内走完）	20251125	0.0674	0.1261	20260205
+industry_signals	626	技术升级/高新技术	20251026	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+12.6%，历时72日）已轮动（窗口内走完）	20251125	0.0674	0.1261	20260205
+industry_signals	627	涨价驱动/六氟磷酸锂	20251026	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.8%→+2.1%，19日）已轮动（窗口内走完）	20251029	0.0215	0.078	20251120
+industry_signals	628	需求爆发/三花智控	20251026	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	629	事件催化/市场情绪	20251026	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	630	事件催化/AI眼镜	20251026	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	631	需求爆发/捷佳伟创	20251027	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	632	需求爆发/1.6T出货量	20251027	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+8.4%→+2.4%，36日）已轮动（窗口内走完）	20251117	0.0239	0.0841	20251216
+industry_signals	633	需求爆发/蔚蓝新能源	20251027	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.4%，历时18日）已轮动（窗口内走完）	20251029	0.0274	0.0839	20251120
+industry_signals	634	供给紧缺/芯片生产	20251027	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+9.3%，历时68日）已轮动（窗口内走完）	20251124	0.0426	0.093	20260202
+industry_signals	635	技术升级/覆铜板	20251027	day	有色金属	hint	closed	兑现完毕（峰值+40.2%，历时67日）已轮动（窗口内走完）	20251105	0.3148	0.4015	20260130
+industry_signals	636	技术升级/薄膜沉积	20251027	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+9.3%，历时68日）已轮动（窗口内走完）	20251124	0.0426	0.093	20260202
+industry_signals	637	需求爆发/PCB探针	20251027	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+10.0%，历时71日）已轮动（窗口内走完）	20251125	0.041	0.0997	20260205
+industry_signals	638	事件催化/市场周期	20251027	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	639	需求爆发/GB30订单	20251028	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+9.9%，历时70日）已轮动（窗口内走完）	20251125	0.04	0.0987	20260205
+industry_signals	640	技术升级/微通道	20251028	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+9.9%，历时70日）已轮动（窗口内走完）	20251125	0.04	0.0987	20260205
+industry_signals	641	需求爆发/宁波金达	20251028	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+9.9%，历时70日）已轮动（窗口内走完）	20251125	0.04	0.0987	20260205
+industry_signals	642	事件催化/冲高回落	20251028	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	643	技术升级/电源供应商	20251028	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+9.9%，历时70日）已轮动（窗口内走完）	20251125	0.04	0.0987	20260205
+industry_signals	644	需求爆发/英伟达	20251029	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+10.1%，历时69日）已轮动（窗口内走完）	20251125	0.042	0.1007	20260205
+industry_signals	645	供给紧缺/Rubin架构	20251029	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+10.1%，历时69日）已轮动（窗口内走完）	20251125	0.042	0.1007	20260205
+industry_signals	646	供给紧缺/停产	20251029	day	有色金属	hint	closed	兑现完毕（峰值+39.4%，历时65日）已轮动（窗口内走完）	20251105	0.3077	0.3944	20260130
+industry_signals	647	需求爆发/海外	20251029	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+10.1%，历时69日）已轮动（窗口内走完）	20251125	0.042	0.1007	20260205
+industry_signals	648	事件催化/收储	20251029	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	649	涨价驱动/铜铝加工费	20251029	day	有色金属	hint	closed	兑现完毕（峰值+39.4%，历时65日）已轮动（窗口内走完）	20251105	0.3077	0.3944	20260130
+industry_signals	650	涨价驱动/VLCC运价	20251030	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	651	需求爆发/英伟达GTC	20251030	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+12.1%，历时68日）已轮动（窗口内走完）	20251125	0.0623	0.121	20260205
+industry_signals	652	事件催化/管制放松	20251030	day	稀土	hint	closed	兑现完毕（峰值+10.7%，历时56日）已轮动（窗口内走完）	20251113	0.0561	0.1074	20260120
+industry_signals	653	涨价驱动/供应商体系	20251030	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+9.8%，历时33日）已轮动（窗口内走完）	20251117	0.0379	0.0981	20251216
+industry_signals	654	需求爆发/三花智控	20251030	day	机器人	alias	closed	兑现完毕·深回吐（峰值+9.6%→+2.8%，63日）已轮动（窗口内走完）	20251114	0.0281	0.0965	20260129
+industry_signals	655	事件催化/第四周期	20251030	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	656	需求爆发/海外用电缺口	20251030	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+12.1%，历时68日）已轮动（窗口内走完）	20251125	0.0623	0.121	20260205
+industry_signals	657	涨价驱动/重稀土	20251119	day	稀土	hint	closed	兑现完毕（峰值+16.6%，历时42日）已轮动（窗口内走完）	20251210	0.1142	0.1655	20260120
+industry_signals	658	涨价驱动/锂矿	20251119	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.2%，历时86日）已轮动（窗口内走完）	20251124	0.0599	0.1123	20260331
+industry_signals	659	供给紧缺/锂电材料	20251119	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.2%，历时86日）已轮动（窗口内走完）	20251124	0.0599	0.1123	20260331
+industry_signals	660	供给紧缺/隔膜	20251119	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.2%，历时86日）已轮动（窗口内走完）	20251124	0.0599	0.1123	20260331
+industry_signals	661	事件催化/地理信息	20251119	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	662	技术升级/AI算力	20251119	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+17.3%，历时19日）已轮动（窗口内走完）	20251125	0.1129	0.1731	20251216
+industry_signals	663	技术升级/AI芯片	20251120	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+19.5%，历时50日）已轮动（窗口内走完）	20251124	0.1445	0.1949	20260202
+industry_signals	664	涨价驱动/化工有色	20251120	day	有色金属	hint	closed	兑现完毕（峰值+36.5%，历时49日）已轮动（窗口内走完）	20251127	0.2784	0.3651	20260130
+industry_signals	665	涨价驱动/锂矿	20251120	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.2%，历时85日）已轮动（窗口内走完）	20251124	0.0693	0.1217	20260331
+industry_signals	666	需求爆发/银行	20251120	day	券商/金融	alias	closing	兑现中·回撤近警戒（峰值+0.6%→现-22.8%）	20251204	-0.2276	0.0062	
+industry_signals	667	事件催化/地产政策	20251120	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	668	技术升级/AI芯片	20251120	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+19.5%，历时50日）已轮动（窗口内走完）	20251124	0.1445	0.1949	20260202
+industry_signals	669	事件催化/宏观	20251123	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	670	供给紧缺/航运	20251123	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	671	需求爆发/工业机器人	20251123	day	机器人	alias	closed	兑现完毕（峰值+14.1%，历时47日）已轮动（窗口内走完）	20251127	0.0726	0.141	20260129
+industry_signals	672	需求爆发/AI应用	20251123	day	AI软件/应用	alias	closed	兑现完毕（峰值+17.5%，历时39日）已轮动（窗口内走完）	20251229	0.1025	0.1754	20260119
+industry_signals	673	事件催化/AI芯片	20251123	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+21.2%，历时49日）已轮动（窗口内走完）	20251124	0.1617	0.2121	20260202
+industry_signals	674	技术升级/AI算力	20251123	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+19.4%，历时17日）已轮动（窗口内走完）	20251125	0.1341	0.1943	20251216
+industry_signals	675	情绪周期/市场情绪	20251123	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	676	技术升级/电池	20251124	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+5.8%→+0.5%，46日）已轮动（窗口内走完）	20251205	0.0051	0.0585	20260129
+industry_signals	677	事件催化/航天	20251124	day	商业航天/卫星	alias	closed	兑现完毕（峰值+62.9%，历时34日）已轮动（窗口内走完）	20251127	0.5656	0.6288	20260113
+industry_signals	678	需求爆发/风电	20251124	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	679	事件催化/金属	20251124	day	有色金属	hint	closed	兑现完毕（峰值+40.0%，历时47日）已轮动（窗口内走完）	20251127	0.313	0.3997	20260130
+industry_signals	680	事件催化/芯片IPO	20251124	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+20.5%，历时48日）已轮动（窗口内走完）	20251125	0.1545	0.2049	20260202
+industry_signals	681	需求爆发/AI应用	20251124	day	AI软件/应用	alias	closed	兑现完毕（峰值+14.2%，历时38日）已轮动（窗口内走完）	20251229	0.0688	0.1417	20260119
+industry_signals	682	技术升级/AI应用	20251124	day	AI软件/应用	alias	closed	兑现完毕（峰值+14.2%，历时38日）已轮动（窗口内走完）	20251229	0.0688	0.1417	20260119
+industry_signals	683	技术升级/AI芯片	20251125	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+20.5%，历时47日）已轮动（窗口内走完）	20251126	0.1545	0.2049	20260202
+industry_signals	684	需求爆发/电力设备	20251125	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+14.9%，历时81日）已轮动（窗口内走完）	20251210	0.0986	0.1488	20260330
+industry_signals	685	供给紧缺/PCB	20251125	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+20.2%，历时50日）已轮动（窗口内走完）	20251126	0.1434	0.2021	20260205
+industry_signals	686	需求爆发/新能源	20251125	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.8%，历时82日）已轮动（窗口内走完）	20251205	0.0757	0.128	20260331
+industry_signals	687	技术升级/量子计算	20251125	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	688	事件催化/宏观	20251125	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	689	技术升级/商业航天	20251125	day	商业航天/卫星	alias	closed	兑现完毕（峰值+62.5%，历时33日）已轮动（窗口内走完）	20251127	0.5622	0.6254	20260113
+industry_signals	690	技术升级/电网设备	20251105	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+12.6%，历时95日）已轮动（窗口内走完）	20251210	0.0757	0.1259	20260330
+industry_signals	691	需求爆发/电力设备	20251105	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+12.6%，历时95日）已轮动（窗口内走完）	20251210	0.0757	0.1259	20260330
+industry_signals	692	涨价驱动/铝铜	20251105	day	有色金属	hint	closed	兑现完毕（峰值+42.0%，历时60日）已轮动（窗口内走完）	20251106	0.3329	0.4196	20260130
+industry_signals	693	情绪周期/市场情绪	20251105	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+12.6%，历时95日）已轮动（窗口内走完）	20251210	0.0757	0.1259	20260330
+industry_signals	694	涨价驱动/SAF航空燃油	20251106	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+6.5%→+1.3%，95日）已轮动（窗口内走完）	20251124	0.0128	0.0651	20260331
+industry_signals	695	供给紧缺/光模块	20251106	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+13.1%，历时28日）已轮动（窗口内走完）	20251117	0.0705	0.1307	20251216
+industry_signals	696	涨价驱动/磷化工	20251106	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	697	需求爆发/燃气轮机	20251106	day	电力/电网/算电协同/燃气轮机	hint	closed	兑现完毕（峰值+13.1%，历时94日）已轮动（窗口内走完）	20251210	0.0813	0.1314	20260330
+industry_signals	698	事件催化/光伏	20251106	day	光伏	alias	closed	兑现完毕·深回吐（峰值+8.7%→+2.0%，58日）已轮动（窗口内走完）	20251124	0.0203	0.0874	20260129
+industry_signals	699	需求爆发/数据中心缺电	20251106	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+14.7%，历时63日）已轮动（窗口内走完）	20251125	0.0881	0.1468	20260205
+industry_signals	700	情绪周期/市场情绪	20251106	day	光伏	alias	closed	兑现完毕·深回吐（峰值+8.7%→+2.0%，58日）已轮动（窗口内走完）	20251124	0.0203	0.0874	20260129
+industry_signals	701	涨价驱动/锂电池	20251109	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+6.7%→+1.5%，94日）已轮动（窗口内走完）	20251124	0.0152	0.0675	20260331
+industry_signals	702	技术升级/金刚石钻头	20251109	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+15.8%，历时62日）已轮动（窗口内走完）	20251125	0.0989	0.1577	20260205
+industry_signals	703	技术升级/碳化硅	20251109	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+15.3%，历时59日）已轮动（窗口内走完）	20251124	0.1021	0.1525	20260202
+industry_signals	704	涨价驱动/有机硅	20251109	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	705	涨价驱动/SAF	20251109	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	706	涨价驱动/磷化工	20251109	day	商业航天/卫星	alias	closed	兑现完毕（峰值+65.9%，历时45日）已轮动（窗口内走完）	20251127	0.5954	0.6586	20260113
+industry_signals	707	情绪周期/市场情绪	20251109	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	708	涨价驱动/碳酸锂	20251110	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.4%，历时93日）已轮动（窗口内走完）	20251124	0.0413	0.0937	20260331
+industry_signals	709	涨价驱动/光伏硅料硅片	20251110	day	光伏	alias	closed	兑现完毕·深回吐（峰值+7.1%→+0.4%，56日）已轮动（窗口内走完）	20251124	0.0039	0.0709	20260129
+industry_signals	710	事件催化/黄金	20251110	day	黄金/贵金属	hint	closed	兑现完毕（峰值+27.4%，历时57日）已轮动（窗口内走完）	20251121	0.2105	0.2737	20260130
+industry_signals	711	需求爆发/AI电力扩张	20251110	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+13.2%，历时92日）已轮动（窗口内走完）	20251210	0.0817	0.1318	20260330
+industry_signals	712	涨价驱动/电解液VC	20251110	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.4%，历时93日）已轮动（窗口内走完）	20251124	0.0413	0.0937	20260331
+industry_signals	713	涨价驱动/动力煤	20251110	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	714	需求爆发/核电	20251110	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+16.8%，历时61日）已轮动（窗口内走完）	20251125	0.1092	0.1679	20260205
+industry_signals	715	需求爆发/存储芯片	20251110	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+16.8%，历时61日）已轮动（窗口内走完）	20251125	0.1092	0.1679	20260205
+industry_signals	716	事件催化/台积电	20251110	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+16.1%，历时58日）已轮动（窗口内走完）	20251124	0.1103	0.1607	20260202
+industry_signals	717	情绪周期/市场情绪	20251110	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	718	供给紧缺/光模块	20251111	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+17.5%，历时25日）已轮动（窗口内走完）	20251117	0.1147	0.1749	20251216
+industry_signals	719	技术升级/固态电池	20251111	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时92日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	720	涨价驱动/储能锂电池	20251111	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时92日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	721	涨价驱动/光伏产业链	20251111	day	光伏	alias	closed	兑现完毕·深回吐（峰值+6.6%→-0.1%，55日）已轮动（窗口内走完）	20251124	-0.0007	0.0664	20260129
+industry_signals	722	技术升级/BC电池	20251111	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时92日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	723	事件催化/战略金属	20251111	day	有色金属	hint	closed	兑现完毕（峰值+39.7%，历时56日）已轮动（窗口内走完）	20251127	0.31	0.3967	20260130
+industry_signals	724	需求爆发/核电	20251111	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	725	涨价驱动/人工钻石	20251111	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	726	情绪周期/市场情绪	20251111	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	727	涨价驱动/VC添加剂	20251112	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	728	供给紧缺/硅片	20251112	day	光伏	hint	closed	兑现完毕（峰值+10.6%，历时54日）已轮动（窗口内走完）	20251124	0.0388	0.1058	20260129
+industry_signals	729	事件催化/产能管控	20251112	day	光伏	alias	closed	兑现完毕（峰值+10.6%，历时54日）已轮动（窗口内走完）	20251124	0.0388	0.1058	20260129
+industry_signals	730	需求爆发/储能电池	20251112	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.5%，历时91日）已轮动（窗口内走完）	20251124	0.0532	0.1055	20260331
+industry_signals	731	事件催化/卫星互联网	20251112	day	商业航天/卫星	alias	closed	兑现完毕（峰值+65.1%，历时42日）已轮动（窗口内走完）	20251127	0.5881	0.6513	20260113
+industry_signals	732	涨价驱动/黄金白银	20251113	day	黄金/贵金属	hint	closed	兑现完毕（峰值+24.8%，历时54日）已轮动（窗口内走完）	20251121	0.185	0.2482	20260130
+industry_signals	733	需求爆发/1.6T光模块	20251113	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+18.2%，历时23日）已轮动（窗口内走完）	20251117	0.1218	0.182	20251216
+industry_signals	734	涨价驱动/VC添加剂	20251113	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.2%→+2.0%，90日）已轮动（窗口内走完）	20251124	0.0201	0.0724	20260331
+industry_signals	735	涨价驱动/碳酸锂	20251113	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.2%→+2.0%，90日）已轮动（窗口内走完）	20251124	0.0201	0.0724	20260331
+industry_signals	736	涨价驱动/电解液材料	20251113	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.2%→+2.0%，90日）已轮动（窗口内走完）	20251124	0.0201	0.0724	20260331
+industry_signals	737	涨价驱动/DMC	20251113	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	738	涨价驱动/锡	20251113	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	739	涨价驱动/铜铝	20251113	day	有色金属	hint	closed	兑现完毕（峰值+36.5%，历时54日）已轮动（窗口内走完）	20251127	0.2785	0.3652	20260130
+industry_signals	740	涨价驱动/振华金属	20251113	day	有色金属	hint	closed	兑现完毕（峰值+36.5%，历时54日）已轮动（窗口内走完）	20251127	0.2785	0.3652	20260130
+industry_signals	741	需求爆发/电池采购	20251113	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.2%→+2.0%，90日）已轮动（窗口内走完）	20251124	0.0201	0.0724	20260331
+industry_signals	742	涨价驱动/磷酸铁锂电解液	20251113	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.2%→+2.0%，90日）已轮动（窗口内走完）	20251124	0.0201	0.0724	20260331
+industry_signals	743	供给紧缺/碳酸锂	20251116	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时89日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	744	涨价驱动/DMC	20251116	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时89日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	745	技术升级/固态电池	20251116	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.3%，历时89日）已轮动（窗口内走完）	20251124	0.0308	0.0831	20260331
+industry_signals	746	情绪周期/大盘信号	20251116	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	747	情绪周期/资金流向	20251116	day	光伏	alias	closed	兑现完毕·深回吐（峰值+9.1%→+2.4%，52日）已轮动（窗口内走完）	20251124	0.024	0.0911	20260129
+industry_signals	748	涨价驱动/碳酸锂	20251117	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+7.7%，历时88日）已轮动（窗口内走完）	20251124	0.0247	0.0771	20260331
+industry_signals	749	需求爆发/钠电池	20251117	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+7.7%，历时88日）已轮动（窗口内走完）	20251124	0.0247	0.0771	20260331
+industry_signals	750	供给紧缺/光刻胶	20251117	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+19.0%，历时53日）已轮动（窗口内走完）	20251124	0.1399	0.1902	20260202
+industry_signals	751	技术升级/固态电池	20251117	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+7.7%，历时88日）已轮动（窗口内走完）	20251124	0.0247	0.0771	20260331
+industry_signals	752	需求爆发/OCS交换机	20251117	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+19.8%，历时56日）已轮动（窗口内走完）	20251125	0.1395	0.1983	20260205
+industry_signals	753	情绪周期/游资	20251117	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	754	涨价驱动/碳酸锂	20251118	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.1%，历时87日）已轮动（窗口内走完）	20251124	0.0489	0.1012	20260331
+industry_signals	755	需求爆发/半导体设备	20251118	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+17.6%，历时52日）已轮动（窗口内走完）	20251124	0.1258	0.1761	20260202
+industry_signals	756	技术升级/算力优化	20251118	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+18.1%，历时20日）已轮动（窗口内走完）	20251125	0.1212	0.1814	20251216
+industry_signals	757	涨价驱动/磷酸铁锂	20251118	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.1%，历时87日）已轮动（窗口内走完）	20251124	0.0489	0.1012	20260331
+industry_signals	758	情绪周期/市场冰点	20251118	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	759	需求爆发/光模块	20251118	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+18.1%，历时20日）已轮动（窗口内走完）	20251125	0.1212	0.1814	20251216
+industry_signals	760	需求爆发/电池材料	20251130	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.6%，历时79日）已轮动（窗口内走完）	20251205	0.0641	0.1165	20260331
+industry_signals	761	涨价驱动/资源品	20251130	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	762	涨价驱动/贵金属	20251130	day	黄金/贵金属	hint	closed	兑现完毕（峰值+22.2%，历时43日）已轮动（窗口内走完）	20251210	0.1591	0.2223	20260130
+industry_signals	763	需求爆发/AI终端	20251130	day	消费电子/华为/鸿蒙	alias	closed	兑现完毕·深回吐（峰值+8.9%→+2.0%，46日）已轮动（窗口内走完）	20251222	0.0195	0.0885	20260204
+industry_signals	764	事件催化/卫星互联网	20251130	day	商业航天/卫星	alias	closed	兑现完毕（峰值+62.6%，历时30日）已轮动（窗口内走完）	20251204	0.5632	0.6264	20260113
+industry_signals	765	事件催化/影视	20251130	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	766	情绪周期/市场风格	20251130	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	767	涨价驱动/半导体	20251201	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+17.6%，历时43日）已轮动（窗口内走完）	20251208	0.1257	0.176	20260202
+industry_signals	768	涨价驱动/PCB材料	20251201	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+15.2%，历时46日）已轮动（窗口内走完）	20251208	0.0929	0.1516	20260205
+industry_signals	769	涨价驱动/资源品	20251201	day	有色金属	hint	closed	兑现完毕（峰值+35.8%，历时42日）已轮动（窗口内走完）	20251203	0.2709	0.3576	20260130
+industry_signals	770	供给紧缺/光通信	20251201	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+10.5%，历时11日）已轮动（窗口内走完）	20251204	0.0447	0.1049	20251216
+industry_signals	771	需求爆发/消费电子	20251201	day	消费电子/华为/鸿蒙	alias	closed	兑现完毕·深回吐（峰值+7.9%→+1.0%，45日）已轮动（窗口内走完）	20251222	0.0099	0.079	20260204
+industry_signals	772	需求爆发/算力	20251201	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+10.5%，历时11日）已轮动（窗口内走完）	20251204	0.0447	0.1049	20251216
+industry_signals	773	事件催化/卫星互联网	20251202	day	商业航天/卫星	alias	closed	兑现完毕（峰值+62.0%，历时28日）已轮动（窗口内走完）	20251204	0.5569	0.6201	20260113
+industry_signals	774	涨价驱动/化工	20251202	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	775	供给紧缺/战略资源	20251202	day	稀土	hint	closed	兑现完毕（峰值+17.4%，历时33日）已轮动（窗口内走完）	20251210	0.1229	0.1742	20260120
+industry_signals	776	需求爆发/能源	20251202	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	777	涨价驱动/通信设备	20251202	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.3%，历时45日）已轮动（窗口内走完）	20251208	0.0944	0.1531	20260205
+industry_signals	778	事件催化/卫星	20251202	day	商业航天/卫星	alias	closed	兑现完毕（峰值+62.0%，历时28日）已轮动（窗口内走完）	20251204	0.5569	0.6201	20260113
+industry_signals	779	技术升级/AI芯片	20251203	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+19.0%，历时41日）已轮动（窗口内走完）	20251208	0.1393	0.1897	20260202
+industry_signals	780	供给紧缺/铁矿石	20251203	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	781	事件催化/卫星互联网	20251203	day	商业航天/卫星	alias	closed	兑现完毕（峰值+63.0%，历时27日）已轮动（窗口内走完）	20251204	0.5672	0.6304	20260113
+industry_signals	782	事件催化/能源	20251203	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	783	事件催化/AI应用	20251203	day	AI软件/应用	alias	closed	兑现完毕（峰值+20.2%，历时31日）已轮动（窗口内走完）	20251229	0.1296	0.2024	20260119
+industry_signals	784	需求爆发/半导体	20251204	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+17.0%，历时40日）已轮动（窗口内走完）	20251208	0.1201	0.1704	20260202
+industry_signals	785	技术升级/机器人	20251204	day	机器人	alias	closed	兑现完毕（峰值+13.2%，历时38日）已轮动（窗口内走完）	20260108	0.0639	0.1323	20260129
+industry_signals	786	技术升级/具身智能	20251204	day	机器人	alias	closed	兑现完毕（峰值+13.2%，历时38日）已轮动（窗口内走完）	20260108	0.0639	0.1323	20260129
+industry_signals	787	事件催化/机器人	20251204	day	机器人	alias	closed	兑现完毕（峰值+13.2%，历时38日）已轮动（窗口内走完）	20260108	0.0639	0.1323	20260129
+industry_signals	788	涨价驱动/金属	20251204	day	有色金属	hint	closed	兑现完毕（峰值+35.6%，历时39日）已轮动（窗口内走完）	20251217	0.2689	0.3556	20260130
+industry_signals	789	情绪周期/市场冰点	20251204	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+9.6%，历时8日）已轮动（窗口内走完）	20251205	0.0353	0.0955	20251216
+industry_signals	790	事件催化/卫星	20251204	day	商业航天/卫星	alias	closed	兑现完毕（峰值+60.8%，历时26日）已轮动（窗口内走完）	20251210	0.5448	0.608	20260113
+industry_signals	791	涨价驱动/小金属	20251207	day	钨/小金属	hint	closed	兑现完毕（峰值+26.9%，历时38日）已轮动（窗口内走完）	20251219	0.187	0.2687	20260130
+industry_signals	792	涨价驱动/化工	20251207	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	793	技术升级/算力	20251207	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+9.4%，历时7日）已轮动（窗口内走完）	20251208	0.0336	0.0938	20251216
+industry_signals	794	供给紧缺/航天	20251207	day	商业航天/卫星	alias	closed	兑现完毕（峰值+58.7%，历时25日）已轮动（窗口内走完）	20251210	0.5234	0.5866	20260113
+industry_signals	795	技术升级/能源	20251207	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	796	技术升级/通信	20251207	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+9.4%，历时7日）已轮动（窗口内走完）	20251208	0.0336	0.0938	20251216
+industry_signals	797	技术升级/火箭	20251207	day	商业航天/卫星	alias	closed	兑现完毕（峰值+58.7%，历时25日）已轮动（窗口内走完）	20251210	0.5234	0.5866	20260113
+industry_signals	798	事件催化/货币政策	20251207	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	799	需求爆发/算力	20251208	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+9.8%，历时41日）已轮动（窗口内走完）	20260114	0.0399	0.0983	20260205
+industry_signals	800	技术升级/算力	20251208	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+9.8%，历时41日）已轮动（窗口内走完）	20260114	0.0399	0.0983	20260205
+industry_signals	801	供给紧缺/通信器件	20251208	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+11.7%，历时41日）已轮动（窗口内走完）	20251222	0.0583	0.1171	20260205
+industry_signals	802	需求爆发/航天	20251208	day	商业航天/卫星	alias	closed	兑现完毕（峰值+58.0%，历时24日）已轮动（窗口内走完）	20251210	0.5165	0.5797	20260113
+industry_signals	803	供给紧缺/锂电	20251208	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.5%，历时73日）已轮动（窗口内走完）	20251222	0.0629	0.1152	20260331
+industry_signals	804	涨价驱动/锂电	20251209	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.3%，历时72日）已轮动（窗口内走完）	20251222	0.0612	0.1135	20260331
+industry_signals	805	供给紧缺/存储	20251209	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+9.7%，历时40日）已轮动（窗口内走完）	20251222	0.0378	0.0965	20260205
+industry_signals	806	涨价驱动/硅料	20251209	day	光伏	alias	closed	兑现完毕（峰值+15.6%，历时35日）已轮动（窗口内走完）	20251223	0.0891	0.1562	20260129
+industry_signals	807	事件催化/火箭	20251209	day	商业航天/卫星	alias	closed	兑现完毕（峰值+58.0%，历时23日）已轮动（窗口内走完）	20251210	0.517	0.5802	20260113
+industry_signals	808	需求爆发/资源	20251209	day	有色金属	hint	closed	兑现完毕（峰值+36.7%，历时36日）已轮动（窗口内走完）	20251217	0.2801	0.3668	20260130
+industry_signals	809	事件催化/通胀	20251210	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	810	事件催化/芯片管制	20251210	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+16.0%，历时36日）已轮动（窗口内走完）	20251222	0.1095	0.1599	20260202
+industry_signals	811	技术升级/GPU	20251210	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+9.1%，历时39日）已轮动（窗口内走完）	20251222	0.0323	0.0911	20260205
+industry_signals	812	涨价驱动/隔膜	20251210	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.3%，历时71日）已轮动（窗口内走完）	20251222	0.0704	0.1227	20260331
+industry_signals	813	事件催化/航天	20251210	day	商业航天/卫星	alias	closed	兑现完毕（峰值+56.3%，历时22日）已轮动（窗口内走完）	20251211	0.4998	0.563	20260113
+industry_signals	814	事件催化/并购	20251211	day	商业航天/卫星	alias	closed	兑现完毕（峰值+54.2%，历时21日）已轮动（窗口内走完）	20251212	0.4787	0.5419	20260113
+industry_signals	815	事件催化/能源	20251211	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	816	供给紧缺/云计算	20251211	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+11.2%，历时38日）已轮动（窗口内走完）	20251222	0.0537	0.1125	20260205
+industry_signals	817	需求爆发/能源	20251211	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	818	技术升级/大模型	20251211	day	AI软件/应用	alias	closed	兑现完毕（峰值+21.5%，历时25日）已轮动（窗口内走完）	20251229	0.1423	0.2152	20260119
+industry_signals	819	需求爆发/军工	20251211	day	军工	alias	closed	兑现完毕（峰值+27.6%，历时21日）已轮动（窗口内走完）	20251224	0.2025	0.2763	20260113
+industry_signals	820	事件周期/市场情绪	20251207	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	821	事件周期/市场情绪	20251208	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	822	事件周期/市场情绪	20251211	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	823	事件催化	20251214	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	824	涨价驱动	20251214	day	黄金/贵金属	hint	closed	兑现完毕（峰值+21.7%，历时33日）已轮动（窗口内走完）	20260108	0.1542	0.2174	20260130
+industry_signals	825	供给紧缺	20251214	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+16.4%，历时34日）已轮动（窗口内走完）	20251222	0.1134	0.1638	20260202
+industry_signals	826	事件催化	20251214	day	商业航天/卫星	alias	closed	兑现完毕（峰值+53.1%，历时20日）已轮动（窗口内走完）	20251218	0.4679	0.5311	20260113
+industry_signals	827	需求爆发	20251214	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+7.7%→+1.9%，37日）已轮动（窗口内走完）	20260114	0.0186	0.0771	20260205
+industry_signals	828	需求爆发	20251214	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+10.6%，历时37日）已轮动（窗口内走完）	20251222	0.0468	0.1055	20260205
+industry_signals	829	供给紧缺	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	830	涨价驱动	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	831	需求爆发	20251215	day	光伏	alias	closed	兑现完毕（峰值+16.3%，历时31日）已轮动（窗口内走完）	20251223	0.0956	0.1627	20260129
+industry_signals	832	需求爆发	20251215	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.2%，历时68日）已轮动（窗口内走完）	20251222	0.0697	0.122	20260331
+industry_signals	833	事件催化	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	834	事件催化	20251215	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	835	涨价驱动	20251216	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+19.1%，历时32日）已轮动（窗口内走完）	20251222	0.1402	0.1906	20260202
+industry_signals	836	需求爆发	20251216	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+13.7%，历时35日）已轮动（窗口内走完）	20251222	0.0778	0.1365	20260205
+industry_signals	837	技术升级	20251216	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+13.7%，历时35日）已轮动（窗口内走完）	20251222	0.0778	0.1365	20260205
+industry_signals	838	技术升级	20251216	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+5.2%→-0.2%，30日）已轮动（窗口内走完）	20251222	-0.0017	0.0517	20260129
+industry_signals	839	涨价驱动	20251217	day	黄金/贵金属	hint	closed	兑现完毕（峰值+21.0%，历时30日）已轮动（窗口内走完）	20260108	0.1463	0.2096	20260130
+industry_signals	840	涨价驱动	20251217	day	钨/小金属	hint	closed	兑现完毕（峰值+25.2%，历时30日）已轮动（窗口内走完）	20251219	0.1707	0.2525	20260130
+industry_signals	841	供给紧缺	20251217	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.7%，历时66日）已轮动（窗口内走完）	20251222	0.0642	0.1165	20260331
+industry_signals	842	需求爆发	20251217	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+7.4%→+1.5%，34日）已轮动（窗口内走完）	20260114	0.0154	0.0739	20260205
+industry_signals	843	需求爆发	20251217	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+11.3%，历时34日）已轮动（窗口内走完）	20251222	0.0543	0.113	20260205
+industry_signals	844	供给紧缺	20251218	day	有色金属	hint	closed	兑现完毕（峰值+34.3%，历时29日）已轮动（窗口内走完）	20251219	0.256	0.3427	20260130
+industry_signals	845	事件催化	20251218	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+12.1%，历时33日）已轮动（窗口内走完）	20251222	0.0623	0.1211	20260205
+industry_signals	846	需求爆发	20251218	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+12.1%，历时33日）已轮动（窗口内走完）	20251222	0.0623	0.1211	20260205
+industry_signals	847	事件催化	20251218	day	创新药/医药/CRO	alias	closing	兑现中·回撤近警戒（峰值+4.7%→现-22.3%）	20260107	-0.2227	0.047	
+industry_signals	848	情绪周期	20251214	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	849	情绪周期	20251216	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	850	情绪周期	20251218	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	851	涨价驱动/锂矿	20251228	day	有色金属	hint	closed	兑现完毕（峰值+28.6%，历时23日）已轮动（窗口内走完）	20251230	0.1991	0.2858	20260130
+industry_signals	852	涨价驱动/覆铜板	20251228	day	有色金属	hint	closed	兑现完毕（峰值+28.6%，历时23日）已轮动（窗口内走完）	20251230	0.1991	0.2858	20260130
+industry_signals	853	需求爆发/储能	20251228	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.2%，历时59日）已轮动（窗口内走完）	20260107	0.0396	0.0919	20260331
+industry_signals	854	供给紧缺/化工	20251228	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	855	技术升级/商业航天	20251228	day	商业航天/卫星	alias	closed	兑现完毕（峰值+36.7%，历时10日）已轮动（窗口内走完）	20251231	0.3033	0.3665	20260113
+industry_signals	856	情绪周期/第二周期	20251228	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	857	需求爆发/人形机器人	20251229	day	机器人	alias	closed	兑现完毕（峰值+11.9%，历时21日）已轮动（窗口内走完）	20260108	0.0503	0.1187	20260129
+industry_signals	858	技术升级/AI算力	20251229	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+6.0%→-0.3%，48日）已轮动（窗口内走完）	20260114	-0.0027	0.06	20260317
+industry_signals	859	事件催化/户用储能	20251229	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.7%，历时58日）已轮动（窗口内走完）	20260107	0.055	0.1074	20260331
+industry_signals	860	涨价驱动/贵金属	20251229	day	黄金/贵金属	hint	closed	兑现完毕（峰值+19.6%，历时22日）已轮动（窗口内走完）	20260108	0.1327	0.1959	20260130
+industry_signals	861	情绪周期/航天发展股东变化	20251229	day	商业航天/卫星	alias	closed	兑现完毕（峰值+34.4%，历时9日）已轮动（窗口内走完）	20251231	0.2809	0.3441	20260113
+industry_signals	862	事件催化/中东局势	20251230	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	863	技术升级/数字人民币	20251230	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	864	需求爆发/特斯拉链	20251230	day	机器人	alias	closed	兑现完毕·深回吐（峰值+8.9%→+2.0%，20日）已轮动（窗口内走完）	20260108	0.0201	0.0885	20260129
+industry_signals	865	事件催化/委内瑞拉石油	20260104	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	866	事件催化/存储芯片IPO	20260104	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+9.2%，历时24日）已轮动（窗口内走完）	20260107	0.0331	0.0918	20260205
+industry_signals	867	技术升级/GPU	20260104	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+9.2%，历时24日）已轮动（窗口内走完）	20260107	0.0331	0.0918	20260205
+industry_signals	868	涨价驱动/锂盐	20260104	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	869	情绪周期/第二周期	20260104	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	870	涨价驱动/铝	20260105	day	有色金属	hint	closed	兑现完毕（峰值+26.6%，历时19日）已轮动（窗口内走完）	20260109	0.1796	0.2663	20260130
+industry_signals	871	政策催化/储能	20260105	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.5%，历时55日）已轮动（窗口内走完）	20260107	0.0722	0.1246	20260331
+industry_signals	872	涨价驱动/碳酸锂	20260105	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+12.5%，历时55日）已轮动（窗口内走完）	20260107	0.0722	0.1246	20260331
+industry_signals	873	技术升级/PCB封装	20260105	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+7.8%→+1.9%，23日）已轮动（窗口内走完）	20260107	0.0195	0.0782	20260205
+industry_signals	874	事件催化/DeepSeek	20260105	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	875	事件催化/脑机接口	20260105	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	876	需求爆发/保险	20260105	day	券商/金融	alias	closing	兑现中·回撤近警戒（峰值+2.6%→现-22.5%）	20260122	-0.2246	0.0258	
+industry_signals	877	供给紧缺/商业航天	20260105	day	商业航天/卫星	alias	closed	兑现完毕（峰值+26.4%，历时6日）已轮动（窗口内走完）	20260108	0.2007	0.2639	20260113
+industry_signals	878	供给紧缺/磷肥	20251221	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	879	涨价驱动/铝	20251221	day	有色金属	hint	closed	兑现完毕（峰值+32.7%，历时28日）已轮动（窗口内走完）	20251222	0.2405	0.3272	20260130
+industry_signals	880	涨价驱动/光纤通信	20251221	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+8.5%，历时32日）已轮动（窗口内走完）	20260114	0.0264	0.0848	20260205
+industry_signals	881	需求爆发/AI算力	20251221	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+8.5%，历时32日）已轮动（窗口内走完）	20260114	0.0264	0.0848	20260205
+industry_signals	882	事件催化/商业航天	20251221	day	商业航天/卫星	alias	closed	兑现完毕（峰值+46.6%，历时15日）已轮动（窗口内走完）	20251224	0.4026	0.4658	20260113
+industry_signals	883	事件催化/信用修复	20251222	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	884	涨价驱动/黄金	20251222	day	黄金/贵金属	hint	closed	兑现完毕（峰值+19.5%，历时27日）已轮动（窗口内走完）	20260108	0.1314	0.1946	20260130
+industry_signals	885	事件催化/地产债	20251222	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	886	需求爆发/海南免税	20251222	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	887	涨价驱动/光伏	20251222	day	光伏	alias	closed	兑现完毕（峰值+18.5%，历时26日）已轮动（窗口内走完）	20251223	0.1179	0.185	20260129
+industry_signals	888	供给紧缺/PCB材料	20251222	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+9.2%，历时31日）已轮动（窗口内走完）	20260107	0.0334	0.0921	20260205
+industry_signals	889	需求爆发/半导体设备	20251222	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+16.8%，历时28日）已轮动（窗口内走完）	20260105	0.1172	0.1676	20260202
+industry_signals	890	涨价驱动/光纤	20251222	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+6.3%→+0.1%，53日）已轮动（窗口内走完）	20260114	0.0006	0.0633	20260317
+industry_signals	891	需求爆发/铜铝金属	20251223	day	有色金属	hint	closed	兑现完毕（峰值+31.0%，历时26日）已轮动（窗口内走完）	20251230	0.2229	0.3096	20260130
+industry_signals	892	涨价驱动/钨	20251223	day	钨/小金属	hint	closed	兑现完毕（峰值+21.5%，历时26日）已轮动（窗口内走完）	20251230	0.1331	0.2148	20260130
+industry_signals	893	事件催化/商业航天	20251223	day	商业航天/卫星	alias	closed	兑现完毕（峰值+50.3%，历时13日）已轮动（窗口内走完）	20251224	0.4398	0.5031	20260113
+industry_signals	894	需求爆发/液冷	20251223	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+9.2%，历时30日）已轮动（窗口内走完）	20260107	0.0333	0.0921	20260205
+industry_signals	895	涨价驱动/科技硬件	20251223	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕·深回吐（峰值+5.1%→-0.7%，30日）已轮动（窗口内走完）	20260114	-0.0072	0.0513	20260205
+industry_signals	896	涨价驱动/工业金属	20251224	day	有色金属	hint	closed	兑现完毕（峰值+30.8%，历时25日）已轮动（窗口内走完）	20251230	0.2211	0.3078	20260130
+industry_signals	897	涨价驱动/原油化工	20251224	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	898	事件催化/半导体关税	20251224	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+15.3%，历时26日）已轮动（窗口内走完）	20260105	0.1026	0.1529	20260202
+industry_signals	899	涨价驱动/电子材料	20251224	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	900	事件催化/商业航天	20251224	day	商业航天/卫星	alias	closed	兑现完毕（峰值+45.4%，历时12日）已轮动（窗口内走完）	20251225	0.3908	0.454	20260113
+industry_signals	901	涨价驱动/储能	20251224	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.5%，历时61日）已轮动（窗口内走完）	20260107	0.0428	0.0951	20260331
+industry_signals	902	技术升级/存储芯片	20251224	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕·深回吐（峰值+7.9%→+2.0%，29日）已轮动（窗口内走完）	20260107	0.0203	0.0791	20260205
+industry_signals	903	需求爆发/AI电力	20251225	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+18.0%，历时59日）已轮动（窗口内走完）	20260112	0.1301	0.1803	20260330
+industry_signals	904	涨价驱动/储能材料	20251225	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.7%，历时60日）已轮动（窗口内走完）	20260107	0.0451	0.0975	20260331
+industry_signals	905	技术升级/机器人	20251225	day	机器人	alias	closed	兑现完毕（峰值+12.8%，历时23日）已轮动（窗口内走完）	20260108	0.06	0.1284	20260129
+industry_signals	906	情绪周期/大盘	20251225	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	907	需求爆发/CPU需求	20260426	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+23.5%，历时23日）已轮动（窗口内走完）	20260430	0.1658	0.2346	20260601
+industry_signals	908	涨价驱动/碳酸锂	20260426	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+5.0%→现-6.2%）	20260515	-0.0622	0.05	
+industry_signals	909	供给紧缺/光纤	20260426	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+24.0%，峰值+24.0%）	20260506	0.2397	0.2397	
+industry_signals	910	涨价驱动/丁腈乳胶	20260426	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	911	涨价驱动/油运费率	20260426	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	912	产能扩张/隔膜	20260426	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+5.0%→现-6.2%）	20260515	-0.0622	0.05	
+industry_signals	913	需求爆发/光模块	20260423	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+20.3%，峰值+20.3%）	20260506	0.2028	0.2028	
+industry_signals	914	需求爆发/燃气轮机	20260423	day	电力/电网/算电协同/燃气轮机	hint	closed	兑现完毕（峰值+8.6%，历时28日）已轮动（窗口内走完）	20260506	0.027	0.0858	20260605
+industry_signals	915	资金流出/外汇掉期	20260423	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	916	需求爆发/存储	20260422	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+21.6%，历时25日）已轮动（窗口内走完）	20260430	0.1476	0.2164	20260601
+industry_signals	917	供给紧缺/DTH铜箔	20260422	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+21.6%，历时25日）已轮动（窗口内走完）	20260430	0.1476	0.2164	20260601
+industry_signals	918	产能扩张/磷化铟	20260422	day	光模块/CPO/光通信/光纤	hint	closing	主升兑现中（25日，累计+19.3%，峰值+19.3%）	20260506	0.1929	0.1929	
+industry_signals	919	需求爆发/服务器电源	20260421	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+25.1%，历时26日）已轮动（窗口内走完）	20260430	0.1818	0.2506	20260601
+industry_signals	920	产能紧缺/先进封装	20260421	day	稀土	hint	closing	兑现中·回撤近警戒（峰值+2.4%→现-4.6%）	20260429	-0.0463	0.0239	
+industry_signals	921	供给紧缺/电子布	20260421	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	922	涨价驱动/电极箔	20260421	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+25.1%，历时26日）已轮动（窗口内走完）	20260430	0.1818	0.2506	20260601
+industry_signals	923	需求爆发/测试探针	20260421	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+25.1%，历时26日）已轮动（窗口内走完）	20260430	0.1818	0.2506	20260601
+industry_signals	924	供给紧缺/超高频金正	20260421	day	光伏	hint	closing	兑现中·回撤近警戒（峰值+2.1%→现-7.1%）	20260429	-0.0714	0.0213	
+industry_signals	925	MTBE涨价|调油组分	20260305	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	926	抗老化助剂涨价|巴斯夫提价	20260305	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	927	先进封装|算力分配器	20260305	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+23.4%，历时37日）已轮动（窗口内走完）	20260318	0.1813	0.2343	20260428
+industry_signals	928	华为昇腾|国产替代	20260305	day	半导体/芯片/半导体材料	hint	closed	兑现完毕（峰值+34.5%，历时57日）已轮动（窗口内走完）	20260403	0.2588	0.3445	20260529
+industry_signals	929	光纤光缆涨价|战争+科技双线	20260305	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+23.4%，历时37日）已轮动（窗口内走完）	20260318	0.1813	0.2343	20260428
+industry_signals	930	布伦特原油突破90美元|地缘驱动	20260305	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	931	情绪冰点|连板高度压制	20260305	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+9.5%，历时17日）已轮动（窗口内走完）	20260319	0.0451	0.0952	20260330
+industry_signals	932	中东产能关停|供给紧缺	20260308	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	933	原油破110美元|单周涨50%	20260308	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	934	煤化工替代逻辑|宝丰能源	20260308	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	935	亚洲资金流出创纪录|人民币企稳	20260308	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	936	覆铜板涨价|建滔提价10%	20260309	day	有色金属	hint	closing	兑现中·回撤近警戒（峰值+0.0%→现-21.4%）	20260416	-0.2138	0.0	
+industry_signals	937	供需缺口30-40%|高景气	20260309	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+35.9%，历时56日）已轮动（窗口内走完）	20260403	0.2903	0.3591	20260601
+industry_signals	938	苹果折叠屏|备货上调20%	20260309	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+5.1%→-0.1%，16日）已轮动（窗口内走完）	20260310	-0.0012	0.0511	20260331
+industry_signals	939	工业金刚石+钨矿涨价	20260309	day	钨/小金属	hint	closing	兑现中·回撤近警戒（峰值+4.7%→现-9.0%）	20260320	-0.0897	0.0475	
+industry_signals	940	出海BD总额575亿|同比增135%	20260310	day	创新药/医药/CRO	alias	closed	兑现完毕（峰值+10.8%，历时22日）已轮动（窗口内走完）	20260316	0.0564	0.1077	20260410
+industry_signals	941	晶科能源北美订单|Q2落地40+GW	20260310	day	光伏	hint	closing	兑现中·回撤近警戒（峰值+2.1%→现-15.9%）	20260318	-0.1589	0.0212	
+industry_signals	942	化工品普涨|蛋氨酸暴涨83%	20260310	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	943	欧洲天然气回落+订单修复|板块反弹	20260310	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+5.6%→+0.2%，51日）已轮动（窗口内走完）	20260318	0.0023	0.0565	20260526
+industry_signals	944	容量电价落地|微利企业盈利弹性数百倍	20260310	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+7.9%，历时14日）已轮动（窗口内走完）	20260319	0.0284	0.0785	20260330
+industry_signals	945	华为昇腾+全光互联|GTC+华为大会催化	20260311	day	半导体/芯片/半导体材料	hint	closed	兑现完毕（峰值+36.8%，历时53日）已轮动（窗口内走完）	20260403	0.2818	0.3676	20260529
+industry_signals	946	可回收火箭发射|3-4月催化	20260311	day	商业航天/卫星	alias	closing	兑现中·回撤近警戒（峰值+2.0%→现-13.7%）	20260430	-0.1373	0.0205	
+industry_signals	947	资金分歧|机构流入权重散户离场	20260311	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+23.7%，历时33日）已轮动（窗口内走完）	20260318	0.1839	0.2369	20260428
+industry_signals	948	1.6T替代800G|GTC催化	20260311	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+23.7%，历时33日）已轮动（窗口内走完）	20260318	0.1839	0.2369	20260428
+industry_signals	949	OpenClaw自主编程|AWE2026催化	20260311	day	机器人	alias	closed	兑现完毕（峰值+13.0%，历时51日）已轮动（窗口内走完）	20260416	0.0786	0.1304	20260527
+industry_signals	950	油气化工/原油替代	20260319	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	951	天然气/热泵对标2022	20260319	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	952	科技-电力/算力协同	20260319	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+25.0%，历时27日）已轮动（窗口内走完）	20260403	0.1973	0.2503	20260428
+industry_signals	953	光伏储能/中东需求	20260322	day	光伏	alias	closing	兑现中·回撤近警戒（峰值+1.8%→现-16.2%）	20260416	-0.1623	0.0178	
+industry_signals	954	煤炭煤化工/内外倒挂	20260322	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	955	光通信/1.6T到3.2T	20260322	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+22.8%，历时26日）已轮动（窗口内走完）	20260403	0.1753	0.2283	20260428
+industry_signals	956	人形机器人/宇树IPO	20260322	day	机器人	alias	closed	兑现完毕（峰值+18.7%，历时44日）已轮动（窗口内走完）	20260416	0.1356	0.1874	20260527
+industry_signals	957	硫磺/硫酸供应链扰动	20260323	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	958	IDC数据中心/AIDC	20260323	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+36.4%，历时46日）已轮动（窗口内走完）	20260403	0.2949	0.3637	20260601
+industry_signals	959	半导体/升腾950供应链	20260323	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+40.2%，历时45日）已轮动（窗口内走完）	20260403	0.3164	0.4022	20260529
+industry_signals	960	电力/水电资产收购	20260324	day	电力/电网/算电协同/燃气轮机	alias	closing	兑现中·回撤近警戒（峰值+2.0%→现-7.3%）	20260506	-0.0729	0.0196	
+industry_signals	961	储能/招标高增	20260324	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+2.2%→现-9.0%）	20260407	-0.09	0.0222	
+industry_signals	962	光纤/招标限价大涨	20260324	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+23.1%，历时24日）已轮动（窗口内走完）	20260403	0.1778	0.2308	20260428
+industry_signals	963	锂电池/VC停产检修	20260324	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+2.2%→现-9.0%）	20260407	-0.09	0.0222	
+industry_signals	964	AI算力/token指数增长	20260325	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+20.6%，历时23日）已轮动（窗口内走完）	20260403	0.1533	0.2064	20260428
+industry_signals	965	存储/Q2价格大涨	20260325	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+34.3%，历时44日）已轮动（窗口内走完）	20260403	0.2742	0.343	20260601
+industry_signals	966	商业航天/SpaceX	20260325	day	商业航天/卫星	alias	closed	兑现完毕（峰值+10.9%，历时32日）已轮动（窗口内走完）	20260430	0.0353	0.1086	20260514
+industry_signals	967	容量电价/火电热电	20260312	day	电力/电网/算电协同/燃气轮机	alias	closing	兑现中·回撤近警戒（峰值+3.3%→现-6.0%）	20260319	-0.0597	0.0327	
+industry_signals	968	煤化工/油价中枢上移	20260312	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	969	碳纤维/化纤/磷化工涨价	20260312	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+2.0%→现-9.2%）	20260318	-0.0921	0.0201	
+industry_signals	970	大模型API涨价/光通信	20260312	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+24.7%，历时32日）已轮动（窗口内走完）	20260318	0.1939	0.2469	20260428
+industry_signals	971	数据中心/燃气轮机	20260312	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+35.5%，历时53日）已轮动（窗口内走完）	20260403	0.2859	0.3547	20260601
+industry_signals	972	擎天柱第三代/展会催化	20260312	day	机器人	alias	closed	兑现完毕（峰值+13.7%，历时50日）已轮动（窗口内走完）	20260416	0.0857	0.1374	20260527
+industry_signals	973	英国取消进口关税	20260315	day	光伏	hint	closing	兑现中·回撤近警戒（峰值+1.8%→现-16.2%）	20260318	-0.1621	0.018	
+industry_signals	974	英伟达M10材料送样	20260315	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+35.9%，历时52日）已轮动（窗口内走完）	20260403	0.2905	0.3593	20260601
+industry_signals	975	甲醇/丁腈手套/PTA涨价	20260315	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	976	战争油气线补涨	20260315	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	977	两会新名词/稀缺标的	20260315	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕·深回吐（峰值+5.1%→+0.1%，11日）已轮动（窗口内走完）	20260319	0.0005	0.0507	20260330
+industry_signals	978	硫磺/碳酸锶/煤化工涨价	20260316	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	979	二线补涨	20260316	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+25.2%，历时30日）已轮动（窗口内走完）	20260318	0.1992	0.2522	20260428
+industry_signals	980	二线补涨/光通信设备	20260316	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+25.2%，历时30日）已轮动（窗口内走完）	20260318	0.1992	0.2522	20260428
+industry_signals	981	并购重组/独立个股	20260316	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+2.9%→现-8.3%）	20260318	-0.0833	0.029	
+industry_signals	982	GTC大会/铜缆连接预期修复	20260317	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+38.2%，历时50日）已轮动（窗口内走完）	20260403	0.3136	0.3824	20260601
+industry_signals	983	政策催化/保有量目标	20260317	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+5.7%→+0.3%，46日）已轮动（窗口内走完）	20260318	0.0026	0.0568	20260526
+industry_signals	984	阿里云算力卡涨价30%	20260318	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+25.5%，历时28日）已轮动（窗口内走完）	20260403	0.2024	0.2554	20260428
+industry_signals	985	招标失败/涨价周期	20260318	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+25.5%，历时28日）已轮动（窗口内走完）	20260403	0.2024	0.2554	20260428
+industry_signals	986	霍尔木兹海峡封锁/逼空临界点	20260318	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	987	隐性资产重估/热电轮动	20260318	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+7.8%，历时8日）已轮动（窗口内走完）	20260319	0.028	0.0781	20260330
+industry_signals	988	强势震荡/消息市	20260312	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	989	非典型第二周期/地缘干扰	20260315	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	990	弱势震荡/极致风格切换	20260316	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	991	空头市场/跌破MA60	20260317	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	992	第二周期延续/缩量磨底	20260318	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+25.5%，历时28日）已轮动（窗口内走完）	20260403	0.2024	0.2554	20260428
+industry_signals	993	需求爆发/美国电力	20260211	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+19.8%，历时27日）已轮动（窗口内走完）	20260226	0.1479	0.198	20260330
+industry_signals	994	供给紧缺/电解铝	20260211	day	有色金属	hint	closed	兑现完毕·深回吐（峰值+10.1%→-3.1%，41日）已轮动（窗口内走完）	20260416	-0.0315	0.1014	20260420
+industry_signals	995	需求爆发/储能	20260211	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+11.6%，历时28日）已轮动（窗口内走完）	20260306	0.064	0.1163	20260331
+industry_signals	996	供给紧缺/镍矿	20260211	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	997	供给紧缺/棉花染料	20260211	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	998	涨价驱动/钨矿	20260211	day	钨/小金属	hint	closed	兑现完毕（峰值+11.9%，历时8日）已轮动（窗口内走完）	20260224	0.0634	0.1194	20260303
+industry_signals	999	事件催化/机器人	20260211	day	机器人	alias	closed	兑现完毕（峰值+10.3%，历时65日）已轮动（窗口内走完）	20260304	0.0512	0.103	20260527
+industry_signals	1000	事件催化/商业航天	20260211	day	商业航天/卫星	alias	closed	兑现完毕·深回吐（峰值+7.6%→+0.4%，8日）已轮动（窗口内走完）	20260225	0.0035	0.0757	20260303
+industry_signals	1001	需求爆发/AI算力	20260223	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+28.4%，历时45日）已轮动（窗口内走完）	20260318	0.2314	0.2844	20260428
+industry_signals	1002	涨价驱动/稀有金属	20260223	day	钨/小金属	hint	closed	兑现完毕（峰值+11.8%，历时6日）已轮动（窗口内走完）	20260224	0.0616	0.1176	20260303
+industry_signals	1003	涨价驱动/贵金属油运	20260223	day	黄金/贵金属	hint	closed	兑现完毕·深回吐（峰值+6.4%→-3.2%，26日）已轮动（窗口内走完）	20260327	-0.032	0.0637	20260331
+industry_signals	1004	供给紧缺/昇腾芯片	20260223	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+30.7%，历时65日）已轮动（窗口内走完）	20260403	0.2214	0.3071	20260529
+industry_signals	1005	需求爆发/机器人	20260223	day	机器人	alias	closed	兑现完毕（峰值+7.7%，历时63日）已轮动（窗口内走完）	20260304	0.0252	0.077	20260527
+industry_signals	1006	涨价驱动/光纤PCB	20260223	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+33.9%，历时66日）已轮动（窗口内走完）	20260403	0.2705	0.3393	20260601
+industry_signals	1007	事件催化/磷化工	20260224	day	军工	alias	closed	兑现完毕·深回吐（峰值+5.2%→-0.4%，5日）已轮动（窗口内走完）	20260225	-0.0037	0.052	20260303
+industry_signals	1008	涨价驱动/石油天然气	20260224	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1009	涨价驱动/贵金属白银	20260224	day	黄金/贵金属	hint	closing	兑现中·回撤近警戒（峰值+3.8%→现-20.9%）	20260327	-0.2088	0.0378	
+industry_signals	1010	技术升级/CPO	20260224	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+26.3%，历时44日）已轮动（窗口内走完）	20260318	0.2105	0.2635	20260428
+industry_signals	1011	技术升级/超硬材料	20260224	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+33.2%，历时65日）已轮动（窗口内走完）	20260403	0.2631	0.3319	20260601
+industry_signals	1012	事件催化/商业航天	20260224	day	商业航天/卫星	alias	closed	兑现完毕·深回吐（峰值+8.7%→+1.5%，5日）已轮动（窗口内走完）	20260225	0.0151	0.0873	20260303
+industry_signals	1013	涨价驱动/稀土	20260224	day	稀土	hint	closed	兑现完毕·深回吐（峰值+8.9%→-4.5%，31日）已轮动（窗口内走完）	20260407	-0.0455	0.0889	20260409
+industry_signals	1014	需求爆发/储能	20260225	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.8%，历时24日）已轮动（窗口内走完）	20260306	0.0359	0.0882	20260331
+industry_signals	1015	需求爆发/海外电力	20260225	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+18.2%，历时23日）已轮动（窗口内走完）	20260226	0.1323	0.1824	20260330
+industry_signals	1016	涨价驱动/分散黑染料	20260225	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1017	供给紧缺/磷化铟衬底	20260225	day	光模块/CPO/光通信/光纤	hint	closed	兑现完毕（峰值+26.5%，历时43日）已轮动（窗口内走完）	20260318	0.2121	0.2651	20260428
+industry_signals	1018	供给紧缺/半导体国产替代	20260225	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+31.7%，历时63日）已轮动（窗口内走完）	20260403	0.231	0.3167	20260529
+industry_signals	1019	事件催化/商业航天	20260225	day	商业航天/卫星	alias	closed	兑现完毕·深回吐（峰值+7.0%→-0.2%，4日）已轮动（窗口内走完）	20260226	-0.0025	0.0697	20260303
+industry_signals	1020	事件催化/英伟达GTC	20260225	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+33.5%，历时64日）已轮动（窗口内走完）	20260403	0.2657	0.3345	20260601
+industry_signals	1021	涨价驱动/重钨酸铵	20260225	day	钨/小金属	hint	closed	兑现完毕·深回吐（峰值+5.3%→-0.3%，4日）已轮动（窗口内走完）	20260226	-0.0026	0.0534	20260303
+industry_signals	1022	情绪周期/短线情绪	20260225	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1023	钨/稀土涨价	20260226	day	稀土	hint	closing	兑现中·回撤近警戒（峰值+4.2%→现-13.1%）	20260407	-0.131	0.0418	
+industry_signals	1024	TMP涨价/染料	20260226	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1025	英伟达财报超预期	20260226	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+31.2%，历时63日）已轮动（窗口内走完）	20260403	0.2427	0.3115	20260601
+industry_signals	1026	LPU推理芯片/GTC大会	20260226	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+30.0%，历时62日）已轮动（窗口内走完）	20260403	0.214	0.2997	20260529
+industry_signals	1027	正交背板逻辑反转	20260226	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+23.6%，历时42日）已轮动（窗口内走完）	20260318	0.1831	0.2361	20260428
+industry_signals	1028	数据中心自建电源/燃气轮机	20260226	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+31.2%，历时63日）已轮动（窗口内走完）	20260403	0.2427	0.3115	20260601
+industry_signals	1029	朱雀三号2026发射	20260226	day	商业航天/卫星	alias	closed	兑现完毕·深回吐（峰值+5.1%→-2.7%，46日）已轮动（窗口内走完）	20260430	-0.0265	0.0507	20260507
+industry_signals	1030	南美出口限制	20260226	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1031	第一周期/存量聚焦	20260226	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+31.2%，历时63日）已轮动（窗口内走完）	20260403	0.2427	0.3115	20260601
+industry_signals	1032	霍尔木兹海峡封锁	20260301	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1033	伊朗甲醇出口受阻	20260301	day	黄金/贵金属	hint	closing	兑现中·回撤近警戒（峰值+4.1%→现-20.5%）	20260327	-0.2053	0.0413	
+industry_signals	1034	钨/稀土/硒涨价	20260301	day	稀土	hint	closing	兑现中·回撤近警戒（峰值+0.0%→现-17.3%）	20260407	-0.1728	0.0	
+industry_signals	1035	openrouter调用量爆发	20260301	day	AI软件/应用	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-25.0%）	20260416	-0.2505	0.0	
+industry_signals	1036	华为升腾950放量	20260301	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+24.8%，历时41日）已轮动（窗口内走完）	20260318	0.1945	0.2475	20260428
+industry_signals	1037	第一周期/资金抱团	20260301	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1038	海油产业链/税率优惠	20260302	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1039	煤化工替代	20260302	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1040	甲醇/钾肥涨价	20260302	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1041	农药涨价	20260302	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1042	光纤涨价/无人机需求	20260302	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+23.3%，历时40日）已轮动（窗口内走完）	20260318	0.1801	0.2332	20260428
+industry_signals	1043	SpaceX IPO	20260302	day	光伏	alias	closed	兑现完毕·深回吐（峰值+5.6%→-0.9%，20日）已轮动（窗口内走完）	20260318	-0.0092	0.056	20260330
+industry_signals	1044	比亚迪技术发布会	20260302	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.5%→+2.2%，21日）已轮动（窗口内走完）	20260306	0.0223	0.0746	20260331
+industry_signals	1045	美国机器人制造商圆桌会议	20260302	day	机器人	alias	closed	兑现完毕（峰值+11.2%，历时58日）已轮动（窗口内走完）	20260304	0.06	0.1118	20260527
+industry_signals	1046	第一周期冰点	20260302	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1047	降息预期清零/加息升温	20260303	day	黄金/贵金属	hint	closing	兑现中·回撤近警戒（峰值+0.0%→现-24.6%）	20260327	-0.2456	0.0	
+industry_signals	1048	无人机光纤需求激增	20260303	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+25.1%，历时39日）已轮动（窗口内走完）	20260318	0.1977	0.2508	20260428
+industry_signals	1049	印尼镍矿减产	20260303	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1050	欧洲天然气暴涨	20260303	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+8.0%，历时20日）已轮动（窗口内走完）	20260306	0.0277	0.0801	20260331
+industry_signals	1051	VLCC运价翻倍	20260303	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1052	TMP涨价/SAF倒挂	20260303	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1053	英伟达40亿投资/EML芯片	20260303	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+35.1%，历时60日）已轮动（窗口内走完）	20260403	0.2824	0.3512	20260601
+industry_signals	1054	三菱化学CCL涨价	20260303	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+35.1%，历时60日）已轮动（窗口内走完）	20260403	0.2824	0.3512	20260601
+industry_signals	1055	连续冰点亏钱效应放大	20260303	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1056	外汇掉期持续恶化	20260304	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1057	化工全面涨价	20260304	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+10.2%，历时18日）已轮动（窗口内走完）	20260305	0.0518	0.102	20260330
+industry_signals	1058	海外电力/特高压扩容	20260304	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+10.2%，历时18日）已轮动（窗口内走完）	20260305	0.0518	0.102	20260330
+industry_signals	1059	中东转单/EML紧缺	20260304	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1060	存储涨价	20260304	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+34.7%，历时59日）已轮动（窗口内走完）	20260403	0.2785	0.3473	20260601
+industry_signals	1061	韩国暴跌流动性风险	20260304	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1062	中证1000极限推演	20260304	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1063	光芯片涨价	20260419	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+24.9%，历时28日）已轮动（窗口内走完）	20260430	0.1803	0.2491	20260601
+industry_signals	1064	技术迭代/下一代光通信	20260419	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+24.3%，峰值+24.3%）	20260506	0.2429	0.2429	
+industry_signals	1065	能源危机定价/供需打破	20260419	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1066	英特尔财报/CPU断货	20260419	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+24.9%，历时28日）已轮动（窗口内走完）	20260430	0.1803	0.2491	20260601
+industry_signals	1067	OCS光交换机/谷歌NEXT大会	20260419	day	半导体/芯片/半导体材料	hint	closed	兑现完毕（峰值+36.1%，历时27日）已轮动（窗口内走完）	20260430	0.2752	0.361	20260529
+industry_signals	1068	事件驱动/中国航天日	20260419	day	商业航天/卫星	alias	closed	兑现完毕·深回吐（峰值+5.8%→-1.6%，16日）已轮动（窗口内走完）	20260430	-0.0156	0.0577	20260514
+industry_signals	1069	地缘涨价/供应中断	20260420	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1070	价格回升/供应收缩	20260420	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1071	AI集群升级/OCS配比提升	20260420	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+23.6%，峰值+23.6%）	20260506	0.2363	0.2363	
+industry_signals	1072	现货价格上涨	20260420	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕·深回吐（峰值+7.2%→+1.9%，20日）已轮动（窗口内走完）	20260506	0.0191	0.0715	20260521
+industry_signals	1073	行业龙头/安全认证壁垒	20260420	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+24.0%，历时27日）已轮动（窗口内走完）	20260430	0.1708	0.2396	20260601
+industry_signals	1074	SHIBOR降息预期	20260420	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1075	业绩兑现/财报超预期	20260427	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+22.8%，峰值+22.8%）	20260506	0.2278	0.2278	
+industry_signals	1076	国产替代/设备放量	20260427	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+28.6%，历时21日）已轮动（窗口内走完）	20260430	0.2003	0.286	20260529
+industry_signals	1077	国产算力紧缺	20260427	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+22.8%，峰值+22.8%）	20260506	0.2278	0.2278	
+industry_signals	1078	涨价传导/产业链受益	20260427	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+20.4%，历时22日）已轮动（窗口内走完）	20260430	0.1352	0.204	20260601
+industry_signals	1079	事件驱动/AI资本开支	20260427	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1080	涨停封板率/赚钱效应	20260419	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1081	MA60多空分界/亏钱效应抬升	20260420	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1082	汇率异动/两极分化	20260427	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1083	上游光芯片保供紧缺/涨价	20260412	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+29.1%，历时33日）已轮动（窗口内走完）	20260416	0.2219	0.2907	20260601
+industry_signals	1084	涨价/供需缺口	20260412	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+29.1%，历时33日）已轮动（窗口内走完）	20260416	0.2219	0.2907	20260601
+industry_signals	1085	供需支撑/减产	20260412	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1086	TOKEN出海盈利模型	20260413	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+12.0%，历时11日）已轮动（窗口内走完）	20260416	0.067	0.12	20260428
+industry_signals	1087	产业链利润转移	20260413	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+4.7%→现-6.5%）	20260416	-0.0654	0.0468	
+industry_signals	1088	涨价	20260413	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1089	涨价/供给侧收缩	20260414	day	有色金属	hint	closing	兑现中·回撤近警戒（峰值+0.9%→现-14.8%）	20260416	-0.148	0.0093	
+industry_signals	1090	涨价扩散	20260414	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+3.2%→现-8.0%）	20260416	-0.0798	0.0325	
+industry_signals	1091	算电协同/并购溢价	20260414	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕（峰值+7.9%，历时24日）已轮动（窗口内走完）	20260506	0.027	0.0795	20260521
+industry_signals	1092	产能紧缺/涨价	20260415	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+37.0%，历时29日）已轮动（窗口内走完）	20260416	0.2838	0.3695	20260529
+industry_signals	1093	涨价	20260415	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+12.6%，历时9日）已轮动（窗口内走完）	20260416	0.0725	0.1255	20260428
+industry_signals	1094	放量超预期	20260415	day	创新药/医药/CRO	alias	open	⚠️逾期未启动（36日，累计-23.2%）——逻辑存疑或锚不对		-0.2319	0.0	
+industry_signals	1095	需求爆发	20260416	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+29.3%，峰值+29.3%）	20260506	0.2934	0.2934	
+industry_signals	1096	产能饱和/需求爆发	20260416	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+27.8%，历时29日）已轮动（窗口内走完）	20260430	0.2095	0.2783	20260601
+industry_signals	1097	放量超预期	20260416	day	创新药/医药/CRO	alias	open	⚠️逾期未启动（35日，累计-21.7%）——逻辑存疑或锚不对		-0.2174	0.0	
+industry_signals	1098	新增量/零到一	20260416	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+29.3%，峰值+29.3%）	20260506	0.2934	0.2934	
+industry_signals	1099	成本优势/出口受益	20260416	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1100	消化窗口	20260412	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1101	存量博弈/缩量磨底	20260413	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1102	增量资金/独立行情	20260414	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1103	财报节点正常调整	20260415	day	创新药/医药/CRO	alias	open	⚠️逾期未启动（36日，累计-23.2%）——逻辑存疑或锚不对		-0.2319	0.0	
+industry_signals	1104	风险释放/情绪修复	20260416	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1105	铼金属涨价	20260402	day	有色金属	hint	closing	兑现中·回撤近警戒（峰值+3.9%→现-12.5%）	20260416	-0.1247	0.0389	
+industry_signals	1106	合成橡胶断供	20260402	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1107	商业航天首飞	20260402	day	商业航天/卫星	alias	closed	兑现完毕（峰值+11.6%，历时26日）已轮动（窗口内走完）	20260430	0.0424	0.1157	20260514
+industry_signals	1108	GLP-1口服减肥药	20260402	day	创新药/医药/CRO	alias	open	⚠️逾期未启动（44日，累计-27.0%）——逻辑存疑或锚不对		-0.2698	0.0	
+industry_signals	1109	市场情绪冰点	20260402	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1110	六氟化钨断供	20260406	day	钨/小金属	hint	closed	兑现完毕（峰值+12.2%，历时25日）已轮动（窗口内走完）	20260407	0.0502	0.1225	20260514
+industry_signals	1111	原油涨价传导	20260406	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1112	CPO设备	20260406	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+16.9%，历时16日）已轮动（窗口内走完）	20260407	0.1159	0.1689	20260428
+industry_signals	1113	AI Agent算力需求	20260406	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+16.9%，历时16日）已轮动（窗口内走完）	20260407	0.1159	0.1689	20260428
+industry_signals	1114	大模型涨价	20260406	day	AI软件/应用	alias	closing	兑现中·回撤近警戒（峰值+4.1%→现-11.4%）	20260416	-0.1139	0.0407	
+industry_signals	1115	海外电力设备	20260407	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕·深回吐（峰值+7.9%→+2.0%，40日）已轮动（窗口内走完）	20260506	0.0198	0.0786	20260605
+industry_signals	1116	化工产能中断	20260407	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1117	煤化工替代利润	20260407	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1118	华为昇腾950量产	20260407	day	半导体/芯片/半导体材料	hint	closed	兑现完毕（峰值+41.7%，历时35日）已轮动（窗口内走完）	20260408	0.3311	0.4168	20260529
+industry_signals	1119	光纤战争需求	20260407	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+16.5%，历时15日）已轮动（窗口内走完）	20260408	0.1123	0.1653	20260428
+industry_signals	1120	锂电储能排产增长	20260408	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+10.5%，历时31日）已轮动（窗口内走完）	20260409	0.0512	0.1053	20260526
+industry_signals	1121	燃气轮机景气	20260408	day	电力/电网/算电协同/燃气轮机	hint	closed	兑现完毕·深回吐（峰值+5.7%→+0.4%，28日）已轮动（窗口内走完）	20260506	0.0042	0.0566	20260521
+industry_signals	1122	DeepSeek新模型	20260408	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+12.6%，历时14日）已轮动（窗口内走完）	20260416	0.0728	0.1259	20260428
+industry_signals	1123	AI价格战结束	20260409	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+29.3%，历时34日）已轮动（窗口内走完）	20260416	0.2247	0.2935	20260601
+industry_signals	1124	PCB产业链景气	20260409	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+29.3%，历时34日）已轮动（窗口内走完）	20260416	0.2247	0.2935	20260601
+industry_signals	1125	芯片自主可控加速	20260409	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+38.4%，历时33日）已轮动（窗口内走完）	20260410	0.2981	0.3839	20260529
+industry_signals	1126	华为昇腾芯片预定	20260409	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+38.4%，历时33日）已轮动（窗口内走完）	20260410	0.2981	0.3839	20260529
+industry_signals	1127	估值差套利机会	20260409	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1128	投资增长/季节性炒作	20260326	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1129	涨价/国产替代/AI电力需求	20260326	day	电力/电网/算电协同/燃气轮机	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-9.2%）	20260506	-0.0924	0.0	
+industry_signals	1130	丙二醇涨价/辅材	20260326	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+2.6%→现-8.7%）	20260407	-0.0866	0.0257	
+industry_signals	1131	碳酸锂涨价/主材/国内矿	20260326	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+2.6%→现-8.7%）	20260407	-0.0866	0.0257	
+industry_signals	1132	投资策略/矿企优先级	20260326	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+2.6%→现-8.7%）	20260407	-0.0866	0.0257	
+industry_signals	1133	1.6T光模块放量	20260326	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+21.1%，历时22日）已轮动（窗口内走完）	20260403	0.1584	0.2114	20260428
+industry_signals	1134	良率/量产节奏	20260326	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+21.1%，历时22日）已轮动（窗口内走完）	20260403	0.1584	0.2114	20260428
+industry_signals	1135	SpaceX IPO	20260326	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1136	战争与和平需求交叉	20260329	day	军工	alias	closed	兑现完毕·深回吐（峰值+5.0%→-0.9%，31日）已轮动（窗口内走完）	20260430	-0.0094	0.0501	20260515
+industry_signals	1137	LME铝价飙升/一日游	20260329	day	有色金属	hint	closed	兑现完毕·深回吐（峰值+5.1%→-0.0%，18日）已轮动（窗口内走完）	20260416	-0.0001	0.051	20260423
+industry_signals	1138	战争受益链	20260329	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+2.6%→现-8.7%）	20260407	-0.0866	0.0257	
+industry_signals	1139	DDR5价格下跌/AI浪潮终结信号	20260329	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+35.7%，历时42日）已轮动（窗口内走完）	20260403	0.2881	0.3569	20260601
+industry_signals	1140	密集发射窗口	20260329	day	商业航天/卫星	alias	closed	兑现完毕（峰值+11.5%，历时30日）已轮动（窗口内走完）	20260430	0.0419	0.1152	20260514
+industry_signals	1141	反内卷题材/修复	20260329	day	光伏	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-14.9%）	20260416	-0.1493	0.0	
+industry_signals	1142	电力化工回调周期	20260329	day	电力/电网/算电协同/燃气轮机	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-7.8%）	20260506	-0.0779	0.0	
+industry_signals	1143	外汇掉期回升/国际资金转向	20260401	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1144	英伟达投资Marvell/光模块	20260401	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+19.6%，历时18日）已轮动（窗口内走完）	20260403	0.1432	0.1962	20260428
+industry_signals	1145	谷歌Cloud Next/OCS光互联	20260401	day	半导体/芯片/半导体材料	hint	closed	兑现完毕（峰值+42.0%，历时38日）已轮动（窗口内走完）	20260403	0.3342	0.4199	20260529
+industry_signals	1146	ClaudeCode源码泄露	20260401	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1147	光纤涨价/供需紧缺	20260401	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+19.6%，历时18日）已轮动（窗口内走完）	20260403	0.1432	0.1962	20260428
+industry_signals	1148	电子布涨价	20260401	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+35.2%，历时39日）已轮动（窗口内走完）	20260403	0.2829	0.3517	20260601
+industry_signals	1149	市值管理/定增信号	20260401	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1150	昂利康定增	20260401	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1151	艾迪药业定增上修	20260401	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1152	优刻得定增/智算中心	20260401	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1153	睿智医药股权激励	20260401	day	创新药/医药/CRO	alias	open	⚠️逾期未启动（45日，累计-25.8%）——逻辑存疑或锚不对		-0.2575	0.0122	
+industry_signals	1154	情绪周期/第三周期	20260401	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1155	油价上涨传导链	20260330	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+3.6%→现-7.6%）	20260407	-0.0764	0.0358	
+industry_signals	1156	光纤/法拉第旋片	20260330	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+20.5%，历时20日）已轮动（窗口内走完）	20260403	0.1517	0.2047	20260428
+industry_signals	1157	密集发射窗口	20260330	day	商业航天/卫星	alias	closed	兑现完毕·深回吐（峰值+8.8%→+1.5%，29日）已轮动（窗口内走完）	20260430	0.0152	0.0885	20260514
+industry_signals	1158	反内卷三傻(锂矿/多晶硅/煤炭)	20260330	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+3.6%→现-7.6%）	20260407	-0.0764	0.0358	
+industry_signals	1159	DDR5消费端价格下跌	20260330	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+35.0%，历时41日）已轮动（窗口内走完）	20260403	0.2808	0.3496	20260601
+industry_signals	1160	第二周期回调后机会	20260330	day	电力/电网/算电协同/燃气轮机	alias	closing	兑现中·回撤近警戒（峰值+2.9%→现-4.2%）	20260506	-0.0423	0.0292	
+industry_signals	1161	LME铝价飙升/对冲交易	20260330	day	有色金属	hint	closing	兑现中·回撤近警戒（峰值+3.3%→现-13.1%）	20260416	-0.1305	0.0331	
+industry_signals	1162	贵金属	20260205	day	黄金/贵金属	hint	closed	兑现完毕·深回吐（峰值+7.1%→-2.5%，32日）已轮动（窗口内走完）	20260327	-0.0247	0.0709	20260331
+industry_signals	1163	钴	20251014	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1164	六氟磷酸锂	20251014	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕（峰值+9.5%，历时27日）已轮动（窗口内走完）	20251029	0.0385	0.0951	20251120
+industry_signals	1165	六氟磷酸锂	20251015	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+8.0%→+2.3%，26日）已轮动（窗口内走完）	20251029	0.023	0.0796	20251120
+industry_signals	1166	碳酸锂	20251016	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.0%→+1.4%，25日）已轮动（窗口内走完）	20251029	0.0135	0.07	20251120
+industry_signals	1167	六氟磷酸锂	20251016	day	新能源电池/锂电/储能/固态	alias	closed	兑现完毕·深回吐（峰值+7.0%→+1.4%，25日）已轮动（窗口内走完）	20251029	0.0135	0.07	20251120
+industry_signals	1168	钴	20251016	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1169	三元材料523	20251016	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1170	白银	20251016	day	黄金/贵金属	hint	closed	兑现完毕·深回吐（峰值+5.6%→-2.6%，18日）已轮动（窗口内走完）	20251107	-0.0263	0.0556	20251111
+industry_signals	1171	卡脖子上游器件	20260507	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（23日，累计+21.1%，峰值+21.1%）	20260508	0.2106	0.2106	
+industry_signals	1172	海外电力危机链	20260507	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕·深回吐（峰值+6.6%→+1.3%，10日）已轮动（窗口内走完）	20260515	0.0133	0.0657	20260521
+industry_signals	1173	7628布供不应求	20260507	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+15.3%，历时17日）已轮动（窗口内走完）	20260511	0.0839	0.1527	20260601
+industry_signals	1174	NAND vs DRAM/HBM分化	20260510	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+15.6%，历时16日）已轮动（窗口内走完）	20260511	0.0873	0.1561	20260601
+industry_signals	1175	磷化铟暴涨	20260510	day	光模块/CPO/光通信/光纤	hint	closing	主升兑现中（22日，累计+19.4%，峰值+19.4%）	20260511	0.194	0.194	
+industry_signals	1176	SpaceX优于机器人	20260510	day	机器人	alias	closed	兑现完毕（峰值+8.0%，历时13日）已轮动（窗口内走完）	20260515	0.0281	0.0799	20260527
+industry_signals	1177	碳酸锂破20万辅材拐点	20260511	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+4.6%→现-6.6%）	20260515	-0.066	0.0463	
+industry_signals	1178	设备逆涨扩产逻辑	20260511	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+12.2%，历时15日）已轮动（窗口内走完）	20260518	0.0533	0.1221	20260601
+industry_signals	1179	MRC协议重构需求	20260511	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+17.7%，历时14日）已轮动（窗口内走完）	20260515	0.091	0.1767	20260529
+industry_signals	1180	ABF载板涨价	20260512	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+11.2%，历时14日）已轮动（窗口内走完）	20260518	0.0434	0.1122	20260601
+industry_signals	1181	磁芯/旋光片替代日本	20260512	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1182	秘鲁能源危机铜银	20260512	day	有色金属	hint	closing	兑现中·回撤近警戒（峰值+0.0%→现-12.3%）	20260601	-0.1233	0.0	
+industry_signals	1183	电价反转做发电端	20260513	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕·深回吐（峰值+7.8%→+1.9%，17日）已轮动（窗口内走完）	20260515	0.0192	0.078	20260605
+industry_signals	1184	供应链关系为王	20260513	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1185	HVDC落脚碳化硅	20260513	day	电力/电网/算电协同/燃气轮机	hint	closed	兑现完毕·深回吐（峰值+7.8%→+1.9%，17日）已轮动（窗口内走完）	20260515	0.0192	0.078	20260605
+industry_signals	1186	DSP打破垄断	20260513	day	光模块/CPO/光通信/光纤	hint	closing	主升兑现中（6日，累计+13.4%，峰值+13.4%）	20260602	0.1341	0.1341	
+industry_signals	1187	碳化硅产业趋势设备先行	20260514	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1188	铟出口管制涨价	20260514	day	半导体/芯片/半导体材料	hint	closed	兑现完毕（峰值+16.7%，历时11日）已轮动（窗口内走完）	20260515	0.0811	0.1669	20260529
+industry_signals	1189	硅光占比提升EML不可替代	20260514	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（6日，累计+12.7%，峰值+12.7%）	20260602	0.1273	0.1273	
+industry_signals	1190	日本数控断供补涨	20260517	day	机器人	alias	closing	兑现初期（启动4日，累计+2.5%）	20260604	0.0253	0.0406	
+industry_signals	1191	无水氢氟酸涨价	20260517	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1192	H200疑云规避NCP	20260517	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（6日，累计+14.3%，峰值+14.3%）	20260602	0.1431	0.1431	
+industry_signals	1193	成品>制造>材料	20260518	day	电力/电网/算电协同/燃气轮机	hint	closed	兑现完毕·深回吐（峰值+7.3%→+1.4%，14日）已轮动（窗口内走完）	20260527	0.0143	0.0731	20260605
+industry_signals	1194	长鑫IPO含鑫量	20260518	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1195	H200租赁倒挂库存见底	20260518	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1196	HVLP铜箔垄断电子布更确定	20260519	day	AI算力/AI硬件/科技硬件	hint	closing	兑现进行（6日，累计+7.3%）	20260602	0.073	0.078	
+industry_signals	1197	光进铜退十倍需求	20260519	day	有色金属	hint	closing	兑现中·回撤近警戒（峰值+3.6%→现-4.5%）	20260601	-0.0446	0.0362	
+industry_signals	1198	电子皮肤PEEK卡位	20260519	day	机器人	alias	closing	兑现初期（启动4日，累计-0.6%）	20260604	-0.0056	0.0098	
+industry_signals	1199	芯片成品到材料轮动	20260520	day	半导体/芯片/半导体材料	alias	closed	兑现完毕·深回吐（峰值+5.8%→-1.1%，11日）已轮动（窗口内走完）	20260602	-0.0106	0.0579	20260604
+industry_signals	1200	日本供应链断供	20260520	day	AI算力/AI硬件/科技硬件	hint	closing	兑现进行（6日，累计+4.7%）	20260602	0.0473	0.0523	
+industry_signals	1201	供给侧协调去内卷	20260520	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（6日，累计+13.0%，峰值+13.0%）	20260602	0.1303	0.1303	
+industry_signals	1202	FSD入华+线控新国标	20260521	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1203	康宁京东方合作	20260521	day	AI算力/AI硬件/科技硬件	hint	closing	兑现进行（6日，累计+7.4%）	20260602	0.0735	0.0785	
+industry_signals	1204	Rubin BOM PCB大于光模块	20260524	day	AI算力/AI硬件/科技硬件	hint	closing	兑现进行（6日，累计+5.0%）	20260602	0.0503	0.0553	
+industry_signals	1205	无品牌溢价国产终结泡沫	20260524	day	AI算力/AI硬件/科技硬件	alias	closing	兑现进行（6日，累计+5.0%）	20260602	0.0503	0.0553	
+industry_signals	1206	风电转火箭贮箱	20260524	day	商业航天/卫星	alias	closing	兑现初期（启动5日，累计-5.7%）	20260603	-0.0574	0.0063	
+industry_signals	1207	晶圆制造最强华虹溢出	20260525	day	AI算力/AI硬件/科技硬件	hint	closing	兑现进行（6日，累计+0.9%）	20260602	0.0091	0.0141	
+industry_signals	1208	韬定律去魅	20260525	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1209	光大于PCB大于电源	20260525	day	AI算力/AI硬件/科技硬件	alias	closing	兑现进行（6日，累计+0.9%）	20260602	0.0091	0.0141	
+industry_signals	1210	资源国出口管制铝	20260526	day	半导体/芯片/半导体材料	hint	closing	兑现中·回撤近警戒（峰值+0.0%→现-7.9%）	20260602	-0.0791	0.0	
+industry_signals	1211	M10材料早期	20260526	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1212	宇树IPO分流二线	20260526	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1213	小米降本HBM/SSD爆发	20260527	day	AI算力/AI硬件/科技硬件	alias	closing	兑现进行（6日，累计+3.3%）	20260602	0.0332	0.0383	
+industry_signals	1214	油墨成本推动涨30%	20260527	day	AI算力/AI硬件/科技硬件	alias	closing	兑现进行（6日，累计+3.3%）	20260602	0.0332	0.0383	
+industry_signals	1215	上游薄膜铌酸锂	20260527	day	光模块/CPO/光通信/光纤	hint	closing	主升兑现中（6日，累计+12.6%，峰值+12.6%）	20260602	0.1256	0.1256	
+industry_signals	1216	12英寸硅片涨价	20260528	day	光伏	hint	open	潜伏期（发现8日未启动）		-0.0823	0.0	
+industry_signals	1217	AI驱动周期中部偏上	20260528	day	半导体/芯片/半导体材料	alias	closing	兑现中·回撤近警戒（峰值+0.0%→现-6.1%）	20260602	-0.0614	0.0	
+industry_signals	1218	数据中心800V	20260528	day	AI算力/AI硬件/科技硬件	alias	closing	兑现进行（6日，累计+0.6%）	20260602	0.0061	0.0111	
+industry_signals	1219	算电协同长逻辑	20260531	day	AI算力/AI硬件/科技硬件	alias	closing	兑现进行（6日，累计+4.1%）	20260602	0.0409	0.046	
+industry_signals	1220	硅片供需缺口巨大	20260531	day	光伏	hint	open	潜伏期（发现7日未启动）		-0.0371	0.0028	
+industry_signals	1221	HVLP铜箔双寡头	20260531	day	AI算力/AI硬件/科技硬件	hint	closing	兑现进行（6日，累计+4.1%）	20260602	0.0409	0.046	
+industry_signals	1222	PD分离光进柜内	20260531	day	光模块/CPO/光通信/光纤	alias	closing	兑现进行（6日，累计+9.0%）	20260602	0.0897	0.0897	
+industry_signals	1223	特斯拉百万产能主线潜质	20260601	day	机器人	alias	closing	兑现初期（启动4日，累计+7.6%）	20260604	0.0763	0.0853	
+industry_signals	1224	区域缺电炒作性质	20260601	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1225	向量数据库稀缺	20260601	day	AI软件/应用	alias	open	潜伏期（发现6日未启动）		-0.0689	0.0	
+industry_signals	1226	全光互联CPO	20260602	day	光模块/CPO/光通信/光纤	alias	open	潜伏期（发现5日未启动）		0.0618	0.0618	
+industry_signals	1227	AI数据中心拉动	20260602	day	AI算力/AI硬件/科技硬件	alias	open	潜伏期（发现5日未启动）		0.047	0.052	
+industry_signals	1228	数据中心储能绑定	20260602	day	AI算力/AI硬件/科技硬件	alias	open	潜伏期（发现5日未启动）		0.047	0.052	
+industry_signals	1229	光互联唯一解	20260603	day	AI算力/AI硬件/科技硬件	hint	open	潜伏期（发现4日未启动）		0.01	0.015	
+industry_signals	1230	钻针卖铲子	20260603	day	AI算力/AI硬件/科技硬件	alias	open	潜伏期（发现4日未启动）		0.01	0.015	
+industry_signals	1231	由轻转重具身智能	20260603	day	机器人	alias	closing	兑现初期（启动4日，累计+7.3%）	20260604	0.0735	0.0825	
+industry_signals	1232	光纤需求年增60-70%	20260604	day	光模块/CPO/光通信/光纤	alias	open	潜伏期（发现3日未启动）		0.015	0.015	
+industry_signals	1233	晶圆级封装演进	20260604	day	AI算力/AI硬件/科技硬件	hint	open	潜伏期（发现3日未启动）		-0.005	0.0	
+industry_signals	1234	液冷连接器价值量提升	20260604	day	AI算力/AI硬件/科技硬件	alias	open	潜伏期（发现3日未启动）		-0.005	0.0	
+industry_signals	1235	硅光占比70%向3.2T演进	20260604	day	光模块/CPO/光通信/光纤	alias	open	潜伏期（发现3日未启动）		0.015	0.015	
+industry_signals	1236	电源400V向800V演进	20260604	day	AI算力/AI硬件/科技硬件	alias	open	潜伏期（发现3日未启动）		-0.005	0.0	
+industry_signals	1237	金刚石涂层钻针提价5-10倍	20260604	day	AI算力/AI硬件/科技硬件	alias	open	潜伏期（发现3日未启动）		-0.005	0.0	
+industry_signals	1238	高端MLCC紧缺	20260604	day	AI算力/AI硬件/科技硬件	hint	open	潜伏期（发现3日未启动）		-0.005	0.0	
+industry_signals	1239	仕佳收购失败空缺逻辑	20260604	day	有色金属	hint	open	潜伏期（发现3日未启动）		-0.0304	0.0	
+industry_signals	1240	存储测试全流程独占	20260604	day	AI算力/AI硬件/科技硬件	alias	open	潜伏期（发现3日未启动）		-0.005	0.0	
+industry_signals	1241	超级央行周紧缩预期	20260604	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1242	非农超预期加息预期	20260607	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1243	第三向第四周期切换	20260607	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+industry_signals	1244	高位补跌反噬	20260607	day	光模块/CPO/光通信/光纤	alias	open	潜伏期（发现2日未启动）		0.0245	0.0245	
+industry_signals	1245	康宁扩产带动四氯化硅	20260607	day	光模块/CPO/光通信/光纤	alias	open	潜伏期（发现2日未启动）		0.0245	0.0245	
+industry_signals	1246	AI由虚拟走向实体	20260607	day	机器人	alias	open	潜伏期（发现2日未启动）		0.0168	0.0258	
+industry_signals	1247	机构集体拥抱避险切换	20260607	day	商业航天/卫星	alias	open	潜伏期（发现2日未启动）		-0.0089	0.0	
+industry_signals	1248	国产替代通过验收	20260607	day	半导体/芯片/半导体材料	alias	open	潜伏期（发现2日未启动）		0.0083	0.0083	
+industry_signals	1249	AI量化打分体系	20260607	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	1	concept_OpticalComponentShortage2026	20260526	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	2	concept_DomesticAIChipPCBDemand	20260525	day	AI算力/AI硬件/科技硬件	alias	closing	兑现进行（6日，累计+0.9%）	20260602	0.0091	0.0141	
+yuantu_buy_signals	3	concept_HeliumSupplyDisruption2026	20260518	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+13.9%，历时13日）已轮动（窗口内走完）	20260602	0.0703	0.1389	20260604
+yuantu_buy_signals	4	concept_QatarHeliumSupplyDisruption	20260518	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	5	concept_HeavyWaterSupplyDisruption2026	20260518	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	6	concept_DCIDemandGap2027	20260602	day	光模块/CPO/光通信/光纤	hint	open	潜伏期（发现5日未启动）		0.0618	0.0618	
+yuantu_buy_signals	7	concept_OpticalTransceiverSupplyShortage	20260518	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（6日，累计+12.6%，峰值+12.6%）	20260602	0.1264	0.1264	
+yuantu_buy_signals	8	concept_ChinaAIComputingShortage2026	20260518	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（6日，累计+12.6%，峰值+12.6%）	20260602	0.1264	0.1264	
+yuantu_buy_signals	9	concept_DCISupplyBottleneckDSP2027	20260518	day	光模块/CPO/光通信/光纤	hint	closing	主升兑现中（6日，累计+12.6%，峰值+12.6%）	20260602	0.1264	0.1264	
+yuantu_buy_signals	10	concept_PumpLaserChipSupplyBottleneck202	20260518	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+13.9%，历时13日）已轮动（窗口内走完）	20260602	0.0703	0.1389	20260604
+yuantu_buy_signals	11	concept_ITLALaserSupplyBottleneck	20260518	day	光模块/CPO/光通信/光纤	hint	closing	主升兑现中（6日，累计+12.6%，峰值+12.6%）	20260602	0.1264	0.1264	
+yuantu_buy_signals	12	concept_ABFSubstrateSupplyTightness	20260518	day	AI算力/AI硬件/科技硬件	hint	closing	兑现进行（6日，累计+8.6%）	20260602	0.0859	0.0909	
+yuantu_buy_signals	13	concept_TaiwanPowerSystemStress	20260518	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕·深回吐（峰值+7.3%→+1.4%，14日）已轮动（窗口内走完）	20260527	0.0143	0.0731	20260605
+yuantu_buy_signals	14	concept_ABFSubstrateGatingFactor2027	20260518	day	AI算力/AI硬件/科技硬件	alias	closing	兑现进行（6日，累计+8.6%）	20260602	0.0859	0.0909	
+yuantu_buy_signals	15	concept_ABFSubstrateCycle	20260518	day	AI算力/AI硬件/科技硬件	hint	closing	兑现进行（6日，累计+8.6%）	20260602	0.0859	0.0909	
+yuantu_buy_signals	16	concept_ReasoningAgenticAIComputeDemand	20260518	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	17	concept_SupernodeCabinetDemand2026	20260518	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	18	concept_TFLNModulatorSupplyBottleneck	20260518	day	光模块/CPO/光通信/光纤	hint	closing	主升兑现中（6日，累计+12.6%，峰值+12.6%）	20260602	0.1264	0.1264	
+yuantu_buy_signals	19	concept_LithiumSupplyTightening2026	20260516	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	20	concept_JiangxiMiningRegulationSupplyDis	20260516	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	21	metric_BTSubstrateIndustryGap2026	20260514	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	22	concept_CPUPanicHoardingStoragePrice	20260514	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕·深回吐（峰值+9.4%→+2.5%，12日）已轮动（窗口内走完）	20260518	0.0254	0.0942	20260601
+yuantu_buy_signals	23	concept_BTSubstratePriceHike2025to2026	20260514	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	24	concept_AgenticAICPUBottleneck	20260514	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕·深回吐（峰值+9.4%→+2.5%，12日）已轮动（窗口内走完）	20260518	0.0254	0.0942	20260601
+yuantu_buy_signals	25	concept_AICPUConfigDemandShift	20260514	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕·深回吐（峰值+9.4%→+2.5%，12日）已轮动（窗口内走完）	20260518	0.0254	0.0942	20260601
+yuantu_buy_signals	26	concept_ComputingPowerPriceSurge2026H1	20260513	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（6日，累计+13.4%，峰值+13.4%）	20260602	0.1341	0.1341	
+yuantu_buy_signals	27	concept_AluminumGlobalDeficit2026	20260512	day	有色金属	hint	closing	兑现中·回撤近警戒（峰值+0.0%→现-12.3%）	20260601	-0.1233	0.0	
+yuantu_buy_signals	28	concept_MiddleEastEnergyRisk	20260510	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	29	concept_MiddleEastChemicalGasPrice	20260510	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	30	concept_RussiaHeliumExportControl2026	20260508	day	半导体/芯片/半导体材料	hint	closed	兑现完毕（峰值+22.4%，历时15日）已轮动（窗口内走完）	20260511	0.1381	0.2239	20260529
+yuantu_buy_signals	31	concept_InP_SupplyDemandGap	20260508	day	光模块/CPO/光通信/光纤	hint	closing	主升兑现中（22日，累计+19.4%，峰值+19.4%）	20260511	0.194	0.194	
+yuantu_buy_signals	32	concept_LNGSupplyChainRiskAI	20260508	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	33	concept_SamsungFoundryCPUConstraint2026	20260508	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.6%，历时16日）已轮动（窗口内走完）	20260511	0.0873	0.1561	20260601
+yuantu_buy_signals	34	concept_M9SupplyChainBottleneck	20260507	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.3%，历时17日）已轮动（窗口内走完）	20260511	0.0839	0.1527	20260601
+yuantu_buy_signals	35	concept_CopperFoilSupplyDemandGap	20260507	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.3%，历时17日）已轮动（窗口内走完）	20260511	0.0839	0.1527	20260601
+yuantu_buy_signals	36	concept_HVLPCopperFoilPriceHike2026	20260507	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+15.3%，历时17日）已轮动（窗口内走完）	20260511	0.0839	0.1527	20260601
+yuantu_buy_signals	37	concept_OpticalModuleTestInstrumentSuppl	20260506	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（24日，累计+25.2%，峰值+25.2%）	20260507	0.2515	0.2515	
+yuantu_buy_signals	38	concept_BroadcomTPUv7v8CoWoSUpside	20260504	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+20.8%，历时19日）已轮动（窗口内走完）	20260511	0.1395	0.2083	20260601
+yuantu_buy_signals	39	concept_SoICDemandDriversCPOSiliconPhoto	20260504	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+26.2%，峰值+26.2%）	20260506	0.2617	0.2617	
+yuantu_buy_signals	40	concept_CWLaserShortage	20260503	day	光模块/CPO/光通信/光纤	hint	closing	主升兑现中（25日，累计+26.2%，峰值+26.2%）	20260506	0.2617	0.2617	
+yuantu_buy_signals	41	concept_OpticalFiberSupplyShortage2026	20260503	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+26.2%，峰值+26.2%）	20260506	0.2617	0.2617	
+yuantu_buy_signals	42	concept_SupplyDemandGapCarrierFoil	20260503	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+20.8%，历时19日）已轮动（窗口内走完）	20260511	0.1395	0.2083	20260601
+yuantu_buy_signals	43	concept_InPSupplyShortage	20260503	day	光模块/CPO/光通信/光纤	hint	closing	主升兑现中（25日，累计+26.2%，峰值+26.2%）	20260506	0.2617	0.2617	
+yuantu_buy_signals	44	concept_MLCCSupplyTightness	20260503	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+20.8%，历时19日）已轮动（窗口内走完）	20260511	0.1395	0.2083	20260601
+yuantu_buy_signals	45	concept_MemorySupplyDeficit2026	20260503	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+20.8%，历时19日）已轮动（窗口内走完）	20260511	0.1395	0.2083	20260601
+yuantu_buy_signals	46	concept_FiberSeasonalDemandPeak	20260503	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+26.2%，峰值+26.2%）	20260506	0.2617	0.2617	
+yuantu_buy_signals	47	concept_NearlineHDDTightness	20260503	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	48	concept_TSMCLeadingEdgeConstraint	20260503	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	49	concept_3dot2TTransceiverDemand2028	20260503	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+26.2%，峰值+26.2%）	20260506	0.2617	0.2617	
+yuantu_buy_signals	50	concept_OpticalFiberUpstreamRawMaterial	20260503	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+26.2%，峰值+26.2%）	20260506	0.2617	0.2617	
+yuantu_buy_signals	51	concept_GlobalTGlassDemand	20260503	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	52	concept_BTSubstrateDemand	20260503	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+20.8%，历时19日）已轮动（窗口内走完）	20260511	0.1395	0.2083	20260601
+yuantu_buy_signals	53	concept_ASICServerOpticalDemand	20260503	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+26.2%，峰值+26.2%）	20260506	0.2617	0.2617	
+yuantu_buy_signals	54	concept_TantalumPowderDemand	20260503	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+20.8%，历时19日）已轮动（窗口内走完）	20260511	0.1395	0.2083	20260601
+yuantu_buy_signals	55	concept_ChinaExportPriceInflation2026	20260501	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	56	concept_KoreaSubstrateMLCCUpturn	20260430	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+20.8%，历时19日）已轮动（窗口内走完）	20260511	0.1395	0.2083	20260601
+yuantu_buy_signals	57	concept_ABFFilmSupplyMonopoly	20260430	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	58	concept_DomesticGPUCPUABFSubstrateDemand	20260430	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+20.8%，历时19日）已轮动（窗口内走完）	20260511	0.1395	0.2083	20260601
+yuantu_buy_signals	59	concept_InPExportControl	20260429	day	光模块/CPO/光通信/光纤	hint	closing	主升兑现中（25日，累计+25.6%，峰值+25.6%）	20260506	0.2558	0.2558	
+yuantu_buy_signals	60	concept_TechInflationSemiSupplyChain2026	20260429	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+23.1%，历时20日）已轮动（窗口内走完）	20260430	0.1624	0.2312	20260601
+yuantu_buy_signals	61	concept_ChinaIndigenousAIChipDemand	20260429	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+23.1%，历时20日）已轮动（窗口内走完）	20260430	0.1624	0.2312	20260601
+yuantu_buy_signals	62	concept_TechInflationAISemiPrioritizatio	20260427	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+28.6%，历时21日）已轮动（窗口内走完）	20260430	0.2003	0.286	20260529
+yuantu_buy_signals	63	concept_MENAFertilizerSupplyDisruption	20260426	day		downgrade	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	64	concept_MATCHActExportControl	20260426	day	半导体/芯片/半导体材料	hint	closed	兑现完毕（峰值+33.5%，历时22日）已轮动（窗口内走完）	20260430	0.2494	0.3352	20260529
+yuantu_buy_signals	65	concept_EGlassThinFabricShortage	20260426	day	有色金属	hint	closing	兑现中·回撤近警戒（峰值+2.1%→现-12.6%）	20260601	-0.126	0.0212	
+yuantu_buy_signals	66	concept_IranWarEconomicImpact	20260426	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	67	concept_SupernodeCopperCableBottleneck	20260426	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+23.5%，历时23日）已轮动（窗口内走完）	20260430	0.1658	0.2346	20260601
+yuantu_buy_signals	68	concept_TaiwanCCLPriceHike2026	20260426	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	69	concept_DRAMWaferCapacityConstraint2028	20260424	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+23.5%，历时23日）已轮动（窗口内走完）	20260430	0.1658	0.2346	20260601
+yuantu_buy_signals	70	concept_HLCPCBDemand	20260424	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+23.5%，历时23日）已轮动（窗口内走完）	20260430	0.1658	0.2346	20260601
+yuantu_buy_signals	71	concept_AIGlassFiberDemand	20260424	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	72	concept_TCBEquipmentDemand2028	20260424	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+23.5%，历时23日）已轮动（窗口内走完）	20260430	0.1658	0.2346	20260601
+yuantu_buy_signals	73	concept_MLCCPowerDeliveryAIServer	20260424	day	AI算力/AI硬件/科技硬件	hint	closed	兑现完毕（峰值+23.5%，历时23日）已轮动（窗口内走完）	20260430	0.1658	0.2346	20260601
+yuantu_buy_signals	74	concept_FabPowerAvailabilityRisk	20260421	day	电力/电网/算电协同/燃气轮机	alias	closed	兑现完毕·深回吐（峰值+6.1%→+0.9%，19日）已轮动（窗口内走完）	20260506	0.0088	0.0612	20260521
+yuantu_buy_signals	75	concept_NORFlashUndersupply2026	20260420	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	76	concept_AIHPCProbeCardHighPinCount	20260420	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	77	concept_EGlassFabricShortage2026	20260419	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	78	concept_Gen2GlassSupplyLandscape	20260419	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	79	concept_ESSGrowthDemand	20260419	day	新能源电池/锂电/储能/固态	alias	closing	兑现中·回撤近警戒（峰值+3.6%→现-7.6%）	20260515	-0.0762	0.036	
+yuantu_buy_signals	80	concept_SolarGlassOversupply	20260419	day	光伏	alias	closing	兑现中·回撤近警戒（峰值+2.4%→现-6.9%）	20260429	-0.0688	0.0238	
+yuantu_buy_signals	81	concept_LumentumAIDCDemandAcceleration	20260419	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+24.9%，历时28日）已轮动（窗口内走完）	20260430	0.1803	0.2491	20260601
+yuantu_buy_signals	82	concept_MemoryCostInflation	20260419	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	83	concept_SamsungLPDDR4Discontinuation	20260417	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	84	concept_x86ServerCPUAIDemand	20260417	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+24.9%，历时28日）已轮动（窗口内走完）	20260430	0.1803	0.2491	20260601
+yuantu_buy_signals	85	concept_FiberPricingUpside	20260417	day	光模块/CPO/光通信/光纤	alias	closing	主升兑现中（25日，累计+24.3%，峰值+24.3%）	20260506	0.2429	0.2429	
+yuantu_buy_signals	86	concept_EquipmentPullInDemand	20260416	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	87	concept_LaserShortage2026	20260415	day	光模块/CPO/光通信/光纤	alias	closed	兑现完毕（峰值+12.6%，历时9日）已轮动（窗口内走完）	20260416	0.0725	0.1255	20260428
+yuantu_buy_signals	88	concept_TechInflationRisk2026	20260413	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+29.2%，历时32日）已轮动（窗口内走完）	20260416	0.2232	0.292	20260601
+yuantu_buy_signals	89	concept_HBMDemand2026	20260413	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+29.2%，历时32日）已轮动（窗口内走完）	20260416	0.2232	0.292	20260601
+yuantu_buy_signals	90	concept_SamsungDRAMContractPriceHike2026	20260412	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	91	concept_RefrigerantQuotaConstraint2026	20260410	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	92	concept_AICannibalizeNonAISemiSupplyChai	20260409	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+38.4%，历时33日）已轮动（窗口内走完）	20260410	0.2981	0.3839	20260529
+yuantu_buy_signals	93	concept_AdvancedFoundrySupplyBottleneck	20260408	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+39.0%，历时34日）已轮动（窗口内走完）	20260409	0.3041	0.3898	20260529
+yuantu_buy_signals	94	concept_ElectricalEquipmentPricingTightn	20260402	day	电力/电网/算电协同/燃气轮机	hint	closed	兑现完毕·深回吐（峰值+6.5%→+0.6%，42日）已轮动（窗口内走完）	20260506	0.0065	0.0653	20260605
+yuantu_buy_signals	95	concept_MemoryPriceRiseCycle2025	20260331	day	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+36.7%，历时40日）已轮动（窗口内走完）	20260403	0.298	0.3668	20260601
+yuantu_buy_signals	96	concept_ConsumerElectronicsMemoryHeadwin	20260331	day	消费电子/华为/鸿蒙	alias	closed	兑现完毕（峰值+39.3%，历时40日）已轮动（窗口内走完）	20260403	0.3205	0.3929	20260601
+yuantu_buy_signals	97	concept_SemiWaferPriceHike2026	20260331	day	半导体/芯片/半导体材料	alias	closed	兑现完毕（峰值+43.4%，历时39日）已轮动（窗口内走完）	20260403	0.3485	0.4343	20260529
+yuantu_buy_signals	98	concept_OCSGlobalDemandSupplyGap2026	20260329	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	99	concept_FAUBottleneck	20260329	day	光模块/CPO/光通信/光纤	hint	closed	兑现完毕（峰值+22.1%，历时21日）已轮动（窗口内走完）	20260403	0.1675	0.2205	20260428
+yuantu_buy_signals	100	concept_TaiwanTechPullInDemand2026Q1	20260315	month		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）				
+yuantu_buy_signals	101	concept_AIServerSupplyChainStrength2026	20260315	month	AI算力/AI硬件/科技硬件	alias	closed	兑现完毕（峰值+35.9%，历时52日）已轮动（窗口内走完）	20260403	0.2905	0.3593	20260601
+yuantu_buy_signals	102	concept_JapanSemiconductorExportControl	20260115	month	半导体/芯片/半导体材料	hint	closed	兑现完毕·深回吐（峰值+8.1%→-5.3%，52日）已轮动（窗口内走完）	20260403	-0.0535	0.081	20260408
