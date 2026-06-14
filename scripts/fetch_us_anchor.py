@@ -126,9 +126,21 @@ def fetch_ts(tkr, start, end):
             for r in sorted(df.itertuples(), key=lambda x: x.trade_date)]
 
 
+# 增量拉取时，rows_from_closes 用窗口内环比算 pct，窗口首日无前收→pct=None，
+# REPLACE 会把该日真实涨幅洗成空（CC 2026-06-14 实测 G014）。解法：下载起点
+# 向前回看 _LOOKBACK_DAYS 个日历日，全序列算完 pct 再裁回 from_date，
+# 使首日 pct 由真实前一交易日得出。
+_LOOKBACK_DAYS = 10
+
+
+def _lookback_start(start):
+    return (datetime.date.fromisoformat(start)
+            - datetime.timedelta(days=_LOOKBACK_DAYS)).isoformat()
+
+
 def fetch_yf(tkr, start, end):
     import yfinance as yf
-    df = yf.download(tkr, start=start, end=end, auto_adjust=True,
+    df = yf.download(tkr, start=_lookback_start(start), end=end, auto_adjust=True,
                      progress=False, threads=False)
     if df is None or df.empty:
         return None
@@ -136,19 +148,23 @@ def fetch_yf(tkr, start, end):
               for idx, row in df["Close"][tkr].items()] \
         if hasattr(df["Close"], "columns") else \
         [(idx.strftime("%Y-%m-%d"), float(v)) for idx, v in df["Close"].items()]
-    return rows_from_closes(tkr, closes, "yfinance")
+    rows = rows_from_closes(tkr, closes, "yfinance")
+    sc = start.replace("-", "")                 # 裁回请求窗口，回看日仅用于算首日 pct
+    return [r for r in rows if r[0] >= sc]
 
 
 def fetch_stooq(tkr, start, end):
     import requests, csv, io
     url = (f"https://stooq.com/q/d/l/?s={tkr.lower()}.us"
-           f"&d1={start.replace('-','')}&d2={end.replace('-','')}&i=d")
+           f"&d1={_lookback_start(start).replace('-','')}&d2={end.replace('-','')}&i=d")
     r = requests.get(url, timeout=30)
     if r.status_code != 200 or "Date" not in r.text:
         return None
     closes = [(row["Date"], float(row["Close"]))
               for row in csv.DictReader(io.StringIO(r.text)) if row.get("Close")]
-    return rows_from_closes(tkr, sorted(closes), "stooq")
+    rows = rows_from_closes(tkr, sorted(closes), "stooq")
+    sc = start.replace("-", "")
+    return [r for r in rows if r[0] >= sc]
 
 
 def main():

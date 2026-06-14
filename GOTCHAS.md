@@ -164,7 +164,21 @@
 **解法**:
 - 沙箱要补 → 需把 Yahoo（query1/2.finance.yahoo.com、fc.yahoo.com）或 stooq.com 加进网络白名单。
 - 不加白名单 → Mac 本地 `python3 scripts/fetch_us_anchor.py --from YYYY-MM-DD`（yfinance 不走该代理，秒回）= 当前唯一可靠路。
-- A股四表无此问题，api.waditu.com 够用。⏳
+- A股四表无此问题，api.waditu.com 够用。
+
+**更新（2026-06-14·白名单已开）**: ✅ Doctor 开白名单后实测——Yahoo 由 403 转 429（限频，但已能连出），`fetch_us_anchor.py --source yfinance` 沙箱秒回。本次 19 只美股锚 06-10→06-12 全量补齐（/tmp 副本作业＋整库放回，其余 7 表只增不减、integrity ok）。stooq.com 仍 000 不通，tushare 200。**沙箱 yfinance 补跑路现已打通**，Mac 本地不再是唯一路。⏳→✅
+
+---
+
+## G015 — fetch_yf 增量首日 pct_chg=None（窗口边界）
+
+**日期**: 2026-06-14 | **发现人**: CC（补跑美股锚时实测）
+
+**问题**: `fetch_us_anchor.py --from 2026-06-10` 增量补跑后，每只票窗口首日 06-10 的 `pct_chg` 全为 `None`，REPLACE 入库后该日真实涨幅被洗空（如 NVDA 06-10 实为 −3.73% 却写成 None）。
+
+**根因**: `rows_from_closes` 用「下载窗口内」环比算 pct，窗口首日无前一行 → pct=None；库里已有的前一交易日（06-09）真前收没被用上。tushare 路早已规避（直接用接口自带 pct_change），但 yfinance/stooq 路（共用 `rows_from_closes`）没规避。
+
+**解法**: `fetch_yf`/`fetch_stooq` 下载起点向前回看 `_LOOKBACK_DAYS=10` 个日历日，全序列算完 pct 后裁回 `from_date`——首日 pct 由真实前一交易日得出，回看行不入库。已实测：NVDA from 06-10 返回 3 行、首日 pct=−3.7322。✅
 
 ---
 
@@ -174,11 +188,11 @@
 |------|------|--------|--------|
 | 概念 | 1 | 1 | 0 |
 | SQL | 3 | 3 | 0 |
-| 数据质量 | 2 | 2 | 0 |
+| 数据质量 | 3 | 3 | 0 |
 | NLP | 2 | 1 | 1 |
-| 外部 API | 2 | 1 | 1 |
+| 外部 API | 2 | 2 | 0 |
 | 算法 | 1 | 1 | 0 |
 | 路径/迁移 | 1 | 1 | 0 |
 | 代码接口 | 1 | 0 | 1 |
 | 自动化/流程 | 1 | 0 | 1 |
-| **总计** | **14** | **10** | **4** |
+| **总计** | **15** | **12** | **3** |
