@@ -8,6 +8,7 @@ import config
 from lib.logger import get_logger
 logger = get_logger(__name__)
 import ticker_resolver  # 复用项目名→ts_code 解析器
+import logic_taxonomy  # logic_type 中英变体 → canon 单一真源（写时归一·源表不动）
 """
 populate_signal_targets.py — 把每日信号炸开成标的级回测记录（两池隔离）
 PRD: brain/logs/checkpoints/2026-06-15_标的级胜率回测_PRD.md
@@ -61,6 +62,7 @@ def collect(con):
 
     def add(pool, table, sid, date, name, code, sector, reason, conf, gap, logic, source):
         rs = "resolved" if code else "unresolved"
+        logic = logic_taxonomy.normalize(logic)  # 中英变体 → canon（缺失保持 None）
         rows.append(dict(
             target_pool=pool, signal_table=table, signal_id=sid, signal_date=date,
             stock_name=name, stock_code=code or "", sector=sector or "",
