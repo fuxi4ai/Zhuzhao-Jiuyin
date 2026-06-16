@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))          # tools/（signal_flags）
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 import config
+import signal_flags  # 「已无信息差·不做」判据单一真源（price_driven×gap1）
 from lib.logger import get_logger
 logger = get_logger(__name__)
 """
@@ -149,15 +151,25 @@ def main():
             f"FROM stock_tracking WHERE {where} AND hit_3d IS NOT NULL "
             f"GROUP BY info_gap_level, logic_type ORDER BY info_gap_level DESC, n DESC").fetchall()
 
+    # 「已无信息差·不做」(price_driven×gap1) 从可交易分母剔除并单列（signal_flags 单一真源）
+    TRADABLE = f"target_pool='own' AND NOT {signal_flags.NO_INFO_GAP_SQL}"
     print("\n【自有池 own · 超额胜率（next3d 超额>0 计命中）· 按 info_gap_level × logic_type】")
+    print(f"  （已剔除「{signal_flags.NO_INFO_GAP_REASON}」= price_driven×gap1，单列见下）")
     print(f"  {'gap':>3} {'logic_type':<16} {'样本':>4} {'胜率%':>6} {'均超额%':>7} {'均收益%':>7}")
-    for gap, logic, n, wr, ae, ar in winrate_rows("target_pool='own'"):
+    for gap, logic, n, wr, ae, ar in winrate_rows(TRADABLE):
         print(f"  {str(gap if gap is not None else '—'):>3} {str(logic or '—'):<16} {n:>4} "
               f"{str(wr if wr is not None else '—'):>6} {str(ae if ae is not None else '—'):>7} "
               f"{str(ar if ar is not None else '—'):>7}")
-    ov = cur.execute("SELECT COUNT(*), ROUND(AVG(hit_3d)*100,1), ROUND(AVG(excess_3d),2) "
-                     "FROM stock_tracking WHERE target_pool='own' AND hit_3d IS NOT NULL").fetchone()
-    print(f"  自有池总体：样本 {ov[0]} · 胜率 {ov[1]}% · 均超额 {ov[2]}%")
+    ov = cur.execute(f"SELECT COUNT(*), ROUND(AVG(hit_3d)*100,1), ROUND(AVG(excess_3d),2) "
+                     f"FROM stock_tracking WHERE {TRADABLE} AND hit_3d IS NOT NULL").fetchone()
+    print(f"  自有池可交易总体：样本 {ov[0]} · 胜率 {ov[1]}% · 均超额 {ov[2]}%")
+
+    # 单列：已无信息差·不做（留痕 + 提醒，仅参考，不计入可交易胜率）
+    ng = cur.execute(f"SELECT COUNT(*), ROUND(AVG(hit_3d)*100,1), ROUND(AVG(excess_3d),2), "
+                     f"ROUND(AVG(next_3d_return),2) FROM stock_tracking "
+                     f"WHERE target_pool='own' AND hit_3d IS NOT NULL AND {signal_flags.NO_INFO_GAP_SQL}").fetchone()
+    print(f"\n⚠ 【{signal_flags.NO_INFO_GAP_REASON}】单列（price_driven×gap1·涨价已公开=信息差归零·不计可交易分母）"
+          f"\n  样本 {ng[0]} · 命中 {ng[1]}% · 均超额 {ng[2]}% · 均收益 {ng[3]}%（仅留痕参考，不做）")
 
     # ── dim4 池：单列「小鲍命中率」，绝不并入自有 ──
     d = cur.execute("SELECT COUNT(*), ROUND(AVG(hit_3d)*100,1), ROUND(AVG(excess_3d),2), "
