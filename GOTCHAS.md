@@ -136,7 +136,7 @@
 
 ---
 
-## G013 — 日报自动化漏「情绪引擎回填」一步（提案改 SKILL）⏳
+## G013 — 日报自动化漏「情绪引擎回填」一步（已实装 SKILL）✅
 
 **日期**: 2026-06-14 | **发现人**: CC + 烛阴（手动补跑暴露）
 
@@ -146,7 +146,7 @@
 
 **影响（待验证）**: 周一 06-15 07:00 定时任务按现 SKILL 跑，**情绪周期大概率同样卡旧日**——日报行情是新日、情绪分是旧日，口径错位。
 
-**提案解法（propose-then-confirm，未直改）**: 在 zhuzhao SKILL 第 6 步「生成日报」**之前**插入一步：`python3 tools/emotion_engine_v2.py --apply`（沙箱写 recap.db 实测无 I/O 错，引擎自带备份）。待 Doctor 批准后改 SKILL。⏳
+**解法（2026-06-23 已实装）**: zhuzhao SKILL「放回行情」与「出日报」之间已插「5.x 派生与兑现回填」段，第 1 步即 `python3 tools/emotion_engine_v2.py --apply`（随渊图入库/gap/closure/标的池一并补，recap.db 走 /tmp 副本防挂载盘 I/O）。Doctor 2026-06-23 批，三线核实后落 SKILL。✅
 
 ---
 
