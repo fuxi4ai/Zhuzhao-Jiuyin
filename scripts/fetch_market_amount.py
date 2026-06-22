@@ -75,8 +75,11 @@ def fetch(from_date, to_date):
         "INSERT OR REPLACE INTO market_amount_daily"
         "(trade_date,sh_trillion,sz_trillion,total_trillion) VALUES (?,?,?,?)", rows)
     conn.commit()
-    logger.info(f"✅ 写入 {len(rows)} 日 → market_amount_daily "
-                f"[{rows[0][0]}→{rows[-1][0]}] 最新全市场 {rows[-1][3]} 万亿")
+    if rows:
+        logger.info(f"✅ 写入 {len(rows)} 日 → market_amount_daily "
+                    f"[{rows[0][0]}→{rows[-1][0]}] 最新全市场 {rows[-1][3]} 万亿")
+    else:
+        logger.info("✅ 0 日新增 → market_amount_daily（休市/已最新，无数据可写）")
     conn.close()
 
 
