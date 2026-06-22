@@ -163,10 +163,15 @@ def gather(date_cap=None):
     cap_val = kcap(snap["amount"]) if snap["amount"] else None
 
     def kday_at(d):
+        # 容量宽度口径：主线篮子日内对沪深300超额 > +0.5pp（与"主线资格"同阈值，
+        # 普涨跟涨不计；2026-06-23 Doctor 裁定由裸涨幅>1% 切超额口径）
+        b = px[BENCHMARK].get(d)
+        if b is None:
+            return 0
         k = 0
         for t in THEME_ETF:
             vals = [px[c][d] for c in THEME_ETF[t] if d in px[c]]
-            if vals and sum(vals) / len(vals) > 0.01:
+            if vals and (sum(vals) / len(vals) - b) > 0.005:
                 k += 1
         return k
     kday_today = kday_at(data_day)
@@ -332,6 +337,37 @@ def gather(date_cap=None):
                 fulfill=fulfill_of(status, desc, r[9])))
         ytdays.append({"date": sd, "sigs": sigs_d})
     D["ytdays"] = ytdays
+
+    # ── 在途未兑现台账：所有 open/closing 渊图信号（不受 top-3 时间窗限制）──
+    # 补全展示：被主栏时间窗吞掉但状态仍在途的信号；同产业链取最近一条去重，
+    # 排除已在主栏 top-3 窗口的信号日，标注"停跟天数"（data_day − 信号日）。
+    yt_dateset = set(yt_dates)
+    seen_chains, inflight = set(), []
+    for r in rc.execute(
+            "SELECT date, industry_chain, signal_node, signal_type, yuantu_confidence, "
+            "beneficiaries, xiaobao_echo, gap_status, gap_desc, etf_anchor, excess_cum "
+            "FROM yuantu_buy_signals WHERE length(date)=10 "
+            "AND gap_status IN ('open','closing') ORDER BY date DESC"):
+        chain = r[1] or r[2]
+        if chain in seen_chains:
+            continue
+        seen_chains.add(chain)
+        if r[0] in yt_dateset:          # 已在主栏 top-3 窗口展示，不重复
+            continue
+        status = r[7] or "no_data"
+        desc = (r[8] or "").replace("发现", "出现")
+        try:
+            lag = (datetime.date.fromisoformat(iso(data_day))
+                   - datetime.date.fromisoformat(r[0])).days
+        except Exception:
+            lag = None
+        inflight.append(dict(
+            date=r[0], chain=chain, node=r[2], stype=r[3] or "", conf=r[4] or 0,
+            bene=r[5] or "", echo=bool(r[6]), status=status, desc=desc,
+            theme=(r[9] or "").split("/")[0], lag=lag,
+            fulfill=fulfill_of(status, desc, r[10])))
+    inflight.sort(key=lambda x: (x["lag"] if x["lag"] is not None else -1), reverse=True)
+    D["inflight"] = inflight
 
     # 课件信号（第二印证源，页面弱化为「课件信号」）：仅最新一批
     sd = rc.execute("SELECT MAX(date) FROM industry_signals WHERE etf_anchor!='' "
@@ -555,6 +591,18 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .tname{font-weight:600;font-size:14px} .desc{color:var(--sub);font-size:12px;max-width:300px;line-height:1.5}
 .tag{font-size:11px;padding:1px 7px;border-radius:9px;background:#ebe6db;color:var(--sub)}
 .t-closing{background:#f0e6cf;color:var(--gold)} .t-open{background:var(--brand-tint);color:var(--acc)} .t-closed{background:#ebe6db}
+.ledger-wrap{margin:8px 0 14px}
+.ledger-h{font-size:14px;font-weight:600;color:var(--tx);margin:12px 0 8px}
+.ledger-h .sub{font-weight:400}
+.ledger-row{display:flex;align-items:center;gap:10px;padding:8px 12px;margin:5px 0;border-radius:11px;
+ border:1px solid var(--line);background:var(--card);cursor:pointer;
+ transition:transform .15s,box-shadow .15s,border-color .15s}
+.ledger-row:hover{transform:translateX(2px);box-shadow:var(--whisper);border-color:var(--sc)}
+.lg-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:var(--sc)}
+.lg-chain{font-size:13px;font-weight:500;color:var(--tx);flex:0 1 auto;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:46%}
+.lg-meta{font-size:11px;color:var(--sub);margin-left:auto;text-align:right;flex:0 0 auto}
+@media(max-width:900px){.lg-chain{max-width:38%}.lg-meta{font-size:10px}}
 .thermo{font-size:10px;color:var(--sub);border:1px solid var(--line);border-radius:6px;padding:0 4px;margin-left:4px}
 .chip{display:inline-block;background:#f4efe5;border:1px solid var(--line);border-radius:8px;padding:3px 10px;margin:3px 6px 0 0}
 .chip em{font-style:normal;color:var(--gold);font-size:11px;margin-left:6px}
@@ -878,7 +926,7 @@ def render(D):
    <div><b>{state_str}</b><span>K {cap["kday"]} / K_cap {cap["kcap"]}</span></div>
   </div>
   <div id="capGauge" class="gauge"></div>
-  <div class="sub">成交额决定容量上限{kt_note}，需结合主线与 GAP 判断持续性。</div></div>
+  <div class="sub">K=主线超额>0.5pp 宽度·5日中位{kt_note}；成交额决定容量上限，需结合主线与 GAP 判断持续性。</div></div>
 </div>"""
 
     def us_html_of(u):
@@ -1001,6 +1049,42 @@ def render(D):
  <div class="mrow">{cards or empty}</div>
 </div>"""
 
+    # ── 在途未兑现台账（补全：窗外全状态在途信号；详情进二级浮卡，复用 openModal）──
+    ledger_rows = ""
+    for li, g in enumerate(D["inflight"]):
+        gid = f"lg{li}"
+        sc = THEME_COLOR.get(g["theme"], "#8aa0c8")
+        zh = STATUS_ZH.get(g["status"], g["status"])
+        stype = "·".join(TYPE_ZH.get(x.strip(), x.strip())
+                         for x in g["stype"].split(",")) if g["stype"] else ""
+        bene = "、".join(b.strip() for b in g["bene"].split("/") if b.strip()) or "—（待标的解析）"
+        echo = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if g["echo"]
+                else '<span class="tag">小鲍未提及</span>')
+        fl = g["fulfill"]
+        lag = f"停跟 {g['lag']} 天" if g["lag"] is not None else "停跟 —"
+        ledger_rows += f"""
+<div class="ledger-row glass" style="--sc:{sc}" onclick="openModal('{gid}')">
+ <span class="lg-dot"></span>
+ <span class="lg-chain">{g["chain"]}</span>
+ <span class="lg-meta">{g["theme"] or "—"} ｜ {zh} ｜ 信号日 {g["date"]} ｜ {lag}</span>
+ <template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["chain"]}
+   <span class="sub">信号时间 {g["date"]} ｜ {stype} ｜ 渊图置信度 {g["conf"]:.2f}</span></div>
+  <div><span class="dk">兑现状态</span><span class="tag t-{g["status"]}">{zh}</span>
+    <span class="desc">{g["desc"] or ""}</span></div>
+  <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span>
+    <span class="desc">{fl["sent"]}</span></div>
+  <div><span class="dk">受益标的</span><span class="desc">{bene}</span></div>
+  <div><span class="dk">小鲍印证</span>{echo}<span class="sub">（第二源回声）</span></div>
+  <div><span class="dk">图谱节点</span><span class="sub">{g["node"]}</span></div>
+ </template></div>"""
+    n_inflight = len(D["inflight"])
+    ledger_html = (f"""
+<div class="ledger-wrap">
+ <div class="ledger-h">在途未兑现台账 <span class="sub">{n_inflight} 条 open/closing 信号（不受 top-3 时间窗限制；同链取最近，按停跟降序，点行看二级卡）</span></div>
+ {ledger_rows}
+</div>""" if n_inflight else """
+<div class="ledger-wrap"><div class="ledger-h">在途未兑现台账 <span class="sub">当前无窗外在途信号</span></div></div>""")
+
     # ── 课件信号（第二印证，弱化为「课件信号」）──
     xb_html = ""
     for di, day in enumerate(D["sigdays"]):
@@ -1081,9 +1165,10 @@ def render(D):
 <h2>二 · 主线板块 · 近3日 <span class="vintage">资格=涨幅>1%且对大盘超额>0.5pp（跟涨不算主线）｜ 数量≤当日成交额对应K_cap ｜ 点卡片看详情</span></h2>
 {main_html}
 
-<h2>三 · GAP 信号栏 <span class="vintage">新线索 / 价格反应 / 主线确认 / 机会风险 ｜ 点卡片看详情</span></h2>
+<h2>三 · GAP 信号栏 <span class="vintage">新线索 / 价格反应 / 主线确认 / 机会风险 ｜ 含在途台账 ｜ 点卡片看详情</span></h2>
 {gap_chain}
 {sig_html}
+{ledger_html}
 {xb_html}
 
 <h2>四 · 机会提示 <span class="vintage">候选观察方向，非投资建议</span></h2>
