@@ -3,13 +3,15 @@
 > 最后更新: 2026-06-06（大修实测）
 > 执行人: CC（核对真库 `Database/烛照九阴/recap.db`）
 
+> ⚠️ **过时核对（2026-06-23）**：下表多处已漂移——recap.db 实测 **31 表**（非 29）、**emotion_cycle=365**（非 106）、体积已增长（非 2.2 MB）；`tushare_pipeline` 已退役（`scripts/_DEPRECATED_/`）。"实测 2026-06-06"快照仅余部分准确，完整重核待做。
+
 ---
 
 ## 数据库概况
 
 | 项目 | 值 |
 |------|------|
-| **复盘库** | `Database/烛照九阴/recap.db`（2.2 MB，29 表）|
+| **复盘库** | `Database/烛照九阴/recap.db`（实测 **31 表**·2026-06-23；体积已增长，非 2.2 MB）|
 | **新闻库** | 已归档 `archive/news_财新试验_20260511.db`（财新搁置，单源=小鲍课件→recap.db，2026-06-10）|
 | **公共行情库** | `Database/Market-Data/market_data.db`（207 MB，121.9 万行，句芒维护·只读）|
 | **课件语料** | `Database/烛照九阴/Raw-Recap/`（206 份，只读第三方语料）|
@@ -32,7 +34,7 @@
 | dim4_stock_analysis | 182 | 重点标的 |
 | dim1_external_pricing | 121 | 外围定价 |
 | cycle_quant | 103 | 量化情绪周期 |
-| emotion_cycle | 106 | 情绪周期 |
+| emotion_cycle | **365**（实测 2026-06-23；原记 106 已漂移）| 情绪周期 |
 | industry_signals | 1231 | 产业信号（统一 P2×0.7）|
 | predictor_accuracy | 82 | 预测者准确率 |
 | tushare_limit / index / north | 6000 / 539 / 301 | 行情回填 |
@@ -67,7 +69,7 @@
 | cycle_compare | `tools/cycle_compare.py` | 双轨对比（⚠ 见 GOTCHAS G011）|
 | sector_standardizer / stock_extractor / logic_discovery | `tools/` | 板块标准化 / 个股 / 逻辑发现 |
 | enhance_with_jumang | `scripts/enhance_with_jumang.py` | 行情融合（已 repoint 公共行情库）|
-| tushare_pipeline / stock_stats / exec_logger | `scripts/` | 行情回填 / 统计 / 执行日志 |
+| ~~tushare_pipeline~~（已退役→`scripts/_DEPRECATED_/`）/ stock_stats / exec_logger | `scripts/` | 行情回填(退役·镜像表停更) / 统计 / 执行日志 |
 | recap_bridge_v2 / news_cleaner | `news/` | 新闻入库桥 / 清洗 |
 | **yuantu_client** | `tools/yuantu_client.py` | 渊图消费客户端（只读 latest.json 契约）⭐新 |
 | **ticker_resolver** | `tools/ticker_resolver.py` | 公司名→ts_code（覆盖待句芒 stock_basic）⭐新 |
