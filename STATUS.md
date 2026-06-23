@@ -1,9 +1,7 @@
 # 🕯️ 烛照九阴 · 数据库状态
 
-> 最后更新: 2026-06-06（大修实测）
-> 执行人: CC（核对真库 `Database/烛照九阴/recap.db`）
-
-> ⚠️ **过时核对（2026-06-23）**：下表多处已漂移——recap.db 实测 **31 表**（非 29）、**emotion_cycle=365**（非 106）、体积已增长（非 2.2 MB）；`tushare_pipeline` 已退役（`scripts/_DEPRECATED_/`）。"实测 2026-06-06"快照仅余部分准确，完整重核待做。
+> 最后更新: 2026-06-24（实测重核）
+> 执行人: CC（核对真库 `Database/烛照九阴/recap.db`，只读）
 
 ---
 
@@ -11,71 +9,46 @@
 
 | 项目 | 值 |
 |------|------|
-| **复盘库** | `Database/烛照九阴/recap.db`（实测 **31 表**·2026-06-23；体积已增长，非 2.2 MB）|
-| **新闻库** | 已归档 `archive/news_财新试验_20260511.db`（财新搁置，单源=小鲍课件→recap.db，2026-06-10）|
-| **公共行情库** | `Database/Market-Data/market_data.db`（207 MB，121.9 万行，句芒维护·只读）|
-| **课件语料** | `Database/烛照九阴/Raw-Recap/`（206 份，只读第三方语料）|
-| **数据范围** | recap_daily 2025-10-14 ~ 2026-06-03 |
-| **路径入口** | 项目根 `config.py`（单一可信源；`python3 config.py` 自检）|
-
-> 注：旧 `jumang_market.db` 副本已确证漂移（118.7万 < 121.9万），D5 作废；统一用公共行情源。
+| **复盘库** | `Database/烛照九阴/recap.db`（**31 表 · ~4.1 MB**）|
+| **公共行情库** | `Database/Market-Data/market_data.db`（句芒维护·只读；sector_daily 已退役，高低切改 theme_etf_daily）|
+| **课件语料** | `Database/烛照九阴/Raw-Recap/`（**215 份**·只读第三方语料）|
+| **路径入口** | 项目根 `config.py`（**单一可信源·无 MySQL**；`python3 config.py` 自检）|
+| **渊图契约** | `行业研究/mapping/latest.json`（只读）|
 
 ---
 
-## 核心表记录数（实测 2026-06-06）
+## 核心表记录数（实测 2026-06-24）
 
 | 表 | 记录数 | 说明 |
 |---|--------|------|
-| recap_daily | 152 | 每日复盘主表 |
-| dim3_sentiment_tech | 153 | 情绪技术主表 |
-| dim2_sector_themes | 156 | 行业主线 |
-| dim2p_supply_demand | 32 | 供需结论层（以渊图为准，带渊图置信度）|
-| dim4_trade_plan | 145 | 交易策略 |
-| dim4_stock_analysis | 182 | 重点标的 |
-| dim1_external_pricing | 121 | 外围定价 |
-| cycle_quant | 103 | 量化情绪周期 |
-| emotion_cycle | **365**（实测 2026-06-23；原记 106 已漂移）| 情绪周期 |
-| industry_signals | 1231 | 产业信号（统一 P2×0.7）|
-| predictor_accuracy | 82 | 预测者准确率 |
-| tushare_limit / index / north | 6000 / 539 / 301 | 行情回填 |
-
-**来源分布**: four_dimensions 132 · 小鲍复盘课件 19 · tushare 1
-
----
-
-## dim3_sentiment_tech 填充率（153 条，实测）
-
-| 字段 | 填充率 |
-|------|--------|
-| limit_up | 93% |
-| limit_down | 92% |
-| consecutive_boards | 90% |
-| volume_trillion | 85% |
-| emotion_stage | 81% |
-| news_catalysts | 74% |
-| industry_logic | 73% |
+| recap_daily | 163 | 每日复盘主表 |
+| dim1_external_pricing | 132 | 外围定价 |
+| dim2_sector_themes | 167 | 行业主线 |
+| dim2p_supply_demand | 32 | 供需结论层（以渊图为准）|
+| dim3_sentiment_tech | 164 | 情绪技术 |
+| dim4_trade_plan | 179 | 交易策略 |
+| dim4_stock_analysis | 248 | 重点标的（小鲍逐股）|
+| emotion_cycle | **365** | 情绪周期 |
+| industry_signals | 1299 | 产业信号 |
+| yuantu_buy_signals | 102 | 渊图买入信号 |
+| stock_tracking | 2527 | 标的级回测池（⚠ 收益列待 populate，见下）|
+| processed_kejian | 215 | 课件去重台账（dedup_kejian 之主）|
+| tushare_limit | 6000 | 涨跌停明细（连板/炸板源）|
 
 ---
 
-## 工具链（现役，均经 config.py 取路径）
+## 工具链（现役·均经 config.py 取路径）
 
 | 工具 | 路径 | 说明 |
 |------|------|------|
-| recap_cli | `tools/recap_cli.py` | CLI 查询（12 命令）⭐ |
-| recap_db | `tools/recap_db.py` | 数据库操作模块（keystone）|
-| recap_import | `tools/recap_import.py` | 快速录入 |
-| xiaobao_extractor | `tools/xiaobao_extractor.py` | 小鲍课件提取 ⭐（D7 现役）|
-| cycle_quant | `tools/cycle_quant.py` | 量化情绪周期 |
-| cycle_compare | `tools/cycle_compare.py` | 双轨对比（⚠ 见 GOTCHAS G011）|
-| sector_standardizer / stock_extractor / logic_discovery | `tools/` | 板块标准化 / 个股 / 逻辑发现 |
-| enhance_with_jumang | `scripts/enhance_with_jumang.py` | 行情融合（已 repoint 公共行情库）|
-| ~~tushare_pipeline~~（已退役→`scripts/_DEPRECATED_/`）/ stock_stats / exec_logger | `scripts/` | 行情回填(退役·镜像表停更) / 统计 / 执行日志 |
-| recap_bridge_v2 / news_cleaner | `news/` | 新闻入库桥 / 清洗 |
-| **yuantu_client** | `tools/yuantu_client.py` | 渊图消费客户端（只读 latest.json 契约）⭐新 |
-| **ticker_resolver** | `tools/ticker_resolver.py` | 公司名→ts_code（覆盖待句芒 stock_basic）⭐新 |
-| **sync_buy_signals** | `tools/sync_buy_signals.py` | 渊图派生买入信号同步→ yuantu_buy_signals ⭐新 |
-| logic_discovery | `tools/logic_discovery.py` | `hot`=渊图派生买入信号；`echo`=小鲍第二印证 |
-| backtest_yuantu_signals | `scripts/backtest_yuantu_signals.py` | 买入信号受益标的回测 ⭐新 |
+| recap_cli / recap_db / recap_import | `tools/` | CLI 查询 / 库操作 keystone / 录入 |
+| **dedup_kejian** | `tools/dedup_kejian.py` | 课件去重（filename+md5）·**processed_kejian 之主**（scan/record/prune）⭐ |
+| xiaobao_extractor | `tools/xiaobao_extractor.py` | 小鲍课件正则提取 |
+| emotion_engine_v2 / cycle_quant / cycle_compare | `tools/` | 情绪引擎 / 量化周期 / 双轨对比 |
+| yuantu_client / ticker_resolver / sync_buy_signals / logic_discovery | `tools/` | 渊图消费 / 名→code / 信号同步 / 逻辑发现 |
+| **标的级回测** migrate_stock_tracking_backtest / populate_signal_targets / signal_winrate_backtest | `tools/` | 炸开信号入池 → 前向超额/命中回写（详 `brain/.../2026-06-15_标的级胜率回测_PRD.md`）|
+| enhance_with_jumang | `scripts/` | 行情融合（已 repoint 公共行情库）|
+| ~~tushare_pipeline~~ | `scripts/_DEPRECATED_/` | 已退役（镜像表停更）|
 
 ---
 
@@ -83,11 +56,11 @@
 
 | 项 | 说明 |
 |----|------|
-| news_events 表 = 0 | 不再启用：课件管线落 dim1/dim2/industry_signals/recap_daily，news.db 已归档（2026-06-10）|
-| ~~cycle_compare 报错~~ | ✅ G011 已修（补回 compare_cycles/normalize_stage）。但量化阶段退化（85 条 83 判冰点），双轨一致率仅 37.6%，待用公共行情库重算量化分 |
-| emotion_stage 29 条空 | 多为 2026-05 后新录入未标注情绪阶段 |
-| __pycache__ 残留 | 云同步 FUSE 挂载禁止删除旧 .pyc，已由 .gitignore 屏蔽，无害 |
+| **stock_tracking 收益列 0/2527** | 回测工具齐、未跑：待 Mac 跑 `populate_signal_targets → signal_winrate_backtest`（写 recap.db）→ 收益/超额/命中列落地、出分池胜率 |
+| cycle_compare 双轨一致率 37.6% | 量化阶段退化，待用公共行情库重算量化分（G011 已修报错本身）|
+| emotion_stage 部分空 | 2026-05 后新录入未标注情绪阶段 |
+| news_events 不启用 | 课件管线落 dim1/dim2/industry_signals/recap_daily；news.db 已归档 |
 
 ---
 
-*STATUS.md · 2026-06-06 · CC*
+*STATUS.md · 2026-06-24 实测 · CC*
