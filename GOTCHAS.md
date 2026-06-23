@@ -206,6 +206,24 @@
 
 ---
 
+## G018 — 美股锚信源迁 web_fetch/stockanalysis（stooq 沙箱彻底死透）✅
+
+**日期**: 2026-06-23 | **发现人**: 九儿（Doctor 开 stooq 白名单后实测）
+
+**问题**: G014「更新（白名单已开）」记 yfinance 沙箱已通；但 06-23 实测三源全废：yfinance 沙箱 pip 装不上 + yahoo 403；stooq 403；tushare `us_daily_adj` 无权限（code 40203，试用接口已不可用）。Doctor 遂开 `stooq.com` 白名单想救免费路。
+
+**根因（逐层实测）**:
+- 开白名单后 stooq 19 只 **403→200**（代理确放行），但回的不是 CSV 而是 **JS 验证墙**（"requires JavaScript to verify your browser"，一段 SHA-256 PoW → POST `/__verify` 拿 cookie）。
+- 九儿把整套墙跑通：解出 PoW（n≈25109 秒级）+ 拿到合法 `auth` cookie（`Max-Age=86400`＝24h），带 cookie 重拉 CSV 仍 **`Access denied`**。→ 墙不止 JS 层，更深一层**认 IP**，沙箱出口代理 IP 被拒。手搬 Mac 浏览器 cookie 进沙箱（IP/UA 变）同样会被拒，且 cookie 仅 24h。
+- 故 **stooq 从沙箱彻底死透**：白名单解决「连得上」，解决不了「认不认沙箱 IP」。
+
+**解法（现行·零成本·沙箱原生）**: 美股锚改 **agent web_fetch `stockanalysis.com/stocks/{t}/`**（服务端渲染、绕 JS 墙、换出口避开沙箱 IP 封禁），解析「At close 日期/收盘/1D%」→ `fetch_us_anchor.py --source stockanalysis --infile <json>`。已验 3/3 含冷门 ALM。SKILL 步骤 3 + 脚本已实装。
+- **close 不复权**：展示锚只做隔夜参照，单日涨幅自洽，不复权无碍。
+- **CDN 陈旧坑**：冷门票回缓存旧页（实测 RKLB 停 Jun18 / NVDA·ALM 到 Jun22）——**按页面真实「At close」日期入库**、绝不顶目标日，结构上杜绝把陈旧数伪装成新日期；脚本日志报「新鲜/陈旧/缺」。
+- stooq/yfinance/tushare 函数**保留不删**，仅作 Mac 端手动备胎/历史回填。✅
+
+---
+
 ## 统计
 
 | 类别 | 总数 | 已改正 | 待处理 |

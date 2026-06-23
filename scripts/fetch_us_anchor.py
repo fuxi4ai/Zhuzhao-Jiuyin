@@ -3,18 +3,22 @@
 """主线美股锚行情拉取 → 公共 market_data.db.us_anchor_daily
 （CC 2026-06-10；映射草案 docs/主线美股锚映射_draft_20260610.md）
 
-信源（2026-06-12 三次实测后定级）：
-  Mac 终端：yfinance 主（auto_adjust=True 复权价，免 key）→ Stooq 备。
-  Cowork 沙箱：yahoo/stooq 被网络白名单挡（403），api.waditu.com 通——
-       用 `--source tushare --interval 62`（us_daily_adj 试用态限频 1次/分钟，19只≈20分钟）；
-       若日后开美股正式权限（2000元/年，500次/分）可去掉 interval。
-依赖：pip3 install yfinance --break-system-packages
+信源（2026-06-23 实测重定级，见 GOTCHAS G018）：
+  Cowork 沙箱（日更主路）：agent 用 web_fetch 取 stockanalysis.com/stocks/{t}/，
+       解析「At close 日期 / 收盘 / 1D%」后经 `--source stockanalysis --infile <json>` 喂入。
+       绕开 stooq（JS 验证墙 + 沙箱出口 IP 被拒）与 yahoo（装包 + 403），零成本。
+       注：close 为不复权价——展示锚只做隔夜参照，单日涨幅自洽，不复权无碍。
+  Mac 终端（手动备胎/历史回填）：yfinance 主（auto_adjust=True 复权价，免 key）→ Stooq 备。
+
+stockanalysis JSON 格式（agent 产出，按页面「At close」真实日期 tag；
+冷门票若回 CDN 陈旧页，落其真实旧日期、绝不顶目标日 → 结构上杜绝编数）：
+  {"NVDA": {"date": "2026-06-22", "close": 208.65, "pct": -0.968}, ...}
+依赖：pip3 install yfinance --break-system-packages（仅 Mac 备胎路用）
 
 用法：
-  python3 scripts/fetch_us_anchor.py --from 2025-01-01          # 全量回填
-  python3 scripts/fetch_us_anchor.py --from 2026-06-01          # 增量
+  python3 scripts/fetch_us_anchor.py --source stockanalysis --infile /tmp/us_anchor_sa.json  # 沙箱日更主路
+  python3 scripts/fetch_us_anchor.py --source yfinance --from 2025-01-01  # Mac 备胎/全量回填
   python3 scripts/fetch_us_anchor.py --dry-run                  # 只列清单
-  python3 scripts/fetch_us_anchor.py --source yfinance --from 2025-01-01  # 强制备胎
 """
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
@@ -167,13 +171,38 @@ def fetch_stooq(tkr, start, end):
     return [r for r in rows if r[0] >= sc]
 
 
+def fetch_stockanalysis(infile):
+    """读 agent 经 web_fetch 解析好的 JSON → {ticker: [入库行]}。
+    每只按页面「At close」真实日期 tag（冷门票回 CDN 陈旧页时落其真实旧日期、
+    绝不顶目标日 → 结构上杜绝编数）。close 为不复权价（展示锚）。
+    JSON: {"NVDA": {"date":"2026-06-22","close":208.65,"pct":-0.968}, ...}
+    缺字段/解析失败的 ticker 直接不返回（上层按缺处理）。"""
+    import json
+    data = json.load(open(infile, encoding="utf-8"))
+    out = {}
+    for tkr in all_tickers():
+        d = data.get(tkr) or data.get(tkr.upper()) or data.get(tkr.lower())
+        if not d or d.get("close") is None or not d.get("date"):
+            continue
+        try:
+            date = str(d["date"]).replace("-", "")
+            close = float(d["close"])
+            pct = round(float(d["pct"]), 4) if d.get("pct") is not None else None
+        except (TypeError, ValueError):
+            continue
+        isb = 1 if tkr == BENCHMARK_US else 0
+        out[tkr] = [(date, tkr, close, pct, isb, "stockanalysis")]
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--from", dest="from_date", default="2025-01-01")
     ap.add_argument("--to", dest="to_date",
                     default=datetime.date.today().isoformat())
-    ap.add_argument("--source", choices=["yfinance", "stooq", "tushare"],
+    ap.add_argument("--source", choices=["yfinance", "stooq", "tushare", "stockanalysis"],
                     default="yfinance")
+    ap.add_argument("--infile", help="--source stockanalysis 时 agent 产出的 JSON 路径")
     ap.add_argument("--interval", type=float, default=0.5,
                     help="每只标的间隔秒数（tushare us_daily_adj 试用态限频 1次/分钟，沙箱跑请 --interval 62）")
     ap.add_argument("--dry-run", action="store_true")
@@ -188,6 +217,37 @@ def main():
     conn = sqlite3.connect(MARKET_DB)
     ensure_table(conn)
     total = 0
+
+    # ── 沙箱日更主路：agent web_fetch + 解析后喂 JSON，按真实「At close」日期入库 ──
+    if args.source == "stockanalysis":
+        if not args.infile:
+            raise SystemExit("--source stockanalysis 需 --infile <json>（agent 解析产出）")
+        sa = fetch_stockanalysis(args.infile)
+        newest = max((rows[0][0] for rows in sa.values()), default=None)  # 最鲜票定基准
+        fresh = stale = 0
+        for t in tickers:
+            rows = sa.get(t)
+            if not rows:
+                logger.error(f"  ✗ {t}: stockanalysis 无数据 → 标缺（保留旧锚）")
+                continue
+            conn.executemany(
+                "INSERT OR REPLACE INTO us_anchor_daily"
+                "(trade_date,ticker,close_adj,pct_chg,is_benchmark,source) "
+                "VALUES (?,?,?,?,?,?)", rows)
+            conn.commit()
+            total += len(rows)
+            d = rows[0][0]
+            if newest and d == newest:
+                fresh += 1; tag = "✓"
+            else:
+                stale += 1; tag = f"⚠陈旧({d})"
+            logger.info(f"  {tag} {t}: close={rows[0][2]} pct={rows[0][3]} @ {d}")
+        miss = len(tickers) - fresh - stale
+        logger.info(f"\n✅ stockanalysis 完成：写 {total} 行；基准日 {newest}；"
+                    f"新鲜 {fresh} / 陈旧 {stale} / 缺 {miss}")
+        conn.close()
+        return
+
     chain = {"yfinance": [fetch_yf, fetch_stooq],
              "stooq": [fetch_stooq],
              "tushare": [fetch_ts, fetch_yf, fetch_stooq]}[args.source]
