@@ -101,6 +101,28 @@ def record(filenames):
     print(f"✅ 已记录 {n} 个课件到 processed_kejian")
     return 0
 
+def prune(apply=False):
+    """删 processed_kejian 中「登记但文件已不在 Raw-Recap」的陈旧记录。dry-run 默认；--apply 才写库（Mac）。"""
+    proc = _processed_map(RECAP_DB)
+    existing = {p.name for p in RAW_DIR.iterdir() if p.is_file()} if RAW_DIR.exists() else set()
+    stale = sorted(fn for fn in proc if fn not in existing)
+    if not stale:
+        print("processed_kejian 无陈旧记录（登记的课件文件都还在）")
+        return 0
+    print(f"陈旧记录 {len(stale)} 条（登记但文件已不在 Raw-Recap）：")
+    for fn in stale:
+        print("  ·", fn)
+    if not apply:
+        print("（dry-run·未删；加 --apply 实删）")
+        return 0
+    if not RECAP_DB.exists():
+        print(f"❌ recap.db 不存在：{RECAP_DB}"); return 2
+    con = sqlite3.connect(str(RECAP_DB))
+    con.executemany("DELETE FROM processed_kejian WHERE filename=?", [(fn,) for fn in stale])
+    con.commit(); con.close()
+    print(f"✅ 已删 {len(stale)} 条陈旧记录")
+    return 0
+
 def main():
     ap = argparse.ArgumentParser(description="课件去重（processed_kejian 主）")
     sub = ap.add_subparsers(dest="cmd")
@@ -110,6 +132,8 @@ def main():
     g = rp.add_mutually_exclusive_group(required=True)
     g.add_argument("--file", help="记单个课件文件名")
     g.add_argument("--all-new", action="store_true", help="记本次 scan 的所有 new+changed")
+    pp = sub.add_parser("prune", help="删登记但文件已不在的陈旧记录（dry-run 默认）")
+    pp.add_argument("--apply", action="store_true", help="实删（写库·Mac）")
     a = ap.parse_args()
 
     if a.cmd in (None, "scan"):
@@ -126,6 +150,8 @@ def main():
     if a.cmd == "record":
         names = [a.file] if a.file else [x["filename"] for x in scan()["to_process"]]
         return record(names)
+    if a.cmd == "prune":
+        return prune(apply=a.apply)
 
 if __name__ == "__main__":
     sys.exit(main())
