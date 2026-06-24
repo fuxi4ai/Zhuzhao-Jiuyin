@@ -682,6 +682,9 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .gap-step:last-child::after{display:none}
 .gap-step b{display:block;font-size:13px}
 .gap-step span{display:block;color:var(--sub);font-size:11px;margin-top:2px}
+.gap-step.jump{cursor:pointer;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
+.gap-step.jump:hover,.gap-step.jump:focus-visible{transform:translateY(-1px);border-color:var(--acc);box-shadow:0 5px 16px rgba(0,0,0,.07);outline:none}
+.gap-step .jhint{position:absolute;right:11px;bottom:7px;margin:0;font-size:10px;color:var(--acc);opacity:.55}
 @media(max-width:900px){.report-title{max-width:100%}.report-meta{white-space:normal}.report-hero{--hero-lock-min-height:520px;--hero-lock-grid:1fr;--hero-art-width:340px;--hero-art-height:100%;--season-top:150px;--season-width:260px;grid-template-columns:var(--hero-lock-grid);min-height:var(--hero-lock-min-height)}.hero-art{background-size:auto 100%;filter:blur(.25px) saturate(1.02)}.hero-date-vertical{right:16px;top:22px;bottom:auto;height:180px;font-size:12px;opacity:.78}.season-glyph{font-size:92px}.snapshot-band,.p0-strip,.gap-chain{grid-template-columns:1fr}.snapshot-band{margin:0 0 14px;padding:0}.snapshot-item{min-height:auto}}
 /* ── 星空卡（低对比纹理，重点模块专用）── */
 .glass{position:relative;
@@ -995,10 +998,10 @@ def render(D):
              (f"；{risk_part}需看锚点背离" if risk_part else ""))
     gap_chain = f"""
 <div class="gap-chain" aria-label="GAP 判断链">
- <div class="gap-step"><b>新线索</b><span>{step1}</span></div>
- <div class="gap-step"><b>价格反应</b><span>{step2}</span></div>
- <div class="gap-step"><b>主线确认</b><span>{step3}</span></div>
- <div class="gap-step"><b>机会 / 风险</b><span>{step4}</span></div>
+ <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到渊图信号卡区" onclick="document.getElementById('sec-gap').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>新线索</b><span>{step1}</span><span class="jhint">↘</span></div>
+ <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到在途未兑现台账" onclick="document.getElementById('sec-ledger').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>价格反应</b><span>{step2}</span><span class="jhint">↘</span></div>
+ <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到主线板块" onclick="document.getElementById('sec-main').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>主线确认</b><span>{step3}</span><span class="jhint">↘</span></div>
+ <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到机会/风险提示" onclick="document.getElementById('sec-opp').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>机会 / 风险</b><span>{step4}</span><span class="jhint">↘</span></div>
 </div>"""
 
     # ── 渊图信号卡 / 兑现度卡 配对（按产业信号时间分组）──
@@ -1079,11 +1082,11 @@ def render(D):
  </template></div>"""
     n_inflight = len(D["inflight"])
     ledger_html = (f"""
-<div class="ledger-wrap">
+<div class="ledger-wrap" id="sec-ledger">
  <div class="ledger-h">在途未兑现台账 <span class="sub">{n_inflight} 条 open/closing 信号（不受 top-3 时间窗限制；同链取最近，按停跟降序，点行看二级卡）</span></div>
  {ledger_rows}
 </div>""" if n_inflight else """
-<div class="ledger-wrap"><div class="ledger-h">在途未兑现台账 <span class="sub">当前无窗外在途信号</span></div></div>""")
+<div class="ledger-wrap" id="sec-ledger"><div class="ledger-h">在途未兑现台账 <span class="sub">当前无窗外在途信号</span></div></div>""")
 
     # ── 课件信号（第二印证，弱化为「课件信号」）──
     xb_html = ""
@@ -1162,16 +1165,16 @@ def render(D):
 {p0}
 {row2}
 
-<h2>二 · 主线板块 · 近3日 <span class="vintage">资格=涨幅>1%且对大盘超额>0.5pp（跟涨不算主线）｜ 数量≤当日成交额对应K_cap ｜ 点卡片看详情</span></h2>
+<h2 id="sec-main">二 · 主线板块 · 近3日 <span class="vintage">资格=涨幅>1%且对大盘超额>0.5pp（跟涨不算主线）｜ 数量≤当日成交额对应K_cap ｜ 点卡片看详情</span></h2>
 {main_html}
 
-<h2>三 · GAP 信号栏 <span class="vintage">新线索 / 价格反应 / 主线确认 / 机会风险 ｜ 含在途台账 ｜ 点卡片看详情</span></h2>
+<h2 id="sec-gap">三 · GAP 信号栏 <span class="vintage">新线索 / 价格反应 / 主线确认 / 机会风险 ｜ 含在途台账 ｜ 点四步脊跳到对应详情区，点卡片看详情</span></h2>
 {gap_chain}
 {sig_html}
 {ledger_html}
 {xb_html}
 
-<h2>四 · 机会提示 <span class="vintage">候选观察方向，非投资建议</span></h2>
+<h2 id="sec-opp">四 · 机会提示 <span class="vintage">候选观察方向，非投资建议</span></h2>
 {opp_html}
 {pos_card}
 
