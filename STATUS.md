@@ -63,4 +63,10 @@
 
 ---
 
+## 兑现口径（案2 Phase1 · 2026-06-24）
+
+closure_engine 状态机：`open→closing`（连续超额为正≥3日）→ `closed` 触发（峰值≥5% 且绝对回撤≥5pp）后**不再终态/剔除**，转 **`dormant`（暗态）**；暗态期价格再起（连续超额为正 **≥Y′=4 日** 且 自暗态低点回升 **≥Z=5pp**）→ **点亮**回 `closing`（二段），可多轮。`gap_status ∈ {open, closing, dormant, no_anchor, no_data}`（旧 `closed` 终态已降级为 dormant）。新增列 `dormant_since/relit_date/relit_count`。日报：暗态不渲染主栏/台账，仅留「暗态 N 条」计数入口。Y′/Z 由回测定值（docs/兑现回测_案二点亮扫参_20260624.md），Doctor 2026-06-24 拍板 Y′=4/Z=5pp。**信号层（渊图 thesis 变化→剔）= Phase2，未做。**
+
+---
+
 *STATUS.md · 2026-06-24 实测 · CC*
