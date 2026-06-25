@@ -38,6 +38,7 @@ RECORDS = config.PROJECT_ROOT.parents[3] / "Database" / "龙鱼-标的分析库"
 ASSETS = config.PROJECT_ROOT / "assets"
 FONT_SEASONS = ASSETS / "zikutang-shike-seasons.ttf"          # 字酷堂石刻体子集（春夏秋冬）
 ART_LAIQIN = ASSETS / "guoshu-laiqin-02-guohua-inkwash-edgefit.png"  # 《果熟来禽图》国画化
+ECHARTS_JS = ASSETS / "echarts.min.js"                        # ECharts 本地副本（Cowork 沙箱须内联，详见 _echarts_inline）
 
 
 def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d
@@ -582,6 +583,19 @@ def _laiqin_art():
         return "none"
     b64 = base64.b64encode(ART_LAIQIN.read_bytes()).decode()
     return f'url("data:image/png;base64,{b64}")'
+
+
+def _echarts_inline():
+    """ECharts 内联 <script>。
+
+    Cowork artifact 沙箱只允许 Chart.js / Grid.js / Mermaid 走 CDN，其余库（含 ECharts）
+    必须内联，否则 echarts 未定义 → emChart/capGauge 空白（GOTCHA：2026-06-25 CDN 退化致图表全空）。
+    缺本地副本则回退 CDN 并告警（沙箱仍可能拦截，但不静默）。
+    """
+    if not ECHARTS_JS.exists():
+        logger.warning(f"⚠️ echarts 本地副本缺失：{ECHARTS_JS}（回退 CDN，Cowork 沙箱可能拦截致图表空白）")
+        return '<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>'
+    return "<script>" + ECHARTS_JS.read_text(encoding="utf-8") + "</script>"
 
 
 # 暖色日报 CSS（普通字符串 + 占位符，规避 f-string 花括号转义——G-04）
@@ -1245,7 +1259,7 @@ def render(D):
 <html lang="zh"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>烛照九阴日报 · {dd}</title>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+{_echarts_inline()}
 <style>{css}</style></head><body>
 {hero}
 {snapshot}
