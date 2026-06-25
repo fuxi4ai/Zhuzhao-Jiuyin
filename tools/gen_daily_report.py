@@ -42,6 +42,26 @@ ART_LAIQIN = ASSETS / "guoshu-laiqin-02-guohua-inkwash-edgefit.png"  # 《果熟
 def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d
 
 
+def bene_html(raw, fallback):
+    """受益标的渲染（图谱口径受益度·轻档 2026-06-25）：每公司带〔直接/间接·强中弱传导〕+ 财务标注（有则附、无则不显，绝不编）。无 detail 回退名字串。"""
+    import json as _j
+    try:
+        det = _j.loads(raw) if raw else []
+    except Exception:
+        det = []
+    if not det:
+        return fallback or "—（待标的解析）"
+    parts = []
+    for b in det:
+        tier, tw = b.get("tier", ""), b.get("tier_w", "")
+        fin = b.get("fin") or {}
+        fintxt = ("　" + "·".join(f"{k}{v}" for k, v in fin.items())) if fin else ""
+        parts.append(f'{b.get("name","")} '
+                     f'<span style="font-size:.82em;opacity:.7">〔{tier}·{tw}传导〕</span>'
+                     f'<span style="font-size:.82em;color:var(--gold,#caa45a)">{fintxt}</span>')
+    return "<br>".join(parts)
+
+
 def kcap(amount_trillion):
     """Doctor 经验表线性插值（经验非规律）：1万亿→1.5 / 2→3.5 / 3→5.5"""
     pts = [(1.0, 1.5), (2.0, 3.5), (3.0, 5.5)]
@@ -329,7 +349,8 @@ def gather(date_cap=None):
     for sd in yt_dates:
         rows = rc.execute(
             "SELECT industry_chain, signal_node, signal_type, yuantu_confidence, "
-            "beneficiaries, xiaobao_echo, gap_status, gap_desc, etf_anchor, excess_cum "
+            "beneficiaries, xiaobao_echo, gap_status, gap_desc, etf_anchor, excess_cum, "
+            "beneficiaries_detail "
             "FROM yuantu_buy_signals WHERE date=? ORDER BY yuantu_confidence DESC", (sd,)).fetchall()
         sigs_d = []
         for r in rows:
@@ -339,7 +360,7 @@ def gather(date_cap=None):
             desc = (r[7] or "").replace("发现", "出现")   # 文案去内部化
             sigs_d.append(dict(
                 chain=r[0] or r[1], node=r[1], stype=r[2] or "", conf=r[3],
-                bene=r[4] or "", echo=bool(r[5]), status=status,
+                bene=r[4] or "", bene_detail=r[10] or "", echo=bool(r[5]), status=status,
                 desc=desc, theme=(r[8] or "").split("/")[0],
                 fulfill=fulfill_of(status, desc, r[9])))
         ytdays.append({"date": sd, "sigs": sigs_d})
@@ -360,7 +381,7 @@ def gather(date_cap=None):
     for r in rc.execute(
             "SELECT date, industry_chain, signal_node, signal_type, yuantu_confidence, "
             "beneficiaries, xiaobao_echo, gap_status, gap_desc, etf_anchor, excess_cum, "
-            "date_realized, direction, direction_flip_date "
+            "date_realized, direction, direction_flip_date, beneficiaries_detail "
             "FROM yuantu_buy_signals WHERE length(date)=10 "
             "AND gap_status IN ('open','closing') ORDER BY date DESC"):
         chain = r[1] or r[2]
@@ -387,6 +408,7 @@ def gather(date_cap=None):
             bene=r[5] or "", echo=bool(r[6]), status=status, desc=desc,
             theme=(r[9] or "").split("/")[0], lag=lag, trend_lag=trend_lag,
             date_realized=r[11] or "", direction=r[12] or "多", flip_date=r[13] or "",
+            bene_detail=r[14] or "",
             fulfill=fulfill_of(status, desc, r[10])))
     inflight.sort(key=lambda x: (x["lag"] if x["lag"] is not None else -1), reverse=True)
     # 方向分治（2026-06-25）：多头进正向台账；空头(卖出/买入转卖出)入风险提示、不正向追踪
@@ -1058,7 +1080,7 @@ def render(D):
     <span class="desc">{g["desc"] or ""}</span></div>
   <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span>
     <span class="desc">{fl["sent"]}</span></div>
-  <div><span class="dk">受益标的</span><span class="desc">{bene}</span></div>
+  <div><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
   <div><span class="dk">小鲍印证</span>{echo}<span class="sub">（第二源回声）</span></div>
   <div><span class="dk">图谱节点</span><span class="sub">{g["node"]}</span></div>
  </template></div>
@@ -1105,7 +1127,7 @@ def render(D):
     <span class="desc">{g["desc"] or ""}</span></div>
   <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span>
     <span class="desc">{fl["sent"]}</span></div>
-  <div><span class="dk">受益标的</span><span class="desc">{bene}</span></div>
+  <div><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
   <div><span class="dk">小鲍印证</span>{echo}<span class="sub">（第二源回声）</span></div>
   <div><span class="dk">图谱节点</span><span class="sub">{g["node"]}</span></div>
  </template></div>"""

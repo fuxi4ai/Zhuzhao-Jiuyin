@@ -116,35 +116,64 @@ def _adjacency():
     for e in load_kg()["edges"]:
         if e.get("type") not in BENE_EDGES:
             continue
+        w = e.get("weight")
+        w = float(w) if isinstance(w, (int, float)) else 1.0
         for a, b in ((e["source"], e["target"]), (e["target"], e["source"])):
-            adj.setdefault(a, []).append((b, e.get("type")))
+            adj.setdefault(a, []).append((b, e.get("type"), w))
     return adj
 
 
+# 受益公司财务标注摘取（图谱口径轻档 · 2026-06-25）：从公司节点 properties 取
+# 营收占比/份额/毛利/涨价类字段，有则取、无则空，绝不编（覆盖稀疏属正常）。
+_FIN_PATTERNS = [
+    ("营收占比", ("revenue_contribution", "revenue_share", "semi_revenue_share")),
+    ("份额", ("market_share",)),
+    ("毛利率", ("gross_margin",)),
+    ("已涨价", ("price_hike",)),
+]
+
+
+def _fin_annot(node):
+    p = node.get("properties") or {}
+    out = {}
+    for label, subs in _FIN_PATTERNS:
+        for k, v in p.items():
+            if any(s in k for s in subs) and v not in (None, "", "undated"):
+                out[label] = v
+                break
+        if len(out) >= 2:          # 最多 2 项，详情卡不臃肿
+            break
+    return out
+
+
 def beneficiaries(signal_id, max_depth=3):
-    """信号节点 N 跳无向邻域内的受益公司节点（排除竞争边）。"""
+    """信号节点 N 跳无向邻域内的受益公司节点（排除竞争边）。
+    富返回（图谱口径受益度·轻档）：hop=传导跳数（1=直接/≥2=间接）、
+    weight=路径最小边权（传导瓶颈强度）、fin=公司节点财务标注（有则取）。"""
     adj = _adjacency()
     id2n = _id2node()
     seen = {signal_id}
-    frontier = [(signal_id, 0, [])]
+    frontier = [(signal_id, 0, [], 1.0)]
     hits = {}
     while frontier:
-        nid, d, path = frontier.pop()
+        nid, d, path, wmin = frontier.pop()
         if d >= max_depth:
             continue
-        for tgt, et in adj.get(nid, []):
+        for tgt, et, w in adj.get(nid, []):
             if tgt in seen:
                 continue
             seen.add(tgt)
             npath = path + [et]
+            nwmin = min(wmin, w if w is not None else 1.0)   # 路径最小边权＝传导瓶颈
             tn = id2n.get(tgt)
             if tn and str(tgt).startswith("company_"):
                 if tgt not in hits:
                     p, _ = _best_source(tn)
                     hits[tgt] = {"company_id": tgt, "name": tn.get("name"),
-                                 "hop": d + 1, "path": "→".join(npath), "source_plevel": p}
-            frontier.append((tgt, d + 1, npath))
-    return sorted(hits.values(), key=lambda x: x["hop"])
+                                 "hop": d + 1, "path": "→".join(npath), "source_plevel": p,
+                                 "weight": round(nwmin, 3), "fin": _fin_annot(tn)}
+            frontier.append((tgt, d + 1, npath, nwmin))
+    return sorted(hits.values(), key=lambda x: (x["hop"], -x["weight"]))
 
 
 def scores():

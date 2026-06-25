@@ -15,7 +15,7 @@ logger = get_logger(__name__)
   python3 sync_buy_signals.py --dry-run        # 只看不写
   python3 sync_buy_signals.py                  # 写库（INSERT OR REPLACE by signal_node）
 """
-import sqlite3, argparse
+import sqlite3, argparse, json
 from datetime import datetime, timedelta
 
 import yuantu_client as yc
@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS yuantu_buy_signals (
   source_plevel TEXT,
   industry_chain TEXT,
   beneficiaries TEXT,
+  beneficiaries_detail TEXT,
   beneficiaries_ts TEXT,
   beneficiary_count INTEGER,
   ts_resolved INTEGER,
@@ -75,6 +76,9 @@ def build(dry_run=False):
 
     conn = sqlite3.connect(config.RECAP_DB)
     conn.executescript(DDL)
+    # 既有库补列（CREATE IF NOT EXISTS 不会加列）
+    if "beneficiaries_detail" not in {r[1] for r in conn.execute("PRAGMA table_info(yuantu_buy_signals)")}:
+        conn.execute("ALTER TABLE yuantu_buy_signals ADD COLUMN beneficiaries_detail TEXT")
 
     signals = yc.get_signals(min_conf=0.7)
     rows, tot_ben, tot_ts, tot_echo = [], 0, 0, 0
@@ -86,12 +90,21 @@ def build(dry_run=False):
             code = tr.resolve(b["name"])
             if code:
                 codes.append(f"{b['name']}:{code}")
+        # 图谱口径受益度明细（2026-06-25 轻档）：hop→直接/间接；weight→强/中/弱；fin 财务标注（有则取）
+        detail = []
+        for b in bens:
+            w = b.get("weight", 1.0) or 1.0
+            detail.append({"name": b.get("name"), "hop": b.get("hop"), "weight": w,
+                           "tier": "直接" if b.get("hop") == 1 else "间接",
+                           "tier_w": "强" if w >= 0.8 else ("中" if w >= 0.5 else "弱"),
+                           "fin": b.get("fin") or {}})
         echo, ecnt = _xiaobao_echo(conn, s["industry"], s["date"])
         tot_ben += len(names); tot_ts += len(codes); tot_echo += echo
         rows.append((s["signal_id"], s["date"], ",".join(s["categories"]),
                      s["signal_conf"], s["source_plevel"], s["industry"],
                      " / ".join(names), " / ".join(codes), len(names), len(codes),
-                     echo, ecnt, "待验证", None, datetime.now().isoformat(timespec="seconds")))
+                     echo, ecnt, "待验证", None, datetime.now().isoformat(timespec="seconds"),
+                     json.dumps(detail, ensure_ascii=False)))
 
     logger.info(f"\n拟写入 {len(rows)} 条买入信号 | 受益公司合计 {tot_ben} | "
                 f"解析到 ts_code {tot_ts} | 小鲍有第二印证 {tot_echo} 条")
@@ -111,15 +124,16 @@ def build(dry_run=False):
         INSERT INTO yuantu_buy_signals
           (signal_node,date,signal_type,yuantu_confidence,source_plevel,industry_chain,
            beneficiaries,beneficiaries_ts,beneficiary_count,ts_resolved,xiaobao_echo,
-           echo_count,verify_status,verify_return,created_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+           echo_count,verify_status,verify_return,created_at,beneficiaries_detail)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(signal_node) DO UPDATE SET
           date=excluded.date, signal_type=excluded.signal_type,
           yuantu_confidence=excluded.yuantu_confidence, source_plevel=excluded.source_plevel,
           industry_chain=excluded.industry_chain, beneficiaries=excluded.beneficiaries,
           beneficiaries_ts=excluded.beneficiaries_ts, beneficiary_count=excluded.beneficiary_count,
           ts_resolved=excluded.ts_resolved, xiaobao_echo=excluded.xiaobao_echo,
-          echo_count=excluded.echo_count, created_at=excluded.created_at
+          echo_count=excluded.echo_count, created_at=excluded.created_at,
+          beneficiaries_detail=excluded.beneficiaries_detail
     """, rows)
     conn.commit()
     n = conn.execute("SELECT COUNT(*) FROM yuantu_buy_signals").fetchone()[0]
