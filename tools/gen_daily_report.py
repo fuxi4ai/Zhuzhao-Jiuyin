@@ -37,7 +37,7 @@ OUT_DIR = config.PROJECT_ROOT.parents[3] / "AI4ME" / "烛照九阴-outputs"
 RECORDS = config.PROJECT_ROOT.parents[3] / "Database" / "龙鱼-标的分析库" / "records"
 ASSETS = config.PROJECT_ROOT / "assets"
 FONT_SEASONS = ASSETS / "zikutang-shike-seasons.ttf"          # 字酷堂石刻体子集（春夏秋冬）
-ART_LAIQIN = ASSETS / "guoshu-laiqin-02-guohua-inkwash-edgefit.png"  # 《果熟来禽图》国画化
+ART_LAIQIN = ASSETS / "guoshu-laiqin-03-guohua-inkwash-edgefit-h1000.webp"  # 《果熟来禽图》国画化（WebP·646×1000·保alpha；原 PNG 1.73MB 过大致 Cowork 渲染器丢图，2026-06-26 压到 262KB）
 ECHARTS_JS = ASSETS / "echarts.min.js"                        # ECharts 本地副本（Cowork 沙箱须内联，详见 _echarts_inline）
 ARTIFACT_PATH = config.PROJECT_ROOT.parents[3] / "Claude" / "Artifacts" / "zhuzhao-jiuyin-daily" / "index.html"  # Cowork artifact 部署目标（重渲即部署）
 
@@ -582,8 +582,9 @@ def _laiqin_art():
     if not ART_LAIQIN.exists():
         logger.warning(f"⚠️ 《果熟来禽图》素材缺失：{ART_LAIQIN}（画框左侧将留白）")
         return "none"
+    mime = "image/webp" if ART_LAIQIN.suffix.lower() == ".webp" else "image/png"
     b64 = base64.b64encode(ART_LAIQIN.read_bytes()).decode()
-    return f'url("data:image/png;base64,{b64}")'
+    return f'url("data:{mime};base64,{b64}")'
 
 
 def _echarts_inline():
