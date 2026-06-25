@@ -39,6 +39,7 @@ ASSETS = config.PROJECT_ROOT / "assets"
 FONT_SEASONS = ASSETS / "zikutang-shike-seasons.ttf"          # 字酷堂石刻体子集（春夏秋冬）
 ART_LAIQIN = ASSETS / "guoshu-laiqin-02-guohua-inkwash-edgefit.png"  # 《果熟来禽图》国画化
 ECHARTS_JS = ASSETS / "echarts.min.js"                        # ECharts 本地副本（Cowork 沙箱须内联，详见 _echarts_inline）
+ARTIFACT_PATH = config.PROJECT_ROOT.parents[3] / "Claude" / "Artifacts" / "zhuzhao-jiuyin-daily" / "index.html"  # Cowork artifact 部署目标（重渲即部署）
 
 
 def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d
@@ -596,6 +597,39 @@ def _echarts_inline():
         logger.warning(f"⚠️ echarts 本地副本缺失：{ECHARTS_JS}（回退 CDN，Cowork 沙箱可能拦截致图表空白）")
         return '<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>'
     return "<script>" + ECHARTS_JS.read_text(encoding="utf-8") + "</script>"
+
+
+def _deploy_to_artifact(html, dd):
+    """重渲即部署：给日报 HTML 套上 cowork-artifact-meta 头，直接写入 Cowork artifact 的
+    index.html，使生成器一步同时更新 AI4ME 产物与 artifact。
+
+    - Artifacts 目录不存在（异机/无 Cowork 环境）→ 跳过 + 告警，不报错、不阻塞生成。
+    - 写前备份现有 index.html 到 index.bak.<ts>.html（可逆，永不直接覆盖无备份）。
+    - 注意：直接写文件绕过 update_artifact，manifest 的 updatedAt 不会刷新，但渲染读的是
+      文件本身，内容照常更新（已由 2026-06-26 echarts 手工补丁验证）。
+    """
+    art_dir = ARTIFACT_PATH.parent
+    if not art_dir.exists():
+        logger.warning(f"⚠️ Cowork artifact 目录不存在：{art_dir}（跳过部署，仅写 AI4ME）")
+        return
+    meta = {
+        "name": "烛照九阴复盘日报",
+        "schemaVersion": 1,
+        "description": (f"最后更新：{datetime.datetime.now():%Y-%m-%d %H:%M}（{dd} 期）。\n"
+                        "Update at：周一至周五 07:00（生成器自动部署，无需手工 update_artifact）。\n\n"
+                        "盘后复盘看板，ECharts 与字体内联、画框《果熟来禽图》内嵌，完全自包含；数据为当期快照。"),
+    }
+    meta_block = ('<script type="application/json" id="cowork-artifact-meta">\n'
+                  + json.dumps(meta, ensure_ascii=False, indent=2)
+                  + '\n</script>\n')
+    artifact_html = html.replace("<!DOCTYPE html>\n", "<!DOCTYPE html>\n" + meta_block, 1)
+    if ARTIFACT_PATH.exists():
+        stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        bak = ARTIFACT_PATH.with_name(f"index.bak.{stamp}.html")
+        shutil.copy2(ARTIFACT_PATH, bak)
+        logger.info(f"📦 artifact 旧版备份 → {bak.name}")
+    ARTIFACT_PATH.write_text(artifact_html, encoding="utf-8")
+    logger.info(f"🚀 已部署到 Cowork artifact → {ARTIFACT_PATH}（{len(artifact_html)/1048576:.2f} MB）")
 
 
 # 暖色日报 CSS（普通字符串 + 占位符，规避 f-string 花括号转义——G-04）
@@ -1297,6 +1331,7 @@ def main():
     ap = argparse.ArgumentParser(description="烛照九阴 · 暖色日报生成器 v2")
     ap.add_argument("--output", help="输出目录覆盖（测试用；不写正式 AI4ME 目录）")
     ap.add_argument("--no-archive", action="store_true", help="不移动旧报到 archived/")
+    ap.add_argument("--no-deploy", action="store_true", help="不部署到 Cowork artifact（仅写 AI4ME 产物）")
     ap.add_argument("--date", help="数据日上限 YYYYMMDD（默认取最新行情日）")
     args = ap.parse_args()
 
@@ -1327,6 +1362,10 @@ def main():
     mode = "正式" if is_official else "测试"
     logger.info(f"✅ 日报生成（{mode}·暖色范式 v2）→ {out}（{out.stat().st_size/1048576:.2f} MB）")
     logger.info(f"   主线 {len(D['themes'])} 条 | 渊图信号日 {len(D['ytdays'])} | 机会 {len(D['opps'])} | 风险 {len(D['risks'])}")
+
+    # 重渲即部署：正式产物自动同步到 Cowork artifact（测试 --output 或 --no-deploy 跳过）
+    if is_official and not args.no_deploy:
+        _deploy_to_artifact(html, D['data_day'])
 
 
 if __name__ == "__main__":
