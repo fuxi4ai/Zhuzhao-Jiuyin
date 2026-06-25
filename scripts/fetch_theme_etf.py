@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """主线代表 ETF 行情拉取 → 公共 market_data.db.theme_etf_daily
-（research-CC 2026-06-09；Doctor 终端跑，沙箱连不上 tushare）
+（research-CC 2026-06-09；默认 Doctor 终端跑。注：『沙箱连不上 tushare』已过时——约 2026-06-11 白名单开放后沙箱经 localhost:3128 代理 + token 已可连）
 
 分工：本脚本在 Doctor 终端用 tushare fund_daily 拉场内 ETF 日线，写入公共行情库
       market_data.db 的新表 theme_etf_daily（附加表，不动句芒既有表）。

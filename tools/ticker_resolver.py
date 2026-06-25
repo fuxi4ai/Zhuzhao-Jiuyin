@@ -124,7 +124,7 @@ def coverage(names):
 
 
 HOWTO = """\
-渊图 ts_code 覆盖薄，全量名↔码需句芒 tushare stock_basic。请句芒/Doctor 在 macOS 终端跑（需 TUSHARE_TOKEN）：
+渊图 ts_code 覆盖薄，全量名↔码需句芒 tushare stock_basic。可在 macOS 终端或沙箱内跑（需 TUSHARE_TOKEN；约 06-11 白名单开放后沙箱亦经代理+token 可调 Tushare）：
 
   # 句芒 tushare 模块拉 stock_basic 写入公共缓存（示意）
   python3 -c "import tushare as ts, sqlite3, os;
