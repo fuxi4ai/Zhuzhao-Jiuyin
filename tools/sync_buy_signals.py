@@ -94,7 +94,8 @@ def build(dry_run=False):
         detail = []
         for b in bens:
             w = b.get("weight", 1.0) or 1.0
-            detail.append({"name": b.get("name"), "hop": b.get("hop"), "weight": w,
+            detail.append({"name": b.get("name"), "ts": tr.resolve(b.get("name")) or "",
+                           "hop": b.get("hop"), "weight": w,
                            "tier": "直接" if b.get("hop") == 1 else "间接",
                            "tier_w": "强" if w >= 0.8 else ("中" if w >= 0.5 else "弱"),
                            "fin": b.get("fin") or {}})

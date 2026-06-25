@@ -25,6 +25,7 @@ from pathlib import Path
 from collections import defaultdict
 import statistics as st
 import config
+import fundamentals_lookup as fl
 from lib.logger import get_logger
 logger = get_logger(__name__)
 
@@ -54,8 +55,13 @@ def bene_html(raw, fallback):
     parts = []
     for b in det:
         tier, tw = b.get("tier", ""), b.get("tier_w", "")
-        fin = b.get("fin") or {}
-        fintxt = ("　" + "·".join(f"{k}{v}" for k, v in fin.items())) if fin else ""
+        # 命中共享基本面库（白泽 owner·慢变P0年报）→ 显白泽口径；未命中 → 回退渊图图谱 fin 标注
+        bz = fl.fmt(b.get("ts", "")) if b.get("ts") else ""
+        if bz:
+            fintxt = "　" + bz
+        else:
+            fin = b.get("fin") or {}
+            fintxt = ("　图谱:" + "·".join(f"{k}{v}" for k, v in fin.items())) if fin else ""
         parts.append(f'{b.get("name","")} '
                      f'<span style="font-size:.82em;opacity:.7">〔{tier}·{tw}传导〕</span>'
                      f'<span style="font-size:.82em;color:var(--gold,#caa45a)">{fintxt}</span>')
