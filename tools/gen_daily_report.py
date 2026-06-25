@@ -56,7 +56,8 @@ def kcap(amount_trillion):
 
 # ── 状态中文化（文案去内部化：open/closing/no_anchor 不外露）──
 STATUS_ZH = {"open": "观察中", "closing": "兑现中", "closed": "已兑现",
-             "no_anchor": "无锚点", "failed": "已证伪", "no_data": "待跟踪"}
+             "dormant": "暗态", "no_anchor": "无锚点", "failed": "已证伪",
+             "no_data": "待跟踪"}
 
 
 def fulfill_of(status, desc, excess_cum=None):
@@ -86,6 +87,10 @@ def fulfill_of(status, desc, excess_cum=None):
         d = (f"{days}日 · 累计{cum}%" if days and cum else "已兑现")
         sent = (f"跟踪 {days} 日，累计 {cum}%，兑现完毕。" if days and cum else "价格兑现已完成。")
         return dict(v="已兑现", d=d, w=88, sent=sent)
+    if status == "dormant":
+        # 案2：暗态默认不渲染主栏/台账，此分支仅作兜底（如别处误引用）
+        return dict(v="暗态", d="已兑现 · 候二段", w=70,
+                    sent="本波兑现完毕、转暗态候二段；价格再起达门槛将重新点亮。")
     if status == "failed":
         dd = m_dd.group(1) if m_dd else None
         d = (f"{days}日 · 回撤{dd}%" if days and dd else "已证伪")
@@ -329,6 +334,8 @@ def gather(date_cap=None):
         sigs_d = []
         for r in rows:
             status = r[6] or "no_data"
+            if status == "dormant":
+                continue   # 案2：暗态不渲染主栏，仅计入暗态计数（D["dormant_n"]）
             desc = (r[7] or "").replace("发现", "出现")   # 文案去内部化
             sigs_d.append(dict(
                 chain=r[0] or r[1], node=r[1], stype=r[2] or "", conf=r[3],
@@ -338,6 +345,13 @@ def gather(date_cap=None):
         ytdays.append({"date": sd, "sigs": sigs_d})
     D["ytdays"] = ytdays
 
+    # 案2 暗态计数（已兑现·候二段，不渲染主栏/台账，仅留入口）
+    try:
+        D["dormant_n"] = rc.execute(
+            "SELECT COUNT(*) FROM yuantu_buy_signals WHERE gap_status='dormant'").fetchone()[0]
+    except Exception:
+        D["dormant_n"] = 0
+
     # ── 在途未兑现台账：所有 open/closing 渊图信号（不受 top-3 时间窗限制）──
     # 补全展示：被主栏时间窗吞掉但状态仍在途的信号；同产业链取最近一条去重，
     # 排除已在主栏 top-3 窗口的信号日，标注"停跟天数"（data_day − 信号日）。
@@ -345,7 +359,8 @@ def gather(date_cap=None):
     seen_chains, inflight = set(), []
     for r in rc.execute(
             "SELECT date, industry_chain, signal_node, signal_type, yuantu_confidence, "
-            "beneficiaries, xiaobao_echo, gap_status, gap_desc, etf_anchor, excess_cum "
+            "beneficiaries, xiaobao_echo, gap_status, gap_desc, etf_anchor, excess_cum, "
+            "date_realized, direction, direction_flip_date "
             "FROM yuantu_buy_signals WHERE length(date)=10 "
             "AND gap_status IN ('open','closing') ORDER BY date DESC"):
         chain = r[1] or r[2]
@@ -361,13 +376,22 @@ def gather(date_cap=None):
                    - datetime.date.fromisoformat(r[0])).days
         except Exception:
             lag = None
+        # 进入趋势天数 = data_day − date_realized（价格触发/streak首日）；open 无则 None
+        try:
+            trend_lag = (datetime.date.fromisoformat(iso(data_day))
+                         - datetime.date.fromisoformat(iso(r[11]))).days if r[11] else None
+        except Exception:
+            trend_lag = None
         inflight.append(dict(
             date=r[0], chain=chain, node=r[2], stype=r[3] or "", conf=r[4] or 0,
             bene=r[5] or "", echo=bool(r[6]), status=status, desc=desc,
-            theme=(r[9] or "").split("/")[0], lag=lag,
+            theme=(r[9] or "").split("/")[0], lag=lag, trend_lag=trend_lag,
+            date_realized=r[11] or "", direction=r[12] or "多", flip_date=r[13] or "",
             fulfill=fulfill_of(status, desc, r[10])))
     inflight.sort(key=lambda x: (x["lag"] if x["lag"] is not None else -1), reverse=True)
-    D["inflight"] = inflight
+    # 方向分治（2026-06-25）：多头进正向台账；空头(卖出/买入转卖出)入风险提示、不正向追踪
+    D["inflight"] = [g for g in inflight if g.get("direction") != "空"]
+    D["inflight_risk"] = [g for g in inflight if g.get("direction") == "空"]
 
     # 课件信号（第二印证源，页面弱化为「课件信号」）：仅最新一批
     sd = rc.execute("SELECT MAX(date) FROM industry_signals WHERE etf_anchor!='' "
@@ -590,7 +614,8 @@ td{padding:8px 11px;border-bottom:1px solid var(--border-soft);font-family:var(-
 td.tname,td.desc,td.kw{font-family:var(--zh)}
 .tname{font-weight:600;font-size:14px} .desc{color:var(--sub);font-size:12px;max-width:300px;line-height:1.5}
 .tag{font-size:11px;padding:1px 7px;border-radius:9px;background:#ebe6db;color:var(--sub)}
-.t-closing{background:#f0e6cf;color:var(--gold)} .t-open{background:var(--brand-tint);color:var(--acc)} .t-closed{background:#ebe6db}
+.t-closing{background:#f0e6cf;color:var(--gold)} .t-open{background:var(--brand-tint);color:var(--acc)} .t-closed{background:#ebe6db} .t-dormant{background:#e7e2d6;color:var(--sub)}
+.dormant-note{margin:2px 0 16px;padding:9px 13px;border-radius:12px;background:var(--panel);border:1px dashed var(--line);color:var(--sub);font-size:12px}
 .ledger-wrap{margin:8px 0 14px}
 .ledger-h{font-size:14px;font-weight:600;color:var(--tx);margin:12px 0 8px}
 .ledger-h .sub{font-weight:400}
@@ -1064,14 +1089,18 @@ def render(D):
         echo = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if g["echo"]
                 else '<span class="tag">小鲍未提及</span>')
         fl = g["fulfill"]
-        lag = f"停跟 {g['lag']} 天" if g["lag"] is not None else "停跟 —"
+        buy_lag = f"产业信号买入：{g['lag']} 天" if g["lag"] is not None else "产业信号买入：—"
+        trend_lag = (f"进入趋势：{g['trend_lag']} 天" if g.get("trend_lag") is not None
+                     else "进入趋势：未触发")
         ledger_rows += f"""
 <div class="ledger-row glass" style="--sc:{sc}" onclick="openModal('{gid}')">
  <span class="lg-dot"></span>
  <span class="lg-chain">{g["chain"]}</span>
- <span class="lg-meta">{g["theme"] or "—"} ｜ {zh} ｜ 信号日 {g["date"]} ｜ {lag}</span>
+ <span class="lg-meta">{g["theme"] or "—"} ｜ {zh} ｜ 信号日 {g["date"]} ｜ {buy_lag} ｜ {trend_lag}</span>
  <template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["chain"]}
    <span class="sub">信号时间 {g["date"]} ｜ {stype} ｜ 渊图置信度 {g["conf"]:.2f}</span></div>
+  <div><span class="dk">兑现节奏</span><span class="tag">{buy_lag}</span> <span class="tag">{trend_lag}</span>
+    <span class="sub">（买入＝数据日−信号日；进入趋势＝数据日−价格触发起点 date_realized）</span></div>
   <div><span class="dk">兑现状态</span><span class="tag t-{g["status"]}">{zh}</span>
     <span class="desc">{g["desc"] or ""}</span></div>
   <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span>
@@ -1083,10 +1112,40 @@ def render(D):
     n_inflight = len(D["inflight"])
     ledger_html = (f"""
 <div class="ledger-wrap" id="sec-ledger">
- <div class="ledger-h">在途未兑现台账 <span class="sub">{n_inflight} 条 open/closing 信号（不受 top-3 时间窗限制；同链取最近，按停跟降序，点行看二级卡）</span></div>
+ <div class="ledger-h">在途未兑现台账 <span class="sub">{n_inflight} 条 open/closing 信号（不受 top-3 时间窗限制；同链取最近，按产业信号买入天数降序，点行看二级卡）</span></div>
  {ledger_rows}
 </div>""" if n_inflight else """
 <div class="ledger-wrap" id="sec-ledger"><div class="ledger-h">在途未兑现台账 <span class="sub">当前无窗外在途信号</span></div></div>""")
+
+    # ── 空头风险提示（direction=空 · 卖出/买入转卖出 · 利空逻辑 · 不正向追踪、不计进入趋势）──
+    risk = D.get("inflight_risk", [])
+    if risk:
+        rrows = ""
+        for g in risk:
+            sc = THEME_COLOR.get(g["theme"], "#d9534f")
+            stopped = "已停跟" in (g["desc"] or "")
+            badge = "🛑 已停跟(绝对回撤≥5pp)" if stopped else "⚠️ 空头风险·观察中"
+            flip = f" ｜ 转卖出日 {iso(g['flip_date'])}" if g.get("flip_date") else ""
+            rstype = "·".join(TYPE_ZH.get(x.strip(), x.strip())
+                              for x in g["stype"].split(",")) if g.get("stype") else ""
+            rstype_seg = f"{rstype} ｜ " if rstype else ""
+            rrows += f"""
+<div class="ledger-row glass" style="--sc:{sc}">
+ <span class="lg-dot" style="background:#d9534f"></span>
+ <span class="lg-chain">{g["chain"]}</span>
+ <span class="lg-meta">{g["theme"] or "—"} ｜ {rstype_seg}<b style="color:#ff6b6b">产业信号：卖出</b> ｜ {badge} ｜ 信号日 {g["date"]}{flip}</span>
+</div>"""
+        ledger_html += f"""
+<div class="ledger-wrap" id="sec-risk" style="margin-top:14px">
+ <div class="ledger-h" style="color:#ff8080">⚠️ 空头风险提示 <span class="sub">{len(risk)} 条 direction=空（卖出/买入转卖出 · 利空逻辑 · 不正向追踪、不计进入趋势）</span></div>
+ {rrows}
+</div>"""
+
+    # 案2 暗态计数入口（不渲染暗态线本身，仅给一个可感知的入口）
+    _dn = D.get("dormant_n", 0)
+    dormant_html = (
+        f'<div class="dormant-note">🌙 暗态 {_dn} 条（已兑现·候二段 · 不在主栏/台账展示；价格再起达门槛 Y′=4日/回升5pp 自动点亮回二段）</div>'
+        if _dn else "")
 
     # ── 课件信号（第二印证，弱化为「课件信号」）──
     xb_html = ""
@@ -1172,6 +1231,7 @@ def render(D):
 {gap_chain}
 {sig_html}
 {ledger_html}
+{dormant_html}
 {xb_html}
 
 <h2 id="sec-opp">四 · 机会提示 <span class="vintage">候选观察方向，非投资建议</span></h2>

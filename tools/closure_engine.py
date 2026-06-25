@@ -33,6 +33,10 @@ from fetch_theme_etf import THEME_ETF, BENCHMARK
 Y_STREAK = 3        # open→closing：连续超额为正天数
 X_PEAK = 0.05       # closed 前提：累计超额峰值下限
 DD_ABS = 0.05       # closing→closed：绝对回撤 5pp
+# 案2（2026-06-24 Doctor 批 · Phase1 价格层）：closed 不终止 → dormant（暗态），价格再起则点亮回 closing（二段）。
+# 值由回测扫参定（docs/兑现回测_案二点亮扫参_20260624.md，Y′=4 拐点压伪点亮、Z 影响小取中性 5pp）。
+RELIGHT_STREAK = 4      # 点亮 Y′：暗态期连续超额为正天数
+RELIGHT_REBOUND = 0.05  # 点亮 Z：自暗态低点累计回升 ≥ 5pp
 WINDOW = 120        # 信号后观察窗口（交易日）
 
 # ── sector_alias canonical → THEME_ETF 键 ────────────────────────
@@ -137,39 +141,70 @@ def load_excess(md):
 
 
 def run_machine(ex, dates, disc):
-    """状态机：返回 dict(gap_status, date_realized, excess_cum/peak, closed_date, gap_desc)"""
+    """状态机 v2（案2 · 2026-06-24）：close 不再终止 → 转 dormant（暗态）；暗态期价格再起
+    （连续超额为正 ≥ RELIGHT_STREAK 日 且 自暗态低点累计回升 ≥ RELIGHT_REBOUND）→ 点亮回
+    closing（二段），可多轮。首腿 open→closing→首次 close 与旧引擎完全一致（leg_peak 首腿==全程峰值）。
+    返回 gap_status ∈ {open, closing, dormant}；dormant 取代旧 closed 终态（已兑现完毕·暗态候二段）。"""
     ds = [d for d in dates if d > disc and d in ex][:WINDOW]
-    cum = peak = 0.0
+    cum = peak = 0.0          # cum=全程累计超额；peak=全程峰值（headline excess_peak）
     streak = 0
-    realized = closed = None
     streak_start = None
-    seen = 0          # closed 前实际走过的交易日数
+    realized = None           # 首次启动日（open→closing）
+    state = "open"            # open / closing / dormant
+    leg_peak = 0.0            # 当前 closing 腿局部峰值（本腿 close 判定用；首腿==全程峰值）
+    closed_date = None        # 最近一次 close 日
+    dormant_since = None      # 首次进入暗态日
+    dormant_low = None        # 暗态期 cum 低点
+    pos_run = 0               # 暗态期连续超额为正天数（点亮用）
+    relit_date = None         # 最近一次点亮日
+    relit_count = 0
+    seen = 0
     for d in ds:
         seen += 1
-        cum += ex[d]
-        if ex[d] > 0:
+        x = ex[d]
+        cum += x
+        peak = max(peak, cum)
+        if x > 0:
             if streak == 0:
                 streak_start = d
             streak += 1
         else:
             streak = 0
-        if realized is None and streak >= Y_STREAK:
-            realized = streak_start
-        peak = max(peak, cum)
-        if realized and peak >= X_PEAK and (peak - cum) >= DD_ABS:
-            closed = d
-            break
-    status = "closed" if closed else ("closing" if realized else "open")
+        if state == "open":
+            leg_peak = max(leg_peak, cum)
+            if realized is None and streak >= Y_STREAK:
+                realized = streak_start
+                state = "closing"
+        elif state == "closing":
+            leg_peak = max(leg_peak, cum)
+            if leg_peak >= X_PEAK and (leg_peak - cum) >= DD_ABS:
+                closed_date = d
+                state = "dormant"
+                if dormant_since is None:
+                    dormant_since = d
+                dormant_low = cum
+                pos_run = 0
+        else:  # dormant
+            dormant_low = min(dormant_low, cum)
+            pos_run = pos_run + 1 if x > 0 else 0
+            if pos_run >= RELIGHT_STREAK and (cum - dormant_low) >= RELIGHT_REBOUND:
+                relit_date = d
+                relit_count += 1
+                state = "closing"
+                leg_peak = cum    # 新腿峰值从点亮点起，避免瞬间再 close
+    status = state
     days_run = sum(1 for d in ds[:seen] if realized and d >= realized)
     return dict(gap_status=status, date_realized=realized,
                 excess_cum=round(cum, 4), excess_peak=round(peak, 4),
-                closed_date=closed, n_days=len(ds),
-                gap_desc=describe(status, len(ds), seen, days_run, cum, peak))
+                closed_date=closed_date, dormant_since=dormant_since,
+                relit_date=relit_date, relit_count=relit_count, n_days=len(ds),
+                gap_desc=describe(status, len(ds), seen, days_run, cum, peak, relit_count))
 
 
-def describe(status, n_days, seen, days_run, cum, peak):
-    """缺口定性（人话一列，Doctor 2026-06-10 要求）"""
+def describe(status, n_days, seen, days_run, cum, peak, relit_count=0):
+    """缺口定性（人话一列，Doctor 2026-06-10 要求；2026-06-24 加 dormant/二段）"""
     pc = lambda v: f"{v*100:+.1f}%"
+    seg = "二段" if relit_count else ""
     if status == "open":
         if n_days == 0:
             return "刚发现·行情待走"
@@ -180,17 +215,19 @@ def describe(status, n_days, seen, days_run, cum, peak):
         return f"未启动（{n_days}日，累计{pc(cum)}）"
     if status == "closing":
         if days_run <= 5:
-            return f"兑现初期（启动{days_run}日，累计{pc(cum)}）"
+            return f"{seg}兑现初期（启动{days_run}日，累计{pc(cum)}）"
         if cum >= 0.10:
-            return f"主升兑现中（{days_run}日，累计{pc(cum)}，峰值{pc(peak)}）"
+            return f"{seg}主升兑现中（{days_run}日，累计{pc(cum)}，峰值{pc(peak)}）"
         if peak - cum >= 0.03:
-            return f"兑现中·回撤近警戒（峰值{pc(peak)}→现{pc(cum)}）"
-        return f"兑现进行（{days_run}日，累计{pc(cum)}）"
-    # closed
-    tail = "（窗口内走完）" if seen < n_days or seen < WINDOW else "（满窗）"
-    if cum < peak * 0.3:
-        return f"兑现完毕·深回吐（峰值{pc(peak)}→{pc(cum)}，{seen}日）已轮动{tail}"
-    return f"兑现完毕（峰值{pc(peak)}，历时{seen}日）已轮动{tail}"
+            return f"{seg}兑现中·回撤近警戒（峰值{pc(peak)}→现{pc(cum)}）"
+        return f"{seg}兑现进行（{days_run}日，累计{pc(cum)}）"
+    if status == "dormant":
+        tag = f"·已点亮{relit_count}次" if relit_count else ""
+        if cum < peak * 0.3:
+            return f"暗态·深回吐候二段（峰值{pc(peak)}→现{pc(cum)}）{tag}"
+        return f"暗态·已兑现候二段（峰值{pc(peak)}→现{pc(cum)}）{tag}"
+    # 兜底（理论不达）
+    return f"{status}（峰值{pc(peak)}，{seen}日）"
 
 
 # ── 信号装载 ─────────────────────────────────────────────────────
@@ -228,7 +265,12 @@ def load_signals(rc, which):
 APPLY_COLS = [("gap_status", "TEXT"), ("date_realized", "TEXT"),
               ("etf_anchor", "TEXT"), ("excess_cum", "REAL"),
               ("excess_peak", "REAL"), ("closed_date", "TEXT"),
-              ("gap_desc", "TEXT")]
+              ("gap_desc", "TEXT"),
+              # 案2 Phase1（2026-06-24）：暗态/点亮承载列
+              ("dormant_since", "TEXT"), ("relit_date", "TEXT"),
+              ("relit_count", "INTEGER"),
+              # 方向场（2026-06-25）：买入转卖出翻向日（direction 本身由 backfill_direction 写）
+              ("direction_flip_date", "TEXT")]
 
 
 def ensure_cols(rc, table):
@@ -272,13 +314,15 @@ def main():
             stats["no_anchor"] += 1
             out.append({**s, "theme": "", "tier": tier, "gap_status": "no_anchor",
                         "date_realized": "", "excess_cum": "", "excess_peak": "",
-                        "closed_date": "", "gap_desc": "无锚未跟踪（情绪周期类或覆盖洞）"})
+                        "closed_date": "", "gap_desc": "无锚未跟踪（情绪周期类或覆盖洞）",
+                        "dormant_since": "", "relit_date": "", "relit_count": ""})
             continue
         if not excess.get(theme):   # 锚已定义但行情未回填（如新补的大宗ETF）
             stats["no_data"] += 1
             out.append({**s, "theme": theme, "tier": tier, "gap_status": "no_data",
                         "date_realized": "", "excess_cum": "", "excess_peak": "",
-                        "closed_date": "", "gap_desc": "锚行情未回填"})
+                        "closed_date": "", "gap_desc": "锚行情未回填",
+                        "dormant_since": "", "relit_date": "", "relit_count": ""})
             continue
         r = run_machine(excess[theme], dates, s["disc"])
         stats[r["gap_status"]] += 1
@@ -289,13 +333,48 @@ def main():
         f"兑现检测_审核表_{datetime.date.today():%Y%m%d}.tsv"
     cols = ["table", "id", "label", "disc", "prec", "theme", "tier",
             "gap_status", "gap_desc", "date_realized", "excess_cum",
-            "excess_peak", "closed_date"]
+            "excess_peak", "closed_date", "dormant_since", "relit_date",
+            "relit_count"]
     with open(rpt, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=cols, delimiter="\t", extrasaction="ignore")
         w.writeheader()
         w.writerows(out)
     logger.info(f"📄 审核表 → {rpt}")
     logger.info("📊 " + " | ".join(f"{k}={v}" for k, v in sorted(stats.items())))
+
+    # ── 方向感知后处理（2026-06-25 · 仅 direction 已回填的库生效，否则降级为全多无操作）──
+    # 空头(direction=空)不正向追踪：纯卖出清进入趋势；买入转卖出记 flip_date + peak−cum≥5pp 标停跟。
+    # 多头(direction=多)完全不动（生产长头逻辑零回归）。
+    TODAY = f"{datetime.date.today():%Y%m%d}"
+    dir_map = {}
+    for tbl in ("yuantu_buy_signals", "industry_signals"):
+        try:
+            for rid, d, db_dr, db_fd in rc.execute(
+                    f"SELECT id, direction, date_realized, direction_flip_date FROM {tbl}"):
+                dir_map[(tbl, rid)] = (d, db_dr, db_fd)
+        except Exception:
+            pass  # 该库未回填 direction → 跳过，相关信号按多头默认
+    n_short_flip = n_short_pure = 0
+    for r in out:
+        d, db_dr, db_fd = dir_map.get((r["table"], r["id"]), (None, None, None))
+        r["direction_flip_date"] = db_fd or ""
+        if d != "空":
+            continue
+        if db_dr:                       # 曾被多头追踪过 → 买入转卖出
+            r["direction_flip_date"] = db_fd or TODAY
+            peak = r.get("excess_peak") or 0.0
+            cum = r.get("excess_cum") or 0.0
+            stopped = (peak - cum) >= DD_ABS
+            r["gap_desc"] = "买入转卖出·空头风险" + (
+                "·已停跟(绝对回撤≥5pp)" if stopped else "·观察中")
+            n_short_flip += 1
+        else:                           # 纯卖出 → 不写进入趋势、不正向追踪
+            r["date_realized"] = ""
+            r["direction_flip_date"] = ""
+            r["gap_desc"] = "空头风险信号·不正向追踪"
+            n_short_pure += 1
+    if dir_map:
+        logger.info(f"🧭 方向感知：买入转卖出={n_short_flip}（记flip+判停跟） 纯卖出={n_short_pure}（清进入趋势）")
 
     if args.apply:
         for table in {"industry_signals", "yuantu_buy_signals"}:
@@ -305,10 +384,15 @@ def main():
             # no_anchor 也回写——否则映射纠错后旧锚残留库中（2026-06-10 教训）
             rc.execute(
                 f"UPDATE {r['table']} SET gap_status=?, date_realized=?, etf_anchor=?,"
-                f" excess_cum=?, excess_peak=?, closed_date=?, gap_desc=? WHERE id=?",
+                f" excess_cum=?, excess_peak=?, closed_date=?, gap_desc=?,"
+                f" dormant_since=?, relit_date=?, relit_count=?, direction_flip_date=? WHERE id=?",
                 (r["gap_status"], r["date_realized"], r["theme"],
                  r["excess_cum"] or None, r["excess_peak"] or None,
-                 r["closed_date"], r["gap_desc"], r["id"]))
+                 r["closed_date"], r["gap_desc"],
+                 r.get("dormant_since") or None, r.get("relit_date") or None,
+                 r.get("relit_count") if r.get("relit_count") not in ("", None) else None,
+                 r.get("direction_flip_date") or None,
+                 r["id"]))
             n += 1
         rc.commit()
         logger.info(f"✅ 回填 {n} 条（no_anchor/坏日期未写）")
