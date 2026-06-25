@@ -62,7 +62,7 @@ def bene_html(raw, fallback):
         else:
             fin = b.get("fin") or {}
             fintxt = ("　图谱:" + "·".join(f"{k}{v}" for k, v in fin.items())) if fin else ""
-        parts.append(f'{b.get("name","")} '
+        parts.append(f'<span style="color:var(--acc,#1B365D);font-weight:600">{b.get("name","")}</span> '
                      f'<span style="font-size:.82em;opacity:.7">〔{tier}·{tw}传导〕</span>'
                      f'<span style="font-size:.82em;color:var(--gold,#caa45a)">{fintxt}</span>')
     # 悬挂缩进：整串包 inline-block，换行(<br>)的第2+只名字对齐到第1只下方(2026-06-25)
@@ -1087,7 +1087,7 @@ def render(D):
     <span class="desc">{g["desc"] or ""}</span></div>
   <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span>
     <span class="desc">{fl["sent"]}</span></div>
-  <div><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
+  <div style="margin:13px 0"><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
   <div><span class="dk">小鲍印证</span>{echo}<span class="sub">（第二源回声）</span></div>
   <div><span class="dk">图谱节点</span><span class="sub">{g["node"]}</span></div>
  </template></div>
@@ -1133,7 +1133,7 @@ def render(D):
     <span class="desc">{g["desc"] or ""}</span></div>
   <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span>
     <span class="desc">{fl["sent"]}</span></div>
-  <div><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
+  <div style="margin:13px 0"><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
   <div><span class="dk">小鲍印证</span>{echo}<span class="sub">（第二源回声）</span></div>
   <div><span class="dk">图谱节点</span><span class="sub">{g["node"]}</span></div>
  </template></div>"""
