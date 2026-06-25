@@ -43,10 +43,9 @@ ART_LAIQIN = ASSETS / "guoshu-laiqin-02-guohua-inkwash-edgefit.png"  # 《果熟
 def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d
 
 
-def bene_html(raw, fallback, ratings=None):
-    """受益标的渲染（图谱口径受益度·轻档 2026-06-25；六维分对齐 2026-06-25）：每公司带〔直接/间接·强中弱传导〕+ 财务标注（有则附、无则不显）+ 六维分（records 按名命中显·与龙头/机会卡口径对齐，未命中显『六维待评』，绝不编）。无 detail 回退名字串。"""
+def bene_html(raw, fallback):
+    """受益标的渲染（图谱口径受益度·轻档 2026-06-25；六维分对齐 2026-06-25·走大宗库口径）：每公司带〔直接/间接·强中弱传导〕+ 白泽口径（命中显纯度/弹性 + **周更六维分**，由 fl 从大宗库 business_breakdown.db 按 **ts_code** 与弹性一起取）；未命中回退渊图图谱 fin。无 detail 回退名字串。"""
     import json as _j
-    ratings = ratings or {}
     try:
         det = _j.loads(raw) if raw else []
     except Exception:
@@ -63,19 +62,11 @@ def bene_html(raw, fallback, ratings=None):
         else:
             fin = b.get("fin") or {}
             fintxt = ("　图谱:" + "·".join(f"{k}{v}" for k, v in fin.items())) if fin else ""
-        # 六维分（与龙头/机会卡口径对齐·records 按名命中显，未命中显待评·绝不编）
-        rt = ratings.get(b.get("name", ""))
-        if rt and rt.get("total") is not None:
-            sixtxt = (f'<span style="font-size:.82em;color:var(--gold,#caa45a)">'
-                      f'　六维{rt["total"]}'
-                      + (f"·{rt['rating']}" if rt.get("rating") else "") + '</span>')
-        else:
-            sixtxt = '<span style="font-size:.82em;opacity:.45">　六维待评</span>'
         parts.append(f'{b.get("name","")} '
                      f'<span style="font-size:.82em;opacity:.7">〔{tier}·{tw}传导〕</span>'
-                     f'<span style="font-size:.82em;color:var(--gold,#caa45a)">{fintxt}</span>'
-                     f'{sixtxt}')
-    return "<br>".join(parts)
+                     f'<span style="font-size:.82em;color:var(--gold,#caa45a)">{fintxt}</span>')
+    # 悬挂缩进：整串包 inline-block，换行(<br>)的第2+只名字对齐到第1只下方(2026-06-25)
+    return '<span style="display:inline-block;vertical-align:top">' + "<br>".join(parts) + "</span>"
 
 
 def kcap(amount_trillion):
@@ -1096,7 +1087,7 @@ def render(D):
     <span class="desc">{g["desc"] or ""}</span></div>
   <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span>
     <span class="desc">{fl["sent"]}</span></div>
-  <div><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene, D["_ratings"])}</span></div>
+  <div><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
   <div><span class="dk">小鲍印证</span>{echo}<span class="sub">（第二源回声）</span></div>
   <div><span class="dk">图谱节点</span><span class="sub">{g["node"]}</span></div>
  </template></div>
@@ -1137,13 +1128,12 @@ def render(D):
  <span class="lg-meta">{g["theme"] or "—"} ｜ {zh} ｜ 信号日 {g["date"]} ｜ {buy_lag} ｜ {trend_lag}</span>
  <template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["chain"]}
    <span class="sub">信号时间 {g["date"]} ｜ {stype} ｜ 渊图置信度 {g["conf"]:.2f}</span></div>
-  <div><span class="dk">兑现节奏</span><span class="tag">{buy_lag}</span> <span class="tag">{trend_lag}</span>
-    <span class="sub">（买入＝数据日−信号日；进入趋势＝数据日−价格触发起点 date_realized）</span></div>
+  <div><span class="dk">兑现节奏</span><span class="tag">{buy_lag}</span> <span class="tag">{trend_lag}</span></div>
   <div><span class="dk">兑现状态</span><span class="tag t-{g["status"]}">{zh}</span>
     <span class="desc">{g["desc"] or ""}</span></div>
   <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span>
     <span class="desc">{fl["sent"]}</span></div>
-  <div><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene, D["_ratings"])}</span></div>
+  <div><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
   <div><span class="dk">小鲍印证</span>{echo}<span class="sub">（第二源回声）</span></div>
   <div><span class="dk">图谱节点</span><span class="sub">{g["node"]}</span></div>
  </template></div>"""
