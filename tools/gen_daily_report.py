@@ -603,100 +603,81 @@ def _dir_cls(pct):
 
 
 def _intl_card(label, note, it):
-    """大卡（纳指 / 日本 / 韩国）。it=None → 诚实标缺（待回填），绝不留空冒充。"""
+    """大卡（纳指 / 日本 / 韩国）——沿用页面 .card 暖色范式。缺数→诚实「待回填」，绝不冒充。"""
+    badge = _INTL_KIND_BADGE.get(it["kind"], it["kind"]) if it else ""
     if not it or it.get("pct") is None:
-        return (f'<div class="intl-card intl-na"><div class="intl-top">'
-                f'<span class="intl-label">{label}</span><span class="intl-date">待回填</span></div>'
-                f'<div class="intl-pct"><span class="na">—</span></div>'
-                f'<div class="intl-note">{note}</div></div>')
+        return (f'<div class="card intl-card"><div class="k">{label}'
+                f'<span class="intl-badge">待回填</span></div>'
+                f'<div class="v"><span class="na">—</span></div>'
+                f'<div class="sub">{note}</div></div>')
     pct = it["pct"]
-    arrow = "▲" if pct > 0 else ("▼" if pct < 0 else "—")
-    badge = _INTL_KIND_BADGE.get(it["kind"], it["kind"])
     close = f'{it["close"]:,.2f}' if it.get("close") is not None else "—"
     shown_note = it.get("note") or note   # DB 内随源记的 note 优先（生产 QQQ/EWJ 时如实显示）
     return (
-        f'<div class="intl-card {_dir_cls(pct)}">'
-        f'<div class="intl-top"><span class="intl-label">{label}</span>'
+        f'<div class="card intl-card"><div class="k">{label}'
         f'<span class="intl-badge">{badge}</span></div>'
-        f'<div class="intl-pctrow"><span class="intl-arrow">{arrow}</span>'
-        f'<span class="intl-pct">{pct_span(pct)}</span></div>'
-        f'<div class="intl-meta"><span class="intl-close">收 {close}</span>'
-        f'<span class="intl-date">{iso(it["date"])} · {it["symbol"]}</span></div>'
-        f'<div class="intl-note">{shown_note}</div></div>')
+        f'<div class="v">{pct_span(pct)}</div>'
+        f'<div class="mt">收 {close} ｜ {iso(it["date"])} ｜ {it["symbol"]}</div>'
+        f'<div class="sub">{shown_note}</div></div>')
 
 
-def _intl_chip(name, note, it):
-    """美股代表股小卡。it=None → 待回填。"""
+def _intl_stk(name, note, it):
+    """美股代表股小卡——暖色 token 瓦片，与 .card 同语言。缺数→待回填。"""
     if not it or it.get("pct") is None:
-        return (f'<div class="intl-chip flat intl-na"><div class="nm">{name}</div>'
+        return (f'<div class="intl-stk"><div class="nm">{name}</div>'
                 f'<div class="pc"><span class="na">—</span></div>'
                 f'<div class="mt">待回填 · {note}</div></div>')
     pct = it["pct"]
     close = f'{it["close"]:,.2f}' if it.get("close") is not None else "—"
     shown_note = it.get("note") or note
-    return (f'<div class="intl-chip {_dir_cls(pct)}"><div class="nm">{name}'
+    return (f'<div class="intl-stk"><div class="nm">{name}'
             f'<span class="sy">{it["symbol"]}</span></div>'
             f'<div class="pc">{pct_span(pct)}</div>'
             f'<div class="mt">{close} · {shown_note}</div></div>')
 
 
 def intl_section(D):
-    """外盘栏目 HTML（两栏：美股左 / 亚洲右；自带 scoped 样式，少改主 CSS）。"""
+    """外盘栏目 HTML（两栏：美股左 / 亚洲右）——全沿用页面暖色范式（.card/.chip 体系、token 配色、宋体数字）。"""
     intl = D.get("intl") or {}
     expected = [INTL_US_INDEX[0]] + [s[0] for s in INTL_US_STOCKS] + [a[0] for a in INTL_ASIA]
     have = sum(1 for c in expected if intl.get(c))
-    vint = (f'{have}/{len(expected)} 已取 · yfinance' if have else '待回填 · yfinance')
+    vint = (f'{have}/{len(expected)} 已取' if have else '待回填')
 
     nasdaq = _intl_card(INTL_US_INDEX[1], INTL_US_INDEX[2], intl.get(INTL_US_INDEX[0]))
-    chips = "".join(_intl_chip(nm, note, intl.get(code)) for code, nm, note in INTL_US_STOCKS)
+    stks = "".join(_intl_stk(nm, note, intl.get(code)) for code, nm, note in INTL_US_STOCKS)
     asia = "".join(_intl_card(label, note, intl.get(code)) for code, label, note in INTL_ASIA)
 
     style = (
         "<style>"
-        ".intl-wrap{margin:18px 0 26px}"
-        ".intl-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}"
+        ".intl-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;margin-top:6px}"
         "@media(max-width:760px){.intl-cols{grid-template-columns:1fr}}"
-        ".intl-colhd{font-size:12px;color:#9aa6cf;letter-spacing:1.2px;font-weight:600;"
-        "margin:0 0 10px;display:flex;align-items:center;gap:7px}"
-        ".intl-colhd::before{content:'';width:14px;height:2px;background:#5b6a9e}"
-        ".intl-card{position:relative;padding:14px 15px 12px;border-radius:14px;margin-bottom:12px;"
-        "background:linear-gradient(160deg,rgba(28,34,54,.86),rgba(18,22,38,.92));"
-        "border:1px solid rgba(120,140,200,.16);box-shadow:0 6px 18px rgba(0,0,0,.25);overflow:hidden}"
-        ".intl-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#46506e}"
-        ".intl-card.up::before{background:#ff5d5d}.intl-card.dn::before{background:#3ddc97}"
-        ".intl-card.flat::before,.intl-na::before{background:#46506e}.intl-na{opacity:.6}"
-        ".intl-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}"
-        ".intl-label{font-size:15px;font-weight:650;color:#e9edff;letter-spacing:.5px}"
-        ".intl-badge{font-size:10.5px;color:#aeb8de;background:rgba(120,140,200,.14);"
-        "padding:2px 8px;border-radius:999px;white-space:nowrap}"
-        ".intl-pctrow{display:flex;align-items:baseline;gap:6px;margin:8px 0 5px}"
-        ".intl-arrow{font-size:12px}.up .intl-arrow{color:#ff5d5d}"
-        ".dn .intl-arrow{color:#3ddc97}.flat .intl-arrow{color:#8893b8}"
-        ".intl-pct{font-size:24px;font-weight:740}"
-        ".intl-pct .up,.intl-chip .up{color:#ff5d5d}.intl-pct .dn,.intl-chip .dn{color:#3ddc97}"
-        ".intl-meta{display:flex;justify-content:space-between;gap:8px;font-size:11px;"
-        "color:#8c96bb;margin-bottom:6px}"
-        ".intl-note{font-size:11px;line-height:1.5;color:#7b85a8}"
-        ".intl-chips{display:grid;grid-template-columns:1fr 1fr;gap:9px}"
-        ".intl-chip{position:relative;padding:9px 11px;border-radius:11px;overflow:hidden;"
-        "background:rgba(22,27,46,.72);border:1px solid rgba(120,140,200,.12)}"
-        ".intl-chip::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2.5px;background:#46506e}"
-        ".intl-chip.up::before{background:#ff5d5d}.intl-chip.dn::before{background:#3ddc97}"
-        ".intl-chip .nm{font-size:12.5px;color:#dfe4f5;font-weight:600;display:flex;"
-        "justify-content:space-between;align-items:baseline;gap:6px}"
-        ".intl-chip .sy{font-size:9.5px;color:#7884ad;font-weight:400}"
-        ".intl-chip .pc{font-size:17px;font-weight:720;margin:3px 0 2px}"
-        ".intl-chip .mt{font-size:10px;color:#79829f;line-height:1.4}"
+        ".intl-colhd{color:var(--sub);font-size:11.5px;letter-spacing:1px;font-weight:600;margin:2px 0 9px}"
+        ".intl-card{margin-bottom:10px}"
+        ".intl-card .k{display:flex;align-items:baseline;gap:7px}"
+        ".intl-card .v{font-size:25px;margin-top:3px}"
+        ".intl-card .mt{color:var(--sub);font-size:11px;margin-top:4px;"
+        "font-family:var(--num);font-variant-numeric:tabular-nums}"
+        ".intl-badge{font-size:10px;font-weight:400;color:#6b6a64;background:#fbf8ef;"
+        "border:1px solid var(--line);border-radius:999px;padding:2px 8px;letter-spacing:0;white-space:nowrap}"
+        ".intl-stocks{display:grid;grid-template-columns:1fr 1fr;gap:8px}"
+        ".intl-stk{background:var(--card);border:1px solid var(--line);border-radius:12px;"
+        "padding:8px 10px;box-shadow:var(--whisper)}"
+        ".intl-stk .nm{font-size:12px;color:var(--tx);font-weight:600;display:flex;"
+        "justify-content:space-between;align-items:baseline;gap:5px}"
+        ".intl-stk .sy{font-size:9px;color:var(--sub);font-weight:400}"
+        ".intl-stk .pc{font-size:17px;font-weight:600;font-family:var(--num);"
+        "font-variant-numeric:tabular-nums;margin:2px 0 1px}"
+        ".intl-stk .mt{font-size:10px;color:var(--sub);line-height:1.4}"
         "</style>")
     return (
-        f'{style}<div class="intl-wrap">'
-        f'<h2 style="margin-bottom:4px">🌐 外盘 · 隔夜与期货预期 '
+        f'{style}'
+        f'<h2 style="margin-bottom:4px">外盘 · 隔夜与期货预期 '
         f'<span class="vintage">A股开盘前的外部定价背景（AI/科技硬件链）· 各市场按自身最新交易日 · {vint}</span></h2>'
         f'<div class="intl-cols">'
-        f'<div class="intl-col"><div class="intl-colhd">美股 · 隔夜回望</div>{nasdaq}'
-        f'<div class="intl-chips">{chips}</div></div>'
-        f'<div class="intl-col"><div class="intl-colhd">亚洲 · 期货预期</div>{asia}</div>'
-        f'</div></div>')
+        f'<div><div class="intl-colhd">美股 · 隔夜回望</div>{nasdaq}'
+        f'<div class="intl-stocks">{stks}</div></div>'
+        f'<div><div class="intl-colhd">亚洲 · 期货预期</div>{asia}</div>'
+        f'</div>')
 
 
 def _font_face():
