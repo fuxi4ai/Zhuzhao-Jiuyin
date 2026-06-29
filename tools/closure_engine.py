@@ -31,7 +31,7 @@ from fetch_theme_etf import THEME_ETF, BENCHMARK
 
 # ── 口径常量（Doctor 2026-06-10 拍板）─────────────────────────────
 Y_STREAK = 3        # open→closing：连续超额为正天数
-X_PEAK = 0.05       # closed 前提：累计超额峰值下限
+X_PEAK = 0.05       # 【弃用 2026-06-29】曾为 closing→dormant 的峰值下限门槛，回测后去除（低幅信号被困死）；常量留作历史/勿引用
 DD_ABS = 0.05       # closing→closed：绝对回撤 5pp
 # 案2（2026-06-24 Doctor 批 · Phase1 价格层）：closed 不终止 → dormant（暗态），价格再起则点亮回 closing（二段）。
 # 值由回测扫参定（docs/兑现回测_案二点亮扫参_20260624.md，Y′=4 拐点压伪点亮、Z 影响小取中性 5pp）。
@@ -143,8 +143,9 @@ def load_excess(md):
 def run_machine(ex, dates, disc):
     """状态机 v2（案2 · 2026-06-24）：close 不再终止 → 转 dormant（暗态）；暗态期价格再起
     （连续超额为正 ≥ RELIGHT_STREAK 日 且 自暗态低点累计回升 ≥ RELIGHT_REBOUND）→ 点亮回
-    closing（二段），可多轮。首腿 open→closing→首次 close 与旧引擎完全一致（leg_peak 首腿==全程峰值）。
-    返回 gap_status ∈ {open, closing, dormant}；dormant 取代旧 closed 终态（已兑现完毕·暗态候二段）。"""
+    closing（二段），可多轮。（2026-06-29 起 closing→dormant 去掉 leg_peak>=X_PEAK 幅度门槛，
+    仅凭绝对回撤 5pp 转 dormant：低幅信号不再被困死在 closing；回测证其点亮质量≈高幅，无需特殊处置。）
+    返回 gap_status ∈ {open, closing, dormant}；dormant 取代旧 closed 终态（暗态候二段，含低幅）。"""
     ds = [d for d in dates if d > disc and d in ex][:WINDOW]
     cum = peak = 0.0          # cum=全程累计超额；peak=全程峰值（headline excess_peak）
     streak = 0
@@ -177,7 +178,9 @@ def run_machine(ex, dates, disc):
                 state = "closing"
         elif state == "closing":
             leg_peak = max(leg_peak, cum)
-            if leg_peak >= X_PEAK and (leg_peak - cum) >= DD_ABS:
+            # 2026-06-29：去掉 leg_peak>=X_PEAK 幅度门槛（回测背书·见 docs/兑现回测_去门槛_20260629）。
+            # 低幅信号(峰值<5%)曾因此门槛永困 closing 流血；去后仅凭 5pp 绝对回撤即转 dormant。
+            if (leg_peak - cum) >= DD_ABS:
                 closed_date = d
                 state = "dormant"
                 if dormant_since is None:
