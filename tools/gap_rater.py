@@ -96,6 +96,9 @@ def main():
         rc.execute("UPDATE industry_signals SET gap_level_src='manual_九儿' "
                    "WHERE info_gap_level IS NOT NULL")
         logger.info("  + gap_level_src 列（manual_九儿 / auto_v1 溯源）")
+    if "gap_raw" not in have:
+        rc.execute("ALTER TABLE industry_signals ADD COLUMN gap_raw REAL")
+        logger.info("  + gap_raw 列（连续信息差原始分·同级细排 tiebreaker）")
     rows = rc.execute("SELECT id, keyword||' '||COALESCE(signal_content,'') "
                       "FROM industry_signals WHERE info_gap_level IS NULL").fetchall()
     n = 0
@@ -104,8 +107,16 @@ def main():
         rc.execute("UPDATE industry_signals SET info_gap_level=?, gap_level_src='auto_v1' "
                    "WHERE id=?", (lvl, sid))
         n += 1
+    # 连续 gap_raw 回填（含 manual + auto；只补 NULL，不动 info_gap_level / 溯源）
+    rawrows = rc.execute("SELECT id, keyword||' '||COALESCE(signal_content,'') "
+                         "FROM industry_signals WHERE gap_raw IS NULL").fetchall()
+    nr = 0
+    for sid, text in rawrows:
+        _, dims = rate(text)
+        rc.execute("UPDATE industry_signals SET gap_raw=? WHERE id=?", (dims["raw"], sid))
+        nr += 1
     rc.commit()
-    logger.info(f"✅ 自动补评 {n} 条（auto_v1，与手工评分溯源隔离）")
+    logger.info(f"✅ 自动补评 info_gap_level {n} 条（auto_v1）｜gap_raw 回填 {nr} 条（连续细排）")
 
 
 if __name__ == "__main__":

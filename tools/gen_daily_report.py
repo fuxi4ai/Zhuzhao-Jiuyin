@@ -359,7 +359,7 @@ def gather(date_cap=None):
         "SELECT date, etf_anchor, keyword, info_gap_level, gap_status, gap_desc, confidence "
         "FROM industry_signals WHERE date>=? AND etf_anchor!='' "
         "AND (info_gap_level>=3 OR gap_status IN ('open','closing')) "
-        "ORDER BY date DESC, info_gap_level DESC", (cutoff,)).fetchall()
+        "ORDER BY date DESC, info_gap_level DESC, gap_raw DESC", (cutoff,)).fetchall()
     D["signals"] = [dict(date=r[0], theme=(r[1] or "").split("/")[0], kw=r[2],
                          lvl=r[3], status=r[4], desc=r[5], conf=r[6]) for r in sigs]
 
@@ -447,7 +447,7 @@ def gather(date_cap=None):
         "signal_content, confidence FROM industry_signals "
         "WHERE date=? AND etf_anchor!='' "
         "AND (info_gap_level>=3 OR gap_status IN ('open','closing')) "
-        "ORDER BY info_gap_level DESC", (sd,)).fetchall() if sd else []
+        "ORDER BY info_gap_level DESC, gap_raw DESC", (sd,)).fetchall() if sd else []
     D["sigdays"] = [{"date": (sd or ""), "sigs": [dict(
         theme=(r[0] or "").split("/")[0], theme_full=r[0], kw=r[1], lvl=r[2],
         status=r[3], desc=(r[4] or "").replace("发现", "出现"), content=r[5] or "", conf=r[6] or "")
