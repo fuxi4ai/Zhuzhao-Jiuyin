@@ -489,7 +489,10 @@ def gather(date_cap=None):
     ratings = D["_ratings"]
     opps = []
     for t in themes:
-        early = (t["sig"].get("open", 0) > 0 or "兑现初期" in (t["desc"] or "")) and t["e20"] > 0
+        # 价格信号叠加（2026-06-30 Doctor·分层）：产业逻辑买入已在上游独立成栏，本栏在其上叠价格确认。
+        # 两层——中期趋势没坏 e20≥0（不接飞刀，与锚侧 ex20 同 20 日窗）+ 短期正在启动 e5>0（新鲜点火）。
+        early = ((t["sig"].get("open", 0) > 0 or "兑现初期" in (t["desc"] or ""))
+                 and t["e20"] >= 0 and t["e5"] > 0)
         anchor_ok = not (t["us"] and t["us"]["kind"] == "echo" and t["us"]["ex20"] < -10)
         if early and anchor_ok and D["capacity"]["state"] in ("有空位", "虹吸", "满载"):
             tg = rc.execute("SELECT DISTINCT target FROM industry_signals WHERE etf_anchor=? "
@@ -501,7 +504,7 @@ def gather(date_cap=None):
                     n = n.strip()
                     if n and len(names) < 6:
                         names.append({"name": n, **ratings.get(n, {})})
-            opps.append({"theme": t["short"], "e20": t["e20"], "desc": t["desc"],
+            opps.append({"theme": t["short"], "e20": t["e20"], "e5": t["e5"], "desc": t["desc"],
                          "targets": names,
                          "note": "容量" + (D["capacity"]["state"] or "未知")})
     D["opps"] = opps[:4]
@@ -1490,10 +1493,10 @@ def render(D):
             + (f'<em>{x["total"]}·{x["rating"]}</em>' if x.get("total") else "<em>未评分</em>")
             + "</span>" for x in o["targets"]) or '<span class="na">信号无标的字段</span>'
         opp_html += (f'<div class="opp"><div class="opp-h">{o["theme"]} '
-                     f'<span class="sub">20日超额 {o["e20"]:+.1f}% · {o["note"]}</span></div>'
+                     f'<span class="sub">5日 {o.get("e5", 0):+.1f}% · 20日 {o["e20"]:+.1f}% · {o["note"]}</span></div>'
                      f'<div class="opp-d">{o["desc"] or ""}</div><div class="chips">{tg}</div></div>')
     if not opp_html:
-        opp_html = '<div class="na">当日无满足三条件（兑现早期×容量×锚不背离）的机会——诚实空仓提示</div>'
+        opp_html = '<div class="na">当日无满足条件（兑现早期×价格启动〔20日未坏+5日转正〕×容量×锚不背离）的机会——诚实空仓提示</div>'
 
     risk_html = "".join(f'<div class="risk r-{r["lvl"]}">{"🔴" if r["lvl"]=="红" else "🟡"} {r["txt"]}</div>'
                         for r in D["risks"]) or '<div class="na">无自动风险命中</div>'
