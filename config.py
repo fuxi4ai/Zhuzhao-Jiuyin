@@ -23,6 +23,7 @@
     ENV_FILE       Database/.env（TUSHARE_TOKEN / FRED_API_KEY）
 """
 import os
+import sqlite3
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -77,6 +78,19 @@ def load_env(path: str = None) -> dict:
             parsed[k] = v
             os.environ.setdefault(k, v)
     return parsed
+
+
+def connect_write(db_path, **kw):
+    """写连接中央护栏（硬拒绝）：路径落在沙箱挂载盘且未显式放行则拒写。
+    Mac 原生路径(/Users/...)正常放行；沙箱内请设 ZZJY_DATABASE_ROOT=/tmp/dbroot
+    走 /tmp 副本往返后整文件 cp 回。（GOTCHAS G019 · recap 反复损坏 2026-06-29）"""
+    s = str(Path(db_path).resolve())
+    if (("/sessions/" in s) or ("/mnt/" in s)) and not os.environ.get("ZZJY_ALLOW_MOUNT_WRITE"):
+        raise RuntimeError(
+            f"[connect_write] 拒绝直写挂载盘真盘: {db_path}\n"
+            "  → 设 ZZJY_DATABASE_ROOT=/tmp/dbroot 走 /tmp 副本往返后整文件 cp 回；\n"
+            "  → 或仅 Mac 原生终端显式 ZZJY_ALLOW_MOUNT_WRITE=1。（GOTCHAS G019）")
+    return sqlite3.connect(db_path, **kw)
 
 
 if __name__ == "__main__":

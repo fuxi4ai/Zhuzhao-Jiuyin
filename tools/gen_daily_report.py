@@ -38,7 +38,7 @@ RECORDS = config.PROJECT_ROOT.parents[3] / "Database" / "龙鱼-标的分析库"
 ASSETS = config.PROJECT_ROOT / "assets"
 FONT_SEASONS = ASSETS / "zikutang-shike-seasons.ttf"          # 字酷堂石刻体子集（春夏秋冬）
 # ART_LAIQIN = ASSETS / "guoshu-laiqin-03-guohua-inkwash-edgefit-h1000.webp"  # 旧《果熟来禽图》水墨版（2026-06-29 弃用，保留可回退）
-ART_LAIQIN = ASSETS / "guoshu-laiqin-04-birdberry-h1000.webp"  # 鸟果新标题图（边界抠透明·保鸟身·h1000 WebP，2026-06-29 换）
+ART_LAIQIN = ASSETS / "guoshu-laiqin-04-birdberry-h1000.png"  # 鸟果新标题图（2026-06-29 Doctor 换为 PNG 版，旧 .webp 已替换）
 ECHARTS_JS = ASSETS / "echarts.min.js"                        # ECharts 本地副本（Cowork 沙箱须内联，详见 _echarts_inline）
 ARTIFACT_PATH = config.PROJECT_ROOT.parents[3] / "Claude" / "Artifacts" / "zhuzhao-jiuyin-daily" / "index.html"  # Cowork artifact 部署目标（重渲即部署）
 
@@ -176,7 +176,7 @@ def gather(date_cap=None):
 
     # ── 周期与情绪（emotion_cycle v2） ──
     em_rows = rc.execute("SELECT date, emotion_score, emotion_season, risk_appetite, cycle_no, "
-                         "limit_up, limit_down FROM emotion_cycle "
+                         "limit_up, limit_down, jinji, premium, height FROM emotion_cycle "
                          "WHERE emotion_score IS NOT NULL AND date<=? "
                          "ORDER BY date DESC LIMIT 60", (iso(data_day),)).fetchall()[::-1]
     em_last = em_rows[-1]
@@ -191,6 +191,7 @@ def gather(date_cap=None):
         "date": em_last[0], "score": em_last[1], "season": em_last[2],
         "risk": em_last[3], "cycle_no": em_last[4],
         "limit_up": em_last[5], "limit_down": em_last[6],
+        "jinji": em_last[7], "premium": em_last[8], "height": em_last[9],
         "ma5": ma5[-1], "pct_rank": pct_rank, "trend": trend,
     }
 
@@ -1126,10 +1127,12 @@ def render(D):
 
     # ── 情绪评分卡（含判分依据）+ 容量仪表 ──
     chips = [
-        "晋级率",
+        (f"晋级率 {em['jinji']:.0f}%" if em.get("jinji") is not None else "晋级率"),
         (f"涨停 {em['limit_up']}" if em.get("limit_up") is not None else "涨停数"),
         (f"跌停 {em['limit_down']}" if em.get("limit_down") is not None else "跌停数"),
-        "涨跌比", "主线宽度 K_day", "成交额 5 日变化", "涨停次日溢价", "连板高度",
+        "涨跌比", "主线宽度 K_day", "成交额 5 日变化",
+        (f"涨停次日溢价 {em['premium']:+.1f}%" if em.get("premium") is not None else "涨停次日溢价"),
+        (f"连板高度 {em['height']}" if em.get("height") is not None else "连板高度"),
     ]
     chips_html = "".join(f"<span>{c}</span>" for c in chips)
     em_series = json.dumps(em["series"], ensure_ascii=False)

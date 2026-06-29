@@ -154,7 +154,8 @@ def compute(md, w_jinji=1.0, pct_win=PCT_WIN):
         out.append(dict(date=d, score=round(score, 1), used=used,
                         confidence=round(used / len(COMPONENTS), 2),
                         limit_up=ind[d].get("limit_up"), limit_down=ind[d].get("limit_down"),
-                        jinji=ind[d].get("jinji")))
+                        jinji=ind[d].get("jinji"),
+                        premium=ind[d].get("premium"), height=ind[d].get("height")))
     # 趋势 + 单向季节状态机（Doctor 2026-06-10 四次对齐：春夏秋冬单向前进，倒退=报错修正）
     ks = [r["date"] for r in out]
     sc = [r["score"] for r in out]
@@ -341,23 +342,31 @@ def main():
         if "cycle_no" not in have:
             rc.execute("ALTER TABLE emotion_cycle ADD COLUMN cycle_no INTEGER")
             logger.info("  + emotion_cycle.cycle_no INTEGER（单向状态机周期编号）")
+        for _col, _typ in (("jinji", "REAL"), ("premium", "REAL"), ("height", "INTEGER")):
+            if _col not in have:
+                rc.execute(f"ALTER TABLE emotion_cycle ADD COLUMN {_col} {_typ}")
+                logger.info(f"  + emotion_cycle.{_col} {_typ}（情绪变量落库·供日报 chip）")
         n = 0
         for r in out:
             iso = f"{r['date'][:4]}-{r['date'][4:6]}-{r['date'][6:]}"
             rc.execute(
                 "INSERT INTO emotion_cycle(date, limit_up, limit_down, emotion_score,"
-                " emotion_season, risk_appetite, position_suggestion, cycle_no, updated_at)"
-                " VALUES (?,?,?,?,?,?,?,?,datetime('now'))"
+                " emotion_season, risk_appetite, position_suggestion, cycle_no,"
+                " jinji, premium, height, updated_at)"
+                " VALUES (?,?,?,?,?,?,?,?,?,?,?,datetime('now'))"
                 " ON CONFLICT(date) DO UPDATE SET limit_up=excluded.limit_up,"
                 " limit_down=excluded.limit_down, emotion_score=excluded.emotion_score,"
                 " emotion_season=excluded.emotion_season,"
                 " risk_appetite=excluded.risk_appetite,"
                 " position_suggestion=excluded.position_suggestion,"
-                " cycle_no=excluded.cycle_no, updated_at=datetime('now')",
+                " cycle_no=excluded.cycle_no,"
+                " jinji=excluded.jinji, premium=excluded.premium, height=excluded.height,"
+                " updated_at=datetime('now')",
                 (iso, r["limit_up"], r["limit_down"], r["score"],
                  r["season"] + (("·" + r["hint"]) if r["hint"] else ""),
                  {"春": "中", "夏": "高", "秋": "中", "冬": "低"}[r["season"]],
-                 None, r["cycle_no"]))   # 仓位建议归三口径并列展示，引擎不代填
+                 None, r["cycle_no"],
+                 r.get("jinji"), r.get("premium"), r.get("height")))   # 仓位建议归三口径并列展示，引擎不代填
             n += 1
         rc.commit()
         logger.info(f"✅ emotion_cycle 回填 {n} 日（季节含前瞻倾向后缀；仓位列留空=三口径并列原则）")
