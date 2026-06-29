@@ -37,7 +37,8 @@ OUT_DIR = config.PROJECT_ROOT.parents[3] / "AI4ME" / "烛照九阴-outputs"
 RECORDS = config.PROJECT_ROOT.parents[3] / "Database" / "龙鱼-标的分析库" / "records"
 ASSETS = config.PROJECT_ROOT / "assets"
 FONT_SEASONS = ASSETS / "zikutang-shike-seasons.ttf"          # 字酷堂石刻体子集（春夏秋冬）
-ART_LAIQIN = ASSETS / "guoshu-laiqin-03-guohua-inkwash-edgefit-h1000.webp"  # 《果熟来禽图》国画化（WebP·646×1000·保alpha；原 PNG 1.73MB 过大致 Cowork 渲染器丢图，2026-06-26 压到 262KB）
+# ART_LAIQIN = ASSETS / "guoshu-laiqin-03-guohua-inkwash-edgefit-h1000.webp"  # 旧《果熟来禽图》水墨版（2026-06-29 弃用，保留可回退）
+ART_LAIQIN = ASSETS / "guoshu-laiqin-04-birdberry-h1000.webp"  # 鸟果新标题图（边界抠透明·保鸟身·h1000 WebP，2026-06-29 换）
 ECHARTS_JS = ASSETS / "echarts.min.js"                        # ECharts 本地副本（Cowork 沙箱须内联，详见 _echarts_inline）
 ARTIFACT_PATH = config.PROJECT_ROOT.parents[3] / "Claude" / "Artifacts" / "zhuzhao-jiuyin-daily" / "index.html"  # Cowork artifact 部署目标（重渲即部署）
 
@@ -232,6 +233,19 @@ def gather(date_cap=None):
     except sqlite3.OperationalError:
         pass
     us_days = sorted(us.get(BENCHMARK_US, {}))
+
+    # 外盘指数（隔夜·期货预期）——每个 code 取自身最新交易日一行（缺则不返回，render 标缺）
+    intl = []
+    try:
+        for code, sym, name, kind, td, close, pct, note in md.execute(
+                "SELECT code, symbol, name, kind, trade_date, close, pct_chg, note "
+                "FROM intl_index_daily i WHERE trade_date=("
+                "  SELECT MAX(trade_date) FROM intl_index_daily j WHERE j.code=i.code)"):
+            intl.append({"code": code, "symbol": sym, "name": name, "kind": kind,
+                         "date": td, "close": close, "pct": pct, "note": note})
+    except sqlite3.OperationalError:
+        pass
+    D["intl"] = {x["code"]: x for x in intl}
 
     def us_info(theme):
         if theme not in THEME_US or not us_days:
@@ -506,6 +520,7 @@ THEME_COLOR = {  # 星云色（按资金族近似）
 }
 
 SEASON_COLOR = {"春": "#3f9c76", "夏": "#a94e3f", "秋": "#8b6f32", "冬": "#1B365D"}
+SEASON_GLOW = {"春": "47,125,99", "夏": "214,126,52", "秋": "139,111,50", "冬": "27,54,93"}  # 季节晕染 rgb（夏=橘色，与红字成双色；其余各保本季色，永不回绿）
 
 _CND = "〇一二三四五六七八九"
 
@@ -564,6 +579,124 @@ def pct_span(v, suffix="%"):
         return '<span class="na">—</span>'
     cls = "up" if v > 0 else ("dn" if v < 0 else "")
     return f'<span class="{cls}">{v:+.1f}{suffix}</span>'
+
+
+# ── 外盘栏目（隔夜·期货预期）：A股开盘前的外部定价背景 ──────────────────
+# 两栏：美股(隔夜回望)在左、亚洲(期货预期)在右。code/symbol 与 fetch_intl_index.INDICES 同步。
+INTL_US_INDEX = ("NASDAQ", "纳斯达克 · 隔夜", "美股隔夜 · 宽科技 tone")
+INTL_US_STOCKS = [   # 美股栏代表股（AI/科技硬件链）
+    ("NVDA", "英伟达",     "AI 算力"),
+    ("AVGO", "博通",       "AI 网络 / ASIC"),
+    ("LITE", "Lumentum",  "光模块 / CPO"),
+    ("SPCX", "SpaceX",    "商业航天 · 新上市"),
+]
+INTL_ASIA = [        # 亚洲栏（期货预期 · 开盘前远期）
+    ("JP_FUT",   "日本 · 股指期货",    "CME日经225 · 含半导体设备权重"),
+    ("KR_PROXY", "韩国 · 股指期货预期", "MSCI韩国(EWY) · 三星/SK海力士存储芯"),
+]
+_INTL_KIND_BADGE = {"overnight": "隔夜回望", "us_stock": "隔夜",
+                    "futures": "期货预期", "etf_proxy": "期货预期 · ETF代理"}
+
+
+def _dir_cls(pct):
+    return "up" if (pct or 0) > 0 else ("dn" if (pct or 0) < 0 else "flat")
+
+
+def _intl_card(label, note, it):
+    """大卡（纳指 / 日本 / 韩国）。it=None → 诚实标缺（待回填），绝不留空冒充。"""
+    if not it or it.get("pct") is None:
+        return (f'<div class="intl-card intl-na"><div class="intl-top">'
+                f'<span class="intl-label">{label}</span><span class="intl-date">待回填</span></div>'
+                f'<div class="intl-pct"><span class="na">—</span></div>'
+                f'<div class="intl-note">{note}</div></div>')
+    pct = it["pct"]
+    arrow = "▲" if pct > 0 else ("▼" if pct < 0 else "—")
+    badge = _INTL_KIND_BADGE.get(it["kind"], it["kind"])
+    close = f'{it["close"]:,.2f}' if it.get("close") is not None else "—"
+    shown_note = it.get("note") or note   # DB 内随源记的 note 优先（生产 QQQ/EWJ 时如实显示）
+    return (
+        f'<div class="intl-card {_dir_cls(pct)}">'
+        f'<div class="intl-top"><span class="intl-label">{label}</span>'
+        f'<span class="intl-badge">{badge}</span></div>'
+        f'<div class="intl-pctrow"><span class="intl-arrow">{arrow}</span>'
+        f'<span class="intl-pct">{pct_span(pct)}</span></div>'
+        f'<div class="intl-meta"><span class="intl-close">收 {close}</span>'
+        f'<span class="intl-date">{iso(it["date"])} · {it["symbol"]}</span></div>'
+        f'<div class="intl-note">{shown_note}</div></div>')
+
+
+def _intl_chip(name, note, it):
+    """美股代表股小卡。it=None → 待回填。"""
+    if not it or it.get("pct") is None:
+        return (f'<div class="intl-chip flat intl-na"><div class="nm">{name}</div>'
+                f'<div class="pc"><span class="na">—</span></div>'
+                f'<div class="mt">待回填 · {note}</div></div>')
+    pct = it["pct"]
+    close = f'{it["close"]:,.2f}' if it.get("close") is not None else "—"
+    shown_note = it.get("note") or note
+    return (f'<div class="intl-chip {_dir_cls(pct)}"><div class="nm">{name}'
+            f'<span class="sy">{it["symbol"]}</span></div>'
+            f'<div class="pc">{pct_span(pct)}</div>'
+            f'<div class="mt">{close} · {shown_note}</div></div>')
+
+
+def intl_section(D):
+    """外盘栏目 HTML（两栏：美股左 / 亚洲右；自带 scoped 样式，少改主 CSS）。"""
+    intl = D.get("intl") or {}
+    expected = [INTL_US_INDEX[0]] + [s[0] for s in INTL_US_STOCKS] + [a[0] for a in INTL_ASIA]
+    have = sum(1 for c in expected if intl.get(c))
+    vint = (f'{have}/{len(expected)} 已取 · yfinance' if have else '待回填 · yfinance')
+
+    nasdaq = _intl_card(INTL_US_INDEX[1], INTL_US_INDEX[2], intl.get(INTL_US_INDEX[0]))
+    chips = "".join(_intl_chip(nm, note, intl.get(code)) for code, nm, note in INTL_US_STOCKS)
+    asia = "".join(_intl_card(label, note, intl.get(code)) for code, label, note in INTL_ASIA)
+
+    style = (
+        "<style>"
+        ".intl-wrap{margin:18px 0 26px}"
+        ".intl-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}"
+        "@media(max-width:760px){.intl-cols{grid-template-columns:1fr}}"
+        ".intl-colhd{font-size:12px;color:#9aa6cf;letter-spacing:1.2px;font-weight:600;"
+        "margin:0 0 10px;display:flex;align-items:center;gap:7px}"
+        ".intl-colhd::before{content:'';width:14px;height:2px;background:#5b6a9e}"
+        ".intl-card{position:relative;padding:14px 15px 12px;border-radius:14px;margin-bottom:12px;"
+        "background:linear-gradient(160deg,rgba(28,34,54,.86),rgba(18,22,38,.92));"
+        "border:1px solid rgba(120,140,200,.16);box-shadow:0 6px 18px rgba(0,0,0,.25);overflow:hidden}"
+        ".intl-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#46506e}"
+        ".intl-card.up::before{background:#ff5d5d}.intl-card.dn::before{background:#3ddc97}"
+        ".intl-card.flat::before,.intl-na::before{background:#46506e}.intl-na{opacity:.6}"
+        ".intl-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}"
+        ".intl-label{font-size:15px;font-weight:650;color:#e9edff;letter-spacing:.5px}"
+        ".intl-badge{font-size:10.5px;color:#aeb8de;background:rgba(120,140,200,.14);"
+        "padding:2px 8px;border-radius:999px;white-space:nowrap}"
+        ".intl-pctrow{display:flex;align-items:baseline;gap:6px;margin:8px 0 5px}"
+        ".intl-arrow{font-size:12px}.up .intl-arrow{color:#ff5d5d}"
+        ".dn .intl-arrow{color:#3ddc97}.flat .intl-arrow{color:#8893b8}"
+        ".intl-pct{font-size:24px;font-weight:740}"
+        ".intl-pct .up,.intl-chip .up{color:#ff5d5d}.intl-pct .dn,.intl-chip .dn{color:#3ddc97}"
+        ".intl-meta{display:flex;justify-content:space-between;gap:8px;font-size:11px;"
+        "color:#8c96bb;margin-bottom:6px}"
+        ".intl-note{font-size:11px;line-height:1.5;color:#7b85a8}"
+        ".intl-chips{display:grid;grid-template-columns:1fr 1fr;gap:9px}"
+        ".intl-chip{position:relative;padding:9px 11px;border-radius:11px;overflow:hidden;"
+        "background:rgba(22,27,46,.72);border:1px solid rgba(120,140,200,.12)}"
+        ".intl-chip::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2.5px;background:#46506e}"
+        ".intl-chip.up::before{background:#ff5d5d}.intl-chip.dn::before{background:#3ddc97}"
+        ".intl-chip .nm{font-size:12.5px;color:#dfe4f5;font-weight:600;display:flex;"
+        "justify-content:space-between;align-items:baseline;gap:6px}"
+        ".intl-chip .sy{font-size:9.5px;color:#7884ad;font-weight:400}"
+        ".intl-chip .pc{font-size:17px;font-weight:720;margin:3px 0 2px}"
+        ".intl-chip .mt{font-size:10px;color:#79829f;line-height:1.4}"
+        "</style>")
+    return (
+        f'{style}<div class="intl-wrap">'
+        f'<h2 style="margin-bottom:4px">🌐 外盘 · 隔夜与期货预期 '
+        f'<span class="vintage">A股开盘前的外部定价背景（AI/科技硬件链）· 各市场按自身最新交易日 · {vint}</span></h2>'
+        f'<div class="intl-cols">'
+        f'<div class="intl-col"><div class="intl-colhd">美股 · 隔夜回望</div>{nasdaq}'
+        f'<div class="intl-chips">{chips}</div></div>'
+        f'<div class="intl-col"><div class="intl-colhd">亚洲 · 期货预期</div>{asia}</div>'
+        f'</div></div>')
 
 
 def _font_face():
@@ -748,13 +881,13 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .season-core{position:absolute;left:var(--season-left);top:var(--season-top);transform:translate(-50%,-50%);z-index:4;width:var(--season-width);text-align:center;padding:0;pointer-events:none}
 .season-core::before{content:"";position:absolute;left:50%;top:50%;width:var(--season-glow-width);height:var(--season-glow-height);transform:translate(-50%,-50%);
  background:
-  radial-gradient(62% 46% at 44% 48%,rgba(47,125,99,.15) 0%,rgba(47,125,99,.09) 34%,rgba(47,125,99,.035) 58%,transparent 78%),
-  radial-gradient(44% 36% at 60% 36%,rgba(47,125,99,.10) 0%,rgba(47,125,99,.045) 42%,transparent 72%),
-  radial-gradient(46% 40% at 36% 64%,rgba(47,125,99,.08) 0%,rgba(47,125,99,.035) 38%,transparent 74%);
+  radial-gradient(62% 46% at 44% 48%,rgba(__SEASON_GLOW__,.15) 0%,rgba(__SEASON_GLOW__,.09) 34%,rgba(__SEASON_GLOW__,.035) 58%,transparent 78%),
+  radial-gradient(44% 36% at 60% 36%,rgba(__SEASON_GLOW__,.10) 0%,rgba(__SEASON_GLOW__,.045) 42%,transparent 72%),
+  radial-gradient(46% 40% at 36% 64%,rgba(__SEASON_GLOW__,.08) 0%,rgba(__SEASON_GLOW__,.035) 38%,transparent 74%);
  filter:blur(10px) contrast(1.08);opacity:.92;z-index:-1;pointer-events:none}
 .season-label{font-size:12px;color:var(--sub);letter-spacing:.24em;text-transform:uppercase;margin-bottom:18px}
 .season-glyph{font-family:var(--stone) !important;font-weight:400;font-style:normal;font-synthesis:none;font-size:118px;line-height:.92;color:__SEASON_COLOR__;
- text-shadow:0 0 22px rgba(47,125,99,.24),0 0 46px rgba(47,125,99,.10),0 1px 0 rgba(255,255,255,.42),0 9px 22px rgba(20,20,19,.12);
+ text-shadow:0 0 22px rgba(__SEASON_GLOW__,.24),0 0 46px rgba(__SEASON_GLOW__,.10),0 1px 0 rgba(255,255,255,.42),0 9px 22px rgba(20,20,19,.12);
  letter-spacing:0;margin:0 auto}
 .season-sub{font-family:var(--zh);font-size:13px;color:var(--sub);margin-top:20px}
 .hero-date-vertical{position:absolute;right:28px;top:34px;bottom:34px;z-index:3;writing-mode:vertical-rl;text-orientation:mixed;
@@ -798,7 +931,7 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .glass>*{position:relative;z-index:1}
 .glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
  background:linear-gradient(180deg,rgba(255,255,255,.44),transparent 32%);mix-blend-mode:normal}
-.mcard{padding:14px 16px;cursor:pointer;overflow:hidden;transition:transform .18s,box-shadow .18s,border-color .18s}
+.mcard{padding:16px 18px;min-height:90px;cursor:pointer;overflow:hidden;transition:transform .18s,box-shadow .18s,border-color .18s}
 .mcard:hover{transform:translateY(-3px);border-color:rgba(27,54,93,.34);
  box-shadow:0 0 0 1px rgba(27,54,93,.10),0 8px 28px rgba(20,20,19,.08),inset 0 0 0 1px rgba(255,255,255,.55);
  background:linear-gradient(150deg,#fffaf1,#f0eadc 42%,#f7f3ea)}
@@ -813,9 +946,12 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
  background-repeat:repeat;background-size:__STARS_SIZE__}
 @keyframes nebDrift{from{transform:translate(-2%,-1%) scale(1)}to{transform:translate(2%,2%) scale(1.06)}}
 @keyframes twinkle{0%{opacity:.62}100%{opacity:.95}}
-.mc-h{display:flex;justify-content:space-between;align-items:baseline;font-size:16px}
-.mc-h b{font-size:17px;font-weight:700;letter-spacing:.5px}
-.mc-pct{font-family:var(--num);font-size:19px;font-weight:600}
+.mc-h{display:flex;justify-content:space-between;align-items:baseline;font-size:13px}
+.mc-h b{font-size:18px;font-weight:700;letter-spacing:.5px;color:var(--acc)}
+.mc-pct{font-family:var(--num);font-size:18px;font-weight:600}
+.mcard .sub{font-size:13.5px;margin-top:6px;line-height:1.45}
+.mcard .stars{display:none}
+.mcard .neb{animation:none;opacity:.45;filter:blur(14px)}
 .dk{display:inline-block;min-width:66px;color:var(--sub);font-size:11px}
 /* 信号小卡 + 兑现度卡 */
 .scard{min-height:88px;padding:12px 14px;cursor:pointer;overflow:hidden;transition:transform .18s,box-shadow .18s,border-color .18s}
@@ -912,6 +1048,7 @@ def render(D):
            .replace("__FONT_FACE__", _font_face())
            .replace("__LAIQIN_ART__", _laiqin_art())
            .replace("__SEASON_COLOR__", SEASON_COLOR.get(season, "#3f9c76"))
+           .replace("__SEASON_GLOW__", SEASON_GLOW.get(season, "47,125,99"))
            .replace("__STARS_BG__", STARS_BG)
            .replace("__STARS_SIZE__", STARS_SIZE))
 
@@ -1284,6 +1421,8 @@ def render(D):
   <div><div class="k">龙鱼评级（个股资格）</div><div class="sub">见机会卡片标的 chips 内分数</div></div>
  </div><div class="sub" style="margin-top:6px">{pos["note"]}</div></div>"""
 
+    intl_html = intl_section(D)
+
     js = (JS_TPL
           .replace("__EM_SERIES__", em_series)
           .replace("__GMAX__", f"{max(8, (cap['kcap'] or 6) + 2):.0f}")
@@ -1300,6 +1439,8 @@ def render(D):
 {snapshot}
 {p0}
 {row2}
+
+{intl_html}
 
 <h2 id="sec-main">二 · 主线板块 · 近3日 <span class="vintage">资格=涨幅>1%且对大盘超额>0.5pp（跟涨不算主线）｜ 数量≤当日成交额对应K_cap ｜ 点卡片看详情</span></h2>
 {main_html}
