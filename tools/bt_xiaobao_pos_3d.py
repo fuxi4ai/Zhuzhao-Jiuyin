@@ -14,6 +14,9 @@ def _docs():  # 向上找 Documents（Mac 与任意 Cowork 沙箱会话都适用
     return _os.path.expanduser('~/Documents')
 RECAP=_os.path.join(_docs(),"Database/烛照九阴/recap.db")
 MKT=_os.path.join(_docs(),"Database/Market-Data/market_data.db")
+import sys as _zzsys
+_zzsys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+import config  # 中央写护栏 connect_write（G019）
 OUT=os.path.dirname(__file__)
 
 # 市场5档阈值（上证3日累计%）
@@ -72,11 +75,12 @@ def main():
     okc=[r for r in ok if dict((x[0],x[5]) for x in [(rr[0],rr) for rr in []]) or True]
     # 落表
     if A.commit:
-        c.execute("drop table if exists bt_xiaobao_pos_3d")
-        c.execute("""create table bt_xiaobao_pos_3d(date TEXT, risk_pref INT, band TEXT,
+        cw=config.connect_write(RECAP)   # 写连接走中央护栏（读连接 c 不变，避免误拦沙箱只读）
+        cw.execute("drop table if exists bt_xiaobao_pos_3d")
+        cw.execute("""create table bt_xiaobao_pos_3d(date TEXT, risk_pref INT, band TEXT,
             fwd3_ret REAL, mkt_score INT, mkt_label TEXT, match_score INT, match_label TEXT, note TEXT)""")
-        c.executemany("insert into bt_xiaobao_pos_3d values(?,?,?,?,?,?,?,?,?)", results)
-        c.commit(); print("已落表 bt_xiaobao_pos_3d")
+        cw.executemany("insert into bt_xiaobao_pos_3d values(?,?,?,?,?,?,?,?,?)", results)
+        cw.commit(); cw.close(); print("已落表 bt_xiaobao_pos_3d")
     # 导出
     hdr="日期\t风偏\t档位\t3日涨跌%\t市场\t匹配分\t匹配档\t备注"
     lines=[hdr]+["\t".join(str(x) if x is not None else "" for x in (r[0],r[1],r[2],r[3],r[5],r[6],r[7],r[8])) for r in results]

@@ -224,6 +224,30 @@
 
 ---
 
+## G019 — recap.db 被挂载盘回写写坏（quick_check 漏报）✅
+
+**日期**: 2026-06-29 | **发现人**: 九儿（手动补 6/26 报时 integrity_check 揪出）
+
+**问题**: recap.db 结构损坏——`PRAGMA integrity_check` 报 `2nd reference to page 959…` 一串 b-tree 自指环；直连报 `disk I/O error`。industry_signals 1299→1316（多 17 条），行数据未丢但骨架坏。
+
+**根因**:
+- 6/27 课件入库回写 recap：走了 /tmp 副本 + 整文件 cp 回挂载盘（套路对），但**整文件 cp 写挂载盘偶发写坏**（flaky 挂载层），且回写后**只跑了 `quick_check=ok`**——quick_check 不逐页核对 b-tree 交叉引用，**漏报**结构损坏 → 坏了没人知道。
+- 二号潜雷：`tools/_ingest_九儿_*.py` 默认 `DB=~/Documents/Database/烛照九阴/recap.db`（直指挂载盘真盘）+ 裸 `con.commit()`，沙箱误跑即当场 disk I/O 损坏。
+- 关键实测：cp 写**新文件名**到挂载盘 OK（integrity ok），但 cp **覆盖**既有 recap.db **必坏**（3/3 失败）→ 真盘换库只能在 **Mac 原生终端**做。
+
+**解法** ✅:
+- 校验铁律：凡 db 回写挂载盘后**必跑 `integrity_check`（非 `quick_check`）**才算成功；失败即回退备份。
+- `_ingest_九儿_*.py` 已加固：认 `ZZJY_DATABASE_ROOT`、沙箱拒写挂载盘真盘（除非显式 `ZZJY_ALLOW_MOUNT_WRITE`）、写后强 integrity_check。
+- 恢复手法：逐表 `SELECT*→INSERT` 重建干净库（损坏多在索引/页指针，行数据可全救），integrity ok 后落 `recap.db.recovered_*`；真盘换库走 Mac 终端 `cp 恢复件→recap.db` + integrity 复核（沙箱覆盖既有库必坏）。损坏件隔离留证 `recap.db.CORRUPT_*`。
+
+**更新（2026-06-29 · 探针复测 + 护栏集中化 Phase-1）**:
+- **归因修正**：沙箱探针实测——文件级 `cp` 覆盖 / `cp 新名 + mv 原子替换` 整库放回挂载盘**都安全（各 10/10 ok）**，没复现「cp 覆盖必坏 3/3」。真凶是**对挂载盘上的库直接 live `commit`：8/8 `disk I/O error` + 甩下热 `-journal`** → 下一个进程开库触发 journal 回放，回放成「孤儿索引 / 页双引用」。即：腐化源是 live 写、不是 cp。
+- **审计**：扫全仓写入口，护栏当时只在 `_ingest_九儿_2026-06-25/26.py`（复制粘贴），连同胞 `_ingest_28` 都漏。完整清单见 `docs/审计_DB写入口越界清单_20260629.md`（Tier-1 硬编码真盘无护栏 4 个 / Tier-2 走 config 无强制 15 个）。
+- **Phase-1 已落地**：`config.py` 加中央硬拒绝护栏 `connect_write(path)`（路径含 `/sessions//mnt/` 且未设 `ZZJY_ALLOW_MOUNT_WRITE` 即拒写）；4 个 Tier-1 迁移之（`_ingest_九儿_2026-06-28` / `dedup_kejian` / `xiaobao_position_write` / `bt_xiaobao_pos_3d`）。py_compile + 护栏单测过。
+- **Phase-2 待办**：Tier-2 共 15 文件写连接收口到 `connect_write`；中央生效后删 `_ingest_25/26` 旧护栏；cp-back 卫生写进 SKILL（放回前确认无 `-wal/-journal`、`cp 新名 + mv 原子替换`、放回后强制 `integrity_check` + 失败自动回滚）。
+
+---
+
 ## 统计
 
 | 类别 | 总数 | 已改正 | 待处理 |

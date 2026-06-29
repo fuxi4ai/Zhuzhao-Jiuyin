@@ -17,6 +17,8 @@
 import os, sys, json, hashlib, sqlite3, argparse, re
 from pathlib import Path
 from datetime import datetime
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import config  # 中央写护栏 connect_write（G019）
 
 KEJIAN_EXTS = {".pdf", ".doc", ".docx"}
 
@@ -85,7 +87,7 @@ def record(filenames):
     """写 processed_kejian（INSERT OR REPLACE）。Mac 跑。"""
     if not RECAP_DB.exists():
         print(f"❌ recap.db 不存在：{RECAP_DB}"); return 2
-    con = sqlite3.connect(str(RECAP_DB))
+    con = config.connect_write(str(RECAP_DB))
     cur = con.cursor()
     n = 0
     for name in filenames:
@@ -117,7 +119,7 @@ def prune(apply=False):
         return 0
     if not RECAP_DB.exists():
         print(f"❌ recap.db 不存在：{RECAP_DB}"); return 2
-    con = sqlite3.connect(str(RECAP_DB))
+    con = config.connect_write(str(RECAP_DB))
     con.executemany("DELETE FROM processed_kejian WHERE filename=?", [(fn,) for fn in stale])
     con.commit(); con.close()
     print(f"✅ 已删 {len(stale)} 条陈旧记录")

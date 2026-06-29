@@ -14,6 +14,8 @@ def _docs():  # 向上找 Documents（Mac 与任意 Cowork 沙箱会话都适用
     return _os.path.expanduser('~/Documents')
 DB = _os.path.join(_docs(),"Database/烛照九阴/recap.db")
 BUNDLE = os.path.join(os.path.dirname(__file__), "pos_bundle.json")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import config  # 中央写护栏 connect_write（G019）
 
 # date -> (min, max, repr, stance, conf)  —— 九儿逐日判读（总仓位立场；层=成=0.1）
 J = {
@@ -91,7 +93,7 @@ NEWCOLS = [("position_pct_min","REAL"),("position_pct_max","REAL"),("position_re
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument("--commit",action="store_true"); a=ap.parse_args()
     bundle={b["date"]:b for b in json.load(open(BUNDLE,encoding="utf-8"))}
-    c=sqlite3.connect(DB); cur=c.cursor()
+    c=config.connect_write(DB); cur=c.cursor()
     existing={r[1] for r in cur.execute("PRAGMA table_info(dim4_trade_plan)")}
     for col,typ in NEWCOLS:
         if col not in existing:
