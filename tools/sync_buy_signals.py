@@ -83,7 +83,10 @@ def build(dry_run=False):
     signals = yc.get_signals(min_conf=0.7)
     rows, tot_ben, tot_ts, tot_echo = [], 0, 0, 0
     for s in signals:
-        bens = yc.beneficiaries(s["signal_id"])[:TOP_BENE]
+        bens = yc.beneficiaries(s["signal_id"])
+        # 2026-06-30 Doctor：剔 hop-3 且无解析 ticker 的远端受益（噪声·不可投），再截 TOP_BENE
+        bens = [b for b in bens if not (b.get("hop") == 3 and not tr.resolve(b.get("name")))]
+        bens = bens[:TOP_BENE]
         names = [b["name"] for b in bens if b.get("name")]
         codes = []
         for b in bens:
