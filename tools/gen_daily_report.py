@@ -829,6 +829,11 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .lm-st{justify-self:end;display:flex;gap:5px;align-items:center}
 .lm-conf{justify-self:end;color:var(--sub);font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .lm-r2{font-size:11px;color:var(--sub);margin-top:2px;line-height:1.4}
+.lm-item{cursor:pointer;border-radius:9px;padding:5px 7px;margin:6px -7px;transition:background .15s}
+.lm-item:hover{background:rgba(27,54,93,.05)}
+.lm-conf{color:var(--sub)}
+.lm-back{display:inline-block;margin:0 0 12px;font-size:11.5px;color:var(--acc);cursor:pointer;font-weight:600}
+.lm-back:hover{text-decoration:underline}
 .ledger-wrap{margin:8px 0 14px}
 .ledger-h{font-size:14px;font-weight:600;color:var(--tx);margin:12px 0 8px}
 .ledger-h .sub{font-weight:400}
@@ -1313,6 +1318,7 @@ def render(D):
     def cid(m, p):
         return "led_" + str(MECHS.index(m)) + "_" + {"P1": "a", "P2": "b", "—": "c"}[p]
     tmpls = ""
+    dtmpls = ""   # 三级深详情卡（受益标的等）
     for m in mechs:
         for p in plvs:
             lst = cells.get((m, p), [])
@@ -1324,11 +1330,29 @@ def render(D):
                 zh = STATUS_ZH.get(g["status"], g["status"])
                 relit_tag = '<span class="tag" style="color:var(--gold)">二段</span>' if g.get("relit") else ''
                 lag = f'{g["lag"]}天' if g["lag"] is not None else '—'
-                items += (f'<div class="lm-item"><div class="lm-r1">'
+                items += (f'<div class="lm-item" onclick="openModal(\'lmdet_{li}\')"><div class="lm-r1">'
                           f'<span class="lm-chain">{g["chain"]}</span>'
                           f'<span class="lm-st">{relit_tag}<span class="tag t-{g["status"]}">{zh}</span></span>'
-                          f'<span class="lm-conf">置信 {g["conf"]:.2f}</span></div>'
+                          f'<span class="lm-conf">置信 {g["conf"]:.2f} ›</span></div>'
                           f'<div class="lm-r2">买入 {lag} · {fl["sent"]}</div></div>')
+                sc = THEME_COLOR.get(g["theme"], "#8aa0c8")
+                stype_zh = "·".join(TYPE_ZH.get(x.strip(), x.strip())
+                                    for x in g["stype"].split(",")) if g["stype"] else ""
+                bene = "、".join(b.strip() for b in g["bene"].split("/") if b.strip()) or "—（待标的解析）"
+                echo_html = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if g["echo"]
+                             else '<span class="tag">小鲍未提及</span>')
+                buy_lag = f'产业信号买入：{g["lag"]} 天' if g["lag"] is not None else '产业信号买入：—'
+                trend_lag = (f'进入趋势：{g["trend_lag"]} 天' if g.get("trend_lag") is not None
+                             else '进入趋势：未触发')
+                dtmpls += (f'<template id="lmdet_{li}"><div class="modal-title" style="--sc:{sc}">{g["chain"]}'
+                           f'<span class="sub">信号时间 {g["date"]} ｜ {stype_zh} ｜ 渊图置信度 {g["conf"]:.2f}</span></div>'
+                           f'<div class="lm-back" onclick="openModal(\'{cid(m, p)}\')">← 返回</div>'
+                           f'<div><span class="dk">兑现节奏</span><span class="tag">{buy_lag}</span> <span class="tag">{trend_lag}</span></div>'
+                           f'<div><span class="dk">兑现状态</span><span class="tag t-{g["status"]}">{zh}</span><span class="desc">{g["desc"] or ""}</span></div>'
+                           f'<div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span><span class="desc">{fl["sent"]}</span></div>'
+                           f'<div style="margin:13px 0"><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail", ""), bene)}</span></div>'
+                           f'<div><span class="dk">小鲍印证</span>{echo_html}<span class="sub">（第二源回声）</span></div>'
+                           f'<div><span class="dk">图谱节点</span><span class="sub">{g["node"]}</span></div></template>')
             tmpls += (f'<template id="{cid(m, p)}"><div class="modal-title">{m} × {p}'
                       f'<span class="sub">{len(lst)} 条在途</span></div>{items}</template>')
 
@@ -1355,7 +1379,7 @@ def render(D):
 <div class="ledger-wrap" id="sec-ledger">
  <div class="ledger-h">在途未兑现台账 · 机制 × 信源 <span class="sub">{n_inflight} 条 open/closing 信号（同链取最近；点格看该格信号；<span style="color:var(--gold)">二段</span>=点亮中）</span></div>
  {grid}
- {tmpls}
+ {tmpls}{dtmpls}
 </div>""" if n_inflight else """
 <div class="ledger-wrap" id="sec-ledger"><div class="ledger-h">在途未兑现台账 <span class="sub">当前无窗外在途信号</span></div></div>""")
 
