@@ -1025,7 +1025,8 @@ g.setOption({series:[{type:'gauge',min:0,max:__GMAX__,startAngle:205,endAngle:-2
   anchor:{show:true,size:7,itemStyle:{color:'#faf9f5',borderColor:'#a94e3f',borderWidth:2}},
   axisLine:{show:false},axisTick:{show:false},splitLine:{show:false},axisLabel:{show:false},detail:{show:false},
   data:[{value:__KCAP__}]}]});
-function openModal(id){
+let modalStack=[];
+function showTpl(id){
  const tpl=document.getElementById(id);
  const body=document.getElementById('modalBody');
  body.innerHTML='';
@@ -1036,7 +1037,13 @@ function openModal(id){
  document.getElementById('overlay').classList.add('show');
  document.getElementById('modal').classList.add('show');
  document.body.style.overflow='hidden';}
+function openModal(id){modalStack.push(id);showTpl(id);}
+function backModal(){
+ modalStack.pop();
+ if(modalStack.length){showTpl(modalStack[modalStack.length-1]);}
+ else{closeModal();}}
 function closeModal(){
+ modalStack=[];
  document.getElementById('overlay').classList.remove('show');
  document.getElementById('modal').classList.remove('show');
  document.body.style.overflow='';}
@@ -1346,7 +1353,7 @@ def render(D):
                              else '进入趋势：未触发')
                 dtmpls += (f'<template id="lmdet_{li}"><div class="modal-title" style="--sc:{sc}">{g["chain"]}'
                            f'<span class="sub">信号时间 {g["date"]} ｜ {stype_zh} ｜ 渊图置信度 {g["conf"]:.2f}</span></div>'
-                           f'<div class="lm-back" onclick="openModal(\'{cid(m, p)}\')">← 返回</div>'
+                           f'<div class="lm-back" onclick="backModal()">← 返回</div>'
                            f'<div><span class="dk">兑现节奏</span><span class="tag">{buy_lag}</span> <span class="tag">{trend_lag}</span></div>'
                            f'<div><span class="dk">兑现状态</span><span class="tag t-{g["status"]}">{zh}</span><span class="desc">{g["desc"] or ""}</span></div>'
                            f'<div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span><span class="desc">{fl["sent"]}</span></div>'
@@ -1513,7 +1520,7 @@ def render(D):
 
 <div class="foot">烛照九阴 · 数据：recap.db / market_data.db / 龙鱼-标的分析库 ｜ 缺数=诚实标注，禁占位禁编数 ｜ 仓位与标的为体系内信号聚合，非投资建议</div>
 
-<div id="overlay" onclick="closeModal()"></div>
+<div id="overlay" onclick="backModal()"></div>
 <div id="modal" class="glass"><div class="aurora" aria-hidden="true"><div class="neb"></div><div class="stars"></div></div>
  <div id="modalX" onclick="closeModal()">✕</div><div id="modalBody"></div></div>
 
