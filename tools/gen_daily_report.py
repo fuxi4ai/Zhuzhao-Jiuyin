@@ -490,9 +490,9 @@ def gather(date_cap=None):
     opps = []
     for t in themes:
         # 价格信号叠加（2026-06-30 Doctor·分层）：产业逻辑买入已在上游独立成栏，本栏在其上叠价格确认。
-        # 两层——中期趋势没坏 e20≥0（不接飞刀，与锚侧 ex20 同 20 日窗）+ 短期正在启动 e5>0（新鲜点火）。
+        # 两层——中期趋势确认 e20>0（月度正超额，与锚侧 ex20 同 20 日窗）+ 短期正在启动 e5>0（新鲜点火）。
         early = ((t["sig"].get("open", 0) > 0 or "兑现初期" in (t["desc"] or ""))
-                 and t["e20"] >= 0 and t["e5"] > 0)
+                 and t["e20"] > 0 and t["e5"] > 0)
         anchor_ok = not (t["us"] and t["us"]["kind"] == "echo" and t["us"]["ex20"] < -10)
         if early and anchor_ok and D["capacity"]["state"] in ("有空位", "虹吸", "满载"):
             tg = rc.execute("SELECT DISTINCT target FROM industry_signals WHERE etf_anchor=? "
@@ -1496,7 +1496,7 @@ def render(D):
                      f'<span class="sub">5日 {o.get("e5", 0):+.1f}% · 20日 {o["e20"]:+.1f}% · {o["note"]}</span></div>'
                      f'<div class="opp-d">{o["desc"] or ""}</div><div class="chips">{tg}</div></div>')
     if not opp_html:
-        opp_html = '<div class="na">当日无满足条件（兑现早期×价格启动〔20日未坏+5日转正〕×容量×锚不背离）的机会——诚实空仓提示</div>'
+        opp_html = '<div class="na">当日无满足条件（兑现早期×价格启动〔20日为正+5日转正〕×容量×锚不背离）的机会——诚实空仓提示</div>'
 
     risk_html = "".join(f'<div class="risk r-{r["lvl"]}">{"🔴" if r["lvl"]=="红" else "🟡"} {r["txt"]}</div>'
                         for r in D["risks"]) or '<div class="na">无自动风险命中</div>'
