@@ -47,8 +47,14 @@ def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d
 
 
 import re as _re
-# 受益公司国别上色（2026-06-30 Doctor）：外企=樱粉，中国/香港/台湾=蓝（现状）。
-# curated 外企 base 名单（美/日/韩/欧）；保守——拿不准默认蓝。台/港/国产未解析均蓝。
+# 受益公司国别上色（2026-06-30 Doctor）：外企=樱粉，台湾=青绿，中国/香港=蓝。
+# curated 名单；保守——拿不准默认蓝（港/陆未解析均蓝）。
+# 台企名单来源：渊图 .TW/.TWO 自动命中 8 + 渊图 desc 坐实 5（台积电/联发科/乾坤/南亚电路板/金居），非凭记忆。
+TAIWAN_BENE = {
+    "MPI Corporation", "WinWay Technology", "创意电子 GUC", "台光电材", "广达电脑",
+    "景硕科技", "欣兴电子", "纬湾科技", "台积电", "联发科", "乾坤科技",
+    "南亚电路板", "金居开发"}
+TAIWAN_COLOR = "#1f8a7a"   # 深青绿
 FOREIGN_BENE = {
     "AXT", "Absolics", "Arm Holdings", "Ciena公司", "Coherent", "Disco", "Granopt", "JX先进金属",
     "LG Innotek", "Lasertec", "Lumentum", "Marvell Technology", "Meta Platforms", "SK海力士", "Wafertech",
@@ -60,6 +66,10 @@ FOREIGN_COLOR = "#d76a92"   # 樱粉
 
 def _is_foreign(name):
     return _re.sub(r"（.*?）|\(.*?\)", "", name or "").strip() in FOREIGN_BENE
+
+
+def _is_taiwan(name):
+    return _re.sub(r"（.*?）|\(.*?\)", "", name or "").strip() in TAIWAN_BENE
 
 
 def bene_html(raw, fallback):
@@ -82,7 +92,9 @@ def bene_html(raw, fallback):
             fin = b.get("fin") or {}
             fintxt = ("　图谱:" + "·".join(f"{k}{v}" for k, v in fin.items())) if fin else ""
         _nm = b.get("name", "")
-        _col = FOREIGN_COLOR if _is_foreign(_nm) else "var(--acc,#1B365D)"
+        _col = (TAIWAN_COLOR if _is_taiwan(_nm)
+                else FOREIGN_COLOR if _is_foreign(_nm)
+                else "var(--acc,#1B365D)")
         parts.append(f'<span style="color:{_col};font-weight:600">{_nm}</span> '
                      f'<span style="font-size:.82em;opacity:.7">〔{tier}·{tw}传导〕</span>'
                      f'<span style="font-size:.82em;color:var(--gold,#caa45a)">{fintxt}</span>')
