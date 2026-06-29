@@ -46,6 +46,22 @@ ARTIFACT_PATH = config.PROJECT_ROOT.parents[3] / "Claude" / "Artifacts" / "zhuzh
 def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d
 
 
+import re as _re
+# 受益公司国别上色（2026-06-30 Doctor）：外企=樱粉，中国/香港/台湾=蓝（现状）。
+# curated 外企 base 名单（美/日/韩/欧）；保守——拿不准默认蓝。台/港/国产未解析均蓝。
+FOREIGN_BENE = {
+    "AXT", "Absolics", "Arm Holdings", "Ciena公司", "Coherent", "Disco", "Granopt", "JX先进金属",
+    "LG Innotek", "Lasertec", "Lumentum", "Marvell Technology", "Meta Platforms", "SK海力士", "Wafertech",
+    "三井金属", "三星电子", "三星电机", "东京电子", "丸和电子", "住友电工", "斗山", "日东纺", "村田制作所",
+    "康宁公司", "味之素", "太阳诱电", "奥特斯", "揖斐电", "日本平野", "是德科技", "美光科技", "美光",
+    "英伟达", "英特尔", "荏原制作所", "谷歌", "超微半导体", "博通"}
+FOREIGN_COLOR = "#d76a92"   # 樱粉
+
+
+def _is_foreign(name):
+    return _re.sub(r"（.*?）|\(.*?\)", "", name or "").strip() in FOREIGN_BENE
+
+
 def bene_html(raw, fallback):
     """受益标的渲染（图谱口径受益度·轻档 2026-06-25；六维分对齐 2026-06-25·走大宗库口径）：每公司带〔直接/间接·强中弱传导〕+ 白泽口径（命中显纯度/弹性 + **周更六维分**，由 fl 从大宗库 business_breakdown.db 按 **ts_code** 与弹性一起取）；未命中回退渊图图谱 fin。无 detail 回退名字串。"""
     import json as _j
@@ -65,7 +81,9 @@ def bene_html(raw, fallback):
         else:
             fin = b.get("fin") or {}
             fintxt = ("　图谱:" + "·".join(f"{k}{v}" for k, v in fin.items())) if fin else ""
-        parts.append(f'<span style="color:var(--acc,#1B365D);font-weight:600">{b.get("name","")}</span> '
+        _nm = b.get("name", "")
+        _col = FOREIGN_COLOR if _is_foreign(_nm) else "var(--acc,#1B365D)"
+        parts.append(f'<span style="color:{_col};font-weight:600">{_nm}</span> '
                      f'<span style="font-size:.82em;opacity:.7">〔{tier}·{tw}传导〕</span>'
                      f'<span style="font-size:.82em;color:var(--gold,#caa45a)">{fintxt}</span>')
     # 悬挂缩进：整串包 inline-block，换行(<br>)的第2+只名字对齐到第1只下方(2026-06-25)
