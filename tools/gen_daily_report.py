@@ -405,7 +405,8 @@ def gather(date_cap=None):
     for r in rc.execute(
             "SELECT date, industry_chain, signal_node, signal_type, yuantu_confidence, "
             "beneficiaries, xiaobao_echo, gap_status, gap_desc, etf_anchor, excess_cum, "
-            "date_realized, direction, direction_flip_date, beneficiaries_detail "
+            "date_realized, direction, direction_flip_date, beneficiaries_detail, "
+            "source_plevel, relit_count "
             "FROM yuantu_buy_signals WHERE length(date)=10 "
             "AND gap_status IN ('open','closing') ORDER BY date DESC"):
         chain = r[1] or r[2]
@@ -433,6 +434,7 @@ def gather(date_cap=None):
             theme=(r[9] or "").split("/")[0], lag=lag, trend_lag=trend_lag,
             date_realized=r[11] or "", direction=r[12] or "多", flip_date=r[13] or "",
             bene_detail=r[14] or "",
+            plv=r[15] or "—", relit=r[16] or 0,
             fulfill=fulfill_of(status, desc, r[10])))
     inflight.sort(key=lambda x: (x["lag"] if x["lag"] is not None else -1), reverse=True)
     # 方向分治（2026-06-25）：多头进正向台账；空头(卖出/买入转卖出)入风险提示、不正向追踪
@@ -809,6 +811,18 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .tag{font-size:11px;padding:1px 7px;border-radius:9px;background:#ebe6db;color:var(--sub)}
 .t-closing{background:#f0e6cf;color:var(--gold)} .t-open{background:var(--brand-tint);color:var(--acc)} .t-closed{background:#ebe6db} .t-dormant{background:#e7e2d6;color:var(--sub)}
 .dormant-note{margin:2px 0 16px;padding:9px 13px;border-radius:12px;background:var(--panel);border:1px dashed var(--line);color:var(--sub);font-size:12px}
+.led-grid{display:grid;gap:8px;margin:10px 0 16px;align-items:stretch}
+.led-colh{align-self:end;text-align:center;font-size:10.5px;color:var(--sub);letter-spacing:.08em;padding-bottom:3px}
+.led-rowh{align-self:center;font-size:12px;font-weight:600;color:var(--tx);padding-right:6px;white-space:nowrap}
+.led-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:52px;border-radius:12px;background:rgba(251,248,239,.72);border:1px solid rgba(27,54,93,.08);cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
+.led-tile:hover{transform:translateY(-3px);border-color:rgba(27,54,93,.28);box-shadow:0 6px 16px rgba(27,54,93,.08)}
+.led-tile b{font-size:20px;font-weight:700;color:var(--acc);line-height:1;font-variant-numeric:tabular-nums}
+.led-tile span{font-size:9.5px;color:var(--sub)}
+.led-tile.empty{background:transparent;border:1px dashed var(--line);cursor:default;transform:none;box-shadow:none}
+.led-tile.empty b{color:var(--line);font-size:14px}
+.led-tile.sum{background:var(--panel);cursor:default;transform:none;box-shadow:none;border-color:transparent}
+.led-tile.sum b{color:var(--tx)}
+.led-tile.sum.total b{color:var(--acc)}
 .ledger-wrap{margin:8px 0 14px}
 .ledger-h{font-size:14px;font-weight:600;color:var(--tx);margin:12px 0 8px}
 .ledger-h .sub{font-weight:400}
@@ -1276,42 +1290,64 @@ def render(D):
  <div class="mrow">{cards or empty}</div>
 </div>"""
 
-    # ── 在途未兑现台账（补全：窗外全状态在途信号；详情进二级浮卡，复用 openModal）──
-    ledger_rows = ""
+    # ── 在途未兑现台账 · 机制 × 信源 矩阵卡（点格弹二级页列该格信号）2026-06-29 ──
+    def _mech(stype):
+        parts = [x.strip() for x in (stype or "").split(",") if x.strip()]
+        if len(set(parts)) == 1:
+            return TYPE_ZH.get(parts[0], parts[0])
+        return "多机制叠加" if len(parts) >= 2 else "未标注"
+    MECHS = ["多机制叠加", "需求爆发", "供给冲击", "持续失衡", "未标注"]
+    cells = defaultdict(list)
     for li, g in enumerate(D["inflight"]):
-        gid = f"lg{li}"
-        sc = THEME_COLOR.get(g["theme"], "#8aa0c8")
-        zh = STATUS_ZH.get(g["status"], g["status"])
-        stype = "·".join(TYPE_ZH.get(x.strip(), x.strip())
-                         for x in g["stype"].split(",")) if g["stype"] else ""
-        bene = "、".join(b.strip() for b in g["bene"].split("/") if b.strip()) or "—（待标的解析）"
-        echo = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if g["echo"]
-                else '<span class="tag">小鲍未提及</span>')
-        fl = g["fulfill"]
-        buy_lag = f"产业信号买入：{g['lag']} 天" if g["lag"] is not None else "产业信号买入：—"
-        trend_lag = (f"进入趋势：{g['trend_lag']} 天" if g.get("trend_lag") is not None
-                     else "进入趋势：未触发")
-        ledger_rows += f"""
-<div class="ledger-row glass" style="--sc:{sc}" onclick="openModal('{gid}')">
- <span class="lg-dot"></span>
- <span class="lg-chain">{g["chain"]}</span>
- <span class="lg-meta">{g["theme"] or "—"} ｜ {zh} ｜ 信号日 {g["date"]} ｜ {buy_lag} ｜ {trend_lag}</span>
- <template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["chain"]}
-   <span class="sub">信号时间 {g["date"]} ｜ {stype} ｜ 渊图置信度 {g["conf"]:.2f}</span></div>
-  <div><span class="dk">兑现节奏</span><span class="tag">{buy_lag}</span> <span class="tag">{trend_lag}</span></div>
-  <div><span class="dk">兑现状态</span><span class="tag t-{g["status"]}">{zh}</span>
-    <span class="desc">{g["desc"] or ""}</span></div>
-  <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span>
-    <span class="desc">{fl["sent"]}</span></div>
-  <div style="margin:13px 0"><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
-  <div><span class="dk">小鲍印证</span>{echo}<span class="sub">（第二源回声）</span></div>
-  <div><span class="dk">图谱节点</span><span class="sub">{g["node"]}</span></div>
- </template></div>"""
+        cells[(_mech(g["stype"]), g.get("plv") or "—")].append((li, g))
+    plvs = [p for p in ["P1", "P2", "—"] if any((m, p) in cells for m in MECHS)]
+    mechs = [m for m in MECHS if any((m, p) in cells for p in plvs)]
     n_inflight = len(D["inflight"])
+
+    def cid(m, p):
+        return "led_" + str(MECHS.index(m)) + "_" + {"P1": "a", "P2": "b", "—": "c"}[p]
+    tmpls = ""
+    for m in mechs:
+        for p in plvs:
+            lst = cells.get((m, p), [])
+            if not lst:
+                continue
+            items = ""
+            for li, g in lst:
+                fl = g["fulfill"]
+                zh = STATUS_ZH.get(g["status"], g["status"])
+                relit_tag = '<span class="tag" style="color:var(--gold)">二段</span>' if g.get("relit") else ''
+                lag = f'{g["lag"]}天' if g["lag"] is not None else '—'
+                items += (f'<div><b>{g["chain"]}</b> {relit_tag} ｜ <span class="tag t-{g["status"]}">{zh}</span>'
+                          f' ｜ 置信 {g["conf"]:.2f} ｜ 买入 {lag}'
+                          f'<span class="desc"> {fl["sent"]}</span></div>')
+            tmpls += (f'<template id="{cid(m, p)}"><div class="modal-title">{m} × {p}'
+                      f'<span class="sub">{len(lst)} 条在途</span></div>{items}</template>')
+
+    def colsum(p):
+        return sum(len(cells.get((m, p), [])) for m in mechs)
+    # 软卡网格（无表格边框，沿用页面暖色卡片语言）
+    gi = ['<div class="led-corner"></div>']
+    gi += [f'<div class="led-colh">{p}</div>' for p in plvs] + ['<div class="led-colh">合计</div>']
+    for m in mechs:
+        gi.append(f'<div class="led-rowh">{m}</div>')
+        rsum = 0
+        for p in plvs:
+            n = len(cells.get((m, p), []))
+            rsum += n
+            gi.append(f'<div class="led-tile" onclick="openModal(\'{cid(m, p)}\')"><b>{n}</b><span>条</span></div>'
+                      if n else '<div class="led-tile empty"><b>·</b></div>')
+        gi.append(f'<div class="led-tile sum"><b>{rsum}</b></div>')
+    gi.append('<div class="led-rowh">合计</div>')
+    gi += [f'<div class="led-tile sum"><b>{colsum(p)}</b></div>' for p in plvs]
+    gi.append(f'<div class="led-tile sum total"><b>{n_inflight}</b></div>')
+    grid = (f'<div class="led-grid" style="grid-template-columns:auto repeat({len(plvs) + 1},minmax(58px,1fr))">'
+            + "".join(gi) + '</div>')
     ledger_html = (f"""
 <div class="ledger-wrap" id="sec-ledger">
- <div class="ledger-h">在途未兑现台账 <span class="sub">{n_inflight} 条 open/closing 信号（不受 top-3 时间窗限制；同链取最近，按产业信号买入天数降序，点行看二级卡）</span></div>
- {ledger_rows}
+ <div class="ledger-h">在途未兑现台账 · 机制 × 信源 <span class="sub">{n_inflight} 条 open/closing 信号（同链取最近；点格看该格信号；<span style="color:var(--gold)">二段</span>=点亮中）</span></div>
+ {grid}
+ {tmpls}
 </div>""" if n_inflight else """
 <div class="ledger-wrap" id="sec-ledger"><div class="ledger-h">在途未兑现台账 <span class="sub">当前无窗外在途信号</span></div></div>""")
 
