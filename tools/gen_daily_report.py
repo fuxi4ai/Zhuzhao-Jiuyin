@@ -823,6 +823,12 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .led-tile.sum{background:var(--panel);cursor:default;transform:none;box-shadow:none;border-color:transparent}
 .led-tile.sum b{color:var(--tx)}
 .led-tile.sum.total b{color:var(--acc)}
+.lm-item{margin:9px 0}
+.lm-r1{display:grid;grid-template-columns:minmax(0,1fr) 104px 74px;gap:8px;align-items:center;font-size:12.5px}
+.lm-chain{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--tx)}
+.lm-st{justify-self:end;display:flex;gap:5px;align-items:center}
+.lm-conf{justify-self:end;color:var(--sub);font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lm-r2{font-size:11px;color:var(--sub);margin-top:2px;line-height:1.4}
 .ledger-wrap{margin:8px 0 14px}
 .ledger-h{font-size:14px;font-weight:600;color:var(--tx);margin:12px 0 8px}
 .ledger-h .sub{font-weight:400}
@@ -1318,9 +1324,11 @@ def render(D):
                 zh = STATUS_ZH.get(g["status"], g["status"])
                 relit_tag = '<span class="tag" style="color:var(--gold)">二段</span>' if g.get("relit") else ''
                 lag = f'{g["lag"]}天' if g["lag"] is not None else '—'
-                items += (f'<div><b>{g["chain"]}</b> {relit_tag} ｜ <span class="tag t-{g["status"]}">{zh}</span>'
-                          f' ｜ 置信 {g["conf"]:.2f} ｜ 买入 {lag}'
-                          f'<span class="desc"> {fl["sent"]}</span></div>')
+                items += (f'<div class="lm-item"><div class="lm-r1">'
+                          f'<span class="lm-chain">{g["chain"]}</span>'
+                          f'<span class="lm-st">{relit_tag}<span class="tag t-{g["status"]}">{zh}</span></span>'
+                          f'<span class="lm-conf">置信 {g["conf"]:.2f}</span></div>'
+                          f'<div class="lm-r2">买入 {lag} · {fl["sent"]}</div></div>')
             tmpls += (f'<template id="{cid(m, p)}"><div class="modal-title">{m} × {p}'
                       f'<span class="sub">{len(lst)} 条在途</span></div>{items}</template>')
 
