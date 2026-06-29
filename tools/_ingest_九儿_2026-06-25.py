@@ -14,6 +14,14 @@
 import os, sys, sqlite3, datetime
 
 DB = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser('~/Documents/Database/烛照九阴/recap.db')
+# ── 2026-06-29 加固（recap 损坏事件后）：禁沙箱直写挂载盘真盘 + 优先 /tmp 副本 ──
+_root = os.environ.get("ZZJY_DATABASE_ROOT")
+if _root:
+    DB = os.path.join(_root, "烛照九阴", "recap.db")
+_db_abs = os.path.abspath(DB)
+if ("/sessions/" in _db_abs or "/mnt/" in _db_abs) and not os.environ.get("ZZJY_ALLOW_MOUNT_WRITE"):
+    sys.exit("⛔ 拒绝在沙箱挂载盘直写 recap.db（sqlite commit 会 disk I/O 损坏）。请在 Mac 终端跑，"
+             "或设 ZZJY_DATABASE_ROOT=/tmp/dbroot 走副本往返后整文件 cp 回。（GOTCHAS·recap损坏2026-06-29）")
 NOW = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 SRC = '小鲍复盘课件'
 CONF = 'P2'
@@ -285,6 +293,10 @@ for d, name, sec, bull, bear, sug, conf in STOCKS:
         [d, name, sec, bull, bear, sug, conf, '小鲍老师', NOW])
 
 con.commit()
+_ic = con.execute("PRAGMA integrity_check").fetchone()[0]
+if _ic != "ok":
+    sys.exit(f"⛔ 写后 integrity_check 失败：{_ic[:120]} —— 库可能已损坏，勿信此次写入，请回退备份。")
+print("✅ recap 写后 integrity_check = ok")
 print("\n=== 入库完成 (source=小鲍复盘课件 / confidence=P2) ===")
 for t, n in log.items():
     print(f"  {t}: +{n}")
