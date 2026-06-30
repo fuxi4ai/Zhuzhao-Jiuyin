@@ -901,7 +901,7 @@ def external_pricing_section(D):
              "border:1px solid var(--line);border-radius:999px;padding:2px 7px;margin-left:auto;letter-spacing:0}"
              ".ext-lbl{font-size:12px;color:var(--tx);font-weight:600;letter-spacing:.3px}"
              ".ext-big{font-size:29px;font-family:var(--num);font-variant-numeric:tabular-nums;"
-             "font-weight:600;margin:4px 0 1px;line-height:1;letter-spacing:0}"
+             "font-weight:600;margin:16px 0 1px;line-height:1;letter-spacing:0}"
              ".ext-chg{font-size:12px;color:var(--sub)}"
              ".ext-mt{color:var(--sub);font-size:10.5px;margin-top:6px;"
              "font-variant-numeric:tabular-nums;line-height:1.45}"
@@ -922,8 +922,8 @@ def external_pricing_section(D):
             '<span class="vintage">汇率 / 隔夜 / 期货预期 · A股开盘前的外部定价（AI/科技硬件链）· '
             f'各市场按自身最新交易日 · {vint}</span></h2>'
             '<div class="ext-panel">'
-            '<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>汇率 · 离岸人民币</div>'
-            f'<div class="ext-lbl">美元兑离岸人民币 · USD/CNH</div>{fx_body}</div></div>'
+            '<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>汇率 · 美元兑离岸人民币(USD/CNH)</div>'
+            f'{fx_body}</div></div>'
             f'<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>隔夜 · 美股（{_sym("NASDAQ")}）</div>'
             f'{nasdaq_lead}<div class="ext-rows">{stk_rows}</div></div></div>'
             f'<div class="ext-zone"><div class="ext-inner">'
