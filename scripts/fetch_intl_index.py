@@ -31,14 +31,13 @@ MARKET_DB = config.MARKET_DB
 INDICES = [
     # code,       symbol,  name,            kind,        note
     # —— 美股栏（隔夜回望）：纳指 + AI/科技硬件代表股 ——
-    ("NASDAQ",   "^IXIC", "纳斯达克综合",   "overnight", "美股隔夜 · 宽科技 tone"),
+    ("NASDAQ",   "QQQ",   "纳指100(QQQ)",   "overnight", "美股隔夜 · Nasdaq-100 ETF 代纳指"),
     ("NVDA",     "NVDA",  "英伟达",         "us_stock",  "AI 算力"),
     ("AVGO",     "AVGO",  "博通",           "us_stock",  "AI 网络 / ASIC"),
     ("LITE",     "LITE",  "Lumentum",       "us_stock",  "光模块 / CPO"),
     ("SPCX",     "SPCX",  "SpaceX",         "us_stock",  "商业航天 · 2026-06-12 纳指新上市（历史短·波动大）"),
-    # —— 亚洲栏（期货预期）：日韩开盘前的远期 ——
+    # —— 亚洲栏（期货预期）：日本开盘前的远期（韩国已移至 fetch_kr_stocks 直追三星/SK海力士）——
     ("JP_FUT",   "NKD=F", "日经225期货",    "futures",   "CME · 亚盘开盘前远期 · 含半导体设备权重"),
-    ("KR_PROXY", "EWY",   "韩国 · EWY代理", "etf_proxy", "MSCI韩国ETF · 三星/SK海力士存储芯 · 隔夜远期代理"),
 ]
 _LOOKBACK_DAYS = 10  # 向前回看，使窗口首日 pct 由真实前一交易日得出（同 fetch_us_anchor G014）
 
@@ -72,22 +71,29 @@ def _lookback_start(start):
 
 
 def fetch_yf(symbol, start, end):
-    """yfinance 拉收盘序列，pct 由相邻收盘环比得出。返回 [(YYYYMMDD, close, pct)] 升序。"""
-    import yfinance as yf
-    df = yf.download(symbol, start=_lookback_start(start), end=end, auto_adjust=True,
-                     progress=False, threads=False)
-    if df is None or df.empty:
+    """Yahoo Finance chart API（urllib 直取，**不依赖 yfinance 包**；白名单已开、沙箱直达，
+    2026-06-30 实测 LITE/日经/纳指/韩股皆新鲜，根治 stockanalysis CDN 陈旧坑）。
+    返回 [(YYYYMMDD, close, pct)] 升序，裁回 >= start（回看日仅用于算首日 pct）。"""
+    import urllib.request as _u, urllib.parse as _up, json as _j
+    url = ("https://query1.finance.yahoo.com/v8/finance/chart/"
+           + _up.quote(symbol) + "?range=1mo&interval=1d")
+    req = _u.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with _u.urlopen(req, timeout=15) as r:
+        data = _j.loads(r.read().decode())
+    res = (data.get("chart", {}).get("result") or [None])[0]
+    if not res:
         return None
-    col = df["Close"]
-    if hasattr(col, "columns"):           # 多列（group_by）时取该 symbol 列
-        col = col[symbol] if symbol in col.columns else col.iloc[:, 0]
-    series = [(idx.strftime("%Y%m%d"), float(v)) for idx, v in col.items()]
-    out, prev = [], None
+    ts = res.get("timestamp") or []
+    closes = res.get("indicators", {}).get("quote", [{}])[0].get("close") or []
     sc = start.replace("-", "")
-    for d, c in series:
+    out, prev = [], None
+    for t, c in zip(ts, closes):
+        if c is None:
+            continue
+        d = datetime.datetime.utcfromtimestamp(t).strftime("%Y%m%d")
         pct = (c / prev - 1) * 100 if prev else None
-        if d >= sc:                        # 裁回请求窗口，回看日仅用于算首日 pct
-            out.append((d, round(c, 2), round(pct, 4) if pct is not None else None))
+        if d >= sc:
+            out.append((d, round(float(c), 2), round(pct, 4) if pct is not None else None))
         prev = c
     return out or None
 
@@ -192,7 +198,7 @@ def main():
             "INSERT OR REPLACE INTO intl_index_daily"
             "(trade_date,code,symbol,name,kind,close,pct_chg,note,source) "
             "VALUES (?,?,?,?,?,?,?,?,?)",
-            [(d, code, sym, name, kind, c, p, note, "yfinance") for d, c, p in rows])
+            [(d, code, sym, name, kind, c, p, note, "yahoo") for d, c, p in rows])
         conn.commit()
         total += len(rows)
         last = rows[-1]

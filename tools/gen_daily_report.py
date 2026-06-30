@@ -806,16 +806,15 @@ def _ep_idx(label, note, it):
 
 
 def _ep_row(name, note, it):
-    """美股代表股行（区内紧凑行，非独立卡）。缺数→待回填。"""
+    """区内行的三个网格单元（名｜涨跌幅｜收盘·日期）——由外层 .ext-rows inline-grid 统一对齐+整体居中。缺数→待回填。"""
     if not it or it.get("pct") is None:
-        return (f'<div class="ext-row"><div><span class="ext-rn">{name}</span></div>'
-                f'<div><span class="na" style="font-size:13px">—</span>'
-                f'<span class="ext-rc">待回填</span></div></div>')
+        return (f'<span class="ext-rn">{name}</span>'
+                f'<span class="ext-rp na">—</span><span class="ext-rc">待回填</span>')
     cv = it.get("close")
     close = "—" if cv is None else (f'{cv:,.0f}' if cv >= 1000 else f'{cv:,.2f}')
-    return (f'<div class="ext-row"><div><span class="ext-rn">{name}</span>'
-            f'<span class="ext-rsy">{it.get("symbol","")}</span></div>'
-            f'<div>{_ep_pct(it["pct"])}<span class="ext-rc">{close} · {iso(it["date"])[5:]}</span></div></div>')
+    return (f'<span class="ext-rn">{name}<span class="ext-rsy">{it.get("symbol","")}</span></span>'
+            f'<span class="ext-rp">{_ep_pct(it["pct"])}</span>'
+            f'<span class="ext-rc">{close}·{iso(it["date"])[5:]}</span>')
 
 
 def _ep_lead(it, note):
@@ -888,14 +887,15 @@ def external_pricing_section(D):
 
     style = ("<style>"
              ".ext-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;"
-             "box-shadow:var(--whisper);display:grid;grid-template-columns:1fr 1.25fr 1fr;"
+             "box-shadow:var(--whisper);display:grid;grid-template-columns:repeat(3,1fr);"
              "overflow:hidden;margin:6px 0 16px}"
              "@media(max-width:760px){.ext-panel{grid-template-columns:1fr}"
              ".ext-zone+.ext-zone{border-left:none;border-top:1px solid var(--line)}}"
-             ".ext-zone{padding:15px 17px}"
+             ".ext-zone{padding:18px 21px;text-align:center}"
+             ".ext-inner{display:inline-block;text-align:left;vertical-align:top;max-width:100%}"
              ".ext-zone+.ext-zone{border-left:1px solid var(--line)}"
              ".ext-zhd{color:var(--sub);font-size:11px;letter-spacing:1.5px;font-weight:600;"
-             "margin:0 0 11px;display:flex;align-items:center;gap:6px}"
+             "margin:0 0 13px;display:flex;align-items:center;gap:6px}"
              ".ext-zhd .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);display:inline-block}"
              ".ext-zhd .bdg{font-size:9.5px;font-weight:400;color:var(--sub);background:#fbf8ef;"
              "border:1px solid var(--line);border-radius:999px;padding:2px 7px;margin-left:auto;letter-spacing:0}"
@@ -905,13 +905,16 @@ def external_pricing_section(D):
              ".ext-chg{font-size:12px;color:var(--sub)}"
              ".ext-mt{color:var(--sub);font-size:10.5px;margin-top:6px;"
              "font-variant-numeric:tabular-nums;line-height:1.45}"
-             ".ext-idx{margin-bottom:8px}"
+             ".ext-idx{margin-bottom:11px}"
              ".ext-idxv{font-size:20px;font-family:var(--num);font-variant-numeric:tabular-nums;"
              "font-weight:600;margin-top:2px}"
-             ".ext-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;"
-             "border-top:1px dashed var(--border-soft)}"
-             ".ext-rn{font-size:12px;font-weight:600}.ext-rsy{font-size:9px;color:var(--sub);margin-left:5px}"
-             ".ext-rc{font-size:10px;color:var(--sub);margin-left:8px}"
+             ".ext-rows{display:inline-grid;grid-template-columns:auto auto auto;align-items:baseline;"
+             "column-gap:14px;row-gap:9px;text-align:left;margin-top:6px}"
+             ".ext-rn{font-size:12px;font-weight:600;text-align:left}"
+             ".ext-rsy{font-size:9px;color:var(--sub);margin-left:5px;font-weight:400}"
+             ".ext-rp{font-size:13px;font-weight:600;font-family:var(--num);"
+             "font-variant-numeric:tabular-nums;text-align:right}"
+             ".ext-rc{font-size:10px;color:var(--sub);text-align:right;font-variant-numeric:tabular-nums}"
              "</style>")
 
     return (style +
@@ -919,14 +922,15 @@ def external_pricing_section(D):
             '<span class="vintage">汇率 / 隔夜 / 期货预期 · A股开盘前的外部定价（AI/科技硬件链）· '
             f'各市场按自身最新交易日 · {vint}</span></h2>'
             '<div class="ext-panel">'
-            '<div class="ext-zone"><div class="ext-zhd"><span class="dot"></span>汇率 · 离岸人民币</div>'
-            f'<div class="ext-lbl">美元兑离岸人民币 · USD/CNH</div>{fx_body}</div>'
-            f'<div class="ext-zone"><div class="ext-zhd"><span class="dot"></span>隔夜 · 美股（{_sym("NASDAQ")}）</div>'
-            f'{nasdaq_lead}{stk_rows}</div>'
-            f'<div class="ext-zone">'
+            '<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>汇率 · 离岸人民币</div>'
+            f'<div class="ext-lbl">美元兑离岸人民币 · USD/CNH</div>{fx_body}</div></div>'
+            f'<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>隔夜 · 美股（{_sym("NASDAQ")}）</div>'
+            f'{nasdaq_lead}<div class="ext-rows">{stk_rows}</div></div></div>'
+            f'<div class="ext-zone"><div class="ext-inner">'
             f'<div class="ext-zhd"><span class="dot"></span>期指 · 日本（{_sym("JP_FUT")}）</div>{jp_lead}'
-            f'<div class="ext-zhd" style="margin-top:16px"><span class="dot"></span>韩国 · 存储双雄</div>{kr_rows}'
-            f'</div>'
+            f'<div class="ext-zhd" style="margin-top:18px"><span class="dot"></span>韩国 · 存储双雄</div>'
+            f'<div class="ext-rows">{kr_rows}</div>'
+            f'</div></div>'
             '</div>')
 
 
@@ -988,6 +992,8 @@ def _deploy_to_artifact(html, dd):
                   + json.dumps(meta, ensure_ascii=False, indent=2)
                   + '\n</script>\n')
     artifact_html = html.replace("<!DOCTYPE html>\n", "<!DOCTYPE html>\n" + meta_block, 1)
+    if "color-scheme" not in artifact_html:   # Cowork artifact 渲染须显式亮色，否则随系统转暗（2026-06-30）
+        artifact_html = artifact_html.replace(":root{", ":root{color-scheme:light;", 1)
     if ARTIFACT_PATH.exists():
         stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         bak = ARTIFACT_PATH.with_name(f"index.bak.{stamp}.html")
