@@ -204,6 +204,22 @@ def gather(date_cap=None):
     snap["limit_up"], snap["limit_down"] = lim if lim else (None, None)
     D["snap"] = snap
 
+    # ── 离岸人民币 USD/CNH（当前 + 近7交易日曲线）──
+    fx = {"cur": None, "date": None, "series": [], "prev": None, "src": None}
+    try:
+        fxr = rc.execute(
+            "SELECT trade_date, close, source FROM fx_cnh_daily "
+            "WHERE close IS NOT NULL AND trade_date<=? ORDER BY trade_date DESC LIMIT 7",
+            (data_day,)).fetchall()[::-1]               # 升序
+        if fxr:
+            fx["series"] = [(r[0], r[1]) for r in fxr]
+            fx["cur"], fx["date"], fx["src"] = fxr[-1][1], fxr[-1][0], fxr[-1][2]
+            if len(fxr) >= 2:
+                fx["prev"] = fxr[-2][1]
+    except sqlite3.OperationalError:
+        pass                                            # 表未建 → 待回填
+    D["fx"] = fx
+
     # ── 周期与情绪（emotion_cycle v2） ──
     em_rows = rc.execute("SELECT date, emotion_score, emotion_season, risk_appetite, cycle_no, "
                          "limit_up, limit_down, jinji, premium, height FROM emotion_cycle "
@@ -615,6 +631,52 @@ def pct_span(v, suffix="%"):
         return '<span class="na">—</span>'
     cls = "up" if v > 0 else ("dn" if v < 0 else "")
     return f'<span class="{cls}">{v:+.1f}{suffix}</span>'
+
+
+# ── 汇率栏目：美元兑（离岸）人民币 USD/CNH（当前 + 近7交易日曲线）──────────
+def fx_section(D):
+    """汇率栏 HTML——沿用页面暖色范式（.card/.k/.v）。下行=人民币走强。缺数→诚实「待回填」，绝不冒充。"""
+    fx = D.get("fx") or {}
+    head = ('<h2 style="margin-bottom:4px">美元兑（离岸）人民币汇率 '
+            '<span class="vintage">离岸 CNH ｜ 当前 + 近7交易日 ｜ 汇率下行=人民币走强</span></h2>')
+    cur = fx.get("cur")
+    if cur is None:
+        body = ('<div class="card"><div class="k">美元兑离岸人民币 · USD/CNH</div>'
+                '<div class="v na" style="font-size:26px;margin-top:3px">待回填</div>'
+                '<div class="sub" style="font-size:11px;margin-top:4px">'
+                'fx_cnh_daily 暂无数据（Tushare fx_daily 未回填）</div></div>')
+        return head + f'<div style="margin:6px 0 16px">{body}</div>'
+    series = fx.get("series") or []
+    vals = [v for _, v in series]
+    prev = fx.get("prev")
+    chg = (cur - prev) if prev is not None else None          # USD/CNH 下行=人民币走强
+    if chg is None:
+        chg_html = '<span class="sub">日变动 —</span>'
+    elif chg < 0:
+        chg_html = f'<span style="color:#198a67">▼ {abs(chg):.4f}（人民币走强）</span>'
+    elif chg > 0:
+        chg_html = f'<span style="color:var(--red)">▲ {chg:.4f}（人民币走弱）</span>'
+    else:
+        chg_html = '<span class="sub">持平</span>'
+    spark = ""
+    if len(vals) >= 2:
+        mn, mx = min(vals), max(vals)
+        rng = (mx - mn) or 1
+        w, h = 168, 36
+        pts = " ".join(f"{i*w/(len(vals)-1):.1f},{h-3-(v-mn)/rng*(h-6):.1f}"
+                       for i, v in enumerate(vals))
+        col = "#198a67" if vals[-1] <= vals[0] else "#a94e3f"   # 区间走强=绿 / 走弱=红
+        spark = (f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" style="margin-top:6px">'
+                 f'<polyline points="{pts}" fill="none" stroke="{col}" stroke-width="1.8"/></svg>')
+    span = f'{series[0][0]}→{series[-1][0]}' if len(series) >= 2 else (series[-1][0] if series else "")
+    note = f'{iso(fx.get("date"))} · {len(vals)} 点 · 源 {fx.get("src") or "—"}'
+    body = (f'<div class="card"><div class="k">美元兑离岸人民币 · USD/CNH</div>'
+            f'<div class="v" style="font-size:26px;margin-top:3px">{cur:.4f}</div>'
+            f'<div style="margin-top:4px">{chg_html}</div>'
+            f'<div style="margin-top:4px">{spark}'
+            f'<div class="sub" style="font-size:10px;margin-top:2px">近7交易日 · {span}</div></div>'
+            f'<div class="sub" style="font-size:11px;margin-top:4px">{note}</div></div>')
+    return head + f'<div style="margin:6px 0 16px">{body}</div>'
 
 
 # ── 外盘栏目（隔夜·期货预期）：A股开盘前的外部定价背景 ──────────────────
@@ -1514,6 +1576,7 @@ def render(D):
  </div><div class="sub" style="margin-top:6px">{pos["note"]}</div></div>"""
 
     intl_html = intl_section(D)
+    fx_html = fx_section(D)
 
     js = (JS_TPL
           .replace("__EM_SERIES__", em_series)
@@ -1531,6 +1594,8 @@ def render(D):
 {snapshot}
 {p0}
 {row2}
+
+{fx_html}
 
 {intl_html}
 
