@@ -692,6 +692,10 @@ INTL_ASIA = [        # 亚洲栏（期货预期 · 开盘前远期）
     ("JP_FUT",   "日本 · 股指期货",    "CME日经225 · 含半导体设备权重"),
     ("KR_PROXY", "韩国 · 股指期货预期", "MSCI韩国(EWY) · 三星/SK海力士存储芯"),
 ]
+INTL_KR = [          # 韩国存储双雄（2026-06-30 改：直追两只票，替代滞后的 EWY 代理 · Yahoo 源）
+    ("KR_SAMSUNG", "三星电子", "存储/半导体"),
+    ("KR_HYNIX",   "SK海力士", "HBM/存储"),
+]
 _INTL_KIND_BADGE = {"overnight": "隔夜回望", "us_stock": "隔夜",
                     "futures": "期货预期", "etf_proxy": "期货预期 · ETF代理"}
 
@@ -776,6 +780,154 @@ def intl_section(D):
         f'<div class="intl-stocks">{stks}</div></div>'
         f'<div><div class="intl-colhd">亚洲 · 期货预期</div>{asia}</div>'
         f'</div>')
+
+
+# ── 整合栏目：盘前·外部定价背景（一张大卡内分三区：汇率/隔夜/期货）2026-06-30 ──
+def _ep_pct(v):
+    if v is None:
+        return '<span class="na">—</span>'
+    c = "var(--red)" if v > 0 else ("var(--grn)" if v < 0 else "var(--sub)")
+    return f'<span style="color:{c}">{v:+.2f}%</span>'
+
+
+def _ep_idx(label, note, it):
+    """区内指数块：标签 + 大涨跌幅 + 收/日期/note。缺数→待回填、绝不冒充。"""
+    if not it or it.get("pct") is None:
+        return (f'<div class="ext-idx"><span class="ext-lbl">{label}</span>'
+                f'<div class="ext-idxv"><span class="na">—</span> '
+                f'<span style="font-size:11px;color:var(--sub)">待回填</span></div>'
+                f'<div class="ext-mt">{note}</div></div>')
+    close = f'{it["close"]:,.2f}' if it.get("close") is not None else "—"
+    shown = it.get("note") or note
+    return (f'<div class="ext-idx"><span class="ext-lbl">{label}</span>'
+            f'<div class="ext-idxv">{_ep_pct(it["pct"])} '
+            f'<span style="font-size:11px;color:var(--sub)">收 {close} · {iso(it["date"])[5:]}</span></div>'
+            f'<div class="ext-mt">{shown}</div></div>')
+
+
+def _ep_row(name, note, it):
+    """美股代表股行（区内紧凑行，非独立卡）。缺数→待回填。"""
+    if not it or it.get("pct") is None:
+        return (f'<div class="ext-row"><div><span class="ext-rn">{name}</span></div>'
+                f'<div><span class="na" style="font-size:13px">—</span>'
+                f'<span class="ext-rc">待回填</span></div></div>')
+    cv = it.get("close")
+    close = "—" if cv is None else (f'{cv:,.0f}' if cv >= 1000 else f'{cv:,.2f}')
+    return (f'<div class="ext-row"><div><span class="ext-rn">{name}</span>'
+            f'<span class="ext-rsy">{it.get("symbol","")}</span></div>'
+            f'<div>{_ep_pct(it["pct"])}<span class="ext-rc">{close} · {iso(it["date"])[5:]}</span></div></div>')
+
+
+def _ep_lead(it, note):
+    """区主读数（无标签·标签已上移区头）：大涨跌幅 + 收/日期 + note。缺数→待回填。"""
+    if not it or it.get("pct") is None:
+        return ('<div class="ext-idxv"><span class="na">—</span> '
+                '<span style="font-size:11px;color:var(--sub)">待回填</span></div>'
+                f'<div class="ext-mt">{note}</div>')
+    close = f'{it["close"]:,.2f}' if it.get("close") is not None else "—"
+    shown = it.get("note") or note
+    return (f'<div class="ext-idxv">{_ep_pct(it["pct"])} '
+            f'<span style="font-size:11px;color:var(--sub)">收 {close} · {iso(it["date"])[5:]}</span></div>'
+            f'<div class="ext-mt">{shown}</div>')
+
+
+# 区头英文简称（各市场实际跟踪标的代码；缺数时的回退）
+_EP_SYM = {"NASDAQ": "QQQ", "JP_FUT": "NKD", "KR_PROXY": "EWY"}
+
+
+def external_pricing_section(D):
+    """盘前·外部定价背景——一张大卡内分四区（汇率/隔夜美股/期指日本/期指韩国），全用报告暖色 token。"""
+    intl = D.get("intl") or {}
+    fx = D.get("fx") or {}
+    expected = ([INTL_US_INDEX[0]] + [s[0] for s in INTL_US_STOCKS]
+                + [INTL_ASIA[0][0]] + [s[0] for s in INTL_KR])
+    have = sum(1 for c in expected if intl.get(c)) + (1 if fx.get("cur") is not None else 0)
+    vint = f'{have}/{len(expected) + 1} 已取' if have else '待回填'
+
+    # 汇率区
+    cur = fx.get("cur")
+    if cur is None:
+        fx_body = ('<div class="ext-big"><span class="na">待回填</span></div>'
+                   '<div class="ext-mt">fx_cnh_daily 暂无数据</div>')
+    else:
+        series = fx.get("series") or []
+        vals = [v for _, v in series]
+        prev = fx.get("prev")
+        chg = (cur - prev) if prev is not None else None
+        if chg is None:
+            chg_html = '<span>日变动 —</span>'
+        elif chg < 0:
+            chg_html = f'<span style="color:var(--grn)">▼ {abs(chg):.4f} · 人民币走强</span>'
+        elif chg > 0:
+            chg_html = f'<span style="color:var(--red)">▲ {chg:.4f} · 人民币走弱</span>'
+        else:
+            chg_html = '<span>≈持平</span>'
+        spark = ""
+        if len(vals) >= 2:
+            mn, mx = min(vals), max(vals)
+            rng = (mx - mn) or 1
+            w, h = 190, 40
+            pts = " ".join(f"{i*w/(len(vals)-1):.1f},{h-3-(v-mn)/rng*(h-6):.1f}"
+                           for i, v in enumerate(vals))
+            col = "var(--red)" if vals[-1] > vals[0] else "var(--grn)"
+            spark = (f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" style="margin-top:8px">'
+                     f'<polyline points="{pts}" fill="none" stroke="{col}" stroke-width="1.8"/></svg>')
+        span = (f'{series[0][0]}→{series[-1][0]}' if len(series) >= 2
+                else (series[-1][0] if series else ""))
+        fx_body = (f'<div class="ext-big">{cur:.4f}</div>'
+                   f'<div class="ext-chg">{chg_html}</div>{spark}'
+                   f'<div class="ext-mt">近7交易日 · {span} · 源 {fx.get("src") or "—"}</div>')
+
+    def _sym(code):
+        it = intl.get(code)
+        return ((it.get("symbol") if it else None) or _EP_SYM.get(code, "")).replace("=F", "")
+    nasdaq_lead = _ep_lead(intl.get(INTL_US_INDEX[0]), INTL_US_INDEX[2])
+    stk_rows = "".join(_ep_row(nm, note, intl.get(code)) for code, nm, note in INTL_US_STOCKS)
+    jp_lead = _ep_lead(intl.get(INTL_ASIA[0][0]), INTL_ASIA[0][2])
+    kr_rows = "".join(_ep_row(nm, note, intl.get(code)) for code, nm, note in INTL_KR)
+
+    style = ("<style>"
+             ".ext-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;"
+             "box-shadow:var(--whisper);display:grid;grid-template-columns:1fr 1.25fr 1fr;"
+             "overflow:hidden;margin:6px 0 16px}"
+             "@media(max-width:760px){.ext-panel{grid-template-columns:1fr}"
+             ".ext-zone+.ext-zone{border-left:none;border-top:1px solid var(--line)}}"
+             ".ext-zone{padding:15px 17px}"
+             ".ext-zone+.ext-zone{border-left:1px solid var(--line)}"
+             ".ext-zhd{color:var(--sub);font-size:11px;letter-spacing:1.5px;font-weight:600;"
+             "margin:0 0 11px;display:flex;align-items:center;gap:6px}"
+             ".ext-zhd .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);display:inline-block}"
+             ".ext-zhd .bdg{font-size:9.5px;font-weight:400;color:var(--sub);background:#fbf8ef;"
+             "border:1px solid var(--line);border-radius:999px;padding:2px 7px;margin-left:auto;letter-spacing:0}"
+             ".ext-lbl{font-size:12px;color:var(--tx);font-weight:600;letter-spacing:.3px}"
+             ".ext-big{font-size:29px;font-family:var(--num);font-variant-numeric:tabular-nums;"
+             "font-weight:600;margin:4px 0 1px;line-height:1;letter-spacing:0}"
+             ".ext-chg{font-size:12px;color:var(--sub)}"
+             ".ext-mt{color:var(--sub);font-size:10.5px;margin-top:6px;"
+             "font-variant-numeric:tabular-nums;line-height:1.45}"
+             ".ext-idx{margin-bottom:8px}"
+             ".ext-idxv{font-size:20px;font-family:var(--num);font-variant-numeric:tabular-nums;"
+             "font-weight:600;margin-top:2px}"
+             ".ext-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;"
+             "border-top:1px dashed var(--border-soft)}"
+             ".ext-rn{font-size:12px;font-weight:600}.ext-rsy{font-size:9px;color:var(--sub);margin-left:5px}"
+             ".ext-rc{font-size:10px;color:var(--sub);margin-left:8px}"
+             "</style>")
+
+    return (style +
+            '<h2 style="margin-bottom:4px">盘前 · 外部定价背景 '
+            '<span class="vintage">汇率 / 隔夜 / 期货预期 · A股开盘前的外部定价（AI/科技硬件链）· '
+            f'各市场按自身最新交易日 · {vint}</span></h2>'
+            '<div class="ext-panel">'
+            '<div class="ext-zone"><div class="ext-zhd"><span class="dot"></span>汇率 · 离岸人民币</div>'
+            f'<div class="ext-lbl">美元兑离岸人民币 · USD/CNH</div>{fx_body}</div>'
+            f'<div class="ext-zone"><div class="ext-zhd"><span class="dot"></span>隔夜 · 美股（{_sym("NASDAQ")}）</div>'
+            f'{nasdaq_lead}{stk_rows}</div>'
+            f'<div class="ext-zone">'
+            f'<div class="ext-zhd"><span class="dot"></span>期指 · 日本（{_sym("JP_FUT")}）</div>{jp_lead}'
+            f'<div class="ext-zhd" style="margin-top:16px"><span class="dot"></span>韩国 · 存储双雄</div>{kr_rows}'
+            f'</div>'
+            '</div>')
 
 
 def _font_face():
@@ -1575,8 +1727,7 @@ def render(D):
   <div><div class="k">龙鱼评级（个股资格）</div><div class="sub">见机会卡片标的 chips 内分数</div></div>
  </div><div class="sub" style="margin-top:6px">{pos["note"]}</div></div>"""
 
-    intl_html = intl_section(D)
-    fx_html = fx_section(D)
+    ext_html = external_pricing_section(D)
 
     js = (JS_TPL
           .replace("__EM_SERIES__", em_series)
@@ -1595,9 +1746,7 @@ def render(D):
 {p0}
 {row2}
 
-{fx_html}
-
-{intl_html}
+{ext_html}
 
 <h2 id="sec-main">二 · 主线板块 · 近3日 <span class="vintage">资格=涨幅>1%且对大盘超额>0.5pp（跟涨不算主线）｜ 数量≤当日成交额对应K_cap ｜ 点卡片看详情</span></h2>
 {main_html}
