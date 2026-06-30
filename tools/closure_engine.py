@@ -39,6 +39,15 @@ RELIGHT_STREAK = 4      # 点亮 Y′：暗态期连续超额为正天数
 RELIGHT_REBOUND = 0.05  # 点亮 Z：自暗态低点累计回升 ≥ 5pp
 WINDOW = 120        # 信号后观察窗口（交易日）
 
+# ── 个股篮子锚（2026-06-30 Doctor 批）──────────────────────────────
+# 光芯片无纯 ETF（最近的光模块 ETF 由模组厂主导、对芯片厂逻辑甚至反号），故锚到 A 股纯标的。
+# 篮子从 stock_daily 读、与 ETF 主线同口径（篮内个股 pct_chg 均值 − 基准 510300）；
+# 等权、缺则按当日可用只数降级。⚠️ 长光华芯 688048 stock_daily 仅 20260603 起
+# （口径断裂遗留）→ 该日前篮子实为源杰单只。
+STOCK_BASKET = {"光芯片": ["688498.SH", "688048.SH"]}   # 源杰科技 + 长光华芯（等权）
+# 按 signal_node 精确改锚（不靠模糊词，避免误伤模组级光模块信号）
+SIGNAL_THEME_OVERRIDE = {"concept_LaserShortage2026": "光芯片"}
+
 # ── sector_alias canonical → THEME_ETF 键 ────────────────────────
 CANON2THEME = {
     "光模块": "光模块/CPO/光通信/光纤", "CPO": "光模块/CPO/光通信/光纤",
@@ -137,6 +146,26 @@ def load_excess(md):
             if vals:
                 ex[d] = sum(vals) / len(vals) - bench[d]
         excess[theme] = ex
+
+    # 个股篮子锚（与 ETF 同口径：篮内个股 pct 均值 − 基准；按当日可用只数降级）
+    if STOCK_BASKET:
+        need = {c for codes in STOCK_BASKET.values() for c in codes}
+        sd = defaultdict(dict)
+        qm = ",".join("?" * len(need))
+        for d, code, pc in md.execute(
+                f"SELECT trade_date, ts_code, pct_chg FROM stock_daily "
+                f"WHERE ts_code IN ({qm}) AND pct_chg IS NOT NULL", tuple(need)):
+            sd[code][d] = pc / 100.0
+        for theme, codes in STOCK_BASKET.items():
+            rs = [sd[c] for c in codes]
+            ex = {}
+            for d in dates:
+                if d not in bench:
+                    continue
+                vals = [r[d] for r in rs if d in r]
+                if vals:
+                    ex[d] = sum(vals) / len(vals) - bench[d]
+            excess[theme] = ex
     return dates, excess
 
 
@@ -312,7 +341,8 @@ def main():
         if not s["disc"]:
             stats["bad_date"] += 1
             continue
-        theme, tier = map_theme(s["kw_text"], s["content_text"], alias_pairs)
+        ov = next((th for sn, th in SIGNAL_THEME_OVERRIDE.items() if sn in s["kw_text"]), None)
+        theme, tier = (ov, "override") if ov else map_theme(s["kw_text"], s["content_text"], alias_pairs)
         if theme is None:
             stats["no_anchor"] += 1
             out.append({**s, "theme": "", "tier": tier, "gap_status": "no_anchor",

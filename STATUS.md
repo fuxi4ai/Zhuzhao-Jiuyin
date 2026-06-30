@@ -56,6 +56,7 @@
 
 | 项 | 说明 |
 |----|------|
+| **日报受益公司着色切渊图 region**（下一步） | 现 `gen_daily_report.py` 靠硬编码 `TAIWAN_BENE`(13)/`FOREIGN_BENE` 上色（台=青绿`#1f8a7a`/外=樱粉`#d76a92`/中港=蓝）；渊图已建 `properties.region`(中/港/台/其他·主上市地口径·2026-06-30 回填483/待核验3)。下一步改报告读渊图 region 替换两套硬编码集，去维护负担（新台企不必再手补 `TAIWAN_BENE`）。读法参 `tools/yuantu_client.py` |
 | **stock_tracking 收益列 0/2527** | 回测工具齐、未跑：待 Mac 跑 `populate_signal_targets → signal_winrate_backtest`（写 recap.db）→ 收益/超额/命中列落地、出分池胜率 |
 | cycle_compare 双轨一致率 37.6% | 量化阶段退化，待用公共行情库重算量化分（G011 已修报错本身）|
 | emotion_stage 部分空 | 2026-05 后新录入未标注情绪阶段 |
@@ -69,4 +70,10 @@ closure_engine 状态机：`open→closing`（连续超额为正≥3日）→ `c
 
 ---
 
-*STATUS.md · 2026-06-24 实测 · CC*
+## 日报改动记录（gen_daily_report.py）
+
+- **2026-06-30**：① 受益公司国别上色——台企=青绿 `#1f8a7a`（`TAIWAN_BENE` 13 家·渊图 .TW 命中 8+desc 坐实 5）/外企=樱粉 `#d76a92`/中港=蓝；②「机会提示」价格闸**分层**——中期 `e20>0`（月度趋势确认）且 短期 `e5>0`（5 日新鲜启动），卡片加显「5日/20日」双窗；③ 秋色 hero 字形 `#8b6f32`→提亮金黄 `#bd9a43`（+glow 同步）。⚠ `TAIWAN_BENE`/`FOREIGN_BENE` 为**写死白名单**，新台企/外企受益公司需手补——待上「切渊图 region」TODO 收口。
+
+---
+
+*STATUS.md · 2026-06-24 实测 · CC（2026-06-30 补日报改动+region TODO）*
