@@ -33,14 +33,14 @@ _sys.path.insert(0, str(config.PROJECT_ROOT / "scripts"))
 from fetch_theme_etf import THEME_ETF, BENCHMARK
 from fetch_us_anchor import THEME_US, BENCHMARK_US
 
-OUT_DIR = config.PROJECT_ROOT.parents[3] / "AI4ME" / "烛照九阴-outputs"
-RECORDS = config.PROJECT_ROOT.parents[3] / "Database" / "龙鱼-标的分析库" / "records"
+OUT_DIR = config.OUTPUT_ROOT / "烛照九阴-outputs"
+RECORDS = config.DATABASE_ROOT / "龙鱼-标的分析库" / "records"
 ASSETS = config.PROJECT_ROOT / "assets"
 FONT_SEASONS = ASSETS / "zikutang-shike-seasons.ttf"          # 字酷堂石刻体子集（春夏秋冬）
 # ART_LAIQIN = ASSETS / "guoshu-laiqin-03-guohua-inkwash-edgefit-h1000.webp"  # 旧《果熟来禽图》水墨版（2026-06-29 弃用，保留可回退）
 ART_LAIQIN = ASSETS / "guoshu-laiqin-04-birdberry-h1000.png"  # 鸟果新标题图（2026-06-29 Doctor 换为 PNG 版，旧 .webp 已替换）
 ECHARTS_JS = ASSETS / "echarts.min.js"                        # ECharts 本地副本（Cowork 沙箱须内联，详见 _echarts_inline）
-ARTIFACT_PATH = config.PROJECT_ROOT.parents[3] / "Claude" / "Artifacts" / "zhuzhao-jiuyin-daily" / "index.html"  # Cowork artifact 部署目标（重渲即部署）
+ARTIFACT_PATH = config.ARTIFACT_ROOT / "zhuzhao-jiuyin-daily" / "index.html"  # Cowork artifact 部署目标（重渲即部署）
 
 
 def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d

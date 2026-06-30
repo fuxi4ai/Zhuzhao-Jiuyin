@@ -45,6 +45,12 @@ def _find_database_root(start: Path) -> Path:
 
 DATABASE_ROOT = _find_database_root(PROJECT_ROOT)
 
+# ─── 输出/产物根（沙箱平铺挂载下用 env 覆盖，见通用教训 G-X45）──────
+# AI4ME 报告输出根：ZZJY_OUTPUT_ROOT 覆盖；否则回退 <Documents>/AI4ME（parents[3]）
+OUTPUT_ROOT = Path(os.environ.get("ZZJY_OUTPUT_ROOT") or (PROJECT_ROOT.parents[3] / "AI4ME"))
+# Cowork Artifacts 根：ZZJY_ARTIFACT_ROOT 覆盖；否则回退 <Documents>/Claude/Artifacts
+ARTIFACT_ROOT = Path(os.environ.get("ZZJY_ARTIFACT_ROOT") or (PROJECT_ROOT.parents[3] / "Claude" / "Artifacts"))
+
 # ─── 烛阴自有库（可写）────────────────────────────────────────
 RECAP_DB = str(DATABASE_ROOT / "烛照九阴" / "recap.db")
 NEWS_DB = str(DATABASE_ROOT / "烛照九阴" / "archive" / "news_财新试验_20260511.db")  # 2026-06-10 归档，财新搁置
