@@ -260,6 +260,18 @@
 
 ---
 
+## G019 — Cowork Artifact 部署须注入 color-scheme:light
+
+**日期**: 2026-06-30 | **发现人**: Doctor/CC | **状态**: 已修 ✓
+
+**问题**: `gen_daily_report._deploy_to_artifact` 直写 `Artifacts/zhuzhao-jiuyin-daily/index.html`（绕过 `update_artifact`、manifest 不刷但渲染读文件本身）。但报告 HTML 的 `:root` 没有 `color-scheme`，Cowork artifact 渲染器会随系统转暗模式，暖色范式在暗底下发灰。
+
+**解法** ✅: `_deploy_to_artifact` 写文件前注入 `:root{color-scheme:light;...}`（已有则跳过）。以后每天自动部署的 Artifact 都强制亮色。
+
+**预防**: 凡自包含 HTML 要在 Cowork artifact 渲染、且设计是固定亮色范式 → `:root` 必带 `color-scheme:light`。
+
+---
+
 ## 统计
 
 | 类别 | 总数 | 已改正 | 待处理 |
@@ -272,6 +284,6 @@
 | 算法 | 2 | 2 | 0 |
 | 路径/迁移 | 1 | 1 | 0 |
 | 代码接口 | 1 | 0 | 1 |
-| 自动化/流程 | 2 | 1 | 1 |
+| 自动化/流程 | 3 | 2 | 1 |
 | 回测/数据覆盖 | 2 | 1 | 1 |
-| **总计** | **18** | **14** | **4** |
+| **总计** | **19** | **15** | **4** |
