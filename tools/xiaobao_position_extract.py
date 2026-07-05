@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """抽取每日"真·仓位句"——成数/百分比必须紧贴仓位锚词。输出紧凑 bundle 供人工判读。"""
-import re, glob, json, os
+import re, glob, json, os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import config  # 路径单一可信源（G-X45：不再写死 /sessions/xxx 会话 id）
 
-SRC_DIR = "/sessions/adoring-busy-cori/mnt/Documents/Claude/Projects/Financial/烛照九阴/raw/4-dims"
+SRC_DIR = os.path.join(str(config.PROJECT_ROOT), "raw", "4-dims")
 
 def fdate(fn):
     b=os.path.basename(fn)

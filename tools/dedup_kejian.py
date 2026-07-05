@@ -12,7 +12,7 @@
                        （INSERT OR REPLACE）。--file <名> 记一个；--all-new 记本次 scan 的所有 new+changed。
 
 红线：scan 只读（recap.db mode=ro + 只读 Raw-Recap）；record 才写库（沙箱挂载盘禁写 db→只能 Mac 跑）。
-路径走祖先查找定位 Documents（GOTCHA-014：不用 ~/expanduser）。
+路径一律取自 config（唯一入口·G-X45：不再自造祖先查找，沙箱平铺挂载亦可裸解析）。
 """
 import os, sys, json, hashlib, sqlite3, argparse, re
 from pathlib import Path
@@ -22,16 +22,9 @@ import config  # 中央写护栏 connect_write（G019）
 
 KEJIAN_EXTS = {".pdf", ".doc", ".docx"}
 
-def _documents_root():
-    here = Path(__file__).resolve()
-    for anc in [here] + list(here.parents):
-        if anc.name == "Documents":
-            return anc
-    return here.parents[6]  # 兜底
-
-DOCS = _documents_root()
-RECAP_DB = DOCS / "Database" / "烛照九阴" / "recap.db"
-RAW_DIR = DOCS / "Database" / "烛照九阴" / "Raw-Recap"
+# 路径一律取自 config（唯一入口·G-X45：自动继承 ZZJY_DATABASE_ROOT 覆盖，沙箱平铺挂载下亦可裸解析）
+RECAP_DB = Path(config.RECAP_DB)
+RAW_DIR = Path(config.RAW_RECAP_DIR)
 
 def _md5(p):
     h = hashlib.md5()
