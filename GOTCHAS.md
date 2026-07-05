@@ -272,6 +272,50 @@
 
 ---
 
+## G020 — `dedup_kejian.py` 在沙箱平铺挂载下 `_documents_root()` 越界崩溃
+
+**日期**: 2026-07-01 | **发现人**: 九儿（recap-kejian-daily-ingest 定时任务） | **状态**: ⏳ 待解决（有等价 workaround，未改脚本）
+
+**触发场景**: Cowork 沙箱内直接 `python3 tools/dedup_kejian.py scan`（已挂载 Database 与本项目）。
+
+**错误信息**: `IndexError: 6`，出在 `_documents_root()` 兜底分支 `return here.parents[6]`——沙箱把各挂载目录**平铺**在 `/sessions/*/mnt/` 下（如 `mnt/烛照九阴`、`mnt/Database`），不是 Mac 上 `~/Documents/Claude/Projects/Financial/烛照九阴` 那种深层嵌套；脚本从 `__file__` 向上找名为 `Documents` 的祖先目录找不到，落到 `parents[6]` 时层数不够直接抛异常（**模块顶层执行，导入即崩**，无法在导入后再 monkeypatch）。
+
+**解决方案** ✅（等价复现，未改脚本）: 不 import 该模块，改为内联重写 `scan()` 同款逻辑（filename+md5 对比 `processed_kejian`），路径直接用沙箱真实挂载点 `mnt/Database/烛照九阴/{recap.db,Raw-Recap}`。去重口径完全一致，结果可信（本次核验：223 课件、223 已处理、待处理 0，与真库一致）。
+
+**预防 / 待办**: `config.py._find_database_root()` 已支持 `ZZJY_DATABASE_ROOT` 环境变量覆盖，但 `dedup_kejian._documents_root()` 是独立实现、没吃到这层。彻底修法：把 `dedup_kejian.py` 的 `RECAP_DB`/`RAW_DIR` 改为 `import config` 后取 `config.RECAP_DB`/`config.RAW_RECAP_DIR`（并让兜底分支判长度再取，不裸 `parents[6]`）。因涉及改脚本，按 propose-then-confirm 交哥哥拍板，本次仅记录、未动代码。
+
+**补充解法**（2026-07-02·九儿）：找到一种**不改脚本、原脚本原样可跑**（含 `scan` 与 `record` 两条命令）的等价 workaround——伪造一段带字面量 `Documents` 祖先目录的路径树，把真实脚本**复制**（非软链，避免 `Path.resolve()` 把符号链接解析穿透丢失 `Documents` 这一级）过去，再用符号链接把 `Database/烛照九阴/{Raw-Recap, recap.db}` 分别指回真实 Raw-Recap（只读用）与 `/tmp/dbroot` 工作副本（可写）：
+```bash
+mkdir -p /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴/tools
+mkdir -p /tmp/fake/Documents/Database/烛照九阴
+cp <项目根>/tools/dedup_kejian.py /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴/tools/
+cp <项目根>/config.py            /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴/
+ln -sfn <真实挂载>/Database/烛照九阴/Raw-Recap /tmp/fake/Documents/Database/烛照九阴/Raw-Recap
+ln -sfn /tmp/dbroot/烛照九阴/recap.db          /tmp/fake/Documents/Database/烛照九阴/recap.db
+cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/dedup_kejian.py scan --json
+```
+`_documents_root()` 沿 `__file__.resolve()` 向上找到 `/tmp/fake/Documents`（真实目录，非软链，故不会被 resolve 穿透），`RAW_DIR`/`RECAP_DB` 由此拼出，I/O 时透明穿过符号链接读写目标。`record --all-new` 的 `config.connect_write()` 护栏对 `RECAP_DB` 路径 `.resolve()` 后落在 `/tmp/...`（非 `/sessions/`、`/mnt/`），正常放行写入 `/tmp/dbroot` 副本，无需 `ZZJY_ALLOW_MOUNT_WRITE`。比"内联重写 scan()"更完整：原脚本零改动，`scan`+`record` 全流程复用，去重口径与未来脚本更新自动同步。
+
+---
+
+## G021 — `ZZJY_DATABASE_ROOT=/tmp/dbroot` 会连带带偏渊图只读路径
+
+**日期**: 2026-07-01 | **发现人**: 九儿（定时任务派生回填第四次触发） | **状态**: ✅ 已解决（workaround，未改代码）
+
+**触发场景**: 沙箱内跑 recap.db 派生回填，`export ZZJY_DATABASE_ROOT=/tmp/dbroot` 后执行 `tools/sync_buy_signals.py`。
+
+**错误信息**: `渊图 latest.json 不存在: /tmp/dbroot/行业研究/mapping/latest.json（检查软链 / config.YUANTU_KG）`，随后契约健康检查 `sys.exit(2)` 报 `NameError: name 'sys' is not defined`（`build()` 里用了 `sys.exit` 但顶部只 import 了 `_sys`，属另一个小 bug）。
+
+**更新 2026-07-05（九儿·07-03 补报）**: `sync_buy_signals.py:74` 的 `sys.exit(2)` → `_sys.exit(2)` **已改代码修掉**（此前失败路径会 NameError 掩盖"渊图未接入"真因，现能干净退出并打印 healthcheck 错误）。软链 workaround 仍照旧（渊图只读不入 /tmp）。
+
+**根因**: `config.py` 的 `DATABASE_ROOT` 是单一变量，`RECAP_DB`（可写）与 `YUANTU_ROOT`（只读引用）共用同一根；为让 recap.db 走 /tmp 副本设的 `ZZJY_DATABASE_ROOT` 会把渊图路径也一并指向 /tmp，而渊图 KG 按规矩不拷进 /tmp（只读外部源），于是路径下空空如也。
+
+**解法**: `ln -sf ~/Documents/Database/行业研究 /tmp/dbroot/行业研究`——只读符号链接指回真实挂载盘，不拷贝任何数据，满足"渊图只读、不入 /tmp 副本"的铁律，同时让 `config.YUANTU_ROOT`/`YUANTU_KG` 解析成功。跑完 sync_buy_signals 后无需清理（/tmp 会话结束即消失）。
+
+**预防**: 以后凡设 `ZZJY_DATABASE_ROOT=/tmp/dbroot` 走 recap.db 副本往返时，若同一轮还要跑依赖渊图只读源的脚本（sync_buy_signals 等），记得先补一条渊图目录软链，否则会误判"渊图未接入"。
+
+---
+
 ## 统计
 
 | 类别 | 总数 | 已改正 | 待处理 |
@@ -286,4 +330,5 @@
 | 代码接口 | 1 | 0 | 1 |
 | 自动化/流程 | 3 | 2 | 1 |
 | 回测/数据覆盖 | 2 | 1 | 1 |
-| **总计** | **19** | **15** | **4** |
+| 沙箱环境 | 1 | 0 | 1 |
+| **总计** | **20** | **15** | **5** |

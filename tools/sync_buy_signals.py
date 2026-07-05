@@ -71,7 +71,7 @@ def build(dry_run=False):
     hc = yc.healthcheck()
     if not hc.get("ok"):
         logger.error(f"❌ 渊图契约 healthcheck 失败，中止: {hc}")
-        sys.exit(2)
+        _sys.exit(2)   # 2026-07-05 修：本文件 import sys as _sys，原 sys 未定义会在失败路径 NameError 掩盖真因
     logger.info(f"✅ 渊图契约 OK：{hc['node_count']}节点/{hc['edge_count']}边/{hc['signal_count']}信号")
 
     conn = sqlite3.connect(config.RECAP_DB)
