@@ -4,11 +4,11 @@
 
 判「recap 日更是否按期入库 + 新不新鲜」，供海螺姑娘资产看板 conch survey 读取 → 节点发光告警。
 口径（对齐 conch/白泽 schema · G-X45 第三批 · 2026-07-01 立）：
-  target_date = 六张关键 dim 表 max(date) 的最大值
-  gap_days    = today - target_date（自然日）
+  target_date = 六张关键 dim 表 max(date) 的最大值（= 复盘数据日；与日报右下角数据日一致）
+  gap         = target_date 到最近收盘交易日之间的「交易日」数（离线读句芒 stock_daily 日历·含真实节假日；不可用则退回自然日）
   overall
-    · fail  = 关键表读不到 / gap_days >= FAIL_DAYS（≥5 天没更新，明显有事）
-    · stale = gap_days >= STALE_DAYS（≥2 天没更新，工作日应日更）
+    · fail  = 关键表读不到 / gap >= FAIL_DAYS（≥5 个交易日没更新，明显有事）
+    · stale = gap >= STALE_DAYS（≥2 个交易日没更新，交易日应日更）
     · ok    = 其他
 
 红线：只读文件（`file:...?mode=ro`），绝不写 db、不联网。
@@ -29,8 +29,27 @@ KEY_TABLES = [
     "dim4_stock_analysis",
 ]
 
-STALE_DAYS = 2   # 工作日日更，>=2 天未更新 → stale
-FAIL_DAYS = 5    # >=5 天未更新（跨长假仍应有 6/29 之类的最后一批）→ fail
+STALE_DAYS = 2   # >=2 个交易日未更新 → stale（2026-07-05 改：按交易日计，周末/节假日不算）
+FAIL_DAYS = 5    # >=5 个交易日未更新 → fail
+
+
+def _trade_gap(db_root, target_iso):
+    """交易日 gap：句芒 market_data.db 的 stock_daily 里 target < trade_date <= 最近收盘交易日 的交易日数。
+    离线、含真实 A 股节假日。market_data.db 不可用/异常 → 返回 (None, None)，调用方回退日历天。"""
+    mdb = db_root / "Market-Data" / "market_data.db"
+    if not mdb.exists():
+        return None, None
+    try:
+        td_compact = str(target_iso).replace("-", "")        # 2026-07-02 → 20260702
+        conn = sqlite3.connect(f"file:{mdb}?mode=ro", uri=True)
+        last = conn.execute("SELECT MAX(trade_date) FROM stock_daily").fetchone()[0]
+        n = conn.execute(
+            "SELECT COUNT(DISTINCT trade_date) FROM stock_daily "
+            "WHERE trade_date > ? AND trade_date <= ?", (td_compact, last)).fetchone()[0]
+        conn.close()
+        return n, last
+    except Exception:
+        return None, None
 
 
 def _database_root() -> Path:
@@ -99,18 +118,27 @@ def main():
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 1
 
-    # target_date + gap
+    # target_date + gap（2026-07-05：陈旧按「交易日」计，周末/节假日不算；日历天仅作参考）
     target_date = max(max_dates) if max_dates else None
     gap_days = None
     if target_date:
         try:
             td = date.fromisoformat(target_date)
-            gap_days = (date.today() - td).days
-            checks["gap_days"] = gap_days
-            if gap_days >= FAIL_DAYS:
-                fails.append(f"最新数据日 {target_date} 距今 {gap_days} 天（≥{FAIL_DAYS} 天=fail）")
-            elif gap_days >= STALE_DAYS:
-                warns.append(f"最新数据日 {target_date} 距今 {gap_days} 天（≥{STALE_DAYS} 天=stale）")
+            cal_gap = (date.today() - td).days
+            checks["gap_days"] = cal_gap                      # 日历天（参考）
+            gap_trade, last_trade = _trade_gap(db_root, target_date)
+            if gap_trade is not None:
+                gap_days = gap_trade
+                checks["gap_trade_days"] = gap_trade
+                checks["last_trade_date"] = last_trade
+                basis, unit = gap_trade, "个交易日"
+            else:
+                gap_days = cal_gap                            # 回退：交易日历不可用
+                basis, unit = cal_gap, "天(交易日历不可用·退回日历天)"
+            if basis >= FAIL_DAYS:
+                fails.append(f"最新数据日 {target_date} 距今 {basis} {unit}（≥{FAIL_DAYS}=fail）")
+            elif basis >= STALE_DAYS:
+                warns.append(f"最新数据日 {target_date} 距今 {basis} {unit}（≥{STALE_DAYS}=stale）")
         except Exception as e:
             warns.append(f"target_date 解析失败({target_date}):{e}")
     else:
@@ -121,7 +149,7 @@ def main():
         "generated": now, "overall": overall, "fails": fails, "warns": warns,
         "target_date": target_date, "checks": checks,
         "note": ("烛照九阴 recap.db 自检 · 六张关键 dim 表 max(date) 判 target_date · "
-                 f"阈值 stale≥{STALE_DAYS}d/fail≥{FAIL_DAYS}d · 只读零网络"),
+                 f"阈值 stale≥{STALE_DAYS}/fail≥{FAIL_DAYS} 个交易日（离线读 stock_daily 日历·含节假日；不可用退日历天）· 只读零网络"),
     }
     try:
         out.parent.mkdir(parents=True, exist_ok=True)
