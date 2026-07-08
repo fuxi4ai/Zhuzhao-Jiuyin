@@ -232,8 +232,19 @@ def gather(date_cap=None):
     pct_rank = round(100 * sum(1 for v in last50 if v <= sc_vals[-1]) / len(last50))
     trend = ("上行" if len(ma5) > 1 and ma5[-1] > ma5[-2]
              else ("下行" if len(ma5) > 1 and ma5[-1] < ma5[-2] else "走平"))
+    # 季节判定线分段配色：按春/夏/秋/冬拆成 4 条子序列（同 x 轴对齐，非本季日期留空）
+    # 季节切换处把前一日的值补进新季节序列，避免线段在交界处断开
+    seasons_seq = [(r[2] or "")[0] for r in em_rows]
+    season_arr = {s: [None] * len(ma5) for s in SEASON_COLOR}
+    for i, s in enumerate(seasons_seq):
+        if s not in season_arr:
+            continue
+        season_arr[s][i] = ma5[i]
+        if i > 0 and seasons_seq[i - 1] != s:
+            season_arr[s][i - 1] = ma5[i - 1]
     D["emotion"] = {
         "series": [[r[0], r[1], ma5[i]] for i, r in enumerate(em_rows)],
+        "season_series": season_arr,
         "date": em_last[0], "score": em_last[1], "season": em_last[2],
         "risk": em_last[3], "cycle_no": em_last[4],
         "limit_up": em_last[5], "limit_down": em_last[6],
@@ -442,6 +453,59 @@ def gather(date_cap=None):
             "SELECT COUNT(*) FROM yuantu_buy_signals WHERE gap_status='dormant'").fetchone()[0]
     except Exception:
         D["dormant_n"] = 0
+
+    # ── 强信号优先条取数（回测落地批·置顶 glow）2026-07-08 ──
+    # 卡A「一段兑现启动」：当日新转 realized 的渊图主线（严格当日增量 date_realized==data_day）
+    #   回测锚 docs/自主回测_20260706/relit.json「一段realized」n=181/182·3d 胜率 84.5%（渊图信号级·口径一致）
+    dd_iso = iso(data_day)
+    realized_today = []
+    try:
+        for r in rc.execute(
+                "SELECT industry_chain, signal_node, signal_type, gap_desc, date_realized "
+                "FROM yuantu_buy_signals WHERE date_realized IS NOT NULL AND date_realized!='' "
+                "ORDER BY yuantu_confidence DESC").fetchall():
+            if iso(r[4]) != dd_iso:
+                continue
+            realized_today.append(dict(
+                chain=r[0] or r[1], node=r[1] or "", stype=r[2] or "",
+                desc=(r[3] or "").replace("发现", "出现"), realized=r[4] or ""))
+    except Exception:
+        realized_today = []
+    D["realized_today"] = realized_today
+
+    # 卡B「需求爆发主线」：在途(open/closing)且 signal_type 含 demand_surge 的渊图信号
+    #   回测锚 docs/自主回测_20260706/agg_stock.json own_分逻辑 demand_surge n=188·10d 超额 +5.23%
+    #   ⚠ 口径：own 标的池（logic_type），非渊图信号级——注记须如实标口径来源（Doctor 2026-07-08）
+    demand_hot, _seen_dh = [], set()
+    try:
+        for r in rc.execute(
+                "SELECT industry_chain, signal_node, signal_type, gap_status, gap_desc, yuantu_confidence "
+                "FROM yuantu_buy_signals WHERE length(date)=10 "
+                "AND gap_status IN ('open','closing') AND signal_type LIKE '%demand_surge%' "
+                "ORDER BY yuantu_confidence DESC").fetchall():
+            chain = r[0] or r[1]
+            if chain in _seen_dh:   # 同产业链去重，取最高置信度那条
+                continue
+            _seen_dh.add(chain)
+            demand_hot.append(dict(
+                chain=chain, node=r[1] or "", stype=r[2] or "",
+                status=r[3] or "", desc=(r[4] or "").replace("发现", "出现"), conf=r[5] or 0))
+    except Exception:
+        demand_hot = []
+    D["demand_surge_hot"] = demand_hot
+
+    # 各机制当前在途条数（open/closing 去重产业链）——供"其他机制·按胜率排行"显示在途数
+    mech_n = {}
+    try:
+        for key in ("supply_shock", "event_driven", "tech_innovation",
+                    "price_driven", "persistent_imbalance"):
+            mech_n[key] = len(rc.execute(
+                "SELECT DISTINCT industry_chain FROM yuantu_buy_signals "
+                "WHERE length(date)=10 AND gap_status IN ('open','closing') "
+                "AND signal_type LIKE ?", (f"%{key}%",)).fetchall())
+    except Exception:
+        mech_n = {}
+    D["mech_inflight_n"] = mech_n
 
     # ── 在途未兑现台账：所有 open/closing 渊图信号（不受 top-3 时间窗限制）──
     # 补全展示：被主栏时间窗吞掉但状态仍在途的信号；同产业链取最近一条去重，
@@ -1114,6 +1178,49 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .mrow{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 10px}
 .mrow::-webkit-scrollbar{height:6px} .mrow::-webkit-scrollbar-thumb{background:#d7cdb9;border-radius:3px}
 .mrow .mcard,.mrow .scard,.mrow .fulfill-card{flex:0 0 236px}
+/* 强信号优先条（回测最有力量两类·置顶外发光）2026-07-08 */
+.prio-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin:2px 2px 20px}
+.prio-card{position:relative;border-radius:16px;padding:16px 18px 14px;
+ background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(251,248,239,.5));
+ border:1px solid color-mix(in srgb,var(--sc) 42%,transparent);
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--sc) 20%,transparent),0 0 22px color-mix(in srgb,var(--sc) 34%,transparent),0 6px 18px rgba(20,20,19,.10)}
+.prio-glow{animation:prio-breathe 3.6s ease-in-out infinite}
+@keyframes prio-breathe{
+ 0%,100%{box-shadow:0 0 0 1px color-mix(in srgb,var(--sc) 20%,transparent),0 0 18px color-mix(in srgb,var(--sc) 28%,transparent),0 6px 18px rgba(20,20,19,.10)}
+ 50%{box-shadow:0 0 0 1px color-mix(in srgb,var(--sc) 32%,transparent),0 0 36px color-mix(in srgb,var(--sc) 54%,transparent),0 6px 18px rgba(20,20,19,.12)}}
+@media (prefers-reduced-motion:reduce){.prio-glow{animation:none}}
+.prio-h{font-weight:700;font-size:15px;color:var(--tx);display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.prio-badge{font-size:11px;font-weight:700;letter-spacing:.04em;color:#fff;background:var(--sc);padding:2px 8px;border-radius:999px;box-shadow:0 0 10px color-mix(in srgb,var(--sc) 60%,transparent)}
+.prio-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.prio-list li{display:flex;flex-direction:column;gap:1px;font-size:13.5px;color:var(--tx);border-left:2px solid color-mix(in srgb,var(--sc) 55%,transparent);padding-left:9px}
+.prio-list li b{font-weight:600}
+.prio-meta{font-size:11.5px;color:var(--sub)}
+.prio-more{font-size:11.5px;color:var(--sub);margin-top:7px}
+.prio-empty{font-size:13px;color:var(--sub);padding:6px 0 2px}
+.prio-card .bt-note{font-size:11px;color:var(--sub);margin-top:11px;padding-top:9px;border-top:1px dashed rgba(120,110,95,.28);line-height:1.45}
+/* 其他机制·按10日胜率排行（无外发光·安静层）*/
+.prio-rank{margin:2px 2px 20px;padding:13px 15px 11px;border-radius:14px;background:rgba(251,248,239,.55);border:1px solid rgba(120,110,95,.20)}
+.rank-h{font-weight:600;font-size:13.5px;color:var(--tx);margin-bottom:9px}
+.rank-sub{display:block;font-weight:400;font-size:11px;color:var(--sub);margin-top:3px;line-height:1.4}
+.rank-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.rank-list li{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;font-size:13px;color:var(--tx)}
+.rank-list li:nth-child(odd){background:rgba(255,255,255,.42)}
+.rank-win{flex:0 0 auto;min-width:74px;font-weight:700;font-variant-numeric:tabular-nums}
+.rank-win i{font-style:normal;font-size:10px;font-weight:500;color:var(--sub);margin-left:3px}
+.rank-name{flex:1 1 auto;font-weight:600;display:flex;align-items:center}
+.rank-flag{font-size:10.5px;font-weight:600;color:#b5563f;border:1px solid rgba(181,86,63,.42);border-radius:6px;padding:0 5px;margin-left:7px}
+.rank-exc{flex:0 0 auto;font-size:11.5px;color:var(--sub)}
+.rank-cur{flex:0 0 auto;font-size:11px;color:var(--sub);min-width:86px;text-align:right}
+/* 逆风机制·红色外发光警示（覆盖 nth-child 底色）*/
+.rank-list li.rank-risk{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.45);
+ box-shadow:0 0 0 1px rgba(192,57,43,.24),0 0 20px rgba(192,57,43,.42);
+ animation:risk-breathe 3.6s ease-in-out infinite}
+@keyframes risk-breathe{
+ 0%,100%{box-shadow:0 0 0 1px rgba(192,57,43,.22),0 0 15px rgba(192,57,43,.34)}
+ 50%{box-shadow:0 0 0 1px rgba(192,57,43,.34),0 0 30px rgba(192,57,43,.56)}}
+.rank-risk .rank-flag{color:#fff;background:#c0392b;border-color:#c0392b}
+@media(prefers-reduced-motion:reduce){.rank-list li.rank-risk{animation:none}}
+@media(max-width:560px){.rank-list li{flex-wrap:wrap}.rank-cur{text-align:left}}
 .report-title{margin:2px 0 14px;padding:0 4px;display:inline-block;text-align:center}
 .report-name{display:block;font-size:24px;font-weight:700;letter-spacing:1.8px;line-height:1.18;color:var(--tx);white-space:nowrap;text-align:left}
 .report-meta{display:block;color:var(--sub);font-size:12px;line-height:1.35;text-align:center;white-space:nowrap;margin-top:6px}
@@ -1254,15 +1361,26 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 JS_TPL = """
 const em = echarts.init(document.getElementById('emChart'), null, {renderer:'svg'});
 const es = __EM_SERIES__;
+const emSeason = __EM_SEASON_SERIES__;
+const SEASON_STYLE = {
+ '春':{c:'#3f9c76',g:'47,125,99'},
+ '夏':{c:'#a94e3f',g:'214,126,52'},
+ '秋':{c:'#bd9a43',g:'189,154,67'},
+ '冬':{c:'#1B365D',g:'27,54,93'}};
+const seasonSeries = Object.keys(SEASON_STYLE).filter(s=>emSeason[s]).map((s,idx)=>{
+ const st = SEASON_STYLE[s];
+ const ser = {type:'line',name:'MA5 · '+s,data:emSeason[s],smooth:true,symbol:'circle',symbolSize:3,connectNulls:false,
+  itemStyle:{color:st.c},lineStyle:{color:st.c,width:3,shadowBlur:8,shadowColor:'rgba('+st.g+',.18)'},z:3,
+  areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba('+st.g+',.16)'},{offset:1,color:'rgba('+st.g+',0)'}]}}};
+ if(idx===0){ser.markLine={silent:true,symbol:'none',label:{color:'#6b6a64',fontSize:10},lineStyle:{color:'rgba(139,111,50,.38)',type:'dashed'},data:[{yAxis:50,name:'中线'}]};}
+ return ser;
+});
 em.setOption({grid:{left:34,right:12,top:18,bottom:24},
  xAxis:{type:'category',data:es.map(x=>x[0].slice(5)),axisLabel:{color:'#6b6a64',fontSize:9,interval:14},axisLine:{lineStyle:{color:'#e8e6dc'}},axisTick:{show:false}},
  yAxis:{min:0,max:100,axisLabel:{color:'#6b6a64',fontSize:9},splitLine:{lineStyle:{color:'rgba(80,78,73,.14)'}},splitArea:{show:true,areaStyle:{color:['rgba(47,125,99,.035)','rgba(27,54,93,.025)']}}},
  series:[
   {type:'line',name:'当日原始',data:es.map(x=>x[1]),smooth:false,symbol:'none',lineStyle:{color:'rgba(27,54,93,.30)',width:1},z:1},
-  {type:'line',name:'MA5 · 季节判定',data:es.map(x=>x[2]),smooth:true,symbol:'circle',symbolSize:3,
-  itemStyle:{color:'#2f7d63'},lineStyle:{color:'#2f7d63',width:3,shadowBlur:8,shadowColor:'rgba(47,125,99,.18)'},z:3,
-  areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(47,125,99,.16)'},{offset:1,color:'rgba(47,125,99,0)'}]}},
-  markLine:{silent:true,symbol:'none',label:{color:'#6b6a64',fontSize:10},lineStyle:{color:'rgba(139,111,50,.38)',type:'dashed'},data:[{yAxis:50,name:'中线'}]}}],
+  ...seasonSeries],
  tooltip:{trigger:'axis',backgroundColor:'rgba(250,249,245,.98)',borderColor:'#d7deea',textStyle:{color:'#141413',fontSize:11}}});
 const g = echarts.init(document.getElementById('capGauge'), null, {renderer:'svg'});
 g.setOption({series:[{type:'gauge',min:0,max:__GMAX__,startAngle:205,endAngle:-25,
@@ -1421,6 +1539,7 @@ def render(D):
     ]
     chips_html = "".join(f"<span>{c}</span>" for c in chips)
     em_series = json.dumps(em["series"], ensure_ascii=False)
+    em_season_series = json.dumps(em["season_series"], ensure_ascii=False)
     kt_note = f"；当日 {cap['kday_today']} 为普涨尖峰" if cap["kday_today"] > cap["kday"] + 3 else ""
     state_str = cap["state"] or "—"
     row2 = f"""
@@ -1512,6 +1631,79 @@ def render(D):
  <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到主线板块" onclick="document.getElementById('sec-main').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>主线确认</b><span>{step3}</span><span class="jhint">↘</span></div>
  <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到机会/风险提示" onclick="document.getElementById('sec-opp').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>机会 / 风险</b><span>{step4}</span><span class="jhint">↘</span></div>
 </div>"""
+
+    # ── 强信号优先条（回测最有力量的两类·置顶外发光）2026-07-08 ──
+    _TYPE_ZH = {"supply_shock": "供给冲击", "demand_surge": "需求爆发",
+                "persistent_imbalance": "持续失衡"}
+    def _stype_zh(s):
+        return "·".join(_TYPE_ZH.get(x.strip(), x.strip())
+                        for x in (s or "").split(",") if x.strip())
+    rt = D.get("realized_today", [])
+    if rt:
+        items_a = "".join(
+            f'<li><b>{g["chain"]}</b><span class="prio-meta">{_stype_zh(g["stype"])}'
+            f'{("｜确认 " + iso(g["realized"])) if g.get("realized") else ""}</span></li>'
+            for g in rt[:4])
+        body_a = f'<ul class="prio-list">{items_a}</ul>'
+        if len(rt) > 4:
+            body_a += f'<div class="prio-more">另有 {len(rt) - 4} 条今日兑现启动</div>'
+    else:
+        body_a = '<div class="prio-empty">今日无兑现启动</div>'
+    dh = D.get("demand_surge_hot", [])
+    if dh:
+        items_b = "".join(
+            f'<li><b>{g["chain"]}</b><span class="prio-meta">{_stype_zh(g["stype"])}'
+            f'｜{STATUS_ZH.get(g["status"], g["status"])}</span></li>'
+            for g in dh[:4])
+        body_b = f'<ul class="prio-list">{items_b}</ul>'
+        if len(dh) > 4:
+            body_b += f'<div class="prio-more">另有 {len(dh) - 4} 条在途</div>'
+    else:
+        body_b = '<div class="prio-empty">当前无在途需求爆发信号</div>'
+    prio_html = f"""
+<div class="prio-strip" aria-label="强信号优先·回测最有力量的两类">
+ <div class="prio-card prio-glow" style="--sc:#e0a53a">
+  <div class="prio-h"><span class="prio-badge">⚡ 强信号</span>一段兑现启动</div>
+  {body_a}
+  <div class="bt-note" title="relit.json 一段realized·渊图信号级">确认后 3 日历史胜率 84.5%（n=181，样本期 25.10–26.7 · 过往不代表未来）</div>
+ </div>
+ <div class="prio-card prio-glow" style="--sc:#3f9e8a">
+  <div class="prio-h"><span class="prio-badge">⚡ 强信号</span>需求爆发主线</div>
+  {body_b}
+  <div class="bt-note" title="agg_stock.json own_分逻辑 demand_surge">10 日历史超额 +5.23%（n=188，样本期 25.10–26.7）· 口径：own 标的池 · 过往不代表未来</div>
+ </div>
+</div>"""
+
+    # ── 其他机制 · 按各自窗口回测胜率排行（无 glow）2026-07-08 ──
+    #   数据=docs/自主回测_20260706/agg_stock.json own_分逻辑（离线快照·own 标的池口径）
+    #   窗口口径（Doctor 2026-07-08）：每个机制取其"超额达峰"窗口作自然持有期——3 日兑现的不套 10 日；
+    #   win/exc=该代表窗口的胜率/超额；按胜率降序、并列按超额；demand_surge 已置顶不重列；
+    #   小样本高噪机制(trend/emotion_cycle/other/capacity_policy)略去
+    #   BT_LOGIC:(key, 中文, n, 胜率, 超额, 代表窗口, 标记)
+    BT_LOGIC = [
+        ("supply_shock",         "供给冲击", 82, 56.5,  7.85, "10日", ""),
+        ("event_driven",         "事件驱动", 108, 53.1,  7.55, "10日", ""),
+        ("price_driven",         "价格驱动", 158, 50.6,  1.93, "5日",  ""),
+        ("tech_innovation",      "技术革新", 89, 50.6,  1.72, "3日",  ""),
+        ("persistent_imbalance", "持续失衡", 25, 33.3, -4.70, "3日",  "风险"),
+    ]
+    rank_rows = ""
+    for key, zh, n, w, e, win, flag in BT_LOGIC:
+        cur = D.get("mech_inflight_n", {}).get(key, 0)
+        li_cls = ' class="rank-risk"' if flag else ""
+        flag_s = f'<span class="rank-flag">{flag}</span>' if flag else ""
+        rank_rows += (
+            f'<li{li_cls}><span class="rank-win">{w:.1f}%<i>{win}</i></span>'
+            f'<span class="rank-name">{zh}{flag_s}</span>'
+            f'<span class="rank-exc">超额 {e:+.2f}%</span>'
+            f'<span class="rank-cur">在途 {cur} · n={n}</span></li>')
+    prio_rank = f"""
+<div class="prio-rank" aria-label="其他机制·按各自窗口回测胜率">
+ <div class="rank-h">其他机制 · 按各自窗口回测胜率
+  <span class="rank-sub">窗口=该机制超额达峰的自然持有期（3日兑现的不套10日）· 口径 own 标的池 · 样本期 25.10–26.7 · 过往不代表未来 · 小样本高噪机制(trend/other 等)已略去</span></div>
+ <ul class="rank-list">{rank_rows}</ul>
+</div>"""
+    prio_html += prio_rank
 
     # ── 渊图信号卡 / 兑现度卡 配对（按产业信号时间分组）──
     sig_names = ["最新信号日", "上一信号日", "再前信号日"]
@@ -1737,6 +1929,7 @@ def render(D):
 
     js = (JS_TPL
           .replace("__EM_SERIES__", em_series)
+          .replace("__EM_SEASON_SERIES__", em_season_series)
           .replace("__GMAX__", f"{max(8, (cap['kcap'] or 6) + 2):.0f}")
           .replace("__KDAY__", str(cap["kday"]))
           .replace("__KCAP__", str(cap["kcap"] or 0)))
@@ -1758,6 +1951,7 @@ def render(D):
 {main_html}
 
 <h2 id="sec-gap">三 · GAP 信号栏 <span class="vintage">新线索 / 价格反应 / 主线确认 / 机会风险 ｜ 含在途台账 ｜ 点四步脊跳到对应详情区，点卡片看详情</span></h2>
+{prio_html}
 {gap_chain}
 {sig_html}
 {ledger_html}
