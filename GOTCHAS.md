@@ -344,6 +344,34 @@ cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/d
 
 ---
 
+## G024 — `/tmp/dbroot` 跨会话残留、属主不同致 Permission denied
+
+**日期**: 2026-07-08 | **发现人**: 九儿（课件入库定时任务·同日二次触发） | **状态**: ✅ 已解决（workaround）
+
+**触发场景**: 沙箱内按惯例 `mkdir -p /tmp/dbroot/烛照九阴 && cp $REAL_DB /tmp/dbroot/...`，cp 报 `Permission denied`。
+
+**根因**: `/tmp` 跨沙箱会话持久，但每个会话的 uid 不同。同日早前会话创建的 `/tmp/dbroot` 属主是那个会话的用户（本会话视角显示 `nobody`），目录权限 755，本会话无写权。mkdir -p 对已存在目录静默成功，掩盖了不可写的事实。
+
+**解法**: 副本根改用 `$HOME/dbroot`（每会话独立 HOME，必可写）：`export ZZJY_DATABASE_ROOT=$HOME/dbroot`。config.py 只认环境变量，路径任意，脚本零改动。Raw-Recap / 渊图等只读源照旧软链指回挂载盘（同 G021）。
+
+**预防**: 定时任务写库前勿盲信 `/tmp/dbroot` 可写；统一改用 `$HOME/dbroot` 作副本根即可根除（G-X33 铁律的"/tmp 副本"本质是"本地盘副本"，不必拘泥 /tmp 字面）。
+
+---
+
+## G025 — data_day 跟②烛照四表线、领先①公共行情线一天 → 涨跌家数当天缺「待回填」
+
+**日期**: 2026-07-09 | **发现人**: CC（Doctor 报涨跌家数待回填） | **状态**: ✅ 已解决（workaround·手动补①）
+
+**触发场景**: 日报按 data_day=07-08 出，但「涨跌家数比」显示「待回填 / stock_daily 当日缺数」。
+
+**根因**: `data_day = theme_etf_daily 最新交易日`（②烛照四表线，烛阴 16:00 任务·按**当日收盘**入库），而涨跌家数从 `stock_daily`（①公共行情线，句芒 `market-data-daily-update`·SKILL 设计只**更到「前一交易日」**）算。两条线口径差一天：②到 07-08、①到 07-07，data_day 跟②走就领先①一天，个股全量宽度当天必缺。**非 bug，是两任务时序口径不同**（个股全量日线当天收盘后才出、次日 06:15 才补；ETF/成交额当天可得）。
+
+**解法**: 现在（收盘后、Tushare 数据齐）手动触发一次①任务补当日 stock_daily/daily_market/north_flow + aggregate_derived 派生 → 重出日报，涨跌家数落地。本次排即时任务 `market-data-backfill-0708` 让句芒补。
+
+**预防**: ①线设计到「前一交易日」是既定行为，别当故障；当天出报个股宽度天然滞后 ETF 一天，缺数「待回填」是诚实标注。根治需统一 data_day 口径（以①为准 / 缺个股宽度时回退一日），属另立改动。CC 不代跑句芒取数（Tushare 下载硬约束 + 职责分工），改排即时任务让句芒补。
+
+---
+
 ## 统计
 
 | 类别 | 总数 | 已改正 | 待处理 |
@@ -356,7 +384,7 @@ cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/d
 | 算法 | 2 | 2 | 0 |
 | 路径/迁移 | 1 | 1 | 0 |
 | 代码接口 | 1 | 0 | 1 |
-| 自动化/流程 | 4 | 3 | 1 |
+| 自动化/流程 | 5 | 4 | 1 |
 | 回测/数据覆盖 | 3 | 2 | 1 |
-| 沙箱环境 | 1 | 0 | 1 |
-| **总计** | **22** | **17** | **5** |
+| 沙箱环境 | 2 | 1 | 1 |
+| **总计** | **24** | **19** | **5** |

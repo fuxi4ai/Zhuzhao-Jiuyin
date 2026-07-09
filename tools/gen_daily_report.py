@@ -53,6 +53,17 @@ MECH_WINDOW = {"demand_surge": 10, "supply_shock": 10, "event_driven": 10,
                "trend": 10, "emotion_cycle": 3}
 RISK_MECH = {"persistent_imbalance"}   # 逆风类：无稳定超额期
 
+# 信号展示补注（渲染层覆盖·不改上游数据库/图谱，避免被渊图同步冲掉）：按 signal_node 覆盖显示名 + 详情卡补说明
+SIGNAL_OVERRIDE = {
+    "concept_JapanSemiconductorExportControl": {
+        "name": "日本对华半导体出口管制升级",
+        "detail": ("因果时序：中国对稀土 / 稀有金属原料的出口管制断供【在先】，已致日本东曹 / 德山化工库存告急、停产风险；"
+                   "日本 2026/8/1 起对先进封装设备等 20+ 类物项【对华】出口管制（逐案审批≈禁运）为【后续】升级，"
+                   "东京应化 / 信越化学停止接收中国 ArF/EUV 光刻胶新订单并撤技术团队。"
+                   "两侧互掐、定性「中日脱钩断裂」，投资逻辑＝对日 / 国产替代。（据小鲍课件 + 渊图，具体条款以官方公告为准）"),
+    },
+}
+
 
 def _trading_passed(base, cap, dates):
     """base 之后、cap（含）之前的交易日个数（用基准指数交易日序列）。"""
@@ -83,7 +94,7 @@ def stable_period_note(stype, base_date, data_day, dates, fixed_win=None):
     left = win - passed
     if left > 0:
         return f"按回测稳定超额收益期约 {win} 交易日，还有 {left} 天"
-    return f"按回测稳定超额收益期约 {win} 交易日（已过 {-left} 天）"
+    return f'按回测稳定超额收益期约 {win} 交易日，<span class="period-over">已过 {-left} 天</span>'
 
 
 import re as _re
@@ -542,36 +553,64 @@ def gather(date_cap=None):
         demand_hot = []
     D["demand_surge_hot"] = demand_hot
 
-    # 各机制当前在途条数（open/closing 去重产业链）——供"其他机制·按胜率排行"显示在途数
+    # 一条产业链→其在途信号涉及的机制集（Doctor 2026-07-08 聚合口径）
+    #   同链多 concept（如 G657A2：供给短缺 concept=持续失衡 + 季节需求 concept=需求爆发）时，
+    #   机制分散在多条记录里，须按【整链机制集】判"纯持续失衡"与"信息差收敛"，而非单条记录 signal_type。
+    chain_mechs = defaultdict(set)
+    try:
+        for r in rc.execute("SELECT DISTINCT industry_chain, signal_type FROM yuantu_buy_signals "
+                            "WHERE length(date)=10 AND gap_status IN ('open','closing')"):
+            for m in (r[1] or "").split(","):
+                m = m.strip()
+                if m:
+                    chain_mechs[r[0]].add(m)
+    except Exception:
+        pass
+    D["chain_mechs"] = {k: v for k, v in chain_mechs.items()}
+    _pure_persist = {ch for ch, ms in chain_mechs.items() if ms == {"persistent_imbalance"}}  # 整链纯持续失衡
+
+    # 各机制当前在途条数——持续失衡=整链纯持续失衡的链数（非单条记录）；其余机制含组合（LIKE）
     mech_n = {}
     try:
         for key in ("supply_shock", "event_driven", "tech_innovation",
                     "price_driven", "persistent_imbalance"):
-            mech_n[key] = len(rc.execute(
-                "SELECT DISTINCT industry_chain FROM yuantu_buy_signals "
-                "WHERE length(date)=10 AND gap_status IN ('open','closing') "
-                "AND signal_type LIKE ?", (f"%{key}%",)).fetchall())
+            if key == "persistent_imbalance":
+                mech_n[key] = len(_pure_persist)
+            else:
+                mech_n[key] = len(rc.execute(
+                    "SELECT DISTINCT industry_chain FROM yuantu_buy_signals "
+                    "WHERE length(date)=10 AND gap_status IN ('open','closing') AND signal_type LIKE ?",
+                    (f"%{key}%",)).fetchall())
     except Exception:
         mech_n = {}
     D["mech_inflight_n"] = mech_n
 
-    # 供给冲击/持续失衡 在途信号明细（供机制排行横向 chip·点击弹二级）——含受益标的字段
+    # 供给冲击/持续失衡 在途信号明细（机制排行横向 chip）——含受益标的字段
+    #   持续失衡组只留「整链纯持续失衡」；供给冲击含组合（LIKE）
     mech_signals = {}
     try:
         for key in ("supply_shock", "persistent_imbalance"):
+            cond, val = (("signal_type=?", "persistent_imbalance")
+                         if key == "persistent_imbalance" else ("signal_type LIKE ?", f"%{key}%"))
             seen, lst = set(), []
             for r in rc.execute(
                     "SELECT industry_chain, signal_node, signal_type, gap_status, gap_desc, yuantu_confidence, "
-                    "beneficiaries, beneficiaries_detail, xiaobao_echo, excess_cum "
+                    "beneficiaries, beneficiaries_detail, xiaobao_echo, excess_cum, date "
                     "FROM yuantu_buy_signals WHERE length(date)=10 AND gap_status IN ('open','closing') "
-                    "AND signal_type LIKE ? ORDER BY yuantu_confidence DESC", (f"%{key}%",)).fetchall():
+                    "AND " + cond + " ORDER BY yuantu_confidence DESC", (val,)).fetchall():
                 chain = r[0] or r[1]
                 if chain in seen:
                     continue
+                if key == "persistent_imbalance" and chain not in _pure_persist:
+                    continue   # 整链还含正 edge 机制（如 G657A2 含需求爆发）→ 不算纯持续失衡，剔除
                 seen.add(chain)
+                _ov = SIGNAL_OVERRIDE.get(r[1] or "")
                 lst.append(dict(chain=chain, node=r[1] or "", stype=r[2] or "",
+                                disp=(_ov["name"] if _ov else chain), detail=(_ov["detail"] if _ov else ""),
                                 status=r[3] or "no_data", desc=(r[4] or "").replace("发现", "出现"),
-                                bene=r[6] or "", bene_detail=r[7] or "", echo=bool(r[8]), excess_cum=r[9]))
+                                bene=r[6] or "", bene_detail=r[7] or "", echo=bool(r[8]), excess_cum=r[9],
+                                conf=r[5] or 0,
+                                period=stable_period_note(r[2] or "", r[10], data_day, dates)))
             mech_signals[key] = lst
     except Exception:
         mech_signals = {}
@@ -1273,6 +1312,9 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .prio-list li.prio-clk:focus-visible{outline:2px solid color-mix(in srgb,var(--sc) 55%,transparent);outline-offset:1px}
 .prio-hint{font-size:11px;color:var(--sub);opacity:.65;margin-left:8px;white-space:nowrap}
 .period-note{font-size:11px;color:var(--sub);margin-top:6px;line-height:1.4;opacity:.92}
+.period-over{color:#2f7d63;font-weight:600}
+.sig-expired{color:#2f7d63}
+.sig-converge{color:#bd9a43}
 .prio-more{font-size:11.5px;color:var(--sub);margin-top:7px}
 .prio-empty{font-size:13px;color:var(--sub);padding:6px 0 2px}
 .prio-card .bt-note{font-size:11px;color:var(--sub);margin-top:11px;padding-top:9px;border-top:1px dashed rgba(120,110,95,.28);line-height:1.45}
@@ -1298,7 +1340,19 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .mchip:hover{color:var(--sc);text-decoration:underline;text-underline-offset:2px}
 .mchip:focus-visible{outline:2px solid color-mix(in srgb,var(--sc) 55%,transparent);outline-offset:2px}
 .mchip-more{font-size:11px;color:var(--sub);align-self:center;margin-left:2px}
-.chip-contra{font-size:9.5px;color:#b5563f;border:1px solid rgba(181,86,63,.4);border-radius:5px;padding:0 3px;margin-left:4px;vertical-align:middle}
+.chip-contra{font-size:9.5px;font-weight:400;color:#b5563f;border:1px solid rgba(181,86,63,.4);border-radius:5px;padding:0 3px;margin-left:4px;vertical-align:middle}
+.chip-nogap{color:#8a8578;border-color:rgba(120,110,95,.42)}
+.chip-wnd{font-size:10.5px;color:var(--sub);font-variant-numeric:tabular-nums;margin-left:1px}
+.mchip-converge{color:#bd9a43}
+.mchip-converge:hover{color:#d0ac52}
+.mchip-nogap{color:#2f7d63}
+.mchip-nogap:hover{color:#3a9678}
+.mchip-expired{color:#2f7d63}
+.mchip-expired:hover{color:#3a9678}
+.xb-band{font-size:11.5px;color:var(--sub);margin-top:6px;line-height:1.45;padding-top:6px;border-top:1px dashed rgba(120,110,95,.28)}
+.cap-newline{margin-top:8px;font-weight:700;font-size:13px;text-align:center;padding:5px 0;border-radius:8px}
+.cap-can{color:#2f7d63;background:rgba(47,125,99,.10)}
+.cap-cannot{color:#c0392b;background:rgba(192,57,43,.09)}
 /* 逆风机制·只保留红底白字"风险"徽标（行本身不加边框/背景/发光）*/
 .rank-risk .rank-flag{color:#fff;background:#c0392b;border-color:#c0392b}
 @media(max-width:560px){.rank-line{flex-wrap:wrap}.rank-cur{text-align:left}}
@@ -1370,6 +1424,8 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .p0-card>*{position:relative}
 .p0-k{font-size:11px;color:var(--sub);letter-spacing:.14em;text-transform:uppercase}
 .p0-v{font-size:22px;font-weight:700;margin-top:4px}
+.p0-gap-clk{cursor:pointer;transition:background .15s}
+.p0-gap-clk:hover{background:color-mix(in srgb,var(--sc) 14%,transparent)}
 .p0-d{font-size:12px;color:var(--sub)}
 .gap-chain{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0 18px}
 .gap-step{position:relative;padding:12px 13px;border-radius:15px;background:var(--card);border:1px solid var(--line);
@@ -1601,12 +1657,39 @@ def render(D):
         p0_main_sc = THEME_COLOR.get(md0["lines"][0]["short"], "#4fc3f7")
     else:
         p0_main_v, p0_main_d, p0_main_sc = "今日无达标主线", "无板块对大盘有比较优势", "#8aa0c8"
-    yt0 = D["ytdays"][0]["sigs"][0] if D["ytdays"] and D["ytdays"][0]["sigs"] else None
+    yt0day = D["ytdays"][0] if D["ytdays"] else None
+    yt0 = yt0day["sigs"][0] if yt0day and yt0day["sigs"] else None
     if yt0:
         chain_short = yt0["chain"].split("（")[0]
-        p0_gap_v, p0_gap_d = f"新线索：{chain_short}", "看后续价格反应，并用主线强度确认"
+        _sigd = yt0day["date"]
+        try:
+            _lag = (datetime.date.fromisoformat(iso(D["data_day"])) - datetime.date.fromisoformat(iso(_sigd))).days
+        except Exception:
+            _lag = None
+        _TZ = {"supply_shock": "供给冲击", "demand_surge": "需求爆发", "persistent_imbalance": "持续失衡"}
+        _styz = "·".join(_TZ.get(x.strip(), x.strip()) for x in (yt0["stype"] or "").split(",") if x.strip())
+        _zh0 = STATUS_ZH.get(yt0["status"], yt0["status"])
+        _fresh = (f"已 {_lag} 日" if _lag else "当日新入") if _lag is not None else ""
+        # 「最新」≠「新鲜」：带信号日 + 入图谱天数 + 状态，避免误读为当天新增
+        p0_gap_v = f"最新线索：{chain_short}"
+        p0_gap_d = f'{iso(_sigd)} 入图谱 · {_fresh} · {_zh0}'
+        _fl0 = yt0["fulfill"]
+        _echo0 = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if yt0["echo"]
+                  else '<span class="tag">小鲍未提及</span>')
+        _bene0 = "、".join(b.strip() for b in (yt0.get("bene", "") or "").split("/") if b.strip()) or "—（待标的解析）"
+        _sc0 = THEME_COLOR.get(yt0["theme"], "#8aa0c8")
+        p0_tmpl = (f'<template id="p0lead"><div class="modal-title" style="--sc:{_sc0}">{yt0["chain"]}'
+                   f'<span class="sub">信号时间 {iso(_sigd)} ｜ {_styz} ｜ 渊图置信度 {yt0["conf"]:.2f}</span></div>'
+                   f'<div><span class="dk">兑现状态</span><span class="tag t-{yt0["status"]}">{_zh0}</span><span class="desc">{yt0["desc"] or ""}</span></div>'
+                   f'<div><span class="dk">兑现度</span><span class="tag">{_fl0["v"]}</span><span class="desc">{_fl0["sent"]}</span></div>'
+                   f'<div style="margin:13px 0"><span class="dk">受益标的</span><span class="desc">{bene_html(yt0.get("bene_detail", ""), _bene0)}</span></div>'
+                   f'<div><span class="dk">小鲍印证</span>{_echo0}<span class="sub">（第二源回声）</span></div>'
+                   f'<div><span class="dk">图谱节点</span><span class="sub">{yt0["node"]}</span></div></template>')
+        p0_gap_attr = ' p0-gap-clk" role="button" tabindex="0" onclick="openModal(\'p0lead\')'
     else:
         p0_gap_v, p0_gap_d = "近期无新渊图信号", "等待研报/纪要入图谱"
+        p0_tmpl = ""
+        p0_gap_attr = ""
     p0 = f"""
 <div class="p0-strip" aria-label="核心判断">
  <div class="p0-card" style="--sc:{p0_main_sc}">
@@ -1614,10 +1697,11 @@ def render(D):
   <div class="p0-v">{p0_main_v}</div>
   <div class="p0-d">{p0_main_d}</div>
  </div>
- <div class="p0-card" style="--sc:#e8c46b">
+ <div class="p0-card{p0_gap_attr}" style="--sc:#e8c46b">
   <div class="p0-k">P0 · GAP</div>
   <div class="p0-v">{p0_gap_v}</div>
   <div class="p0-d">{p0_gap_d}</div>
+  {p0_tmpl}
  </div>
 </div>"""
 
@@ -1635,6 +1719,9 @@ def render(D):
     em_season_series = json.dumps(em["season_series"], ensure_ascii=False)
     kt_note = f"；当日 {cap['kday_today']} 为普涨尖峰" if cap["kday_today"] > cap["kday"] + 3 else ""
     state_str = cap["state"] or "—"
+    _kd, _kc = cap.get("kday"), cap.get("kcap")
+    can_new = (isinstance(_kd, (int, float)) and isinstance(_kc, (int, float)) and _kd < _kc)
+    newline_txt, newline_cls = ("可开新线", "cap-can") if can_new else ("不可开新线", "cap-cannot")
     row2 = f"""
 <h2>一 · 情绪周期与市场快照 <span class="vintage">emotion_v2 · {em["date"]} ｜ 市场读数环绕情绪周期</span></h2>
 <div class="row2">
@@ -1650,7 +1737,8 @@ def render(D):
    <div><b>{state_str}</b><span>K {cap["kday"]} / K_cap {cap["kcap"]}</span></div>
   </div>
   <div id="capGauge" class="gauge"></div>
-  <div class="sub">K=主线超额>0.5pp 宽度·5日中位{kt_note}；成交额决定容量上限，需结合主线与 GAP 判断持续性。</div></div>
+  <div class="sub">K=主线超额>0.5pp 宽度·5日中位{kt_note}；成交额决定容量上限，需结合主线与 GAP 判断持续性。</div>
+  <div class="cap-newline {newline_cls}">{newline_txt}</div></div>
 </div>"""
 
     def us_html_of(u):
@@ -1717,7 +1805,7 @@ def render(D):
     else:
         step2 = "暂无信号进入价格兑现阶段"
     n_kj = len(D["sigdays"][0]["sigs"]) if D["sigdays"] else 0
-    step3 = f"{n_kj} 条课件信号参与对照，分层看强弱" if n_kj else "今日无课件信号对照"
+    step3 = f"{n_kj} 条四维度课件信号参与对照，分层看强弱" if n_kj else "今日无四维度课件信号对照"
     opp_part = "、".join(o["theme"] for o in D["opps"][:2])
     risk_part = "与".join(D["risk_themes"][:2])
     step4 = ((f"{opp_part}偏机会" if opp_part else "暂无机会提示") +
@@ -1725,7 +1813,6 @@ def render(D):
     gap_chain = f"""
 <div class="gap-chain" aria-label="GAP 判断链">
  <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到强信号优先条" onclick="document.getElementById('sec-gap').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>强信号</b><span>{step1}</span><span class="jhint">↘</span></div>
- <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到在途未兑现台账" onclick="document.getElementById('sec-ledger').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>价格反应</b><span>{step2}</span><span class="jhint">↘</span></div>
  <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到主线板块" onclick="document.getElementById('sec-main').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>主线确认</b><span>{step3}</span><span class="jhint">↘</span></div>
  <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到机会/风险提示" onclick="document.getElementById('sec-opp').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>机会 / 风险</b><span>{step4}</span><span class="jhint">↘</span></div>
 </div>"""
@@ -1746,26 +1833,59 @@ def render(D):
         echo = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if g.get("echo")
                 else '<span class="tag">小鲍未提及</span>')
         bene = "、".join(b.strip() for b in (g.get("bene", "") or "").split("/") if b.strip()) or "—（待标的解析）"
-        return f"""<template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["chain"]}
+        return f"""<template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g.get("disp") or g["chain"]}
  <span class="sub">{_stype_zh(g["stype"])}{meta_tail}</span></div>
+ {f'<div><span class="dk">信号说明</span><span class="desc">{g["detail"]}</span></div>' if g.get("detail") else ""}
  <div><span class="dk">兑现状态</span><span class="tag t-{g.get("status","no_data")}">{zh}</span><span class="desc">{g.get("desc","") or ""}</span></div>
  <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span><span class="desc">{fl["sent"]}</span></div>
  <div style="margin:13px 0"><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
+ {f'<div><span class="dk">稳定超额期</span><span class="desc">{g.get("period","")}</span></div>' if g.get("period") and "无稳定超额期" not in g.get("period","") else ""}
  <div><span class="dk">小鲍印证</span>{echo}<span class="sub">（第二源回声）</span></div>
  <div><span class="dk">图谱节点</span><span class="sub">{g.get("node","")}</span></div>
 </template>"""
 
     def _prio_item(g, gid, sc, meta_tail):
-        # 可点击信号条目（优先条）→ 弹二级卡
+        # 可点击信号条目（优先条）→ 弹二级卡；整条产业链机制集含持续失衡则挂"信息差收敛"标（聚合口径）
+        _is_contra = "persistent_imbalance" in D.get("chain_mechs", {}).get(g["chain"], set())
+        contra_s = '<span class="chip-contra">信息差收敛</span>' if _is_contra else ""
+        if "已过" in (g.get("period") or ""):
+            _bcls = ' class="sig-expired"'       # 过期 → 绿
+        elif _is_contra:
+            _bcls = ' class="sig-converge"'      # 未过期+信息差收敛 → 金
+        else:
+            _bcls = ""
         return f"""<li class="prio-clk" role="button" tabindex="0" onclick="openModal('{gid}')">
-<b>{g["chain"]}</b><span class="prio-meta">{_stype_zh(g["stype"])}{meta_tail}</span>{_period_span(g)}<span class="prio-hint">详情 ›</span>
+<b{_bcls}>{g["chain"]}{contra_s}</b><span class="prio-meta">{_stype_zh(g["stype"])}{meta_tail}</span>{_period_span(g)}<span class="prio-hint">详情 ›</span>
 {_sig_modal(g, gid, sc, meta_tail)}</li>"""
 
-    def _sig_chip(g, gid, sc, contra=False):
-        # 机制在途信号 chip（横向）→ 弹同款二级卡；contra=该信号 signal_type 含持续失衡逆风成分时标注
-        contra_s = '<span class="chip-contra">逆风</span>' if contra else ""
-        return (f'<span class="mchip" role="button" tabindex="0" style="--sc:{sc}" '
-                f'onclick="openModal(\'{gid}\')">{g["chain"]}{contra_s}{_sig_modal(g, gid, sc, "")}</span>')
+    def _sig_chip(g, gid, sc, contra=False, nogap=False):
+        # chip 标注 + 文字色：nogap=纯持续失衡「无信息差」绿字；contra=叠加持续失衡「信息差收敛」金字
+        cls = "mchip"
+        if nogap:
+            tag = '<span class="chip-contra chip-nogap">无信息差</span>'; cls += " mchip-nogap"
+        elif contra:
+            tag = '<span class="chip-contra">信息差收敛</span>'
+        else:
+            tag = ""
+        # 文字色对齐需求爆发卡：过期→绿(优先)、未过期+信息差收敛→金；持续失衡组保持无信息差绿
+        if not nogap:
+            if "已过" in (g.get("period") or ""):
+                cls += " mchip-expired"
+            elif contra:
+                cls += " mchip-converge"
+        # 一级信号后加窗口计数（还有天/窗口天，如"（7/10）"），仅有超额窗口的机制；持续失衡无窗口不加
+        _p = g.get("period", "")
+        _wnd = ""
+        if _p and "无稳定超额期" not in _p:
+            _mw = re.search(r"约 (\d+) 交易日", _p)
+            if _mw:
+                _win = int(_mw.group(1))
+                _ml = re.search(r"还有 (\d+) 天", _p)
+                _mo = re.search(r"已过 (\d+) 天", _p)
+                _left = int(_ml.group(1)) if _ml else (-int(_mo.group(1)) if _mo else _win)
+                _wnd = f'<span class="chip-wnd">（{_left}/{_win}）</span>'
+        return (f'<span class="{cls}" role="button" tabindex="0" style="--sc:{sc}" '
+                f'onclick="openModal(\'{gid}\')">{g.get("disp") or g["chain"]}{_wnd}{tag}{_sig_modal(g, gid, sc, "")}</span>')
     rt = D.get("realized_today", [])
     if rt:
         items_a = ""
@@ -1776,11 +1896,15 @@ def render(D):
     else:
         body_a = '<div class="prio-empty">今日无兑现启动</div>'
     dh = D.get("demand_surge_hot", [])
+    # 排序：①过期(稳定超额期已过·窗口关闭)最往下 ②信息差收敛(含持续失衡·胜率低)往下 ③同层按渊图置信度降序
+    dh = sorted(dh, key=lambda g: ("已过" in (g.get("period") or ""),
+                                   "persistent_imbalance" in D.get("chain_mechs", {}).get(g["chain"], set()),
+                                   -(g.get("conf") or 0)))
     if dh:
         items_b = ""
         for i, g in enumerate(dh):
             meta_tail = "｜" + STATUS_ZH.get(g["status"], g["status"])
-            items_b += _prio_item(g, f"pb{i}", "#3f9e8a", meta_tail)
+            items_b += _prio_item(g, f"pb{i}", "#17a2b8", meta_tail)
         body_b = f'<ul class="prio-list">{items_b}</ul>'
     else:
         body_b = '<div class="prio-empty">当前无在途需求爆发信号</div>'
@@ -1791,7 +1915,7 @@ def render(D):
   {body_a}
   <div class="bt-note" title="relit.json 一段realized·渊图信号级">确认后 3 日历史胜率 84.5%（n=181，样本期 25.10–26.7 · 过往不代表未来）</div>
  </div>
- <div class="prio-card prio-glow" style="--sc:#3f9e8a">
+ <div class="prio-card prio-glow" style="--sc:#17a2b8">
   <div class="prio-h"><span class="prio-badge">⚡ 强信号</span>需求爆发主线</div>
   {body_b}
   <div class="bt-note" title="agg_stock.json own_分逻辑 demand_surge">10 日历史超额 +5.23%（n=188，样本期 25.10–26.7）· 口径：own 标的池 · 过往不代表未来</div>
@@ -1804,33 +1928,40 @@ def render(D):
     #   win/exc=该代表窗口的胜率/超额；按胜率降序、并列按超额；demand_surge 已置顶不重列。
     #   ⚠ 只列渊图信号 signal_type 实际使用的机制（Doctor 2026-07-08）：event_driven/price_driven/
     #     tech_innovation 渊图无此标签、在途恒 0，去掉防误读为"没信号"；小样本高噪机制亦略去。
-    #   BT_LOGIC:(key, 中文, n, 胜率, 超额, 代表窗口, 标记)
+    #   兑现口径（excess_cum·Doctor 2026-07-08 两行统一）；供给冲击=含组合、持续失衡=纯持续失衡。
+    #   BT_LOGIC:(key, 中文, n可算, 胜率, 均超额, 风险标记)
     BT_LOGIC = [
-        ("supply_shock",         "供给冲击", 82, 56.5,  7.85, "10日", ""),
-        ("persistent_imbalance", "持续失衡", 25, 33.3, -4.70, "3日",  "风险"),
+        ("supply_shock",         "供给冲击", 35, 65.7, 11.10, ""),
+        ("persistent_imbalance", "持续失衡", 7, 14.3, -4.11, "风险"),
     ]
     SC_MECH = {"supply_shock": "#5b8cff", "persistent_imbalance": "#c0392b"}
     rank_rows = ""
-    for key, zh, n, w, e, win, flag in BT_LOGIC:
+    for key, zh, n, wr, aexc, flag in BT_LOGIC:
         cur = D.get("mech_inflight_n", {}).get(key, 0)
         line_cls = " rank-risk" if flag else ""
         flag_s = f'<span class="rank-flag">{flag}</span>' if flag else ""
-        line = (f'<div class="rank-line{line_cls}"><span class="rank-win">{w:.1f}%<i>{win}</i></span>'
+        line = (f'<div class="rank-line{line_cls}"><span class="rank-win">{wr:.1f}%</span>'
                 f'<span class="rank-name">{zh}{flag_s}</span>'
-                f'<span class="rank-exc">超额 {e:+.2f}%</span>'
+                f'<span class="rank-exc">均超额 {aexc:+.2f}%</span>'
                 f'<span class="rank-cur">在途 {cur} · n={n}</span></div>')
         sc = SC_MECH.get(key, "#8aa0c8")
         sigs = D.get("mech_signals", {}).get(key, [])
+        if key != "persistent_imbalance":
+            # 过期→最右(最下沉)、信息差收敛→其次、纯供给冲击→最左；同层按渊图置信度降序（对齐需求爆发卡）
+            sigs = sorted(sigs, key=lambda g: ("已过" in (g.get("period") or ""),
+                                               "persistent_imbalance" in D.get("chain_mechs", {}).get(g["chain"], set()),
+                                               -(g.get("conf") or 0)))
         chips = "".join(
             _sig_chip(g, f"ms{key[:2]}{j}", sc,
-                      contra=(key != "persistent_imbalance" and "persistent_imbalance" in (g.get("stype") or "")))
+                      contra=(key != "persistent_imbalance" and "persistent_imbalance" in D.get("chain_mechs", {}).get(g["chain"], set())),
+                      nogap=(key == "persistent_imbalance"))
             for j, g in enumerate(sigs))
         chips_html = f'<div class="mech-chips">{chips}</div>' if sigs else ""
         rank_rows += f'<li class="mech-row">{line}{chips_html}</li>'
     prio_rank = f"""
 <div class="prio-rank" aria-label="其他机制·按各自窗口回测胜率">
- <div class="rank-h">其他机制 · 按各自窗口回测胜率
-  <span class="rank-sub">仅列渊图信号实有机制 · 窗口=该机制超额达峰的自然持有期（3日兑现的不套10日）· 胜率口径 own 标的池 · 样本期 25.10–26.7 · 过往不代表未来</span></div>
+ <div class="rank-h">其他机制 · 兑现口径胜率 / 均超额
+  <span class="rank-sub">仅列渊图信号实有机制 · 胜率/均超额=渊图兑现口径(excess_cum 累计超额) · 供给冲击含组合、持续失衡=纯持续失衡 · 样本极小仅方向性参考 · 过往不代表未来</span></div>
  <ul class="rank-list">{rank_rows}</ul>
 </div>"""
     prio_html += prio_rank
@@ -1996,37 +2127,40 @@ def render(D):
         f'<div class="dormant-note">🌙 暗态 {_dn} 条（已兑现·候二段 · 不在主栏/台账展示；价格再起达门槛 Y′=4日/回升5pp 自动点亮回二段）</div>'
         if _dn else "")
 
-    # ── 课件信号（第二印证，弱化为「课件信号」）──
-    xb_html = ""
-    for di, day in enumerate(D["sigdays"]):
+    # ── 四维度课件信号（第二印证·机制排行范式·并入机制之下）──
+    xb_html = ""  # 已并入 prio_html（机制排行范式），底部不再单独渲染
+    _xbp = D.get("positions", {}).get("xiaobao")
+    if _xbp:
+        _pref = f'（偏好 {_xbp["pref"]}/5）' if _xbp.get("pref") is not None else ""
+        band_str = f'<div class="xb-band">小鲍总仓位：{_xbp["band"]}{_pref}</div>'
+    else:
+        band_str = ""
+    xb_rank = ""
+    for day in D["sigdays"]:
         if not day["sigs"]:
             continue
-        cards = ""
+        chips = ""
         for si, g in enumerate(day["sigs"]):
-            gid = f"s{di}x{si}"
+            gid = f"xb{si}"
             sc = THEME_COLOR.get(g["theme"], "#8aa0c8")
             zh = STATUS_ZH.get(g["status"], g["status"])
-            lvl_tag = (f'<span class="lvl" title="信息差等级(1-5,越高潜在超额越大)">信息差 {g["lvl"]}/5</span>'
-                       if g["lvl"] else "")
             lvl_sub = f' ｜ 信息差等级 {g["lvl"]}/5' if g["lvl"] else ""
-            cards += f"""
-<div class="scard glass xb" style="--sc:{sc}" onclick="openModal('{gid}')">
- <div class="sc-h"><span class="tag t-{g["status"]}">{zh}</span>
-  {lvl_tag}</div>
- <div class="sc-kw">{g["kw"]}</div>
- <div class="sub">{g["theme"]}</div>
- <template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["kw"]}
-   <span class="sub">{iso(day["date"])} ｜ {g["theme_full"]}{lvl_sub} ｜ {g["conf"]}</span></div>
-  <div><span class="dk">状态</span><span class="tag t-{g["status"]}">{zh}</span></div>
-  <div><span class="dk">兑现定性</span><span class="desc">{g["desc"] or "—"}</span></div>
-  <div><span class="dk">信号内容</span><span class="desc">{g["content"][:600]}</span></div>
- </template></div>"""
-        xb_html += f"""
-<div class="mday">
- <div class="mday-h"><span class="sub">课件信号</span> <b>{iso(day["date"])}</b>
-  <span class="sub">{len(day["sigs"])} 条</span></div>
- <div class="mrow">{cards}</div>
+            tmpl = (f'<template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["kw"]}'
+                    f'<span class="sub">{iso(day["date"])} ｜ {g["theme_full"]}{lvl_sub} ｜ 置信度 {g["conf"]}</span></div>'
+                    f'<div><span class="dk">状态</span><span class="tag t-{g["status"]}">{zh}</span></div>'
+                    f'<div><span class="dk">兑现定性</span><span class="desc">{g["desc"] or "—"}</span></div>'
+                    f'<div><span class="dk">信号内容</span><span class="desc">{g["content"][:600]}</span></div>'
+                    f'</template>')
+            chips += (f'<span class="mchip" role="button" tabindex="0" style="--sc:{sc}" '
+                      f'onclick="openModal(\'{gid}\')">{g["kw"]}{tmpl}</span>')
+        xb_rank += f"""
+<div class="prio-rank" aria-label="四维度课件信号">
+ <div class="rank-h">四维度课件信号 · {iso(day["date"])}
+  <span class="rank-sub">小鲍复盘课件的行业信号（第二印证源）· {len(day["sigs"])} 条 · 点击看信号内容/兑现定性</span></div>
+ <div class="mech-chips">{chips}</div>
+ {band_str}
 </div>"""
+    prio_html += xb_rank
 
     # ── 机会 + 仓位 ──
     opp_html = ""
@@ -2081,16 +2215,12 @@ def render(D):
 <h2 id="sec-main">二 · 主线板块 · 近3日 <span class="vintage">资格=涨幅>1%且对大盘超额>0.5pp（跟涨不算主线）｜ 数量≤当日成交额对应K_cap ｜ 点主线行看详情</span></h2>
 {main_html}
 
-<h2 id="sec-gap">三 · GAP 信号栏 <span class="vintage">新线索 / 价格反应 / 主线确认 / 机会风险 ｜ 含在途台账 ｜ 点四步脊跳到对应详情区，点卡片看详情</span></h2>
+<h2 id="sec-gap">三 · GAP 信号栏 <span class="vintage">强信号 / 主线确认 / 机会风险 ｜ 点脊跳到对应区，点卡片看详情</span></h2>
 {prio_html}
-{gap_chain}
-{ledger_html}
 {dormant_html}
-{xb_html}
 
-<h2 id="sec-opp">四 · 机会提示 <span class="vintage">候选观察方向，非投资建议</span></h2>
+<h2 id="sec-opp">四 · 确认走强（e20/e5 > 0），且容量允许 <span class="vintage">候选观察方向，非投资建议</span></h2>
 {opp_html}
-{pos_card}
 
 <h2>五 · 风险提示 <span class="vintage">{len([r for r in D["risks"] if r["lvl"]=="红"])} 红 / {len([r for r in D["risks"] if r["lvl"]=="黄"])} 黄 ｜ 展开看具体锚与标的</span></h2>
 {risk_html}
