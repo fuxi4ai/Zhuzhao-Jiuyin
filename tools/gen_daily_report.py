@@ -48,10 +48,42 @@ def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d
 
 # ── 信号条目"稳定超额收益期"注记（回测统计参照·非承诺）2026-07-08 ──
 # 窗口=各机制超额达峰的自然持有期（交易日口径，与 docs/自主回测_20260706 一致）
-MECH_WINDOW = {"demand_surge": 10, "supply_shock": 10, "event_driven": 10,
-               "price_driven": 5, "tech_innovation": 3, "capacity_policy": 10,
-               "trend": 10, "emotion_cycle": 3}
-RISK_MECH = {"persistent_imbalance"}   # 逆风类：无稳定超额期
+# ── PRD F7：回测注记单一真源 config/backtest_stats.json；缺文件即 fallback 回下方硬编码，不 break 07:00 定时链 ──
+_BT_FALLBACK = {
+    "_meta": {"sample_period": "25.10–26.7"},
+    "mech_window": {"demand_surge": 10, "supply_shock": 10, "event_driven": 10,
+                    "price_driven": 5, "tech_innovation": 3, "capacity_policy": 10,
+                    "trend": 10, "emotion_cycle": 3},
+    "risk_mech": ["persistent_imbalance"],
+    "fallback_window": 10,
+    "glow": {
+        "yiduan": {"win_days": 3, "win_rate": 84.5, "n": 181,
+                   "title": "relit.json 一段realized·渊图信号级",
+                   "text_tpl": "确认后 {win_days} 日历史胜率 {win_rate}%（n={n}，样本期 {sample_period} · 过往不代表未来）"},
+        "demand_surge": {"win_days": 10, "excess": 5.23, "n": 188,
+                   "title": "agg_stock.json own_分逻辑 demand_surge",
+                   "text_tpl": "{win_days} 日历史超额 +{excess}%（n={n}，样本期 {sample_period}）· 口径：own 标的池 · 过往不代表未来"},
+    },
+    "bt_logic": [
+        {"key": "supply_shock", "zh": "供给冲击", "n": 35, "win_rate": 65.7, "avg_excess": 11.10, "flag": ""},
+        {"key": "persistent_imbalance", "zh": "持续失衡", "n": 7, "win_rate": 14.3, "avg_excess": -4.11, "flag": "风险"},
+    ],
+}
+def _load_bt_stats():
+    try:
+        with open(config.PROJECT_ROOT / "config" / "backtest_stats.json", encoding="utf-8") as f:
+            cfg = json.load(f)
+        for k, v in _BT_FALLBACK.items():          # 缺键逐一回落，容忍部分配置
+            cfg.setdefault(k, v)
+        cfg["_meta"] = {**_BT_FALLBACK["_meta"], **cfg.get("_meta", {})}
+        return cfg
+    except Exception as e:
+        logger.warning("backtest_stats.json 未加载(%s)，回落硬编码 fallback", e)
+        return _BT_FALLBACK
+BT_STATS = _load_bt_stats()
+MECH_WINDOW = BT_STATS["mech_window"]
+RISK_MECH = set(BT_STATS["risk_mech"])   # 逆风类：无稳定超额期
+SAMPLE_PERIOD = BT_STATS["_meta"]["sample_period"]
 
 # 信号展示补注（渲染层覆盖·不改上游数据库/图谱，避免被渊图同步冲掉）：按 signal_node 覆盖显示名 + 详情卡补说明
 SIGNAL_OVERRIDE = {
@@ -87,7 +119,7 @@ def stable_period_note(stype, base_date, data_day, dates, fixed_win=None):
     elif keys and all(k in RISK_MECH for k in keys):
         return "按回测为历史逆风类，无稳定超额期，注意风险"
     else:
-        win = 10                             # 无匹配机制：兜底按中线 10 交易日
+        win = BT_STATS.get("fallback_window", 10)   # 无匹配机制：兜底中线
     passed = _trading_passed(base_date, data_day, dates)
     if passed is None:
         return f"按回测稳定超额收益期约 {win} 交易日（统计参照）"
@@ -241,10 +273,16 @@ def gather(date_cap=None):
     snap = {}
     snap["bench_pct"] = round(px[BENCHMARK][data_day] * 100, 2)
     snap["bench_note"] = "沪深300代理"
-    ud = md.execute("SELECT SUM(pct_chg>0), SUM(pct_chg<0), SUM(pct_chg=0) FROM stock_daily "
-                    "WHERE trade_date=?", (data_day,)).fetchone()
+    # 涨跌家数：对齐成交额 vintage 范式——当日缺则回退最新可得交易日(T-1)并记 vintage，如实标注不空显「待回填」
+    _uddd = md.execute("SELECT MAX(trade_date) FROM stock_daily WHERE trade_date<=?",
+                       (data_day,)).fetchone()
+    ud_vint = _uddd[0] if _uddd else None
+    ud = (md.execute("SELECT SUM(pct_chg>0), SUM(pct_chg<0), SUM(pct_chg=0) FROM stock_daily "
+                     "WHERE trade_date=?", (ud_vint,)).fetchone() if ud_vint else None)
     snap["up_n"], snap["down_n"], snap["flat_n"] = (ud if ud and ud[0] is not None
                                                     else (None, None, None))
+    snap["ud_vintage"] = ud_vint
+    snap["ud_stale"] = ud_vint is not None and iso(ud_vint) < iso(data_day)
     amt_row = md.execute("SELECT trade_date, total_trillion FROM market_amount_daily "
                          "WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
                          (data_day,)).fetchone()
@@ -524,7 +562,8 @@ def gather(date_cap=None):
                 desc=(r[3] or "").replace("发现", "出现"), realized=r[4] or "",
                 bene=r[5] or "", bene_detail=r[6] or "", echo=bool(r[7]),
                 status=r[8] or "no_data", excess_cum=r[9],
-                period=stable_period_note(r[2] or "", r[4], data_day, dates, fixed_win=3)))
+                period=stable_period_note(r[2] or "", r[4], data_day, dates,
+                                          fixed_win=BT_STATS["glow"]["yiduan"]["win_days"])))
     except Exception:
         realized_today = []
     D["realized_today"] = realized_today
@@ -1610,6 +1649,9 @@ def render(D):
                    if amount_str else
                    '<div class="snapshot-number na">待回填</div>'
                    f'<div class="snapshot-note">market_amount_daily 停更于 {iso(s["amount_vintage"]) if s["amount_vintage"] else "—"}</div>')
+    vin = s.get("ud_vintage")
+    stale = s.get("ud_stale")
+    vin_note = f'<div class="snapshot-note">T-1·昨日宽度（截至 {iso(vin)}，当日待收盘）</div>' if stale else ''
     if s["up_n"] is not None:
         tot = s["up_n"] + s["down_n"] + (s["flat_n"] or 0)
         gw, lw = 100 * s["up_n"] / tot, 100 * s["down_n"] / tot
@@ -1620,13 +1662,13 @@ def render(D):
                         f'<div class="snapshot-bar" aria-label="涨跌平盘家数占比（涨红/跌绿/平蓝）">'
                         f'<span class="gain" style="width:{gw:.0f}%"></span>'
                         f'<span class="loss" style="width:{lw:.0f}%"></span>'
-                        f'<span class="flat" style="width:{fw:.0f}%"></span></div>')
+                        f'<span class="flat" style="width:{fw:.0f}%"></span></div>{vin_note}')
         if s["flat_n"] is None:
             breadth_html = (f'<div class="snapshot-number"><span class="up">{s["up_n"]}</span> / '
                             f'<span class="dn">{s["down_n"]}</span></div>'
-                            '<div class="snapshot-note">平盘家数缺数，仅展示涨跌</div>')
+                            f'<div class="snapshot-note">平盘家数缺数，仅展示涨跌</div>{vin_note}')
     else:
-        breadth_html = '<div class="snapshot-number na">待回填</div><div class="snapshot-note">stock_daily 当日缺数</div>'
+        breadth_html = '<div class="snapshot-number na">待回填</div><div class="snapshot-note">stock_daily 无可用数据</div>'
     snapshot = f"""
 <div class="snapshot-band" aria-label="画框下方市场快照">
  <div class="snapshot-item">
@@ -1908,17 +1950,18 @@ def render(D):
         body_b = f'<ul class="prio-list">{items_b}</ul>'
     else:
         body_b = '<div class="prio-empty">当前无在途需求爆发信号</div>'
+    _gy = BT_STATS["glow"]["yiduan"]; _gd = BT_STATS["glow"]["demand_surge"]
     prio_html = f"""
 <div class="prio-strip" aria-label="强信号优先·回测最有力量的两类">
  <div class="prio-card prio-glow" style="--sc:#e0a53a">
   <div class="prio-h"><span class="prio-badge">⚡ 强信号</span>一段兑现启动</div>
   {body_a}
-  <div class="bt-note" title="relit.json 一段realized·渊图信号级">确认后 3 日历史胜率 84.5%（n=181，样本期 25.10–26.7 · 过往不代表未来）</div>
+  <div class="bt-note" title="{_gy['title']}">{_gy['text_tpl'].format(sample_period=SAMPLE_PERIOD, **_gy)}</div>
  </div>
  <div class="prio-card prio-glow" style="--sc:#17a2b8">
   <div class="prio-h"><span class="prio-badge">⚡ 强信号</span>需求爆发主线</div>
   {body_b}
-  <div class="bt-note" title="agg_stock.json own_分逻辑 demand_surge">10 日历史超额 +5.23%（n=188，样本期 25.10–26.7）· 口径：own 标的池 · 过往不代表未来</div>
+  <div class="bt-note" title="{_gd['title']}">{_gd['text_tpl'].format(sample_period=SAMPLE_PERIOD, **_gd)}</div>
  </div>
 </div>"""
 
@@ -1930,10 +1973,8 @@ def render(D):
     #     tech_innovation 渊图无此标签、在途恒 0，去掉防误读为"没信号"；小样本高噪机制亦略去。
     #   兑现口径（excess_cum·Doctor 2026-07-08 两行统一）；供给冲击=含组合、持续失衡=纯持续失衡。
     #   BT_LOGIC:(key, 中文, n可算, 胜率, 均超额, 风险标记)
-    BT_LOGIC = [
-        ("supply_shock",         "供给冲击", 35, 65.7, 11.10, ""),
-        ("persistent_imbalance", "持续失衡", 7, 14.3, -4.11, "风险"),
-    ]
+    BT_LOGIC = [(d["key"], d["zh"], d["n"], d["win_rate"], d["avg_excess"], d["flag"])
+                for d in BT_STATS["bt_logic"]]
     SC_MECH = {"supply_shock": "#5b8cff", "persistent_imbalance": "#c0392b"}
     rank_rows = ""
     for key, zh, n, wr, aexc, flag in BT_LOGIC:

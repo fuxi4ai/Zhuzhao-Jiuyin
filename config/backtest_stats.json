@@ -1,0 +1,35 @@
+{
+  "_meta": {
+    "purpose": "日报回测注记单一真源（PRD F7）；月度复算只改此文件，脚本不再散改硬编码",
+    "sources": {
+      "relit": "docs/自主回测_20260706/relit.json",
+      "agg_stock": "docs/自主回测_20260706/agg_stock.json"
+    },
+    "sample_period": "25.10–26.7",
+    "last_recompute": "2026-07-06",
+    "disclaimer": "统计参照·非个体承诺·过往不代表未来"
+  },
+  "mech_window": {
+    "demand_surge": 10, "supply_shock": 10, "event_driven": 10,
+    "price_driven": 5, "tech_innovation": 3, "capacity_policy": 10,
+    "trend": 10, "emotion_cycle": 3
+  },
+  "risk_mech": ["persistent_imbalance"],
+  "fallback_window": 10,
+  "glow": {
+    "yiduan": {
+      "win_days": 3, "win_rate": 84.5, "n": 181,
+      "title": "relit.json 一段realized·渊图信号级",
+      "text_tpl": "确认后 {win_days} 日历史胜率 {win_rate}%（n={n}，样本期 {sample_period} · 过往不代表未来）"
+    },
+    "demand_surge": {
+      "win_days": 10, "excess": 5.23, "n": 188,
+      "title": "agg_stock.json own_分逻辑 demand_surge",
+      "text_tpl": "{win_days} 日历史超额 +{excess}%（n={n}，样本期 {sample_period}）· 口径：own 标的池 · 过往不代表未来"
+    }
+  },
+  "bt_logic": [
+    {"key": "supply_shock",         "zh": "供给冲击", "n": 35, "win_rate": 65.7, "avg_excess": 11.10, "flag": ""},
+    {"key": "persistent_imbalance", "zh": "持续失衡", "n": 7,  "win_rate": 14.3, "avg_excess": -4.11, "flag": "风险"}
+  ]
+}
