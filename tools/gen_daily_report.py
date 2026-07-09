@@ -46,6 +46,46 @@ ARTIFACT_PATH = config.ARTIFACT_ROOT / "zhuzhao-jiuyin-daily" / "index.html"  # 
 def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d
 
 
+# ── 信号条目"稳定超额收益期"注记（回测统计参照·非承诺）2026-07-08 ──
+# 窗口=各机制超额达峰的自然持有期（交易日口径，与 docs/自主回测_20260706 一致）
+MECH_WINDOW = {"demand_surge": 10, "supply_shock": 10, "event_driven": 10,
+               "price_driven": 5, "tech_innovation": 3, "capacity_policy": 10,
+               "trend": 10, "emotion_cycle": 3}
+RISK_MECH = {"persistent_imbalance"}   # 逆风类：无稳定超额期
+
+
+def _trading_passed(base, cap, dates):
+    """base 之后、cap（含）之前的交易日个数（用基准指数交易日序列）。"""
+    try:
+        b, c = iso(base), iso(cap)
+        return sum(1 for d in dates if b < iso(d) <= c)
+    except Exception:
+        return None
+
+
+def stable_period_note(stype, base_date, data_day, dates, fixed_win=None):
+    """信号条目的'稳定超额收益期 X 交易日 · 还有 Y 天'注记。回测均值参照，非个体承诺。"""
+    if not base_date:
+        return ""
+    keys = [x.strip() for x in (stype or "").split(",") if x.strip()]
+    pos = [MECH_WINDOW[k] for k in keys if k in MECH_WINDOW]
+    if fixed_win is not None:
+        win = fixed_win
+    elif pos:
+        win = max(pos)                       # 多机制取最长窗口（保守·给足观察期）
+    elif keys and all(k in RISK_MECH for k in keys):
+        return "按回测为历史逆风类，无稳定超额期，注意风险"
+    else:
+        win = 10                             # 无匹配机制：兜底按中线 10 交易日
+    passed = _trading_passed(base_date, data_day, dates)
+    if passed is None:
+        return f"按回测稳定超额收益期约 {win} 交易日（统计参照）"
+    left = win - passed
+    if left > 0:
+        return f"按回测稳定超额收益期约 {win} 交易日，还有 {left} 天"
+    return f"按回测稳定超额收益期约 {win} 交易日（已过 {-left} 天）"
+
+
 import re as _re
 # 受益公司国别上色（2026-06-30 Doctor）：外企=樱粉，台湾=青绿，中国/香港=蓝。
 # curated 名单；保守——拿不准默认蓝（港/陆未解析均蓝）。
@@ -443,6 +483,7 @@ def gather(date_cap=None):
                 chain=r[0] or r[1], node=r[1], stype=r[2] or "", conf=r[3],
                 bene=r[4] or "", bene_detail=r[10] or "", echo=bool(r[5]), status=status,
                 desc=desc, theme=(r[8] or "").split("/")[0],
+                period=stable_period_note(r[2] or "", sd, data_day, dates),
                 fulfill=fulfill_of(status, desc, r[9])))
         ytdays.append({"date": sd, "sigs": sigs_d})
     D["ytdays"] = ytdays
@@ -461,14 +502,18 @@ def gather(date_cap=None):
     realized_today = []
     try:
         for r in rc.execute(
-                "SELECT industry_chain, signal_node, signal_type, gap_desc, date_realized "
+                "SELECT industry_chain, signal_node, signal_type, gap_desc, date_realized, "
+                "beneficiaries, beneficiaries_detail, xiaobao_echo, gap_status, excess_cum "
                 "FROM yuantu_buy_signals WHERE date_realized IS NOT NULL AND date_realized!='' "
                 "ORDER BY yuantu_confidence DESC").fetchall():
             if iso(r[4]) != dd_iso:
                 continue
             realized_today.append(dict(
                 chain=r[0] or r[1], node=r[1] or "", stype=r[2] or "",
-                desc=(r[3] or "").replace("发现", "出现"), realized=r[4] or ""))
+                desc=(r[3] or "").replace("发现", "出现"), realized=r[4] or "",
+                bene=r[5] or "", bene_detail=r[6] or "", echo=bool(r[7]),
+                status=r[8] or "no_data", excess_cum=r[9],
+                period=stable_period_note(r[2] or "", r[4], data_day, dates, fixed_win=3)))
     except Exception:
         realized_today = []
     D["realized_today"] = realized_today
@@ -479,7 +524,8 @@ def gather(date_cap=None):
     demand_hot, _seen_dh = [], set()
     try:
         for r in rc.execute(
-                "SELECT industry_chain, signal_node, signal_type, gap_status, gap_desc, yuantu_confidence "
+                "SELECT industry_chain, signal_node, signal_type, gap_status, gap_desc, yuantu_confidence, date, "
+                "beneficiaries, beneficiaries_detail, xiaobao_echo, excess_cum "
                 "FROM yuantu_buy_signals WHERE length(date)=10 "
                 "AND gap_status IN ('open','closing') AND signal_type LIKE '%demand_surge%' "
                 "ORDER BY yuantu_confidence DESC").fetchall():
@@ -489,7 +535,9 @@ def gather(date_cap=None):
             _seen_dh.add(chain)
             demand_hot.append(dict(
                 chain=chain, node=r[1] or "", stype=r[2] or "",
-                status=r[3] or "", desc=(r[4] or "").replace("发现", "出现"), conf=r[5] or 0))
+                status=r[3] or "no_data", desc=(r[4] or "").replace("发现", "出现"), conf=r[5] or 0,
+                bene=r[7] or "", bene_detail=r[8] or "", echo=bool(r[9]), excess_cum=r[10],
+                period=stable_period_note(r[2] or "", r[6], data_day, dates)))
     except Exception:
         demand_hot = []
     D["demand_surge_hot"] = demand_hot
@@ -506,6 +554,28 @@ def gather(date_cap=None):
     except Exception:
         mech_n = {}
     D["mech_inflight_n"] = mech_n
+
+    # 供给冲击/持续失衡 在途信号明细（供机制排行横向 chip·点击弹二级）——含受益标的字段
+    mech_signals = {}
+    try:
+        for key in ("supply_shock", "persistent_imbalance"):
+            seen, lst = set(), []
+            for r in rc.execute(
+                    "SELECT industry_chain, signal_node, signal_type, gap_status, gap_desc, yuantu_confidence, "
+                    "beneficiaries, beneficiaries_detail, xiaobao_echo, excess_cum "
+                    "FROM yuantu_buy_signals WHERE length(date)=10 AND gap_status IN ('open','closing') "
+                    "AND signal_type LIKE ? ORDER BY yuantu_confidence DESC", (f"%{key}%",)).fetchall():
+                chain = r[0] or r[1]
+                if chain in seen:
+                    continue
+                seen.add(chain)
+                lst.append(dict(chain=chain, node=r[1] or "", stype=r[2] or "",
+                                status=r[3] or "no_data", desc=(r[4] or "").replace("发现", "出现"),
+                                bene=r[6] or "", bene_detail=r[7] or "", echo=bool(r[8]), excess_cum=r[9]))
+            mech_signals[key] = lst
+    except Exception:
+        mech_signals = {}
+    D["mech_signals"] = mech_signals
 
     # ── 在途未兑现台账：所有 open/closing 渊图信号（不受 top-3 时间窗限制）──
     # 补全展示：被主栏时间窗吞掉但状态仍在途的信号；同产业链取最近一条去重，
@@ -1191,10 +1261,18 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 @media (prefers-reduced-motion:reduce){.prio-glow{animation:none}}
 .prio-h{font-weight:700;font-size:15px;color:var(--tx);display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .prio-badge{font-size:11px;font-weight:700;letter-spacing:.04em;color:#fff;background:var(--sc);padding:2px 8px;border-radius:999px;box-shadow:0 0 10px color-mix(in srgb,var(--sc) 60%,transparent)}
-.prio-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
-.prio-list li{display:flex;flex-direction:column;gap:1px;font-size:13.5px;color:var(--tx);border-left:2px solid color-mix(in srgb,var(--sc) 55%,transparent);padding-left:9px}
-.prio-list li b{font-weight:600}
+.prio-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;max-height:260px;overflow-y:auto;scrollbar-width:thin}
+.prio-list::-webkit-scrollbar{width:5px}
+.prio-list::-webkit-scrollbar-thumb{background:#d7cdb9;border-radius:3px}
+.prio-list li{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px;row-gap:2px;font-size:13.5px;color:var(--tx)}
+.prio-list li b{flex:0 0 100%;font-weight:600}
 .prio-meta{font-size:11.5px;color:var(--sub)}
+.prio-period{font-size:11px;color:var(--sub);margin-left:auto;text-align:right;white-space:nowrap;opacity:.92}
+.prio-list li.prio-clk{cursor:pointer;padding:5px 7px 5px 9px;border-radius:8px;transition:background .15s}
+.prio-list li.prio-clk:hover{background:color-mix(in srgb,var(--sc) 14%,rgba(255,255,255,.5))}
+.prio-list li.prio-clk:focus-visible{outline:2px solid color-mix(in srgb,var(--sc) 55%,transparent);outline-offset:1px}
+.prio-hint{font-size:11px;color:var(--sub);opacity:.65;margin-left:8px;white-space:nowrap}
+.period-note{font-size:11px;color:var(--sub);margin-top:6px;line-height:1.4;opacity:.92}
 .prio-more{font-size:11.5px;color:var(--sub);margin-top:7px}
 .prio-empty{font-size:13px;color:var(--sub);padding:6px 0 2px}
 .prio-card .bt-note{font-size:11px;color:var(--sub);margin-top:11px;padding-top:9px;border-top:1px dashed rgba(120,110,95,.28);line-height:1.45}
@@ -1202,25 +1280,40 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .prio-rank{margin:2px 2px 20px;padding:13px 15px 11px;border-radius:14px;background:rgba(251,248,239,.55);border:1px solid rgba(120,110,95,.20)}
 .rank-h{font-weight:600;font-size:13.5px;color:var(--tx);margin-bottom:9px}
 .rank-sub{display:block;font-weight:400;font-size:11px;color:var(--sub);margin-top:3px;line-height:1.4}
-.rank-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
-.rank-list li{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;font-size:13px;color:var(--tx)}
-.rank-list li:nth-child(odd){background:rgba(255,255,255,.42)}
+.rank-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.rank-list .mech-row{display:flex;flex-direction:column;gap:6px;padding:6px 8px;border-radius:8px}
+.rank-list .mech-row:nth-child(odd){background:rgba(255,255,255,.42)}
+.rank-line{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--tx)}
 .rank-win{flex:0 0 auto;min-width:74px;font-weight:700;font-variant-numeric:tabular-nums}
 .rank-win i{font-style:normal;font-size:10px;font-weight:500;color:var(--sub);margin-left:3px}
 .rank-name{flex:1 1 auto;font-weight:600;display:flex;align-items:center}
 .rank-flag{font-size:10.5px;font-weight:600;color:#b5563f;border:1px solid rgba(181,86,63,.42);border-radius:6px;padding:0 5px;margin-left:7px}
 .rank-exc{flex:0 0 auto;font-size:11.5px;color:var(--sub)}
 .rank-cur{flex:0 0 auto;font-size:11px;color:var(--sub);min-width:86px;text-align:right}
-/* 逆风机制·红色外发光警示（覆盖 nth-child 底色）*/
-.rank-list li.rank-risk{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.45);
- box-shadow:0 0 0 1px rgba(192,57,43,.24),0 0 20px rgba(192,57,43,.42);
- animation:risk-breathe 3.6s ease-in-out infinite}
-@keyframes risk-breathe{
- 0%,100%{box-shadow:0 0 0 1px rgba(192,57,43,.22),0 0 15px rgba(192,57,43,.34)}
- 50%{box-shadow:0 0 0 1px rgba(192,57,43,.34),0 0 30px rgba(192,57,43,.56)}}
+/* 机制在途信号·横向 chip（点击弹二级）*/
+.mech-chips{display:flex;flex-wrap:nowrap;gap:14px;padding:0 0 4px 2px;overflow-x:auto;scrollbar-width:thin}
+.mech-chips::-webkit-scrollbar{height:5px}
+.mech-chips::-webkit-scrollbar-thumb{background:#d7cdb9;border-radius:3px}
+.mchip{cursor:pointer;font-size:12px;color:var(--tx);background:transparent;border:none;border-radius:0;padding:0;white-space:nowrap;transition:color .15s}
+.mchip:hover{color:var(--sc);text-decoration:underline;text-underline-offset:2px}
+.mchip:focus-visible{outline:2px solid color-mix(in srgb,var(--sc) 55%,transparent);outline-offset:2px}
+.mchip-more{font-size:11px;color:var(--sub);align-self:center;margin-left:2px}
+.chip-contra{font-size:9.5px;color:#b5563f;border:1px solid rgba(181,86,63,.4);border-radius:5px;padding:0 3px;margin-left:4px;vertical-align:middle}
+/* 逆风机制·只保留红底白字"风险"徽标（行本身不加边框/背景/发光）*/
 .rank-risk .rank-flag{color:#fff;background:#c0392b;border-color:#c0392b}
-@media(prefers-reduced-motion:reduce){.rank-list li.rank-risk{animation:none}}
-@media(max-width:560px){.rank-list li{flex-wrap:wrap}.rank-cur{text-align:left}}
+@media(max-width:560px){.rank-line{flex-wrap:wrap}.rank-cur{text-align:left}}
+/* 二·主线板块 → 安静竖排行(仿 rank-list·保留点击弹二级)2026-07-08 */
+.mline-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.mline{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;cursor:pointer;position:relative;font-size:13.5px;color:var(--tx);transition:background .15s,box-shadow .15s}
+.mline:nth-child(odd){background:rgba(255,255,255,.42)}
+.mline:hover{background:color-mix(in srgb,var(--sc) 12%,rgba(255,255,255,.55));box-shadow:inset 3px 0 0 var(--sc)}
+.mline:focus-visible{outline:2px solid color-mix(in srgb,var(--sc) 60%,transparent);outline-offset:1px}
+.mline-pct{flex:0 0 auto;min-width:60px;font-weight:700;font-variant-numeric:tabular-nums}
+.mline-name{flex:1 1 auto;border-left:2px solid color-mix(in srgb,var(--sc) 55%,transparent);padding-left:9px}
+.mline-name b{font-weight:600}
+.mline-ex{flex:0 0 auto;font-size:11.5px;color:var(--sub)}
+.mline-hint{flex:0 0 auto;font-size:11px;color:var(--sub);opacity:.7}
+@media(max-width:560px){.mline{flex-wrap:wrap}.mline-ex{order:3}}
 .report-title{margin:2px 0 14px;padding:0 4px;display:inline-block;text-align:center}
 .report-name{display:block;font-size:24px;font-weight:700;letter-spacing:1.8px;line-height:1.18;color:var(--tx);white-space:nowrap;text-align:left}
 .report-meta{display:block;color:var(--sub);font-size:12px;line-height:1.35;text-align:center;white-space:nowrap;margin-top:6px}
@@ -1574,16 +1667,18 @@ def render(D):
     day_names = ["当日", "前1日", "前2日"]
     main_html = ""
     for di, day in enumerate(D["maindays"]):
-        cards = ""
+        rows = ""
         for li, L in enumerate(day["lines"]):
             cid = f"d{di}l{li}"
             leaders = "、".join(L["leaders"]) or "—（近月信号无标的字段）"
             sc = THEME_COLOR.get(L["short"], "#8aa0c8")
-            cards += f"""
-<div class="mcard glass" style="--sc:{sc}" onclick="openModal('{cid}')">
- <div class="aurora" aria-hidden="true"><div class="neb"></div><div class="stars"></div></div>
- <div class="mc-h"><b>{L["short"]}</b><span class="mc-pct">{pct_span(L["day_pct"])}</span></div>
- <div class="sub">超额 {pct_span(L["excess"], "pp")} ｜ 20日超额 {L["e20"]:+.1f}%</div>
+            # 竖排行（仿信号栏 rank-list·去行业卡）；整行可点击弹二级详情，template 与 openModal 原样复用
+            rows += f"""
+<div class="mline" role="button" tabindex="0" style="--sc:{sc}" onclick="openModal('{cid}')" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}">
+ <span class="mline-pct">{pct_span(L["day_pct"])}</span>
+ <span class="mline-name"><b>{L["short"]}</b></span>
+ <span class="mline-ex">超额 {pct_span(L["excess"], "pp")} · 20日 {L["e20"]:+.1f}%</span>
+ <span class="mline-hint">详情 ›</span>
  <template id="{cid}"><div class="modal-title" style="--sc:{sc}">{L["short"]}
    <span class="mc-pct">{pct_span(L["day_pct"])}</span>
    <span class="sub">{iso(day["date"])} ｜ 超额 {pct_span(L["excess"], "pp")}</span></div>
@@ -1603,15 +1698,18 @@ def render(D):
 <div class="mday">
  <div class="mday-h">{day_names[di]} <b>{iso(day["date"])}</b>
   <span class="sub">成交 {amt} 万亿 → K_cap {day["kcap"] or "—"} ｜ {qnote}</span></div>
- <div class="mrow">{cards or empty}</div>
+ <div class="mline-list">{rows or empty}</div>
 </div>"""
 
     # ── GAP 判断链（面向使用者的文案，内部口径不外露）──
     yt_all = [g for day in D["ytdays"] for g in day["sigs"]]
     closing_sig = next((g for g in yt_all if g["status"] == "closing"), None)
     closed_sig = next((g for g in yt_all if g["status"] == "closed"), None)
-    step1 = (f'最新关注 {yt0["chain"].split("（")[0]}，另有 {max(0, len(D["ytdays"]) - 1)} 个信号日待跟踪'
-             if yt0 else "近期无新渊图信号入图谱")
+    n_rt = len(D.get("realized_today", []))
+    n_dh = len(D.get("demand_surge_hot", []))
+    n_ss = D.get("mech_inflight_n", {}).get("supply_shock", 0)
+    step1 = (f'今日 {n_rt} 条兑现启动 · 需求爆发 {n_dh} 条在途'
+             if n_rt else f'需求爆发 {n_dh} 条 · 供给冲击 {n_ss} 条在途')
     if closing_sig:
         step2 = f'{closing_sig["chain"].split("（")[0]} 兑现中，继续看行情是否跟随'
     elif closed_sig:
@@ -1626,7 +1724,7 @@ def render(D):
              (f"；{risk_part}需看锚点背离" if risk_part else ""))
     gap_chain = f"""
 <div class="gap-chain" aria-label="GAP 判断链">
- <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到渊图信号卡区" onclick="document.getElementById('sec-gap').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>新线索</b><span>{step1}</span><span class="jhint">↘</span></div>
+ <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到强信号优先条" onclick="document.getElementById('sec-gap').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>强信号</b><span>{step1}</span><span class="jhint">↘</span></div>
  <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到在途未兑现台账" onclick="document.getElementById('sec-ledger').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>价格反应</b><span>{step2}</span><span class="jhint">↘</span></div>
  <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到主线板块" onclick="document.getElementById('sec-main').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>主线确认</b><span>{step3}</span><span class="jhint">↘</span></div>
  <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到机会/风险提示" onclick="document.getElementById('sec-opp').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>机会 / 风险</b><span>{step4}</span><span class="jhint">↘</span></div>
@@ -1638,26 +1736,52 @@ def render(D):
     def _stype_zh(s):
         return "·".join(_TYPE_ZH.get(x.strip(), x.strip())
                         for x in (s or "").split(",") if x.strip())
+    def _period_span(g):
+        return f'<span class="prio-period">{g["period"]}</span>' if g.get("period") else ""
+
+    def _sig_modal(g, gid, sc, meta_tail):
+        # 渊图信号二级卡模板（兑现状态/兑现度/受益标的/小鲍印证/图谱节点）·多处复用
+        zh = STATUS_ZH.get(g.get("status", ""), g.get("status", ""))
+        fl = fulfill_of(g.get("status", "no_data"), g.get("desc", ""), g.get("excess_cum"))
+        echo = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if g.get("echo")
+                else '<span class="tag">小鲍未提及</span>')
+        bene = "、".join(b.strip() for b in (g.get("bene", "") or "").split("/") if b.strip()) or "—（待标的解析）"
+        return f"""<template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["chain"]}
+ <span class="sub">{_stype_zh(g["stype"])}{meta_tail}</span></div>
+ <div><span class="dk">兑现状态</span><span class="tag t-{g.get("status","no_data")}">{zh}</span><span class="desc">{g.get("desc","") or ""}</span></div>
+ <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span><span class="desc">{fl["sent"]}</span></div>
+ <div style="margin:13px 0"><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
+ <div><span class="dk">小鲍印证</span>{echo}<span class="sub">（第二源回声）</span></div>
+ <div><span class="dk">图谱节点</span><span class="sub">{g.get("node","")}</span></div>
+</template>"""
+
+    def _prio_item(g, gid, sc, meta_tail):
+        # 可点击信号条目（优先条）→ 弹二级卡
+        return f"""<li class="prio-clk" role="button" tabindex="0" onclick="openModal('{gid}')">
+<b>{g["chain"]}</b><span class="prio-meta">{_stype_zh(g["stype"])}{meta_tail}</span>{_period_span(g)}<span class="prio-hint">详情 ›</span>
+{_sig_modal(g, gid, sc, meta_tail)}</li>"""
+
+    def _sig_chip(g, gid, sc, contra=False):
+        # 机制在途信号 chip（横向）→ 弹同款二级卡；contra=该信号 signal_type 含持续失衡逆风成分时标注
+        contra_s = '<span class="chip-contra">逆风</span>' if contra else ""
+        return (f'<span class="mchip" role="button" tabindex="0" style="--sc:{sc}" '
+                f'onclick="openModal(\'{gid}\')">{g["chain"]}{contra_s}{_sig_modal(g, gid, sc, "")}</span>')
     rt = D.get("realized_today", [])
     if rt:
-        items_a = "".join(
-            f'<li><b>{g["chain"]}</b><span class="prio-meta">{_stype_zh(g["stype"])}'
-            f'{("｜确认 " + iso(g["realized"])) if g.get("realized") else ""}</span></li>'
-            for g in rt[:4])
+        items_a = ""
+        for i, g in enumerate(rt):
+            meta_tail = ("｜确认 " + iso(g["realized"])) if g.get("realized") else ""
+            items_a += _prio_item(g, f"pa{i}", "#e0a53a", meta_tail)
         body_a = f'<ul class="prio-list">{items_a}</ul>'
-        if len(rt) > 4:
-            body_a += f'<div class="prio-more">另有 {len(rt) - 4} 条今日兑现启动</div>'
     else:
         body_a = '<div class="prio-empty">今日无兑现启动</div>'
     dh = D.get("demand_surge_hot", [])
     if dh:
-        items_b = "".join(
-            f'<li><b>{g["chain"]}</b><span class="prio-meta">{_stype_zh(g["stype"])}'
-            f'｜{STATUS_ZH.get(g["status"], g["status"])}</span></li>'
-            for g in dh[:4])
+        items_b = ""
+        for i, g in enumerate(dh):
+            meta_tail = "｜" + STATUS_ZH.get(g["status"], g["status"])
+            items_b += _prio_item(g, f"pb{i}", "#3f9e8a", meta_tail)
         body_b = f'<ul class="prio-list">{items_b}</ul>'
-        if len(dh) > 4:
-            body_b += f'<div class="prio-more">另有 {len(dh) - 4} 条在途</div>'
     else:
         body_b = '<div class="prio-empty">当前无在途需求爆发信号</div>'
     prio_html = f"""
@@ -1677,30 +1801,36 @@ def render(D):
     # ── 其他机制 · 按各自窗口回测胜率排行（无 glow）2026-07-08 ──
     #   数据=docs/自主回测_20260706/agg_stock.json own_分逻辑（离线快照·own 标的池口径）
     #   窗口口径（Doctor 2026-07-08）：每个机制取其"超额达峰"窗口作自然持有期——3 日兑现的不套 10 日；
-    #   win/exc=该代表窗口的胜率/超额；按胜率降序、并列按超额；demand_surge 已置顶不重列；
-    #   小样本高噪机制(trend/emotion_cycle/other/capacity_policy)略去
+    #   win/exc=该代表窗口的胜率/超额；按胜率降序、并列按超额；demand_surge 已置顶不重列。
+    #   ⚠ 只列渊图信号 signal_type 实际使用的机制（Doctor 2026-07-08）：event_driven/price_driven/
+    #     tech_innovation 渊图无此标签、在途恒 0，去掉防误读为"没信号"；小样本高噪机制亦略去。
     #   BT_LOGIC:(key, 中文, n, 胜率, 超额, 代表窗口, 标记)
     BT_LOGIC = [
         ("supply_shock",         "供给冲击", 82, 56.5,  7.85, "10日", ""),
-        ("event_driven",         "事件驱动", 108, 53.1,  7.55, "10日", ""),
-        ("price_driven",         "价格驱动", 158, 50.6,  1.93, "5日",  ""),
-        ("tech_innovation",      "技术革新", 89, 50.6,  1.72, "3日",  ""),
         ("persistent_imbalance", "持续失衡", 25, 33.3, -4.70, "3日",  "风险"),
     ]
+    SC_MECH = {"supply_shock": "#5b8cff", "persistent_imbalance": "#c0392b"}
     rank_rows = ""
     for key, zh, n, w, e, win, flag in BT_LOGIC:
         cur = D.get("mech_inflight_n", {}).get(key, 0)
-        li_cls = ' class="rank-risk"' if flag else ""
+        line_cls = " rank-risk" if flag else ""
         flag_s = f'<span class="rank-flag">{flag}</span>' if flag else ""
-        rank_rows += (
-            f'<li{li_cls}><span class="rank-win">{w:.1f}%<i>{win}</i></span>'
-            f'<span class="rank-name">{zh}{flag_s}</span>'
-            f'<span class="rank-exc">超额 {e:+.2f}%</span>'
-            f'<span class="rank-cur">在途 {cur} · n={n}</span></li>')
+        line = (f'<div class="rank-line{line_cls}"><span class="rank-win">{w:.1f}%<i>{win}</i></span>'
+                f'<span class="rank-name">{zh}{flag_s}</span>'
+                f'<span class="rank-exc">超额 {e:+.2f}%</span>'
+                f'<span class="rank-cur">在途 {cur} · n={n}</span></div>')
+        sc = SC_MECH.get(key, "#8aa0c8")
+        sigs = D.get("mech_signals", {}).get(key, [])
+        chips = "".join(
+            _sig_chip(g, f"ms{key[:2]}{j}", sc,
+                      contra=(key != "persistent_imbalance" and "persistent_imbalance" in (g.get("stype") or "")))
+            for j, g in enumerate(sigs))
+        chips_html = f'<div class="mech-chips">{chips}</div>' if sigs else ""
+        rank_rows += f'<li class="mech-row">{line}{chips_html}</li>'
     prio_rank = f"""
 <div class="prio-rank" aria-label="其他机制·按各自窗口回测胜率">
  <div class="rank-h">其他机制 · 按各自窗口回测胜率
-  <span class="rank-sub">窗口=该机制超额达峰的自然持有期（3日兑现的不套10日）· 口径 own 标的池 · 样本期 25.10–26.7 · 过往不代表未来 · 小样本高噪机制(trend/other 等)已略去</span></div>
+  <span class="rank-sub">仅列渊图信号实有机制 · 窗口=该机制超额达峰的自然持有期（3日兑现的不套10日）· 胜率口径 own 标的池 · 样本期 25.10–26.7 · 过往不代表未来</span></div>
  <ul class="rank-list">{rank_rows}</ul>
 </div>"""
     prio_html += prio_rank
@@ -1728,6 +1858,7 @@ def render(D):
   <span class="lvl" title="渊图置信度">置信度 {g["conf"]:.2f}</span></div>
  <div class="sc-kw">{g["chain"]}</div>
  <div class="sub">{stype}{("｜" + g["theme"]) if g["theme"] else ""}</div>
+ {f'<div class="period-note">{g["period"]}</div>' if g.get("period") else ""}
  <template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["chain"]}
    <span class="sub">信号时间 {iso(day["date"])} ｜ {stype} ｜ 渊图置信度 {g["conf"]:.2f}</span></div>
   <div><span class="dk">兑现状态</span><span class="tag t-{g["status"]}">{zh}</span>
@@ -1947,13 +2078,12 @@ def render(D):
 
 {ext_html}
 
-<h2 id="sec-main">二 · 主线板块 · 近3日 <span class="vintage">资格=涨幅>1%且对大盘超额>0.5pp（跟涨不算主线）｜ 数量≤当日成交额对应K_cap ｜ 点卡片看详情</span></h2>
+<h2 id="sec-main">二 · 主线板块 · 近3日 <span class="vintage">资格=涨幅>1%且对大盘超额>0.5pp（跟涨不算主线）｜ 数量≤当日成交额对应K_cap ｜ 点主线行看详情</span></h2>
 {main_html}
 
 <h2 id="sec-gap">三 · GAP 信号栏 <span class="vintage">新线索 / 价格反应 / 主线确认 / 机会风险 ｜ 含在途台账 ｜ 点四步脊跳到对应详情区，点卡片看详情</span></h2>
 {prio_html}
 {gap_chain}
-{sig_html}
 {ledger_html}
 {dormant_html}
 {xb_html}

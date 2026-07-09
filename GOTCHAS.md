@@ -316,6 +316,34 @@ cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/d
 
 ---
 
+## G022 — 回测 logic_type 与渊图 signal_type 是两套机制词表（仅 3 交集）
+
+**日期**: 2026-07-08 | **发现人**: CC（Doctor 问"其他机制里没信号么"追出） | **状态**: ✅ 已解决
+
+**触发场景**: 日报「机制排行」按 own 标的池回测 logic_type（agg_stock.json）列 5 机制，用 `signal_type LIKE '%event_driven%'` 统计各机制在途渊图信号数，结果 event_driven/price_driven/tech_innovation 恒为「在途 0」，被误读成「暂时没信号」。
+
+**根因**: 回测胜率来自 **own 标的池 logic_type**（`stock_tracking`/`dim4` 给标的分类），在途数来自 **渊图 `yuantu_buy_signals.signal_type`**（给灯亮买入信号打的机制标签）——两套词表只有 supply_shock / demand_surge / persistent_imbalance 三个交集；event_driven / price_driven / tech_innovation 渊图侧**根本不存在**，LIKE 匹配恒 0（全表 distinct 核实：signal_type 只有这三词及其逗号组合）。
+
+**解法**: 机制排行只列渊图 signal_type 实有的机制（供给冲击 / 持续失衡；需求爆发在 glow 卡置顶），去掉三个渊图无标签的机制防误读。
+
+**预防**: 凡把「回测 logic_type 口径」的结论与「渊图 signal_type 口径」的实时数放同一处展示，先核两套词表交集；非交集机制别用 LIKE 硬匹配（会恒 0 且误导）。要纳入 event_driven 等标的池机制须先在渊图信号侧建标签映射（数据层活）。
+
+---
+
+## G023 — gen_daily_report._deploy_to_artifact 绕过 manifest，卡片时间戳不刷新
+
+**日期**: 2026-07-08 | **发现人**: CC（Doctor「推一下 artifact」时查出） | **状态**: ✅ 已解决（workaround·手动 update_artifact）
+
+**触发场景**: 改完日报脚本、`python3 tools/gen_daily_report.py` 出正式报后，Cowork artifact `zhuzhao-jiuyin-daily` 内容已更新、但卡片列表「更新时间」停在旧值。
+
+**根因**: `_deploy_to_artifact` 直接写 `Artifacts/zhuzhao-jiuyin-daily/index.html`（绕过 `mcp__cowork__update_artifact`），渲染读文件本身故内容照常更新，但 manifest 的 `updatedAt` 不刷新（函数 docstring 自陈）。另注：Cowork「Claude's workspace」= `~/Documents/Claude` 的显示名，manifest path 与脚本写入 path 是同一物理位置。
+
+**解法**: 改完出报后手动调 `mcp__cowork__update_artifact(id=zhuzhao-jiuyin-daily, html_path=AI4ME 正式产物)` 刷新 manifest。
+
+**预防**: Doctor 偏好「每次改完 Artifact 都更新」——出正式报后固定补一步 update_artifact。根治需让脚本改走 update_artifact（另立改动）。
+
+---
+
 ## 统计
 
 | 类别 | 总数 | 已改正 | 待处理 |
@@ -328,7 +356,7 @@ cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/d
 | 算法 | 2 | 2 | 0 |
 | 路径/迁移 | 1 | 1 | 0 |
 | 代码接口 | 1 | 0 | 1 |
-| 自动化/流程 | 3 | 2 | 1 |
-| 回测/数据覆盖 | 2 | 1 | 1 |
+| 自动化/流程 | 4 | 3 | 1 |
+| 回测/数据覆盖 | 3 | 2 | 1 |
 | 沙箱环境 | 1 | 0 | 1 |
-| **总计** | **20** | **15** | **5** |
+| **总计** | **22** | **17** | **5** |
