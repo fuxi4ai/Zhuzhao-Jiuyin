@@ -738,8 +738,8 @@ def gather(date_cap=None):
         if budget is not None and rank > budget:
             break  # 后续候选 e20 只会更弱，直接停
         role = "在场强线" if t["e20"] > 5 else "新线"
-        cap_note = (f"排位 {rank}/{budget} · {role}" if budget is not None
-                    else f"容量未知（缺成交额）· {role}")
+        rank_label = f"排位 {rank}/{budget}" if budget is not None else "容量未知"
+        cap_note = f"{rank_label} · {role}" if budget is not None else f"{rank_label}（缺成交额）· {role}"
         tg = rc.execute("SELECT DISTINCT target FROM industry_signals WHERE etf_anchor=? "
                         "AND date>=? AND target IS NOT NULL AND target NOT IN ('','(主题)') "
                         "ORDER BY date DESC LIMIT 3", (t["name"], cutoff)).fetchall()
@@ -751,7 +751,7 @@ def gather(date_cap=None):
                     names.append({"name": n, **ratings.get(n, {})})
         opps.append({"theme": t["short"], "e20": t["e20"], "e5": t["e5"], "desc": t["desc"],
                      "targets": names,
-                     "note": cap_note})
+                     "note": cap_note, "rank_label": rank_label, "role": role})
     D["opps"] = opps[:4]
 
     xb_pos = rc.execute("SELECT date, position_band, position_risk_pref FROM dim4_trade_plan "
@@ -2220,18 +2220,29 @@ def render(D):
 </div>"""
     prio_html += xb_rank
 
-    # ── 机会 + 仓位 ──
-    opp_html = ""
+    # ── 机会 + 仓位（第四栏 · 「其他机制」机制排行范式：rank-line + 横向可点 chip 排）──
+    opp_rows = ""
     for o in D["opps"]:
         tg = "".join(
             f'<span class="chip">{x["name"]}'
             + (f'<em>{x["total"]}·{x["rating"]}</em>' if x.get("total") else "<em>未评分</em>")
             + "</span>" for x in o["targets"]) or '<span class="na">信号无标的字段</span>'
-        opp_html += (f'<div class="opp"><div class="opp-h">{o["theme"]} '
-                     f'<span class="sub">5日 {o.get("e5", 0):+.1f}% · 20日 {o["e20"]:+.1f}% · {o["note"]}</span></div>'
-                     f'<div class="opp-d">{o["desc"] or ""}</div><div class="chips">{tg}</div></div>')
-    if not opp_html:
+        role = o.get("role", "")
+        _rc = "#b8860b" if role == "新线" else "#8a8170"   # 新线金 / 在场强线灰
+        role_s = (f'<span style="font-size:10.5px;font-weight:600;color:{_rc};'
+                  f'border:1px solid {_rc}55;border-radius:6px;padding:0 5px;margin-left:7px">{role}</span>'
+                  if role else "")
+        line = (f'<div class="rank-line"><span class="rank-win">{o.get("rank_label", "")}</span>'
+                f'<span class="rank-name">{o["theme"]}{role_s}</span>'
+                f'<span class="rank-exc">20日 {o["e20"]:+.1f}%</span>'
+                f'<span class="rank-cur">5日 {o.get("e5", 0):+.1f}%</span></div>')
+        desc_s = f'<div class="opp-d">{o["desc"]}</div>' if o["desc"] else ""
+        opp_rows += f'<li class="mech-row">{line}{desc_s}<div class="mech-chips">{tg}</div></li>'
+    if not opp_rows:
         opp_html = '<div class="na">当日无满足条件（兑现早期×价格启动〔20日为正+5日转正〕×容量×锚不背离）的机会——诚实空仓提示</div>'
+    else:
+        opp_html = ('<div class="prio-rank" aria-label="确认走强·容量排位制">'
+                    '<ul class="rank-list">' + opp_rows + '</ul></div>')
 
     risk_html = "".join(f'<div class="risk r-{r["lvl"]}">{"🔴" if r["lvl"]=="红" else "🟡"} {r["txt"]}</div>'
                         for r in D["risks"]) or '<div class="na">无自动风险命中</div>'
