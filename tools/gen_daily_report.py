@@ -2220,29 +2220,37 @@ def render(D):
 </div>"""
     prio_html += xb_rank
 
-    # ── 机会 + 仓位（第四栏 · 「其他机制」机制排行范式：rank-line + 横向可点 chip 排）──
-    opp_rows = ""
-    for o in D["opps"]:
+    # ── 机会 + 仓位（第四栏 · 「四维度课件信号」视觉范式：prio-rank 头 + 一排可点 mchip，明细进 modal）──
+    _kc = D.get("capacity", {}).get("kcap")
+    _budget = round(_kc) if isinstance(_kc, (int, float)) else None
+    opp_chips = ""
+    for oi, o in enumerate(D["opps"]):
+        gid = f"opp{oi}"
+        sc = THEME_COLOR.get(o["theme"], "#8aa0c8")
+        role = o.get("role", "")
+        _rc = "#b8860b" if role == "新线" else "#8a8170"   # 新线金 / 在场强线灰
+        role_line = f'<span class="tag" style="color:{_rc}">{role}</span>' if role else '<span class="desc">—</span>'
         tg = "".join(
             f'<span class="chip">{x["name"]}'
             + (f'<em>{x["total"]}·{x["rating"]}</em>' if x.get("total") else "<em>未评分</em>")
             + "</span>" for x in o["targets"]) or '<span class="na">信号无标的字段</span>'
-        role = o.get("role", "")
-        _rc = "#b8860b" if role == "新线" else "#8a8170"   # 新线金 / 在场强线灰
-        role_s = (f'<span style="font-size:10.5px;font-weight:600;color:{_rc};'
-                  f'border:1px solid {_rc}55;border-radius:6px;padding:0 5px;margin-left:7px">{role}</span>'
-                  if role else "")
-        line = (f'<div class="rank-line"><span class="rank-win">{o.get("rank_label", "")}</span>'
-                f'<span class="rank-name">{o["theme"]}{role_s}</span>'
-                f'<span class="rank-exc">20日 {o["e20"]:+.1f}%</span>'
-                f'<span class="rank-cur">5日 {o.get("e5", 0):+.1f}%</span></div>')
-        desc_s = f'<div class="opp-d">{o["desc"]}</div>' if o["desc"] else ""
-        opp_rows += f'<li class="mech-row">{line}{desc_s}<div class="mech-chips">{tg}</div></li>'
-    if not opp_rows:
+        tmpl = (f'<template id="{gid}"><div class="modal-title" style="--sc:{sc}">{o["theme"]}'
+                f'<span class="sub">{o.get("rank_label", "")} · {role} ｜ 20日 {o["e20"]:+.1f}% · 5日 {o.get("e5", 0):+.1f}%</span></div>'
+                f'<div><span class="dk">角色</span>{role_line}</div>'
+                f'<div><span class="dk">强度</span><span class="desc">20日超额 {o["e20"]:+.1f}% · 5日 {o.get("e5", 0):+.1f}% · {o.get("rank_label", "")}</span></div>'
+                f'<div><span class="dk">定性</span><span class="desc">{o["desc"] or "—"}</span></div>'
+                f'<div style="margin-top:6px"><span class="dk">标的</span><span class="desc">{tg}</span></div>'
+                f'</template>')
+        opp_chips += (f'<span class="mchip" role="button" tabindex="0" style="--sc:{sc}" '
+                      f'onclick="openModal(\'{gid}\')">{o["theme"]}{tmpl}</span>')
+    if not opp_chips:
         opp_html = '<div class="na">当日无满足条件（兑现早期×价格启动〔20日为正+5日转正〕×容量×锚不背离）的机会——诚实空仓提示</div>'
     else:
-        opp_html = ('<div class="prio-rank" aria-label="确认走强·容量排位制">'
-                    '<ul class="rank-list">' + opp_rows + '</ul></div>')
+        _capn = f"前 {_budget} 强" if _budget is not None else "容量未知"
+        opp_html = (f'<div class="prio-rank" aria-label="确认走强·容量排位制">'
+                    f'<div class="rank-h">确认走强 · 容量排位（{_capn}）'
+                    f'<span class="rank-sub">按 e20 强度排位取前 round(K_cap) 条 · {len(D["opps"])} 条 · 强新线挤弱旧线＝轮动 · 点击看排位/超额/标的 · 非投资建议</span></div>'
+                    f'<div class="mech-chips">{opp_chips}</div></div>')
 
     risk_html = "".join(f'<div class="risk r-{r["lvl"]}">{"🔴" if r["lvl"]=="红" else "🟡"} {r["txt"]}</div>'
                         for r in D["risks"]) or '<div class="na">无自动风险命中</div>'
