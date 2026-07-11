@@ -342,6 +342,8 @@ cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/d
 
 **预防**: Doctor 偏好「每次改完 Artifact 都更新」——出正式报后固定补一步 update_artifact。根治需让脚本改走 update_artifact（另立改动）。
 
+**⚠️ 更正待复核（2026-07-10 · CC）**: 本条原「另注」称 Cowork「Claude's workspace」＝ `~/Documents/Claude` 显示名、manifest path 与脚本写入 path 是**同一物理位置**——今日观察**与此冲突**：同一时刻读两处内容分叉——`~/Documents/Claude/Artifacts/…/index.html`（生成器 `_deploy_to_artifact` 目标）已是新口径「排位 1/5」，而 `~/Claude's workspace/Artifacts/…/index.html`（Cowork manifest 读取路径，`list_artifacts` 返回值）仍旧口径「容量满载」。同刻两文件内容不同 ⇒ 大概率**非同一物理文件**，「同一物理位置」论断存疑。若属实，则本坑不止「时间戳不刷新」，而是**内容根本不同步**（量级更重）：跑完生成器后必须手动 `update_artifact(html_path=生成器部署产物)` 才能把新内容搬到 Cowork 读取的那份。**待复核**：下次把 `~/Claude's workspace` 挂进来，比对两路径 inode/内容确证是否两处物理位置；确证后据实改写本条定性 + 评估根治（让 `ZZJY_ARTIFACT_ROOT` 直指 Cowork 读取目录，一步到位免手动推）。
+
 ---
 
 ## G024 — `/tmp/dbroot` 跨会话残留、属主不同致 Permission denied
