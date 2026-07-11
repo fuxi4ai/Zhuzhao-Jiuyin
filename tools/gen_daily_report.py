@@ -714,27 +714,44 @@ def gather(date_cap=None):
         for r in rows]}]
 
     # ── 机会 + 标的 + 三口径仓位 ──
+    # 容量闸·强度排位制（2026-07-10 Doctor 裁定，取代原全局 state 闸）：
+    #   确认走强的候选按 e20（20日累计超额=强弱）排序，市场只供养最强 round(K_cap) 条。
+    #   前 K_cap 名「容量允许」入栏、余者排位靠后（容量不允许）不列 → 强新线自然挤掉弱旧线＝轮动。
+    #   「新线 vs 在场旧线」（e20>5 已入强线篮 line ~367 口径）只作标签，不决定放行。
+    #   缺成交额（K_cap=None）→ 无法判容量，如实标「容量未知」并照列（数据真实性铁律：缺数标注不臆断）。
     ratings = D["_ratings"]
+    _kcap = D["capacity"]["kcap"]
+    budget = round(_kcap) if isinstance(_kcap, (int, float)) else None
+    # themes 已按 -e20 排好序（line ~439），故遍历顺序即强弱降序
     opps = []
+    rank = 0
     for t in themes:
         # 价格信号叠加（2026-06-30 Doctor·分层）：产业逻辑买入已在上游独立成栏，本栏在其上叠价格确认。
         # 两层——中期趋势确认 e20>0（月度正超额，与锚侧 ex20 同 20 日窗）+ 短期正在启动 e5>0（新鲜点火）。
         early = ((t["sig"].get("open", 0) > 0 or "兑现初期" in (t["desc"] or ""))
                  and t["e20"] > 0 and t["e5"] > 0)
         anchor_ok = not (t["us"] and t["us"]["kind"] == "echo" and t["us"]["ex20"] < -10)
-        if early and anchor_ok and D["capacity"]["state"] in ("有空位", "虹吸", "满载"):
-            tg = rc.execute("SELECT DISTINCT target FROM industry_signals WHERE etf_anchor=? "
-                            "AND date>=? AND target IS NOT NULL AND target NOT IN ('','(主题)') "
-                            "ORDER BY date DESC LIMIT 3", (t["name"], cutoff)).fetchall()
-            names = []
-            for row in tg:
-                for n in (row[0] or "").replace("、", ",").split(","):
-                    n = n.strip()
-                    if n and len(names) < 6:
-                        names.append({"name": n, **ratings.get(n, {})})
-            opps.append({"theme": t["short"], "e20": t["e20"], "e5": t["e5"], "desc": t["desc"],
-                         "targets": names,
-                         "note": "容量" + (D["capacity"]["state"] or "未知")})
+        if not (early and anchor_ok):
+            continue
+        rank += 1  # 在确认走强候选内的强度排位（themes 已降序 → rank 即排位）
+        # 容量闸：排位在 round(K_cap) 内才「容量允许」；超出＝市场供养不下，排位靠后，停列。
+        if budget is not None and rank > budget:
+            break  # 后续候选 e20 只会更弱，直接停
+        role = "在场强线" if t["e20"] > 5 else "新线"
+        cap_note = (f"排位 {rank}/{budget} · {role}" if budget is not None
+                    else f"容量未知（缺成交额）· {role}")
+        tg = rc.execute("SELECT DISTINCT target FROM industry_signals WHERE etf_anchor=? "
+                        "AND date>=? AND target IS NOT NULL AND target NOT IN ('','(主题)') "
+                        "ORDER BY date DESC LIMIT 3", (t["name"], cutoff)).fetchall()
+        names = []
+        for row in tg:
+            for n in (row[0] or "").replace("、", ",").split(","):
+                n = n.strip()
+                if n and len(names) < 6:
+                    names.append({"name": n, **ratings.get(n, {})})
+        opps.append({"theme": t["short"], "e20": t["e20"], "e5": t["e5"], "desc": t["desc"],
+                     "targets": names,
+                     "note": cap_note})
     D["opps"] = opps[:4]
 
     xb_pos = rc.execute("SELECT date, position_band, position_risk_pref FROM dim4_trade_plan "
@@ -2260,7 +2277,7 @@ def render(D):
 {prio_html}
 {dormant_html}
 
-<h2 id="sec-opp">四 · 确认走强（e20/e5 > 0），且容量允许 <span class="vintage">候选观察方向，非投资建议</span></h2>
+<h2 id="sec-opp">四 · 确认走强（e20/e5 > 0），且容量允许 <span class="vintage">候选观察方向 · 按 e20 强度排位取前 K_cap 条（强新线挤弱旧线＝轮动）· 非投资建议</span></h2>
 {opp_html}
 
 <h2>五 · 风险提示 <span class="vintage">{len([r for r in D["risks"] if r["lvl"]=="红"])} 红 / {len([r for r in D["risks"] if r["lvl"]=="黄"])} 黄 ｜ 展开看具体锚与标的</span></h2>
