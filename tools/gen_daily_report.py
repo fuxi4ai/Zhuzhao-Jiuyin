@@ -410,6 +410,30 @@ def gather(date_cap=None):
                 "ex20": round(ex20 * 100, 1),
                 "alert": abs(ov) >= (0.04 if tkr == "ALM" else 0.02)}
 
+    def us_abs_series(tkr, win):
+        # 美股锚归一化累计%，隔夜映射对齐到 A 股窗口 win（严格早于每个 A 股日→无未来函数），
+        # rebase 到窗口起点=0；无锚/无数据→None（诚实缺，render 不画蓝线）
+        if not tkr or tkr not in us:
+            return None
+        pairs = sorted((iso(k), v) for k, v in us[tkr].items())
+        if not pairs:
+            return None
+        cumpairs, c = [], 0.0
+        for dt, v in pairs:
+            c += v
+            cumpairs.append((dt, c))
+
+        def cum_lt(dd):
+            val = 0.0
+            for dt, cc in cumpairs:
+                if dt < dd:
+                    val = cc
+                else:
+                    break
+            return val
+        base = cum_lt(iso(win[0]))
+        return [round((cum_lt(iso(d)) - base) * 100, 2) for d in win]
+
     themes = []
     for t in THEME_ETF:
         ex = theme_ex(t)
@@ -419,6 +443,16 @@ def gather(date_cap=None):
         for d in ds[-20:]:
             cum += ex[d]
             spark.append(round(cum * 100, 2))
+        # 绝对走势（归一化累计%）：板块 ETF 篮子 / 大盘 / 美股锚，共用同一 20 个 A 股交易日窗口
+        win = ds[-20:]
+        abs_sp, bench_sp, ca, cb = [], [], 0.0, 0.0
+        for d in win:
+            vv = [px[c][d] for c in THEME_ETF[t] if d in px[c]]
+            ca += (sum(vv) / len(vv)) if vv else 0.0
+            cb += px[BENCHMARK].get(d, 0.0)
+            abs_sp.append(round(ca * 100, 2))
+            bench_sp.append(round(cb * 100, 2))
+        us_sp = us_abs_series(THEME_US[t][0] if t in THEME_US else None, win) if win else None
         e5 = sum(ex[d] for d in ds[-5:]) * 100
         e20 = sum(ex[d] for d in ds[-20:]) * 100
         e60 = sum(ex[d] for d in ds[-60:]) * 100
@@ -433,6 +467,7 @@ def gather(date_cap=None):
         themes.append({
             "name": t, "short": t.split("/")[0], "e5": round(e5, 1), "e20": round(e20, 1),
             "e60": round(e60, 1), "spark": spark, "sig": sigc,
+            "abs_spark": abs_sp, "bench_spark": bench_sp, "us_spark": us_sp,
             "desc": latest_desc[0] if latest_desc else "",
             "us": us_info(t),
         })
@@ -489,6 +524,8 @@ def gather(date_cap=None):
                     "name": name, "short": name.split("/")[0],
                     "day_pct": round(day_pct, 2), "excess": round(excess, 2),
                     "etf": " / ".join(cs), "e20": t["e20"], "spark": t["spark"],
+                    "abs_spark": t["abs_spark"], "bench_spark": t["bench_spark"],
+                    "us_spark": t["us_spark"],
                     "us": t["us"], "desc": t["desc"],
                     "leaders": leaders,
                     "logic": (f"{logic[0]}｜{logic[1]}" if logic else "近期无入库产业逻辑信号"),
@@ -853,6 +890,34 @@ def spark_svg(vals, w=120, h=28):
           f'stroke="#2a3354" stroke-dasharray="2,3"/>') if zero_y else ""
     return (f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}">{zl}'
             f'<polyline points="{pts}" fill="none" stroke="{color}" stroke-width="1.6"/></svg>')
+
+
+def spark_abs_svg(abs_vals, bench_vals, us_vals, w=200, h=36):
+    # 绝对走势（归一化累计%）三线共轴：板块 ETF 篮子(红涨绿跌·实线) + 大盘(白虚线) + 美股锚(蓝虚线)
+    # y 轴按三序列合并 min/max 归一；us_vals 为 None（无美股锚）时不画蓝线，诚实缺
+    if not abs_vals or len(abs_vals) < 2:
+        return ""
+    series = [abs_vals, bench_vals] + ([us_vals] if us_vals else [])
+    allv = [v for s in series for v in s]
+    mn, mx = min(allv), max(allv)
+    rng = (mx - mn) or 1
+
+    def pts_of(vals):
+        n = len(vals)
+        return " ".join(f"{i*w/(n-1):.1f},{h-2-(v-mn)/rng*(h-4):.1f}"
+                        for i, v in enumerate(vals))
+    zero_y = h - 2 - (0 - mn) / rng * (h - 4) if mn < 0 < mx else None
+    zl = (f'<line x1="0" y1="{zero_y:.1f}" x2="{w}" y2="{zero_y:.1f}" '
+          f'stroke="#2a3354" stroke-dasharray="2,3"/>') if zero_y is not None else ""
+    ac = "#ff5d5d" if abs_vals[-1] >= 0 else "#3ddc97"      # 板块自身涨跌·红涨绿跌（Doctor 定）
+    poly = (f'<polyline points="{pts_of(bench_vals)}" fill="none" stroke="#ffffff" '
+            f'stroke-width="1.1" stroke-dasharray="3,2" opacity="0.7"/>')
+    if us_vals:
+        poly += (f'<polyline points="{pts_of(us_vals)}" fill="none" stroke="#4da3ff" '
+                 f'stroke-width="1.1" stroke-dasharray="3,2" opacity="0.9"/>')
+    poly += (f'<polyline points="{pts_of(abs_vals)}" fill="none" stroke="{ac}" '
+             f'stroke-width="1.6"/>')                        # 板块线最后画=置顶
+    return f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}">{zl}{poly}</svg>'
 
 
 def pct_span(v, suffix="%"):
@@ -1625,6 +1690,15 @@ function closeModal(){
  document.body.style.overflow='';}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 window.addEventListener('resize',()=>{em.resize();g.resize();});
+function toggleSpark(el){
+ const wrap=el.closest('.sparkwrap'); if(!wrap) return;
+ const ex=wrap.querySelector('.spark-ex'), ab=wrap.querySelector('.spark-abs');
+ const showAbs=el.getAttribute('data-view')==='ex';
+ if(ex) ex.style.display=showAbs?'none':'';
+ if(ab) ab.style.display=showAbs?'':'none';
+ el.setAttribute('data-view',showAbs?'abs':'ex');
+ el.textContent=showAbs?'绝对':'超额';
+ el.style.color=showAbs?'var(--acc,#a94e3f)':'var(--sub,#8aa0c8)';}
 """
 
 
@@ -1834,7 +1908,11 @@ def render(D):
   <div><span class="dk">龙头公司</span>{leaders} <span class="sub">（近月信号标的，括号=龙鱼分）</span></div>
   <div><span class="dk">产业逻辑</span><span class="desc">{L["logic"]}</span></div>
   <div><span class="dk">兑现定性</span><span class="desc">{L["desc"] or "—"}</span></div>
-  <div><span class="dk">20日走势</span>{spark_svg(L["spark"], 200, 36)}</div>
+  <div><span class="dk">20日走势</span><span class="sparkwrap">
+    <span class="sparktoggle" role="button" tabindex="0" data-view="ex" onclick="toggleSpark(this)" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}" style="display:inline-block;font-size:10px;padding:1px 6px;margin-right:6px;border:1px solid var(--line,#2a3354);border-radius:8px;color:var(--sub,#8aa0c8);cursor:pointer;vertical-align:middle;user-select:none">超额</span>
+    <span class="spark-ex" style="vertical-align:middle">{spark_svg(L["spark"], 200, 36)}</span>
+    <span class="spark-abs" style="display:none;vertical-align:middle">{spark_abs_svg(L["abs_spark"], L["bench_spark"], L["us_spark"], 200, 36)}<span class="spark-legend" style="display:block;font-size:9px;color:var(--sub,#8aa0c8);margin-top:1px">板块 · <span style="color:#fff">┄</span>大盘 · <span style="color:#4da3ff">┄</span>美股 · 绝对·自身涨跌</span></span>
+  </span></div>
  </template></div>"""
         qnote = (f'达标 {day["qualified"]} 条' +
                  (f'，按容量展示前 {day["kcap"]}' if day["qualified"] > (day["kcap"] or 99)
