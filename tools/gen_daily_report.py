@@ -906,18 +906,15 @@ def spark_abs_svg(abs_vals, bench_vals, us_vals, w=200, h=36):
         n = len(vals)
         return " ".join(f"{i*w/(n-1):.1f},{h-2-(v-mn)/rng*(h-4):.1f}"
                         for i, v in enumerate(vals))
-    zero_y = h - 2 - (0 - mn) / rng * (h - 4) if mn < 0 < mx else None
-    zl = (f'<line x1="0" y1="{zero_y:.1f}" x2="{w}" y2="{zero_y:.1f}" '
-          f'stroke="#2a3354" stroke-dasharray="2,3"/>') if zero_y is not None else ""
     ac = "#ff5d5d" if abs_vals[-1] >= 0 else "#3ddc97"      # 板块自身涨跌·红涨绿跌（Doctor 定）
-    poly = (f'<polyline points="{pts_of(bench_vals)}" fill="none" stroke="#ffffff" '
-            f'stroke-width="1.1" stroke-dasharray="3,2" opacity="0.7"/>')
+    poly = (f'<polyline points="{pts_of(bench_vals)}" fill="none" stroke="#2a3354" '
+            f'stroke-width="1.1" stroke-dasharray="3,2" opacity="0.85"/>')
     if us_vals:
         poly += (f'<polyline points="{pts_of(us_vals)}" fill="none" stroke="#4da3ff" '
                  f'stroke-width="1.1" stroke-dasharray="3,2" opacity="0.9"/>')
     poly += (f'<polyline points="{pts_of(abs_vals)}" fill="none" stroke="{ac}" '
              f'stroke-width="1.6"/>')                        # 板块线最后画=置顶
-    return f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}">{zl}{poly}</svg>'
+    return f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}">{poly}</svg>'
 
 
 def pct_span(v, suffix="%"):
@@ -1911,7 +1908,7 @@ def render(D):
   <div><span class="dk">20日走势</span><span class="sparkwrap">
     <span class="sparktoggle" role="button" tabindex="0" data-view="ex" onclick="toggleSpark(this)" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}" style="display:inline-block;font-size:10px;padding:1px 6px;margin-right:6px;border:1px solid var(--line,#2a3354);border-radius:8px;color:var(--sub,#8aa0c8);cursor:pointer;vertical-align:middle;user-select:none">超额</span>
     <span class="spark-ex" style="vertical-align:middle">{spark_svg(L["spark"], 200, 36)}</span>
-    <span class="spark-abs" style="display:none;vertical-align:middle">{spark_abs_svg(L["abs_spark"], L["bench_spark"], L["us_spark"], 200, 36)}<span class="spark-legend" style="display:block;font-size:9px;color:var(--sub,#8aa0c8);margin-top:1px">板块 · <span style="color:#fff">┄</span>大盘 · <span style="color:#4da3ff">┄</span>美股 · 绝对·自身涨跌</span></span>
+    <span class="spark-abs" style="display:none;vertical-align:middle">{spark_abs_svg(L["abs_spark"], L["bench_spark"], L["us_spark"], 200, 36)}<span class="spark-legend" style="display:block;font-size:9px;color:var(--sub,#8aa0c8);margin-top:1px">板块 · <span style="color:#2a3354">┄</span>大盘 · <span style="color:#4da3ff">┄</span>美股 · 绝对·自身涨跌</span></span>
   </span></div>
  </template></div>"""
         qnote = (f'达标 {day["qualified"]} 条' +

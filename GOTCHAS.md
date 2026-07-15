@@ -376,6 +376,32 @@ cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/d
 
 **落地补充（2026-07-09·渲染层最小版）**: 已实现「缺个股宽度时回退一日」——涨跌家数取数改 `MAX(trade_date)<=data_day` 回退最新可得日 + 记 `ud_vintage/ud_stale`；渲染 T-1 时标「T-1·昨日宽度（截至 X，当日待收盘）」角标，连 T-1 都无才「待回填」。抄成交额栏(L280-284)现成 vintage 范式。手动补①仍是拿当日真宽度的路径，但早报缺当日时已诚实展示 T-1 而非空显待回填。真需求（诚实标注）缩为单文件<10处、撤了 PRD。
 
+## G026 — stock_tracking 系全量重建池，派生回填「只增不减」守门会误判其自然缩水
+
+**日期**: 2026-07-14 | **发现人**: 九儿（烛阴·定时班） | **状态**: ✅ 已解决（本班按可逆优先保留原库·未放回）
+
+**触发场景**: 定时行情班派生回填后，`populate_signal_targets.py` 重建 `recap.stock_tracking` 池，行数由 2998 → 2852。SKILL 5d「recap 关键表放回前只增不减校验」把这 5% 缩水判成潜在数损。
+
+**根因**: stock_tracking **不是 append-only 表，是每次 populate 全量重建的标的池**（去重「一股一日一行·own 优先」）。其行数随当日活跃信号 / dim4 解析情况日间自然波动——本班缩水的直接诱因还叠了个小坑：首跑 populate 时 /tmp 缺渊图 KG（见 G020），dim4 仅 0 解析；补 KG 后重跑正确解析 33 只 dim4，去重后 own 池相应变化。所以 2852 才是**当日正确完整重建**，2998 是早前缺 KG 的旧值。
+
+**解法（本班）**: 因实质派生表（emotion_cycle/yuantu_buy_signals/industry_signals/fx_cnh 全 delta=0，真库 09:04 已今日完整态）无变化，唯一 delta 是 stock_tracking rebuild churn，按可逆优先**保留原 recap.db、不放回** /tmp 缩水副本，日报读真库、数据完整。
+
+**预防 / 待改（提案·Doctor 2026-07-14 批方向）**: SKILL 5d 的「只增不减」守门对 append-only 表（emotion_cycle 等）适用，但对 **stock_tracking 这类全量重建池不适用**——应改用「非空 + 行数落在合理区间（如 ≥ 前次 ×0.7）」校验，避免把正常 rebuild churn 误判成数损而阻断放回。具体 SKILL 措辞改动待 Doctor 在定时任务定义里落地（沙箱只读改不了）。另：设 `ZZJY_DATABASE_ROOT=/tmp` 跑 populate 前，务必先补渊图 KG 软链/快照（G020），否则 dim4 解析残缺、池会偏小。
+
+---
+
+## G027 — 生成器部署路径 ≠ Cowork artifact 注册表路径，磁盘覆盖不刷新视图
+
+**日期**: 2026-07-15 | **发现人**: CC | **状态**: ✅ 已定位（临时解：部署后手动 update_artifact；根治待改 config）
+
+**触发场景**: 改完 `gen_daily_report.py` 跑生成器，日志显示「🚀 已部署到 Cowork artifact」，但 Doctor 端 artifact「烛照九阴·复盘日报」没更新。
+
+**根因**: 生成器 `config.ARTIFACT_ROOT` 部署目标是 `~/Documents/Claude/Artifacts/zhuzhao-jiuyin-daily/index.html`，而 **Cowork 注册表（`list_artifacts`）里该 artifact 的实际路径是 `~/Claude's workspace/Artifacts/zhuzhao-jiuyin-daily/index.html`——两处不同目录**。生成器只覆盖了前者的磁盘文件，Cowork 服务的是后者，故视图不刷新。直接写磁盘 ≠ 刷新注册表。
+
+**解法（临时）**: 部署后把生成的 index.html 拷进工作区，调 `mcp__cowork__update_artifact(id="zhuzhao-jiuyin-daily", html_path=...)` 正式推进注册表才生效。ECharts 已内联（非 CDN），满足 update_artifact 自包含约束。
+
+**预防 / 待改（提案）**: 长期应把 `config.ARTIFACT_ROOT` 指向 Cowork 注册表实际路径（`~/Claude's workspace/Artifacts`），或在生成器部署步骤末尾自动调 update_artifact，免每次手动。**注意 07:00 定时链**同样受此影响——定时跑只写了 Documents 侧磁盘、Cowork 视图不会自动刷新，须一并核。config 改动待 Doctor 拍板。
+
 ---
 
 ## 统计
@@ -390,7 +416,7 @@ cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/d
 | 算法 | 2 | 2 | 0 |
 | 路径/迁移 | 1 | 1 | 0 |
 | 代码接口 | 1 | 0 | 1 |
-| 自动化/流程 | 5 | 4 | 1 |
+| 自动化/流程 | 7 | 6 | 1 |
 | 回测/数据覆盖 | 3 | 2 | 1 |
 | 沙箱环境 | 2 | 1 | 1 |
-| **总计** | **24** | **19** | **5** |
+| **总计** | **26** | **21** | **5** |
