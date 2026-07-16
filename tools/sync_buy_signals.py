@@ -144,6 +144,24 @@ def build(dry_run=False):
     conn.close()
     logger.info(f"✅ 已写入 recap.db.yuantu_buy_signals，现共 {n} 条。")
 
+    # A3 影子模式（PRD 2026-07-16·Doctor 批）：信息升级检测，只写 escalation_shadow 表+docs 日志，
+    # 不改 yuantu_buy_signals、不进日报。任何异常吞掉不阻塞主链。
+    try:
+        import escalation_shadow as esc
+        kg = yc.load_kg()
+        nodes = [{"id": nd.get("id"), "description": nd.get("description") or ""}
+                 for nd in kg.get("nodes", []) if nd.get("id")]
+        # 只扫已入 recap 的信号节点（口径与买入信号一致，控量）
+        conn2 = sqlite3.connect(config.RECAP_DB)
+        known = {r[0] for r in conn2.execute("SELECT signal_node FROM yuantu_buy_signals")}
+        conn2.close()
+        nodes = [nd for nd in nodes if nd["id"] in known]
+        st = esc.run_shadow(str(config.RECAP_DB), nodes, str(config.PROJECT_ROOT))
+        logger.info(f"🕯️ A3 影子：扫 {st['seen']} · 新基线 {st['baseline_new']} · "
+                    f"无变化 {st['unchanged']} · 升级候选 {st['escalated']}（未进日报）")
+    except Exception as e:
+        logger.warning(f"A3 影子模式异常（不阻塞主链）: {e}")
+
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()

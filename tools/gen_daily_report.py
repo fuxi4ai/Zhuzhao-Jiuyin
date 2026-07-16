@@ -52,9 +52,13 @@ def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d
 _BT_FALLBACK = {
     "_meta": {"sample_period": "25.10–26.7"},
     "mech_window": {"demand_surge": 10, "supply_shock": 10, "event_driven": 10,
-                    "price_driven": 5, "tech_innovation": 3, "capacity_policy": 10,
+                    "tech_innovation": 3, "capacity_policy": 10,
                     "trend": 10, "emotion_cycle": 3},
     "risk_mech": ["persistent_imbalance"],
+    # A2（PRD 2026-07-16）：price_driven 回测无超额(10d −0.34, n=158)——波动源非收益源，移出正向窗口
+    "vol_hint_mech": ["price_driven"],
+    "vol_hint": {"n": 158, "excess10": -0.34, "median10": -0.63,
+                 "text_tpl": "历史无超额（10日 {excess10}%，n={n}，样本期 {sample_period}）· 波动放大提示 · 复核非买点"},
     "fallback_window": 10,
     "glow": {
         "yiduan": {"win_days": 3, "win_rate": 84.5, "n": 181,
@@ -63,6 +67,11 @@ _BT_FALLBACK = {
         "demand_surge": {"win_days": 10, "excess": 5.23, "n": 188,
                    "title": "agg_stock.json own_分逻辑 demand_surge",
                    "text_tpl": "{win_days} 日历史超额 +{excess}%（n={n}，样本期 {sample_period}）· 口径：own 标的池 · 过往不代表未来"},
+        # A1（PRD 2026-07-16）：二段点亮回测期望为负——中性观察注记
+        "relit": {"win_days": 3, "win_rate": 64.0, "n": 25,
+                   "win_rate_10d": 48.0, "avg_10d": -1.19, "median_20d": -6.15,
+                   "title": "relit.json relit点亮·主线级",
+                   "text_tpl": "点亮后 {win_days} 日胜率 {win_rate}%（n={n}）· 10 日后历史转负（胜率 {win_rate_10d}%/均 {avg_10d}%）· 中性观察非买点"},
     },
     "bt_logic": [
         {"key": "supply_shock", "zh": "供给冲击", "n": 35, "win_rate": 65.7, "avg_excess": 11.10, "flag": ""},
@@ -83,6 +92,7 @@ def _load_bt_stats():
 BT_STATS = _load_bt_stats()
 MECH_WINDOW = BT_STATS["mech_window"]
 RISK_MECH = set(BT_STATS["risk_mech"])   # 逆风类：无稳定超额期
+VOL_HINT_MECH = set(BT_STATS.get("vol_hint_mech", []))   # A2：波动源非收益源（price_driven）
 SAMPLE_PERIOD = BT_STATS["_meta"]["sample_period"]
 
 # 信号展示补注（渲染层覆盖·不改上游数据库/图谱，避免被渊图同步冲掉）：按 signal_node 覆盖显示名 + 详情卡补说明
@@ -116,6 +126,11 @@ def stable_period_note(stype, base_date, data_day, dates, fixed_win=None):
         win = fixed_win
     elif pos:
         win = max(pos)                       # 多机制取最长窗口（保守·给足观察期）
+    elif keys and any(k in VOL_HINT_MECH for k in keys) and all(k in (RISK_MECH | VOL_HINT_MECH) for k in keys):
+        # A2（PRD 2026-07-16）：price_driven（含与 persistent 混合）——波动源非收益源
+        vh = BT_STATS.get("vol_hint", {})
+        return vh.get("text_tpl", "历史无超额 · 波动放大提示 · 复核非买点").format(
+            sample_period=SAMPLE_PERIOD, **{k: v for k, v in vh.items() if k != "text_tpl"})
     elif keys and all(k in RISK_MECH for k in keys):
         return "按回测为历史逆风类，无稳定超额期，注意风险"
     else:
@@ -581,6 +596,16 @@ def gather(date_cap=None):
     except Exception:
         D["dormant_n"] = 0
 
+    # A1（PRD 2026-07-16）：当前处于二段点亮态的信号 → 中性观察列表（不进强信号栏）
+    try:
+        D["relit_active"] = [
+            dict(chain=r[0] or r[1], node=r[1] or "", relit_date=r[2] or "", relit_count=r[3] or 0)
+            for r in rc.execute(
+                "SELECT industry_chain, signal_node, relit_date, relit_count FROM yuantu_buy_signals "
+                "WHERE gap_status='closing' AND relit_count>0 ORDER BY relit_date DESC").fetchall()]
+    except Exception:
+        D["relit_active"] = []
+
     # ── 强信号优先条取数（回测落地批·置顶 glow）2026-07-08 ──
     # 卡A「一段兑现启动」：当日新转 realized 的渊图主线（严格当日增量 date_realized==data_day）
     #   回测锚 docs/自主回测_20260706/relit.json「一段realized」n=181/182·3d 胜率 84.5%（渊图信号级·口径一致）
@@ -615,6 +640,7 @@ def gather(date_cap=None):
                 "beneficiaries, beneficiaries_detail, xiaobao_echo, excess_cum "
                 "FROM yuantu_buy_signals WHERE length(date)=10 "
                 "AND gap_status IN ('open','closing') AND signal_type LIKE '%demand_surge%' "
+                "AND (relit_count IS NULL OR relit_count=0) "   # A1：二段点亮不再进强信号栏（点亮后10日历史转负）
                 "ORDER BY yuantu_confidence DESC").fetchall():
             chain = r[0] or r[1]
             if chain in _seen_dh:   # 同产业链去重，取最高置信度那条
@@ -2254,11 +2280,24 @@ def render(D):
  {rrows}
 </div>"""
 
+    # A1（PRD 2026-07-16）：二段点亮·中性观察行（从强信号栏移出，点亮≠行动）
+    _ra = D.get("relit_active", [])
+    _rl = BT_STATS.get("glow", {}).get("relit", {})
+    _rl_note = _rl.get("text_tpl", "点亮后10日历史转负·中性观察非买点").format(
+        sample_period=SAMPLE_PERIOD, **{k: v for k, v in _rl.items() if k not in ("text_tpl", "title")})
+    relit_html = (
+        '<div class="dormant-note">🔆 二段点亮 ' + str(len(_ra)) + ' 条（中性观察·不进强信号栏）：'
+        + '、'.join(x["chain"] for x in _ra[:6]) + ('…' if len(_ra) > 6 else '')
+        + f'<br><span style="opacity:.8">{_rl_note}</span></div>'
+        if _ra else "")
+
     # 案2 暗态计数入口（不渲染暗态线本身，仅给一个可感知的入口）
     _dn = D.get("dormant_n", 0)
     dormant_html = (
-        f'<div class="dormant-note">🌙 暗态 {_dn} 条（已兑现·候二段 · 不在主栏/台账展示；价格再起达门槛 Y′=4日/回升5pp 自动点亮回二段）</div>'
+        f'<div class="dormant-note">🌙 暗态 {_dn} 条（已兑现·候二段 · 不在主栏/台账展示；价格再起达门槛 Y′=4日/回升5pp 自动点亮回二段。'
+        f'注意：点亮≠行动——{_rl_note}）</div>'
         if _dn else "")
+    dormant_html = relit_html + dormant_html
 
     # ── 四维度课件信号（第二印证·机制排行范式·并入机制之下）──
     xb_html = ""  # 已并入 prio_html（机制排行范式），底部不再单独渲染

@@ -6,15 +6,21 @@
       "agg_stock": "docs/自主回测_20260706/agg_stock.json"
     },
     "sample_period": "25.10–26.7",
-    "last_recompute": "2026-07-06",
+    "last_recompute": "2026-07-16",
+    "note_20260716": "A1/A2 改造（PRD 2026-07-16_日报信号逻辑A1A2A3改造）：price_driven 移出正向窗口改波动提示；新增 relit 中性观察注记",
     "disclaimer": "统计参照·非个体承诺·过往不代表未来"
   },
   "mech_window": {
     "demand_surge": 10, "supply_shock": 10, "event_driven": 10,
-    "price_driven": 5, "tech_innovation": 3, "capacity_policy": 10,
+    "tech_innovation": 3, "capacity_policy": 10,
     "trend": 10, "emotion_cycle": 3
   },
   "risk_mech": ["persistent_imbalance"],
+  "vol_hint_mech": ["price_driven"],
+  "vol_hint": {
+    "n": 158, "excess10": -0.34, "median10": -0.63,
+    "text_tpl": "历史无超额（10日 {excess10}%，n={n}，样本期 {sample_period}）· 波动放大提示 · 复核非买点"
+  },
   "fallback_window": 10,
   "glow": {
     "yiduan": {
@@ -26,6 +32,12 @@
       "win_days": 10, "excess": 5.23, "n": 188,
       "title": "agg_stock.json own_分逻辑 demand_surge",
       "text_tpl": "{win_days} 日历史超额 +{excess}%（n={n}，样本期 {sample_period}）· 口径：own 标的池 · 过往不代表未来"
+    },
+    "relit": {
+      "win_days": 3, "win_rate": 64.0, "n": 25,
+      "win_rate_10d": 48.0, "avg_10d": -1.19, "median_20d": -6.15,
+      "title": "relit.json relit点亮·主线级",
+      "text_tpl": "点亮后 {win_days} 日胜率 {win_rate}%（n={n}）· 10 日后历史转负（胜率 {win_rate_10d}%/均 {avg_10d}%）· 中性观察非买点"
     }
   },
   "bt_logic": [
