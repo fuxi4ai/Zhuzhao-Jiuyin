@@ -2316,7 +2316,7 @@ def render(D):
             gid = f"xb{si}"
             sc = THEME_COLOR.get(g["theme"], "#8aa0c8")
             zh = STATUS_ZH.get(g["status"], g["status"])
-            lvl_sub = f' ｜ 信息差等级 {g["lvl"]}/5' if g["lvl"] else ""
+            lvl_sub = f' ｜ 信息差等级 {g["lvl"]}/5（未校准·入选门槛）' if g["lvl"] else ""
             tmpl = (f'<template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["kw"]}'
                     f'<span class="sub">{iso(day["date"])} ｜ {g["theme_full"]}{lvl_sub} ｜ 置信度 {g["conf"]}</span></div>'
                     f'<div><span class="dk">状态</span><span class="tag t-{g["status"]}">{zh}</span></div>'

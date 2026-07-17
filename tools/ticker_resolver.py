@@ -64,7 +64,7 @@ def _index():
                     add(name, code)
             c.close()
         except Exception as e:
-            logger.debug(f"tushare-cache 读取失败: {e}")
+            logger.warning(f"⚠️ tushare-cache 读取失败（名→码主种子 {tdb}）: {e} — 索引将残缺，解析率会骤降（G030）")
 
     # 2. valuation
     vdb = Path(config.DATABASE_ROOT) / "Market-Data" / "valuation" / "valuation.db"
@@ -94,6 +94,10 @@ def _index():
     except Exception:
         pass
 
+    if len(idx) < 1000:
+        logger.warning(f"⚠️ 名→码索引仅 {len(idx)} 条（stock_basic 正常时应 ≥5000）——疑似种子源缺失/失联（G030）")
+    else:
+        logger.info(f"名→码索引 {len(idx)} 条")
     return idx
 
 

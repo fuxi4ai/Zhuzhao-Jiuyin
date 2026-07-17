@@ -9,6 +9,7 @@ from lib.logger import get_logger
 logger = get_logger(__name__)
 import ticker_resolver  # 复用项目名→ts_code 解析器
 import logic_taxonomy  # logic_type 中英变体 → canon 单一真源（写时归一·源表不动）
+import gap_rater  # 渊图腿现算信息差评级（B4 改造 2026-07-16·不落 yuantu 表·signal_table 即溯源）
 """
 populate_signal_targets.py — 把每日信号炸开成标的级回测记录（两池隔离）
 PRD: brain/logs/checkpoints/2026-06-15_标的级胜率回测_PRD.md
@@ -85,13 +86,18 @@ def collect(con):
 
     # ── 自有池 2：yuantu_buy_signals（beneficiaries_ts 已带码，缺码再 resolve）──
     n_y, r_y = 0, 0
-    for sid, date, bts, stype, conf in cur.execute(
-            "SELECT id,date,beneficiaries_ts,signal_type,yuantu_confidence FROM yuantu_buy_signals"):
+    for sid, date, bts, stype, conf, node, chain, gdesc in cur.execute(
+            "SELECT id,date,beneficiaries_ts,signal_type,yuantu_confidence,"
+            "signal_node,industry_chain,gap_desc FROM yuantu_buy_signals"):
+        # 渊图腿信息差评级：现算不落源表（stock_tracking 每日重建·可逆；signal_table 列天然溯源，
+        # 回测侧勿与 manual_九儿/auto_v1 混池——文本口径为 节点+链+兑现定性，非课件语料）
+        gap_txt = " ".join(str(x) for x in (node, chain, gdesc) if x)
+        ygap = gap_rater.rate(gap_txt)[0] if gap_txt.strip() else None
         for nm, code in _parse_yuantu_ts(bts):
             if not code:
                 code = ticker_resolver.resolve(nm)
             add("own", "yuantu_buy_signals", sid, date, nm, code, None, None, conf,
-                None, (stype or "").split(",")[0] or None, "渊图")
+                ygap, (stype or "").split(",")[0] or None, "渊图")
             n_y += 1; r_y += 1 if code else 0
     stats["yuantu_buy_signals"] = (n_y, r_y)
 
@@ -117,6 +123,8 @@ def main():
     ap = argparse.ArgumentParser(description="炸开信号入 stock_tracking（两池）")
     ap.add_argument("--recap-db", default=config.RECAP_DB)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--force", action="store_true",
+                    help="跳过 resolve 率骤降守卫（G030）强制重灌——仅排查确认后使用")
     args = ap.parse_args()
 
     con = sqlite3.connect(args.recap_db)
@@ -154,6 +162,24 @@ def main():
         seen.add(k); dedup.append(r)
 
     cur = con.cursor()
+
+    # ── fail-loud 守卫（G030·2026-07-16）：resolve 率骤降则 abort 保留现表 ──
+    # 07-16 事故：tushare-cache 静默失联 → 索引空建 → 2311 码被重灌成 165，当日胜率腿残缺。
+    # 用「比率」不用绝对行数——G026：本表系全量重建池，行数自然波动不是数损。
+    new_n = len(dedup)
+    new_r = sum(1 for r in dedup if r["stock_code"])
+    new_rate = new_r / new_n if new_n else 0.0
+    old_n, old_r = cur.execute(
+        "SELECT COUNT(*), COALESCE(SUM(CASE WHEN stock_code!='' THEN 1 ELSE 0 END),0) "
+        "FROM stock_tracking WHERE target_pool IS NOT NULL").fetchone()
+    old_rate = old_r / old_n if old_n else 0.0
+    if not args.force and old_rate > 0 and new_rate < 0.6 * old_rate:
+        logger.error(f"🛑 G030 守卫：resolve 率骤降 {old_rate:.0%} → {new_rate:.0%}（< 0.6×现表），"
+                     f"abort、保留现表不重灌。先查 ticker_resolver 种子源（tushare-cache/stock_basic），"
+                     f"确认无误后可 --force 强灌。")
+        con.close()
+        _sys.exit(3)
+
     # 幂等：删本脚本管理的行（target_pool 非空），保留任何遗留手录行（target_pool IS NULL）
     cur.execute("DELETE FROM stock_tracking WHERE target_pool IS NOT NULL")
     ph = ", ".join("?" for _ in COLS)
