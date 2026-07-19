@@ -26,6 +26,7 @@ from collections import defaultdict
 import statistics as st
 import config
 import fundamentals_lookup as fl
+import risk_function                     # S2 计温 function 单一真源（与 calibrate 共用·G-X73）
 from lib.logger import get_logger
 logger = get_logger(__name__)
 
@@ -1997,6 +1998,51 @@ def _eval_risk_factors(D):
               "th": _th5,
               "src": "fx_cnh + intl_index(BRENT/US10Y)"})
 
+    # ── A6 量能脆弱态 / B6 浮盈集中度（S2 环境层·2026-07-19 PRD）──
+    # 纪律：缺数=「不可评」如实显示，绝不按未触发/灭灯处理（ERR-20260719-002 同族，PRD B3）；
+    # A6 数据源=index_research（grade_section 先行 --update 维护）；B6 锁 729 固定宇宙（ERR-20260719-001）。
+    data_day = D.get("data_day")
+    ca6 = cfg.get("a6")
+    if ca6:
+        _idb = config.OUTPUT_ROOT / "回调级别判别" / "index_research.db"
+        _pa_all, _pa_last = risk_function.a6_percentiles(
+            str(_idb), window=int(ca6.get("window", 252)),
+            min_periods=int(ca6.get("min_periods", 200)))
+        _pa = _pa_all.get(data_day) if data_day else None
+        if _pa is None:
+            _ref = f"（数据截至 {iso(_pa_last)}·当日缺→不可评）" if _pa_last else "（index_research 不可读）"
+            _pa_stale = _pa_all.get(_pa_last) if _pa_last else None
+            sta, hita = "na", False
+            eva = (f"最新分位 p{_pa_stale*100:.0f}" if _pa_stale is not None else "分位不可得") + _ref
+        else:
+            sta, hita = "env", bool(_pa >= float(ca6.get("pctile_th", 0.99)))
+            _info_a = (not hita) and _pa >= float(ca6.get("info_th", 0.95))
+            eva = f"创业板量能 252 日分位 p{_pa*100:.0f}" + \
+                  ("·脆弱态" if hita else ("·偏高(信息)" if _info_a else ""))
+        F.append({"id": "A6", "name": ca6["name"], "status": sta, "hit": hita, "ev": eva,
+                  "th": f"环境层·分位≥p{float(ca6.get('pctile_th', .99))*100:.0f} 共振（双尾放大器·禁看空计温；区制条款见 config）",
+                  "src": "index_research.index_daily 399006 amount"})
+    cb6 = cfg.get("b6")
+    if cb6:
+        _uni = config.DATABASE_ROOT.parent / cb6.get(
+            "universe", "AI4ME/回调级别判别/outputs/universe_fixed.json")
+        _pb_all, _pb_last, _shb = risk_function.b6_percentiles(
+            config.MARKET_DB, str(_uni), top_frac=float(cb6.get("top_frac", .05)),
+            window=int(cb6.get("window", 252)), min_periods=int(cb6.get("min_periods", 200)))
+        _pb = _pb_all.get(data_day) if data_day else None
+        if _pb is None:
+            _ref = f"（数据截至 {iso(_pb_last)}·当日缺→不可评）" if _pb_last else "（stock_daily/宇宙不可读）"
+            _pb_stale = _pb_all.get(_pb_last) if _pb_last else None
+            stb, hitb = "na", False
+            evb = (f"最新分位 p{_pb_stale*100:.0f}" if _pb_stale is not None else "分位不可得") + _ref
+        else:
+            stb, hitb = "env", bool(_pb >= float(cb6.get("pctile_th", 0.95)))
+            evb = (f"top5% 个股成交占比 {_shb*100:.1f}%" if _shb is not None else "top5% 占比") + \
+                  f" · 分位 p{_pb*100:.0f}" + ("·拥挤" if hitb else "")
+        F.append({"id": "B6", "name": cb6["name"], "status": stb, "hit": hitb, "ev": evb,
+                  "th": f"环境层·分位≥p{float(cb6.get('pctile_th', .95))*100:.0f} 共振（729 固定宇宙·锁池防 20260603 扩容坑）",
+                  "src": "stock_daily × universe_fixed(729)"})
+
     online = cfg["_meta"].get("phase1_online", ["f1", "f2", "f5"])
     online_ids = {o.upper() for o in online}  # {'F1','F2','F5'}
     triggered_n = sum(1 for f in F if f["status"] == "triggered")
@@ -2012,22 +2058,42 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
     """顶部『五因风险温度』预警带 + 可展开逐因子风险提示。承暖色 token，scoped 样式。
     grade_chunk: 回调级别读数(同期层)内嵌块,由 grade_section() 生成(2026-07-18 Doctor 定版:并入本卡)。"""
     F, tn, band, online_ids = _eval_risk_factors(D)
-    # 计温因子＝参与定级者（amp 放大器 / info 信息层 / pending 待接源 均不定级）
-    scored_n = sum(1 for f in F if f["status"] in ("triggered", "quiet", "na"))
+    # 计温因子＝参与定级者（env 环境层 / info 信息层 / pending 待接源 均不定级）
+    scored_n = sum(1 for f in F if f["status"] in ("triggered", "quiet", "na")
+                   and f["id"] not in ("A6", "B6"))
     amp_hit = any(f.get("hit") for f in F if f["status"] == "amp")
-    # 三态：F1 只升级不定级——平静日 F1 无信息（实证 3.2% vs 3.2%），故不由它把温度抬起来
     _S = RISK_CFG.get("temp_states") or {}
-    if tn == 0:
-        emoji, blabel, bcol = _S.get("calm", ["🟢", "平静", "#3f9c76"])
-    elif amp_hit:
-        emoji, blabel, bcol = _S.get("resonance", ["🔴", "警戒·外盘共振", "#c0392b"])
+    _fv = (RISK_CFG.get("_meta") or {}).get("function_version", "v1")
+    _S2C = RISK_CFG.get("s2") or {}
+    _ENV_IDS = ("F1", "A6", "B6")
+    env_eval = sum(1 for f in F if f["id"] in _ENV_IDS and f["status"] in ("amp", "env"))
+    env_hits = sum(1 for f in F
+                   if f["id"] in _ENV_IDS and f["status"] in ("amp", "env") and f.get("hit"))
+    if _fv == "s2":
+        # S2（2026-07-19 PRD）：触发层(F4/F5)定"有没有警"，环境层(F1/A6/B6)定"警多重"。
+        # 实证：触发×环境0盏=0/31 未现冰点(fwd3 中位+1.3%)；触发×环境≥1盏=冰点20-30%。
+        _key, _s2label = risk_function.resolve_temp(tn, env_hits, env_eval, "s2")
+        emoji, blabel, bcol = _S.get(_key, {"calm": ["🟢", "平静", "#3f9c76"],
+                                            "alert": ["🟠", "警戒", "#e8731e"],
+                                            "resonance": ["🔴", "警戒", "#c0392b"]}[_key])
+        blabel = _s2label
+        is_reso = _key == "resonance"
     else:
-        emoji, blabel, bcol = _S.get("alert", ["🟠", "警戒", "#e8731e"])
+        # v1（保留可回滚）：F1 只升级不定级——平静日 F1 无信息（实证 3.2% vs 3.2%）
+        if tn == 0:
+            emoji, blabel, bcol = _S.get("calm", ["🟢", "平静", "#3f9c76"])
+        elif amp_hit:
+            emoji, blabel, bcol = _S.get("resonance", ["🔴", "警戒·外盘共振", "#c0392b"])
+        else:
+            emoji, blabel, bcol = _S.get("alert", ["🟠", "警戒", "#e8731e"])
+        is_reso = tn > 0 and amp_hit
     pend = [f'{f["id"]}{f["name"]}' for f in F if f["status"] == "pending"]
     info = [f'{f["id"]}{f["name"]}' for f in F if f["status"] == "info"]
     amp = [f'{f["id"]}{f["name"]}' for f in F if f["status"] == "amp"]
     _bits = []
-    if amp:
+    if _fv == "s2":
+        _bits.append(f"环境层 {env_hits}/{env_eval} 亮")
+    elif amp:
         _bits.append("、".join(amp) + ("放大器·共振中" if amp_hit else "放大器"))
     if info:
         _bits.append("、".join(info) + " 信息层")
@@ -2035,28 +2101,49 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
         _bits.append("、".join(pend) + " 待接源")
     pend_txt = " · ".join(_bits) if _bits else "全部计温"
     DOT = {"triggered": "#c0392b", "quiet": "#3f9c76", "pending": "#b3a489",
-           "na": "#b3a489", "info": "#7b8aa0", "amp": "#7b8aa0"}
+           "na": "#b3a489", "info": "#7b8aa0", "amp": "#7b8aa0", "env": "#7b8aa0"}
     ZH = {"triggered": "触发", "quiet": "平静", "pending": "待接源",
-          "na": "缺数", "info": "信息层", "amp": "放大器"}
+          "na": "缺数", "info": "信息层", "amp": "放大器", "env": "环境层"}
 
-    # 精简标题(2026-07-18 Doctor 定版):触发因子名直书,不再"五因风险温度:档名+计数"
+    # 精简标题(2026-07-18 Doctor 定版):触发因子名直书。S2(2026-07-19):温度语义=触发×共振
     _trig_names = "、".join(f["name"] for f in F if f["status"] == "triggered")
-    if tn > 0 and amp_hit:
+    if _fv == "s2":
+        if tn > 0 and is_reso:
+            _temp_txt = (_trig_names + "，" if _trig_names else "") + blabel
+        elif tn > 0:
+            _temp_txt = ((_trig_names + "，" if _trig_names else "") + blabel
+                         + f"（历史该态 {_S2C.get('evidence_alert', '0/31')} 未现冰点）")
+        else:
+            _temp_txt = "触发层平静"
+    elif tn > 0 and amp_hit:
         _temp_txt = (_trig_names + "，" if _trig_names else "") + "外盘共振"
     elif tn > 0:
         _temp_txt = _trig_names or blabel
     else:
         _temp_txt = "五因平静"
 
-    def _dot(f):        # 放大器命中时着警示色（但它不定级，只升级）
-        return "#c0392b" if (f["status"] == "amp" and f.get("hit")) else DOT[f["status"]]
+    def _dot(f):        # 环境/放大器命中时着警示色（但它不定级，只升级）
+        return "#c0392b" if (f["status"] in ("amp", "env") and f.get("hit")) else DOT[f["status"]]
 
     def _zh(f):
-        return ("放大器·共振" if f.get("hit") else "放大器·静") if f["status"] == "amp" else ZH[f["status"]]
-    # 顶部五灯
-    lamps = "".join(
-        f'<span class="rr-lamp" style="--d:{_dot(f)}" title="{f["id"]} {f["name"]}·{_zh(f)}">'
-        f'<i></i><b>{f["id"]}</b></span>' for f in F)
+        if f["status"] == "amp":
+            return "放大器·共振" if f.get("hit") else "放大器·静"
+        if f["status"] == "env":
+            return "环境·共振" if f.get("hit") else "环境·静"
+        return ZH[f["status"]]
+
+    def _lamp(f, sq=False):
+        return (f'<span class="rr-lamp{" sq" if sq else ""}" style="--d:{_dot(f)}" '
+                f'title="{f["id"]} {f["name"]}·{_zh(f)}"><i></i><b>{f["id"]}</b></span>')
+    if _fv == "s2":
+        # S2 灯排分组：扳机(方灯 F4/F5) ｜ 环境(圆灯 F1/A6/B6) ｜ 信息(F2/F3)——承设计参考
+        _by = {f["id"]: f for f in F}
+        _sep = '<span class="rr-lgap"></span>'
+        lamps = ("".join(_lamp(_by[i], sq=True) for i in ("F4", "F5") if i in _by) + _sep
+                 + "".join(_lamp(_by[i]) for i in ("F1", "A6", "B6") if i in _by) + _sep
+                 + "".join(_lamp(_by[i]) for i in ("F2", "F3") if i in _by))
+    else:
+        lamps = "".join(_lamp(f) for f in F)
     # 展开逐因子
     rows = ""
     for f in F:
@@ -2081,6 +2168,8 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
 .rr-lamp{{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--sub)}}
 .rr-lamp i{{width:11px;height:11px;border-radius:50%;background:var(--d);
   box-shadow:0 0 7px -1px var(--d)}}
+.rr-lamp.sq i{{border-radius:3px}}
+.rr-lgap{{width:1px;height:20px;background:#e3dcc9;margin:0 2px;align-self:center}}
 .rr-lamp b{{font-weight:700;letter-spacing:.02em}}
 .rr-flagico{{font-size:10.5px;font-weight:600;color:#fff;background:#c0392b;border:1px solid #c0392b;
   border-radius:6px;padding:0 5px;vertical-align:1px}}
@@ -2107,16 +2196,16 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
 .rr-foot{{grid-column:1 / -1;color:var(--sub);font-size:10.5px;padding-top:6px;border-top:1px dashed #e3dcc9;margin-top:2px}}
 </style>
 <section class="rr-band" aria-label="五因风险温度">
-  <div class="rr-temp">{('<span class="rr-flagico">风险</span>' if (tn > 0 and amp_hit) else f'<span class="rr-emoji">{emoji}</span>')}{_temp_txt}</div>
+  <div class="rr-temp">{('<span class="rr-flagico">风险</span>' if is_reso else f'<span class="rr-emoji">{emoji}</span>')}{_temp_txt}</div>
   {grade_chunk}
   {fomc_chunk}
   <div class="rr-lamps">{lamps}</div>
 </section>
 <details class="rr-more">
-  <summary>展开五因风险提示（{scored_n}/5 计温 · {pend_txt}）</summary>
+  <summary>展开风险因子提示（{(f"触发 {tn}/2 · " + pend_txt) if _fv == "s2" else f"{scored_n}/5 计温 · {pend_txt}"}）</summary>
   <div class="rr-panel">
     {rows}
-    <div class="rr-row"><div class="rr-foot">因子源自 2026-07-17 A股年度冰点『五因共振』· 阈值初值待历史冰点日回测校准 · 过往不代表未来 · 仅风险提示非投资建议。信号级锚风险见下方「五 · 风险提示」。</div></div>
+    <div class="rr-row"><div class="rr-foot">{(f"S2 口径（触发层F4/F5×环境层F1/A6/B6）自 {iso(_S2C.get('effective_from', '20260720'))} 生效·此前序列为 v1 口径·档位证据基础样本薄（触发无共振 {_S2C.get('evidence_alert', '0/31')}·共振 {_S2C.get('evidence_resonance', '3/13')}，研究快照）·预注册中。" if _fv == "s2" else "")}因子源自 2026-07-17 A股年度冰点『五因共振』· 阈值经回测校准滚动复核 · 过往不代表未来 · 仅风险提示非投资建议。信号级锚风险见下方「五 · 风险提示」。</div></div>
   </div>
 </details>"""
 

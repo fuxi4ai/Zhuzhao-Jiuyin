@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S2 温度卡 · 设计参考（2026-07-19）</title>
+<style>
+:root{--bg:#f5f4ed;--card:#faf9f5;--panel:#f1eee4;--line:#e8e6dc;--tx:#141413;--sub:#6b6a64;
+--calm:#3f9c76;--warn:#e8731e;--risk:#c0392b;
+--dn2:#27500A;--dn1:#97C459;--flat:#D3D1C7;--up1:#F09595;--up2:#A32D2D}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font:14px/1.65 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:28px 20px 60px}
+.wrap{max-width:860px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin-bottom:4px}
+h2{font-size:15px;font-weight:600;margin:30px 0 10px;padding-left:9px;border-left:3px solid var(--tx)}
+.meta{font-size:12px;color:var(--sub);margin-bottom:6px}
+.note{font-size:12px;color:var(--sub);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:10px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+.badge{display:inline-block;font-size:12px;font-weight:600;color:#fff;border-radius:5px;padding:1px 8px;vertical-align:1px}
+.staterow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.statetxt{font-size:15px;font-weight:600}
+.lamps{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.lgroup{display:flex;align-items:center;gap:8px}
+.lgtag{font-size:11px;color:var(--sub);letter-spacing:.5px}
+.lamp{display:flex;align-items:center;gap:4px;font-size:12px}
+.dot{width:11px;height:11px;border-radius:50%;border:1.5px solid #b9b7ac;background:transparent}
+.sq{width:11px;height:11px;border-radius:3px;border:1.5px solid #b9b7ac;background:transparent}
+.on-t{background:var(--warn);border-color:var(--warn)}
+.on-e{background:var(--risk);border-color:var(--risk)}
+.na{background:repeating-linear-gradient(45deg,#d8d6cb 0 2px,#efede2 2px 4px);border-color:#c9c7bb}
+.off-lb{color:var(--sub)}
+.small{font-size:11px;color:var(--sub);margin-top:8px}
+.evrow{display:grid;grid-template-columns:168px minmax(0,1fr) 112px;gap:10px;align-items:center;margin:0 0 7px}
+.evname{font-size:12.5px;line-height:1.35}
+.evn{color:var(--sub);font-size:11.5px}
+.bar{display:flex;height:22px;border-radius:4px;overflow:hidden;background:var(--panel)}
+.seg{display:flex;align-items:center;justify-content:center;font-size:10.5px}
+.evstat{font-size:11px;color:var(--sub);font-variant-numeric:tabular-nums;line-height:1.45}
+.leg{display:flex;flex-wrap:wrap;gap:12px;font-size:11.5px;color:var(--sub);margin:6px 0 12px}
+.leg span{display:flex;align-items:center;gap:4px}
+.chip{width:10px;height:10px;border-radius:2px;display:inline-block}
+.gtitle{font-size:12px;font-weight:600;color:var(--sub);margin:12px 0 6px}
+table.spec{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+table.spec td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}
+table.spec td:first-child{white-space:nowrap;color:var(--sub);width:90px}
+code{background:var(--panel);border-radius:4px;padding:0 5px;font-size:12px}
+</style>
+</head>
+<body><div class="wrap">
+
+<h1>S2 温度卡 · 设计参考</h1>
+<p class="meta">配套 <code>brain/logs/checkpoints/2026-07-19_S2计温function重构_PRD.md</code> · 承「暖色·卡片页」token · 红＝涨 / 绿＝跌（行情语义）· 本页为设计参考非生产页面，数字为 2026-07-19 研究快照（bt_combo.py），生产端一律实算</p>
+
+<h2>一、三态 mockup（已拍板规则：触发层定"有没有警"，环境层定"警多重"）</h2>
+
+<div class="card">
+  <div class="staterow"><span class="badge" style="background:var(--calm)">平静</span><span class="statetxt">🟢 平静</span><span class="small" style="margin:0">触发层无事件；环境灯照常显示，不定级</span></div>
+  <div class="lamps">
+    <div class="lgroup"><span class="lgtag">扳机</span>
+      <span class="lamp"><span class="sq"></span><span class="off-lb">F4 IPO虹吸</span></span>
+      <span class="lamp"><span class="sq"></span><span class="off-lb">F5 油价急涨</span></span></div>
+    <div class="lgroup"><span class="lgtag">环境</span>
+      <span class="lamp"><span class="dot"></span><span class="off-lb">F1 外盘</span></span>
+      <span class="lamp"><span class="dot on-e"></span><span>B6 集中度</span></span>
+      <span class="lamp"><span class="dot"></span><span class="off-lb">A6 量能</span></span></div>
+  </div>
+  <p class="small">环境 1/3 亮（B6）——无扳机时仅作状态陈列。实证：无触发×环境≥1 冰点率 3.7–6.8%（略高于基准，不足以定级）</p>
+</div>
+
+<div class="card">
+  <div class="staterow"><span class="badge" style="background:var(--warn)">警戒</span><span class="statetxt">🟠 触发·无共振</span><span class="small" style="margin:0">历史该态未现冰点（0/31，中位 +1.3%）</span></div>
+  <div class="lamps">
+    <div class="lgroup"><span class="lgtag">扳机</span>
+      <span class="lamp"><span class="sq on-t"></span><span>F4 IPO虹吸 712亿</span></span>
+      <span class="lamp"><span class="sq"></span><span class="off-lb">F5 油价急涨</span></span></div>
+    <div class="lgroup"><span class="lgtag">环境</span>
+      <span class="lamp"><span class="dot"></span><span class="off-lb">F1 外盘</span></span>
+      <span class="lamp"><span class="dot"></span><span class="off-lb">B6 集中度</span></span>
+      <span class="lamp"><span class="dot na"></span><span class="off-lb">A6 量能 ·不可评</span></span></div>
+  </div>
+  <p class="small">⚠ 缺数≠灭灯（PRD B3）：A6 当日数据不可得 → 显示「不可评」，共振分母如实标（本例共振 0/2 可评）。示例含义：有坏消息、市场不接茬——文案如实、不渲染恐慌</p>
+</div>
+
+<div class="card" style="border-color:#e4c4bd">
+  <div class="staterow"><span class="badge" style="background:var(--risk)">风险</span><span class="statetxt">🔴 共振 2</span><span class="small" style="margin:0">触发×环境≥1盏；灯数入文案不另分档</span></div>
+  <div class="lamps">
+    <div class="lgroup"><span class="lgtag">扳机</span>
+      <span class="lamp"><span class="sq on-t"></span><span>F4 IPO虹吸 666亿</span></span>
+      <span class="lamp"><span class="sq"></span><span class="off-lb">F5 油价急涨</span></span></div>
+    <div class="lgroup"><span class="lgtag">环境</span>
+      <span class="lamp"><span class="dot"></span><span class="off-lb">F1 外盘</span></span>
+      <span class="lamp"><span class="dot on-e"></span><span>B6 集中度 p98</span></span>
+      <span class="lamp"><span class="dot on-e"></span><span>A6 量能 p99</span></span></div>
+  </div>
+  <p class="small">对应 2026-06-25 实况（长鑫在抽血×天量×拥挤）。档位旁标注：<b>样本薄·预注册中</b>（PRD A4：不得渲染旧 3.2/4.4/9.7% 或任何未校准百分比）· 卡底注「S2 口径自 YYYY-MM-DD」（PRD A3 断代）</p>
+</div>
+
+<h2>二、证据区：各状态下未来 3 日的完整结局分布（设计的依据）</h2>
+<div class="leg">
+  <span><span class="chip" style="background:var(--dn2)"></span>大跌 ≤−5%</span>
+  <span><span class="chip" style="background:var(--dn1)"></span>中跌 −5~−2%</span>
+  <span><span class="chip" style="background:var(--flat)"></span>横盘 ±2%</span>
+  <span><span class="chip" style="background:var(--up1)"></span>中涨 +2~5%</span>
+  <span><span class="chip" style="background:var(--up2)"></span>大涨 ≥+5%</span>
+  <span style="margin-left:auto">条内数字＝天数 · 创业板 fwd3</span>
+</div>
+<div class="card" id="ev"></div>
+<p class="note">读法三则：① 六个共振格的右端（红·涨档）几乎全空——共振状态改写的不是单一概率，是整张结局菜单（上行被剃掉：62 日仅 3 次大涨，全在 F1×B6）。② 「扳机·无火药」是全表唯一大跌档空置的行（0/31，最差仅 −4.3%）——🟠 文案"未现冰点"的出处。③ 除 F1×B6 外各格 n 为个位数——这正是 A4 条禁止渲染精确百分比的原因；生产端只显灯数与 k/n。</p>
+
+<h2>三、规格要点（对应 PRD 条目）</h2>
+<div class="card">
+<table class="spec">
+<tr><td>结构</td><td>扳机灯＝方块（事件型，F4/F5），环境灯＝圆点（状态型，F1/A6/B6）；亮＝实底，灭＝空心，不可评＝斜纹灰（B3）</td></tr>
+<tr><td>三态色</td><td>沿现行 token：🟢 <code>#3f9c76</code> · 🟠 <code>#e8731e</code> · 🔴 <code>#c0392b</code>；徽标承 0718 定版「风险」实底范式，字号 12px 对齐</td></tr>
+<tr><td>文案</td><td>🟠「触发·无共振（历史该态未现冰点 k/n）」；🔴「共振 N」，N＝亮灯数/可评灯数（A4：证据基础一律 k/n 形式，禁精确百分比）</td></tr>
+<tr><td>断代</td><td>卡底恒注「S2 口径自 YYYY-MM-DD·此前序列为 v1 口径」（A3：历史不重刷）</td></tr>
+<tr><td>回滚</td><td><code>function_version:"v1"</code> 翻回即恢复旧卡（A1）；本页仅为 s2 形态参考</td></tr>
+<tr><td>数据坑</td><td>B6 须锁 729 固定宇宙（ERR-20260719-001）；量能勿用 volume_trillion（ERR-20260719-003，历史全 0）；缺数→不可评而非未触发（ERR-20260719-002）</td></tr>
+</table>
+</div>
+<p class="meta" style="margin-top:18px">生成：C.C. 2026-07-19 · 数据快照：AI4ME/遗漏因子-成交额与浮盈/combo_out.txt 附录 · 起草≠开工，生产代码零改动</p>
+
+<script>
+const ROWS=[["参照",[["平常任意一天",3914,[211,666,2023,778,236],"+0.1","−20.7 ~ +48.8"]]],
+["六个共振格",[
+["F1×B6 外盘跌×拥挤",33,[3,10,12,5,3],"+0.0","−11.0 ~ +7.7"],
+["F5×F1 油价飙×外盘跌",6,[1,1,3,1,0],"−1.5","−11.0 ~ +3.4"],
+["F4×B6 IPO抽血×拥挤",12,[2,4,6,0,0],"−1.8","−7.4 ~ +1.6"],
+["A6×B6 天量×拥挤",11,[2,0,7,2,0],"+0.3","−7.3 ~ +3.3"],
+["F4×A6 IPO抽血×天量",5,[1,0,4,0,0],"+0.0","−7.3 ~ +1.6"],
+["F5×B6 油价飙×拥挤",4,[1,2,1,0,0],"−3.3","−11.0 ~ +0.9"]]],
+["S2 梯度三态",[
+["扳机响·无火药",31,[0,2,18,10,1],"+1.3","−4.3 ~ +5.5"],
+["扳机响·有火药",13,[3,4,6,0,0],"−2.6","−11.0 ~ +1.6"],
+["全静默",480,[13,77,280,74,36],"+0.2","−14.0 ~ +48.8"]]]];
+const C=["#27500A","#97C459","#D3D1C7","#F09595","#A32D2D"],T=["#fff","#27500A","#444441","#791F1F","#fff"];
+let h="";
+for(const[g,rows]of ROWS){
+h+=`<p class="gtitle">${g}</p>`;
+for(const[nm,n,b,med,rng]of rows){
+const s=b.reduce((a,x)=>a+x,0);let bar="";
+b.forEach((v,i)=>{if(!v)return;const w=v/s*100;
+bar+=`<div class="seg" style="width:${w}%;background:${C[i]};color:${T[i]}">${w>5?v:""}</div>`});
+h+=`<div class="evrow"><div class="evname">${nm}<span class="evn"> · ${n}天</span></div><div class="bar">${bar}</div><div class="evstat">中位 ${med}%<br>${rng}%</div></div>`}}
+document.getElementById("ev").innerHTML=h;
+</script>
+</div></body></html>

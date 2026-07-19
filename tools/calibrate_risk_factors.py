@@ -22,6 +22,7 @@ from lib.logger import get_logger
 logger = get_logger(__name__)
 import sqlite3, argparse, json, datetime, statistics as st
 import config
+import risk_function                     # S2 单一真源（与 gen_daily_report 共用·G-X73 两端口径强制一致）
 
 MIN_N = 20          # 触发样本低于此数 → 标「样本不足·不可信」。★卡的是**独立事件数**，不是触发日数（见下）
 
@@ -101,6 +102,17 @@ def load_data():
             "SELECT trade_date,close FROM fx_cnh_daily WHERE close IS NOT NULL ORDER BY trade_date")]
     except sqlite3.OperationalError:
         D["fx"] = []
+    # ── S2 环境层 A6/B6：预计算全序列滚动分位（risk_function 单一真源，与日报端同一份代码）──
+    cfg0 = load_cfg()
+    ca6, cb6 = cfg0.get("a6") or {}, cfg0.get("b6") or {}
+    _idb = config.OUTPUT_ROOT / "回调级别判别" / "index_research.db"
+    D["a6p"], _ = risk_function.a6_percentiles(
+        str(_idb), window=int(ca6.get("window", 252)), min_periods=int(ca6.get("min_periods", 200)))
+    _uni = config.DATABASE_ROOT.parent / (cb6.get("universe")
+                                          or "AI4ME/回调级别判别/outputs/universe_fixed.json")
+    D["b6p"], _, _ = risk_function.b6_percentiles(
+        config.MARKET_DB, str(_uni), top_frac=float(cb6.get("top_frac", .05)),
+        window=int(cb6.get("window", 252)), min_periods=int(cb6.get("min_periods", 200)))
     return D
 
 
@@ -205,6 +217,12 @@ def eval_day(d, DATA, cfg):
             except ZeroDivisionError:
                 pass
     out["F5"] = trig5 if any5 else None
+    # —— A6/B6 环境层（分位序列本身即 point-in-time：滚动窗只用 ≤d 数据）——
+    # 缺日=None（不可评），绝不按未触发处理（ERR-20260719-002 同族）
+    _pa = DATA.get("a6p", {}).get(d)
+    out["A6"] = None if _pa is None else bool(_pa >= float(c.get("a6", {}).get("pctile_th", 0.99)))
+    _pb = DATA.get("b6p", {}).get(d)
+    out["B6"] = None if _pb is None else bool(_pb >= float(c.get("b6", {}).get("pctile_th", 0.95)))
     return out
 
 
@@ -324,6 +342,37 @@ def run(ice_th, write):
         p = sum(1 for r in sub if r["ice"]) / len(sub)
         lines.append(f"| {n} | {len(sub)} | {p:.1%} | {(p/base_rate if base_rate else 0):.2f} | "
                      f"{st.fmean([r['fwd3'] for r in sub]):+.2f}% |")
+    # ── S2 梯度（function_version=="s2" 时输出；C1 验收：与研究版 bt_combo 关键格对照）──
+    if (cfg.get("_meta") or {}).get("function_version") == "s2":
+        _ENV = ("F1", "A6", "B6")
+        lines.append("\n## S2 梯度（触发层 F4∪F5 × 环境层 F1/A6/B6 亮灯数 · function_version=s2）\n")
+        lines.append("> 三态映射单一真源＝`tools/risk_function.resolve_temp`（与日报端同一份代码）。"
+                     "窗口＝F4/F5 至少一腿可评的交易日。研究版对照：`AI4ME/遗漏因子-成交额与浮盈/combo_out.txt`"
+                     "（触发×环境0盏 0/31·触发×环境≥1盏 3/13，口径微差：研究版布伦特为 yfinance 全历史、"
+                     "本表为库内 2024+，重叠段已证同源）。\n")
+        lines.append("| 状态 | 天数 | 独立事件 | 冰点率(k/n) | fwd3 均值 | 对应温度 |")
+        lines.append("|---|---|---|---|---|---|")
+        s2rows = [r for r in rows if r.get("F4") is not None or r.get("F5") is not None]
+        def _envn(r):
+            ev_ = [r.get(f) for f in _ENV if r.get(f) is not None]
+            return (sum(1 for v in ev_ if v), len(ev_))
+        def _s2line(tag, sub, temp):
+            if not sub:
+                lines.append(f"| {tag} | 0 | — | — | — | {temp} |")
+                return
+            k = sum(1 for r in sub if r["ice"])
+            epn = len(episodes([r["d"] for r in sub], idx))
+            lines.append(f"| {tag} | {len(sub)} | {epn} | {k}/{len(sub)} ({k/len(sub):.1%}) | "
+                         f"{st.fmean([r['fwd3'] for r in sub]):+.2f}% | {temp} |")
+        _trig = [r for r in s2rows if r.get("F4") or r.get("F5")]
+        _quiet = [r for r in s2rows if not (r.get("F4") or r.get("F5"))]
+        for k_ in range(0, 4):
+            sub = [r for r in _trig if _envn(r)[0] == k_]
+            key, lab = risk_function.resolve_temp(1, k_, max((_envn(r)[1] for r in sub), default=3), "s2")
+            _s2line(f"触发×环境{k_}盏", sub, {"alert": "🟠", "resonance": "🔴"}.get(key, "?") + lab)
+        _s2line("无触发×环境≥1", [r for r in _quiet if _envn(r)[0] >= 1], "🟢平静(环境陈列)")
+        _s2line("全静默", [r for r in _quiet if _envn(r)[0] == 0], "🟢平静")
+
     lines.append("\n> 注：lift>1 才有区分力；**独立事件数 <%d 视为不可信**（2026-07-19 起由卡"
                  "『触发日数』改为卡『独立事件数』——滚动窗口型因子的日数被人为膨胀，"
                  "『日/事件』列即膨胀倍数，越大代表该因子的日数越不能当独立观测读）。"

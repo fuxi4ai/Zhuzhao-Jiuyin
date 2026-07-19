@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>S2 两态自测 20260717</title>
+<style>:root{--bg:#f5f4ed;--card:#faf9f5;--panel:#f1eee4;--line:#e8e6dc;--tx:#141413;--sub:#6b6a64;--acc:#8a6d2f;--gold:#b08d2e}
+body{background:var(--bg);color:var(--tx);font:14px/1.6 -apple-system,"PingFang SC",sans-serif;max-width:920px;margin:24px auto;padding:0 16px}</style>
+</head><body><h1 style="font-size:18px">S2 两态自测 · 数据日 20260717（PRD C2）</h1>
+<p style="font-size:12px;color:var(--sub)">同一天数据，上=s2（触发×环境），下=v1（触发数+F1放大，回滚态）。最小 D 构造（capacity/emotion 缺→F2 缺数），生产环境该两项照常。</p>
+<h2 style="font:600 15px sans-serif;margin:26px 0 4px">function_version = s2</h2>
+<style>
+.rr-band{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0 4px;padding:11px 16px;
+  border:1px solid var(--line);border-radius:14px;background:linear-gradient(150deg,#fbf8ef,#f2ecdd);
+  box-shadow:0 4px 20px rgba(20,20,19,.05)}
+.rr-temp{display:flex;align-items:center;gap:8px;font-weight:700;font-size:12px;color:#c0392b}
+.rr-temp .rr-emoji{font-size:18px}
+.rr-temp .rr-sub{font-weight:400;font-size:11px;color:var(--sub);margin-left:2px}
+.rr-lamps{display:flex;gap:12px;align-items:center;margin-left:auto}
+.rr-lamp{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--sub)}
+.rr-lamp i{width:11px;height:11px;border-radius:50%;background:var(--d);
+  box-shadow:0 0 7px -1px var(--d)}
+.rr-lamp.sq i{border-radius:3px}
+.rr-lgap{width:1px;height:20px;background:#e3dcc9;margin:0 2px;align-self:center}
+.rr-lamp b{font-weight:700;letter-spacing:.02em}
+.rr-flagico{font-size:10.5px;font-weight:600;color:#fff;background:#c0392b;border:1px solid #c0392b;
+  border-radius:6px;padding:0 5px;vertical-align:1px}
+.rr-grade{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12px;color:#43413b}
+.rr-grade b{font-size:10.5px;font-weight:600;color:#fff;background:var(--gc);
+  border:1px solid var(--gc);border-radius:6px;padding:0 5px;vertical-align:1px}
+.rr-grade .rr-gest{color:#43413b}
+.rr-fomc{font-size:10.5px;color:#8b6f32;background:#f4ead0;border:1px solid #e5d9b8;border-radius:8px;padding:1px 8px}
+.rr-more{margin:0 0 8px}
+.rr-more>summary{cursor:pointer;font-size:12px;color:var(--acc);padding:6px 16px;list-style:none;user-select:none}
+.rr-more>summary::-webkit-details-marker{display:none}
+.rr-more>summary::before{content:"▸ ";color:var(--gold)}
+.rr-more[open]>summary::before{content:"▾ "}
+.rr-panel{padding:4px 16px 12px}
+.rr-row{display:grid;grid-template-columns:14px 108px 48px 1fr;gap:8px 10px;align-items:baseline;
+  padding:7px 0;border-top:1px solid #efece2;font-size:12px}
+.rr-row:first-child{border-top:none}
+.rr-dot{width:9px;height:9px;border-radius:50%;background:var(--d);align-self:center}
+.rr-nm{font-weight:700;color:#3f3a30}
+.rr-st{font-weight:700;font-size:11px}
+.rr-ev{color:#43413b}
+.rr-meta{grid-column:2 / -1;color:var(--sub);font-size:10.5px}
+.rr-dim{opacity:.62}
+.rr-foot{grid-column:1 / -1;color:var(--sub);font-size:10.5px;padding-top:6px;border-top:1px dashed #e3dcc9;margin-top:2px}
+</style>
+<section class="rr-band" aria-label="五因风险温度">
+  <div class="rr-temp"><span class="rr-flagico">风险</span>IPO 虹吸，共振2</div>
+  
+  
+  <div class="rr-lamps"><span class="rr-lamp sq" style="--d:#c0392b" title="F4 IPO 虹吸·触发"><i></i><b>F4</b></span><span class="rr-lamp sq" style="--d:#3f9c76" title="F5 外部紧缩·平静"><i></i><b>F5</b></span><span class="rr-lgap"></span><span class="rr-lamp" style="--d:#c0392b" title="F1 隔夜外盘·放大器·共振"><i></i><b>F1</b></span><span class="rr-lamp" style="--d:#7b8aa0" title="A6 量能脆弱态·环境·静"><i></i><b>A6</b></span><span class="rr-lamp" style="--d:#c0392b" title="B6 浮盈集中度·环境·共振"><i></i><b>B6</b></span><span class="rr-lgap"></span><span class="rr-lamp" style="--d:#b3a489" title="F2 拥挤度·缺数"><i></i><b>F2</b></span><span class="rr-lamp" style="--d:#7b8aa0" title="F3 杠杆水位·信息层"><i></i><b>F3</b></span></div>
+</section>
+<details class="rr-more">
+  <summary>展开风险因子提示（触发 1/2 · 环境层 2/3 亮 · F3杠杆水位 信息层）</summary>
+  <div class="rr-panel">
+    <div class="rr-row"><span class="rr-dot" style="--d:#c0392b"></span><span class="rr-nm">F1 · 隔夜外盘</span><span class="rr-st" style="color:#c0392b">放大器·共振</span><span class="rr-ev">隔夜费半系最深 -6.1% · 亚太科技最深 -11.5%（隔夜场次 2026-07-16）</span><span class="rr-meta">放大器·仅在已达警戒时升级（阈值 ≤-2.0%/亚太 ≤-2.0%；主效应 lift 1.06＝无，调节效应 lift 2.68＝有） ｜ intl_index · 隔夜护栏(<A股数据日)</span></div><div class="rr-row rr-dim"><span class="rr-dot" style="--d:#b3a489"></span><span class="rr-nm">F2 · 拥挤度</span><span class="rr-st" style="color:#b3a489">缺数</span><span class="rr-ev">容量/情绪数据缺</span><span class="rr-meta">信息层·暂不计温（情绪腿 lift 0；容量腿未回测） ｜ theme容量 / emotion_cycle</span></div><div class="rr-row"><span class="rr-dot" style="--d:#7b8aa0"></span><span class="rr-nm">F3 · 杠杆水位</span><span class="rr-st" style="color:#7b8aa0">信息层</span><span class="rr-ev">融资余额 28377亿 · 5日 -965亿 · 日 -287亿（截至2026-07-16·T+1）</span><span class="rr-meta">信息层·不计温度（回测 lift 0.87＝无预测力，两融为滞后量） ｜ market_data.margin_daily（tushare·现成）</span></div><div class="rr-row"><span class="rr-dot" style="--d:#c0392b"></span><span class="rr-nm">F4 · IPO 虹吸</span><span class="rr-st" style="color:#c0392b">触发</span><span class="rr-ev">近20日新股 8只 · 募资 712亿（截至2026-07-16）</span><span class="rr-meta">近20日募资≥200亿（初值·待数据校准） ｜ market_data.ipo_daily（tushare·现成）</span></div><div class="rr-row"><span class="rr-dot" style="--d:#3f9c76"></span><span class="rr-nm">F5 · 外部紧缩</span><span class="rr-st" style="color:#3f9c76">平静</span><span class="rr-ev">CNH 6.7738(+0.0005) · 布伦特 +4.6% · 美债10Y 4.54%(-3bp)·信息层（↑=贬/涨/紧缩）</span><span class="rr-meta">CNH日贬≥0.05 或 布伦特≥5.0%（美债为信息层·不计温） ｜ fx_cnh + intl_index(BRENT/US10Y)</span></div><div class="rr-row"><span class="rr-dot" style="--d:#7b8aa0"></span><span class="rr-nm">A6 · 量能脆弱态</span><span class="rr-st" style="color:#7b8aa0">环境·静</span><span class="rr-ev">创业板量能 252 日分位 p91</span><span class="rr-meta">环境层·分位≥p99 共振（双尾放大器·禁看空计温；区制条款见 config） ｜ index_research.index_daily 399006 amount</span></div><div class="rr-row"><span class="rr-dot" style="--d:#c0392b"></span><span class="rr-nm">B6 · 浮盈集中度</span><span class="rr-st" style="color:#c0392b">环境·共振</span><span class="rr-ev">top5% 个股成交占比 59.6% · 分位 p98·拥挤</span><span class="rr-meta">环境层·分位≥p95 共振（729 固定宇宙·锁池防 20260603 扩容坑） ｜ stock_daily × universe_fixed(729)</span></div>
+    <div class="rr-row"><div class="rr-foot">S2 口径（触发层F4/F5×环境层F1/A6/B6）自 2026-07-20 生效·此前序列为 v1 口径·档位证据基础样本薄（触发无共振 0/31·共振 3/13，研究快照）·预注册中。因子源自 2026-07-17 A股年度冰点『五因共振』· 阈值经回测校准滚动复核 · 过往不代表未来 · 仅风险提示非投资建议。信号级锚风险见下方「五 · 风险提示」。</div></div>
+  </div>
+</details><h2 style="font:600 15px sans-serif;margin:26px 0 4px">function_version = v1</h2>
+<style>
+.rr-band{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0 4px;padding:11px 16px;
+  border:1px solid var(--line);border-radius:14px;background:linear-gradient(150deg,#fbf8ef,#f2ecdd);
+  box-shadow:0 4px 20px rgba(20,20,19,.05)}
+.rr-temp{display:flex;align-items:center;gap:8px;font-weight:700;font-size:12px;color:#c0392b}
+.rr-temp .rr-emoji{font-size:18px}
+.rr-temp .rr-sub{font-weight:400;font-size:11px;color:var(--sub);margin-left:2px}
+.rr-lamps{display:flex;gap:12px;align-items:center;margin-left:auto}
+.rr-lamp{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--sub)}
+.rr-lamp i{width:11px;height:11px;border-radius:50%;background:var(--d);
+  box-shadow:0 0 7px -1px var(--d)}
+.rr-lamp.sq i{border-radius:3px}
+.rr-lgap{width:1px;height:20px;background:#e3dcc9;margin:0 2px;align-self:center}
+.rr-lamp b{font-weight:700;letter-spacing:.02em}
+.rr-flagico{font-size:10.5px;font-weight:600;color:#fff;background:#c0392b;border:1px solid #c0392b;
+  border-radius:6px;padding:0 5px;vertical-align:1px}
+.rr-grade{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12px;color:#43413b}
+.rr-grade b{font-size:10.5px;font-weight:600;color:#fff;background:var(--gc);
+  border:1px solid var(--gc);border-radius:6px;padding:0 5px;vertical-align:1px}
+.rr-grade .rr-gest{color:#43413b}
+.rr-fomc{font-size:10.5px;color:#8b6f32;background:#f4ead0;border:1px solid #e5d9b8;border-radius:8px;padding:1px 8px}
+.rr-more{margin:0 0 8px}
+.rr-more>summary{cursor:pointer;font-size:12px;color:var(--acc);padding:6px 16px;list-style:none;user-select:none}
+.rr-more>summary::-webkit-details-marker{display:none}
+.rr-more>summary::before{content:"▸ ";color:var(--gold)}
+.rr-more[open]>summary::before{content:"▾ "}
+.rr-panel{padding:4px 16px 12px}
+.rr-row{display:grid;grid-template-columns:14px 108px 48px 1fr;gap:8px 10px;align-items:baseline;
+  padding:7px 0;border-top:1px solid #efece2;font-size:12px}
+.rr-row:first-child{border-top:none}
+.rr-dot{width:9px;height:9px;border-radius:50%;background:var(--d);align-self:center}
+.rr-nm{font-weight:700;color:#3f3a30}
+.rr-st{font-weight:700;font-size:11px}
+.rr-ev{color:#43413b}
+.rr-meta{grid-column:2 / -1;color:var(--sub);font-size:10.5px}
+.rr-dim{opacity:.62}
+.rr-foot{grid-column:1 / -1;color:var(--sub);font-size:10.5px;padding-top:6px;border-top:1px dashed #e3dcc9;margin-top:2px}
+</style>
+<section class="rr-band" aria-label="五因风险温度">
+  <div class="rr-temp"><span class="rr-flagico">风险</span>IPO 虹吸，外盘共振</div>
+  
+  
+  <div class="rr-lamps"><span class="rr-lamp" style="--d:#c0392b" title="F1 隔夜外盘·放大器·共振"><i></i><b>F1</b></span><span class="rr-lamp" style="--d:#b3a489" title="F2 拥挤度·缺数"><i></i><b>F2</b></span><span class="rr-lamp" style="--d:#7b8aa0" title="F3 杠杆水位·信息层"><i></i><b>F3</b></span><span class="rr-lamp" style="--d:#c0392b" title="F4 IPO 虹吸·触发"><i></i><b>F4</b></span><span class="rr-lamp" style="--d:#3f9c76" title="F5 外部紧缩·平静"><i></i><b>F5</b></span><span class="rr-lamp" style="--d:#7b8aa0" title="A6 量能脆弱态·环境·静"><i></i><b>A6</b></span><span class="rr-lamp" style="--d:#c0392b" title="B6 浮盈集中度·环境·共振"><i></i><b>B6</b></span></div>
+</section>
+<details class="rr-more">
+  <summary>展开风险因子提示（3/5 计温 · F1隔夜外盘放大器·共振中 · F3杠杆水位 信息层）</summary>
+  <div class="rr-panel">
+    <div class="rr-row"><span class="rr-dot" style="--d:#c0392b"></span><span class="rr-nm">F1 · 隔夜外盘</span><span class="rr-st" style="color:#c0392b">放大器·共振</span><span class="rr-ev">隔夜费半系最深 -6.1% · 亚太科技最深 -11.5%（隔夜场次 2026-07-16）</span><span class="rr-meta">放大器·仅在已达警戒时升级（阈值 ≤-2.0%/亚太 ≤-2.0%；主效应 lift 1.06＝无，调节效应 lift 2.68＝有） ｜ intl_index · 隔夜护栏(<A股数据日)</span></div><div class="rr-row rr-dim"><span class="rr-dot" style="--d:#b3a489"></span><span class="rr-nm">F2 · 拥挤度</span><span class="rr-st" style="color:#b3a489">缺数</span><span class="rr-ev">容量/情绪数据缺</span><span class="rr-meta">信息层·暂不计温（情绪腿 lift 0；容量腿未回测） ｜ theme容量 / emotion_cycle</span></div><div class="rr-row"><span class="rr-dot" style="--d:#7b8aa0"></span><span class="rr-nm">F3 · 杠杆水位</span><span class="rr-st" style="color:#7b8aa0">信息层</span><span class="rr-ev">融资余额 28377亿 · 5日 -965亿 · 日 -287亿（截至2026-07-16·T+1）</span><span class="rr-meta">信息层·不计温度（回测 lift 0.87＝无预测力，两融为滞后量） ｜ market_data.margin_daily（tushare·现成）</span></div><div class="rr-row"><span class="rr-dot" style="--d:#c0392b"></span><span class="rr-nm">F4 · IPO 虹吸</span><span class="rr-st" style="color:#c0392b">触发</span><span class="rr-ev">近20日新股 8只 · 募资 712亿（截至2026-07-16）</span><span class="rr-meta">近20日募资≥200亿（初值·待数据校准） ｜ market_data.ipo_daily（tushare·现成）</span></div><div class="rr-row"><span class="rr-dot" style="--d:#3f9c76"></span><span class="rr-nm">F5 · 外部紧缩</span><span class="rr-st" style="color:#3f9c76">平静</span><span class="rr-ev">CNH 6.7738(+0.0005) · 布伦特 +4.6% · 美债10Y 4.54%(-3bp)·信息层（↑=贬/涨/紧缩）</span><span class="rr-meta">CNH日贬≥0.05 或 布伦特≥5.0%（美债为信息层·不计温） ｜ fx_cnh + intl_index(BRENT/US10Y)</span></div><div class="rr-row"><span class="rr-dot" style="--d:#7b8aa0"></span><span class="rr-nm">A6 · 量能脆弱态</span><span class="rr-st" style="color:#7b8aa0">环境·静</span><span class="rr-ev">创业板量能 252 日分位 p91</span><span class="rr-meta">环境层·分位≥p99 共振（双尾放大器·禁看空计温；区制条款见 config） ｜ index_research.index_daily 399006 amount</span></div><div class="rr-row"><span class="rr-dot" style="--d:#c0392b"></span><span class="rr-nm">B6 · 浮盈集中度</span><span class="rr-st" style="color:#c0392b">环境·共振</span><span class="rr-ev">top5% 个股成交占比 59.6% · 分位 p98·拥挤</span><span class="rr-meta">环境层·分位≥p95 共振（729 固定宇宙·锁池防 20260603 扩容坑） ｜ stock_daily × universe_fixed(729)</span></div>
+    <div class="rr-row"><div class="rr-foot">因子源自 2026-07-17 A股年度冰点『五因共振』· 阈值经回测校准滚动复核 · 过往不代表未来 · 仅风险提示非投资建议。信号级锚风险见下方「五 · 风险提示」。</div></div>
+  </div>
+</details></body></html>
