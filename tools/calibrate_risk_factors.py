@@ -23,7 +23,36 @@ logger = get_logger(__name__)
 import sqlite3, argparse, json, datetime, statistics as st
 import config
 
-MIN_N = 20          # 触发样本低于此数 → 标「样本不足·不可信」
+MIN_N = 20          # 触发样本低于此数 → 标「样本不足·不可信」。★卡的是**独立事件数**，不是触发日数（见下）
+
+# ── 独立事件切分（2026-07-19 立 · Doctor 批）─────────────────────────────
+# 为什么必须区分「触发日数」与「独立事件数」：
+#   F4 用滚动 20 日历日窗口，一轮 IPO 潮会连续点亮十几个交易日 → 33 个触发日实为 **3 轮**
+#   （20250707–0725 / 20251205–1210 / 20260622–0710），高度自相关，不是 33 个独立观测。
+#   F5 油价腿是单日冲击，12 个触发日 ≈ 9 次独立事件，几乎无膨胀。
+#   拿同一个 MIN_N=20 去卡两者的**日数**，等于用同一把尺量两种单位——
+#   结果就是引擎判 F4「有区分力」(33日)、F5「样本不足」(12日)，而按事件算排序完全颠倒。
+#   → [[通用教训]] G-X75（相减/比较前先确认两边可比）
+# EPISODE_GAP 的取值是工程约定、非实证：相邻触发日在交易日序列上间隔 ≤ 此数即视为同一轮。
+#   方向稳健（带滚动窗的因子怎么切都会大幅塌缩，单日冲击型怎么切都不敏感），
+#   但具体事件数依赖此参数——报告里会把它显式打出来，别当成客观常数。
+EPISODE_GAP = 3
+
+
+def episodes(trigger_days, idx, gap=EPISODE_GAP):
+    """把触发日列表按交易日间隔切成独立事件。返回 [[d,...], ...]。"""
+    t = sorted(d for d in trigger_days if d in idx)
+    if not t:
+        return []
+    out, cur = [], [t[0]]
+    for a, b in zip(t, t[1:]):
+        if idx[b] - idx[a] <= gap:
+            cur.append(b)
+        else:
+            out.append(cur)
+            cur = [b]
+    out.append(cur)
+    return out
 
 
 def _iso2c(d):      # '2026-07-17' → '20260717'
@@ -131,11 +160,23 @@ def eval_day(d, DATA, cfg):
     wd = int(c["f4"].get("win_days", 20))
     dt = datetime.date(int(d[:4]), int(d[4:6]), int(d[6:]))
     lo = (dt - datetime.timedelta(days=wd)).strftime("%Y%m%d")
-    if not DATA["ipo"]:
+    # ERR-20260719-002：原写法只在**整张 ipo 表为空**时判「不可评」，一旦表非空就把
+    # 每一天都当可评——而 ipo_daily 实际只覆盖 20240102+，2020–2023 约 970 个交易日
+    # 无数据、滚动和恒为 0 → 被静默记成「未触发」。后果：可评日 1581(应~610)、
+    # 触发率 2.1%(应~5.4%)、lift 因基准用全样本 3.9% 而被**低估**(应~1.70)。
+    # 「无数据」≠「未触发」——同 [[通用教训]] G-X75。F1/F3/F5 本来就是对的，只 F4 这支漏了。
+    # 正解：按 F5 的写法，看**本窗口内**有没有真实覆盖，没有则 None(不可评)。
+    ipo = DATA["ipo"]
+    if not ipo:
         out["F4"] = None
     else:
-        s = sum(v for k, v in DATA["ipo"].items() if lo < k <= d)
-        out["F4"] = bool(s >= c["f4"]["funds_win_th"])
+        _lo_cov, _hi_cov = min(ipo), max(ipo)
+        # 窗口 (lo, d] 与 ipo 数据覆盖区间无交集 → 该日不可评
+        if d <= _lo_cov or lo >= _hi_cov:
+            out["F4"] = None
+        else:
+            s = sum(v for k, v in ipo.items() if lo < k <= d)
+            out["F4"] = bool(s >= c["f4"]["funds_win_th"])
     # —— F5 外部（CNH ≤ d；油价/美债严格 < d）——
     trig5, any5 = False, False
     fx = DATA["fx"]
@@ -190,24 +231,31 @@ def run(ice_th, write):
                  f"- 重建口径：外盘严格 <D（真隔夜）｜两融完整日 ≤D｜IPO 滚动{cfg['f4'].get('win_days',20)}日历日 ≤D"
                  f"｜情绪/汇率 ≤D。**F2 仅评情绪腿**（容量腿依赖当日 theme 重算，未按时点重建）。\n")
     lines.append("\n## 单因子表现（现行阈值）\n")
-    lines.append("| 因子 | 可评日 | 触发率 | P(冰点\\|触发) | lift | 触发日 fwd3 均值 | 未触发 fwd3 均值 | 判定 |")
-    lines.append("|---|---|---|---|---|---|---|---|")
+    lines.append(f"> **判定门槛卡的是「独立事件数」不是「触发日数」**（2026-07-19 起）。"
+                 f"滚动窗口型因子（F4）会把一轮行情摊成十几个连续触发日，日数虚高但信息量不增。"
+                 f"事件切分：相邻触发日间隔 ≤ **{EPISODE_GAP}** 个交易日视为同一轮（工程约定，非实证常数）。\n")
+    lines.append("| 因子 | 可评日 | 触发率 | **独立事件** | 日/事件 | P(冰点\\|触发) | lift | 触发日 fwd3 均值 | 未触发 fwd3 均值 | 判定 |")
+    lines.append("|---|---|---|---|---|---|---|---|---|---|")
     verdicts = {}
     for fid in ("F1", "F2", "F3", "F4", "F5"):
         ev = [r for r in rows if r.get(fid) is not None]
         tr = [r for r in ev if r[fid]]
         nt = [r for r in ev if not r[fid]]
         if not ev:
-            lines.append(f"| {fid} | 0 | — | — | — | — | — | **无数据** |")
+            lines.append(f"| {fid} | 0 | — | — | — | — | — | — | — | **无数据** |")
             verdicts[fid] = "无数据"
             continue
+        eps = episodes([r["d"] for r in tr], idx)
+        n_ep = len(eps)
+        infl = (len(tr) / n_ep) if n_ep else float("nan")
         p_ice = (sum(1 for r in tr if r["ice"]) / len(tr)) if tr else 0
         b = (sum(1 for r in ev if r["ice"]) / len(ev)) if ev else 0
         lift = (p_ice / b) if b else 0
         f3t = st.fmean([r["fwd3"] for r in tr]) if tr else float("nan")
         f3n = st.fmean([r["fwd3"] for r in nt]) if nt else float("nan")
-        if len(tr) < MIN_N:
-            v = f"样本不足(n={len(tr)})"
+        # ★ 门槛卡事件数：日数被滚动窗膨胀，不代表独立观测
+        if n_ep < MIN_N:
+            v = f"样本不足(事件={n_ep})"
         elif lift >= 1.5:
             v = "有区分力"
         elif lift >= 1.15:
@@ -215,8 +263,8 @@ def run(ice_th, write):
         else:
             v = "≈噪声·建议调整/退役"
         verdicts[fid] = v
-        lines.append(f"| {fid} | {len(ev)} | {len(tr)/len(ev):.1%} ({len(tr)}) | {p_ice:.1%} | "
-                     f"{lift:.2f} | {f3t:+.2f}% | {f3n:+.2f}% | **{v}** |")
+        lines.append(f"| {fid} | {len(ev)} | {len(tr)/len(ev):.1%} ({len(tr)}) | **{n_ep}** | "
+                     f"{infl:.1f}× | {p_ice:.1%} | {lift:.2f} | {f3t:+.2f}% | {f3n:+.2f}% | **{v}** |")
     # 阈值敏感性（仅对有历史的 F3/F4）
     lines.append("\n## 阈值敏感性扫描（F3 两融 / F4 IPO）\n")
     for fid, key, grid, unit in (("F1", ("semi_th", "asia_th"), [-1.5, -2, -3, -4, -5, -6], "%"),
@@ -224,15 +272,17 @@ def run(ice_th, write):
                                  ("F4", "funds_win_th", [100, 150, 200, 300, 400, 500], "亿"),
                                  ("F5", "oil_daily_th", [2, 3, 4, 5, 6], "%油价腿")):
         lines.append(f"\n**{fid} · {key}**\n")
-        lines.append("| 阈值 | 触发率 | P(冰点\\|触发) | lift | 触发日 fwd3 |")
-        lines.append("|---|---|---|---|---|")
+        lines.append("| 阈值 | 触发率 | **独立事件** | 日/事件 | P(冰点\\|触发) | lift | 触发日 fwd3 |")
+        lines.append("|---|---|---|---|---|---|---|")
         for g in grid:
             c2 = json.loads(json.dumps(cfg))
             for _k in ((key,) if isinstance(key, str) else key):
                 c2[fid.lower()][_k] = g
             ev = tr = 0
             ice = 0
+            ice_ev = 0          # 可评日中的冰点数 → 用于算**本因子窗口内**的基准
             f3s = []
+            trig_days = []
             for i, (d, _) in enumerate(days):
                 if i + 3 >= len(days):
                     break
@@ -240,17 +290,27 @@ def run(ice_th, write):
                 if v is None:
                     continue
                 ev += 1
+                fwd3_ev = sum(days[i + k][1] for k in (1, 2, 3))
+                if fwd3_ev <= ice_th:
+                    ice_ev += 1
                 if v:
                     tr += 1
-                    fwd3 = sum(days[i + k][1] for k in (1, 2, 3))
-                    f3s.append(fwd3)
-                    if fwd3 <= ice_th:
+                    trig_days.append(d)
+                    f3s.append(fwd3_ev)
+                    if fwd3_ev <= ice_th:
                         ice += 1
             if not ev:
                 continue
-            b = base_rate
+            # 2026-07-19 修：原为 b = base_rate（全样本 3.9%），与主表的「本因子可评窗口基准」
+            # 不是一把尺 → 同一因子同一阈值在报告里出现两个 lift（如 F4 200亿 主表1.68/扫描1.55）。
+            # 扫描表系统性低估约 9%。改为与主表同源：b = 本因子可评窗口内的冰点率。
+            # 同 [[通用教训]] G-X75——一份报告里的两张表也必须先可比再并列。
+            b = (ice_ev / ev) if ev else 0
             p = (ice / tr) if tr else 0
-            lines.append(f"| {g}{unit} | {tr/ev:.1%} ({tr}) | {p:.1%} | {(p/b if b else 0):.2f} | "
+            n_ep = len(episodes(trig_days, idx))
+            infl = (tr / n_ep) if n_ep else float("nan")
+            lines.append(f"| {g}{unit} | {tr/ev:.1%} ({tr}) | **{n_ep}** | "
+                         f"{(f'{infl:.1f}×' if n_ep else '—')} | {p:.1%} | {(p/b if b else 0):.2f} | "
                          f"{(st.fmean(f3s) if f3s else float('nan')):+.2f}% |")
     # 温度分层
     lines.append("\n## 风险温度分层（触发因子数 → 前向）\n")
@@ -264,8 +324,10 @@ def run(ice_th, write):
         p = sum(1 for r in sub if r["ice"]) / len(sub)
         lines.append(f"| {n} | {len(sub)} | {p:.1%} | {(p/base_rate if base_rate else 0):.2f} | "
                      f"{st.fmean([r['fwd3'] for r in sub]):+.2f}% |")
-    lines.append("\n> 注：lift>1 才有区分力；触发样本 <%d 视为不可信。**过往不代表未来**，"
-                 "本报告为阈值参考、非投资建议。\n" % MIN_N)
+    lines.append("\n> 注：lift>1 才有区分力；**独立事件数 <%d 视为不可信**（2026-07-19 起由卡"
+                 "『触发日数』改为卡『独立事件数』——滚动窗口型因子的日数被人为膨胀，"
+                 "『日/事件』列即膨胀倍数，越大代表该因子的日数越不能当独立观测读）。"
+                 "**过往不代表未来**，本报告为阈值参考、非投资建议。\n" % MIN_N)
     rep = "\n".join(lines)
     print(rep)
     if write:
