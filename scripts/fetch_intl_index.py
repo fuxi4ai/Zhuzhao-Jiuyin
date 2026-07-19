@@ -38,6 +38,9 @@ INDICES = [
     ("SPCX",     "SPCX",  "SpaceX",         "us_stock",  "商业航天 · 2026-06-12 纳指新上市（历史短·波动大）"),
     # —— 亚洲栏（期货预期）：日本开盘前的远期（韩国已移至 fetch_kr_stocks 直追三星/SK海力士）——
     ("JP_FUT",   "NKD=F", "日经225期货",    "futures",   "CME · 亚盘开盘前远期 · 含半导体设备权重"),
+    # —— 外部紧缩栏（2026-07-17 加 · 供日报五因风险温度 F5「外部紧缩」；不入外盘展示区，仅供 F5 计算）——
+    ("US10Y",    "^TNX",  "美债10年期收益率", "macro_rate",      "CBOE 10Y Yield · close 即收益率%（非价格）· ↑=外部紧缩 · F5"),
+    ("BRENT",    "BZ=F",  "布伦特原油",      "macro_commodity", "ICE Brent 期货 · ↑=输入型通胀/地缘扰动 · F5"),
 ]
 _LOOKBACK_DAYS = 10  # 向前回看，使窗口首日 pct 由真实前一交易日得出（同 fetch_us_anchor G014）
 
@@ -75,8 +78,14 @@ def fetch_yf(symbol, start, end):
     2026-06-30 实测 LITE/日经/纳指/韩股皆新鲜，根治 stockanalysis CDN 陈旧坑）。
     返回 [(YYYYMMDD, close, pct)] 升序，裁回 >= start（回看日仅用于算首日 pct）。"""
     import urllib.request as _u, urllib.parse as _up, json as _j
+    # 2026-07-17 修：原硬编码 range=1mo → --from/--to 只裁剪不传参，**任何长区间回填都静默只回1个月**
+    # （F1/F5 历史回测因此拿不到样本才暴露）。改用 period1/period2 真区间；日更短窗行为不变。
+    _p1 = int(datetime.datetime.fromisoformat(_lookback_start(start))
+              .replace(tzinfo=datetime.timezone.utc).timestamp())
+    _p2 = int((datetime.datetime.fromisoformat(end) + datetime.timedelta(days=1))
+              .replace(tzinfo=datetime.timezone.utc).timestamp())
     url = ("https://query1.finance.yahoo.com/v8/finance/chart/"
-           + _up.quote(symbol) + "?range=1mo&interval=1d")
+           + _up.quote(symbol) + f"?period1={_p1}&period2={_p2}&interval=1d")
     req = _u.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with _u.urlopen(req, timeout=15) as r:
         data = _j.loads(r.read().decode())
@@ -90,7 +99,7 @@ def fetch_yf(symbol, start, end):
     for t, c in zip(ts, closes):
         if c is None:
             continue
-        d = datetime.datetime.utcfromtimestamp(t).strftime("%Y%m%d")
+        d = datetime.datetime.fromtimestamp(t, datetime.timezone.utc).strftime("%Y%m%d")
         pct = (c / prev - 1) * 100 if prev else None
         if d >= sc:
             out.append((d, round(float(c), 2), round(pct, 4) if pct is not None else None))

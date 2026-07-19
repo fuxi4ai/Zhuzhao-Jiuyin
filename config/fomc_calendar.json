@@ -1,0 +1,14 @@
+{
+  "_source": "federalreserve.gov/monetarypolicy/fomccalendars.htm · 抓取 2026-07-18 · *=含SEP点阵图",
+  "_usage": "叙事层日历注记,不计温(2026-07-18 Doctor 批:六因之议以债腿扫描否决,FOMC 仅作会前窗提示)",
+  "meetings_2026": [
+    {"start": "20260127", "end": "20260128", "sep": false},
+    {"start": "20260317", "end": "20260318", "sep": true},
+    {"start": "20260428", "end": "20260429", "sep": false},
+    {"start": "20260616", "end": "20260617", "sep": true},
+    {"start": "20260728", "end": "20260729", "sep": false},
+    {"start": "20260915", "end": "20260916", "sep": true},
+    {"start": "20261027", "end": "20261028", "sep": false},
+    {"start": "20261208", "end": "20261209", "sep": true}
+  ]
+}

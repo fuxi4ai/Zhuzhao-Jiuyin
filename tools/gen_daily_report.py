@@ -93,6 +93,41 @@ BT_STATS = _load_bt_stats()
 MECH_WINDOW = BT_STATS["mech_window"]
 RISK_MECH = set(BT_STATS["risk_mech"])   # 逆风类：无稳定超额期
 VOL_HINT_MECH = set(BT_STATS.get("vol_hint_mech", []))   # A2：波动源非收益源（price_driven）
+
+
+# ── 五因风险温度：预警因子单一真源 config/risk_factors.json；缺文件即 fallback 回下方硬编码，不 break 07:00 定时链 ──
+# 源自 2026-07-17 A股年度冰点 case study『催化剂链·五因共振』。Phase-1 仅 F1/F2/F5(汇率) 在线可算，
+# F3两融/F4 IPO/F5油价·美债 为待接源占位（渲灰不计温度）。阈值皆初值·待历史冰点日回测校准。
+_RISK_FALLBACK = {
+    "_meta": {"phase": 1, "phase1_online": ["f1", "f2", "f5"], "calibrated": False,
+              "note": "阈值初值·待回测校准·过往不代表未来·仅风险提示非投资建议"},
+    "f1": {"name": "外盘传导", "semi_codes": ["NASDAQ", "AVGO", "NVDA", "LITE"],
+           "asia_codes": ["JP_FUT", "KR_SAMSUNG", "KR_HYNIX"], "semi_th": -2.0, "asia_th": -2.0,
+           "desc": "隔夜费半系/纳指或亚太科技急跌 → 风险外溢"},
+    "f2": {"name": "拥挤度释放", "crowd_states": ["虹吸", "满载"], "pctrank_th": 80,
+           "desc": "领涨主线容量满/情绪高分位回落 → 高位赛道拥挤度释放"},
+    "f3": {"name": "杠杆被动出清", "status": "pending",
+           "gap": "全库无两融表·待接 tushare margin（Phase-2）", "desc": "两融余额周变化/连续净流出 → 杠杆被动平仓负反馈"},
+    "f4": {"name": "IPO 虹吸", "status": "pending",
+           "gap": "无新股募资数据·待接 tushare new_share（Phase-2）", "desc": "新股募资集中+成交额萎缩 → 存量资金被分流"},
+    "f5": {"name": "外部紧缩", "cnh_daily_th": 0.05, "cnh_7d_th": 0.10,
+           "oil_status": "pending", "oil_gap": "dim1 油价数值列空·待接日线源",
+           "bond_status": "pending", "bond_gap": "无美债收益率·待接 ^TNX（Phase-2）",
+           "desc": "离岸人民币急贬（可算）+ 油价急升/美债破位（待接源）→ 外部流动性紧缩"},
+    "temp_bands": [[0, "🟢", "平静", "#3f9c76"], [1, "🟡", "观察", "#c8962a"],
+                   [2, "🟠", "警戒", "#e8731e"], [3, "🔴", "冰点风险", "#c0392b"]],
+}
+def _load_risk_cfg():
+    try:
+        with open(config.PROJECT_ROOT / "config" / "risk_factors.json", encoding="utf-8") as f:
+            cfg = json.load(f)
+        for k, v in _RISK_FALLBACK.items():        # 缺键逐一回落，容忍部分配置
+            cfg.setdefault(k, v)
+        return cfg
+    except Exception as e:
+        logger.warning("risk_factors.json 未加载(%s)，回落硬编码 fallback", e)
+        return _RISK_FALLBACK
+RISK_CFG = _load_risk_cfg()
 SAMPLE_PERIOD = BT_STATS["_meta"]["sample_period"]
 
 # 信号展示补注（渲染层覆盖·不改上游数据库/图谱，避免被渊图同步冲掉）：按 signal_node 覆盖显示名 + 详情卡补说明
@@ -308,6 +343,52 @@ def gather(date_cap=None):
     snap["limit_up"], snap["limit_down"] = lim if lim else (None, None)
     D["snap"] = snap
 
+    # ── 两融余额（F3 杠杆被动出清）——market_data.margin_daily，仅完整日(szse非空)，最新+1/5日变(亿元)。
+    #    两融明细 T+1，故取 ≤data_day 的最新完整日（常为 data_day-1）。表未建/无数据→留 None，F3 渲『待接源』。
+    margin = {"cur_rzye": None, "chg1": None, "chg5": None, "date": None, "cur_rzrqye": None}
+    try:
+        mrows = md.execute(
+            "SELECT trade_date,total_rzye,total_rzrqye FROM margin_daily "
+            "WHERE szse_rzrqye IS NOT NULL AND trade_date<=? ORDER BY trade_date DESC LIMIT 6",
+            (data_day,)).fetchall()
+        if mrows:
+            margin["cur_rzye"], margin["cur_rzrqye"], margin["date"] = mrows[0][1], mrows[0][2], mrows[0][0]
+            if len(mrows) >= 2:
+                margin["chg1"] = round(mrows[0][1] - mrows[1][1], 1)
+            if len(mrows) >= 6:
+                margin["chg5"] = round(mrows[0][1] - mrows[5][1], 1)
+    except sqlite3.OperationalError:
+        pass
+    D["margin"] = margin
+
+    # ── IPO 募资（F4 虹吸）——market_data.ipo_daily，近20日历日募资合计(亿元)。表未建/无数据→None，F4渲『待接源』。
+    ipo = {"funds_win": None, "n_win": None, "win_days": 20, "latest": None}
+    try:
+        _cut = (datetime.date.fromisoformat(iso(data_day)) - datetime.timedelta(days=20)).strftime("%Y%m%d")
+        _has = md.execute("SELECT COUNT(*) FROM ipo_daily WHERE trade_date<=?", (data_day,)).fetchone()[0]
+        if _has:
+            irow = md.execute(
+                "SELECT COALESCE(SUM(funds_yi),0), COALESCE(SUM(n_ipo),0), MAX(trade_date) FROM ipo_daily "
+                "WHERE trade_date>? AND trade_date<=?", (_cut, data_day)).fetchone()
+            ipo["funds_win"], ipo["n_win"], ipo["latest"] = round(irow[0], 1), irow[1], irow[2]
+    except sqlite3.OperationalError:
+        pass
+    D["ipo"] = ipo
+
+    # ── 叙事状态（narrative_regime·Doctor 2026-07-17 裁定）：只收「有长期指导意义的逻辑」（如 AI Capex 叙事转向），
+    #    当天的下跌原因过期极快故不收。仅作 F1 放大器的**上下文注释**，不门控温度（叙事事件一年才几次，无法验证）。
+    #    表未建（待 Doctor 终端跑 scan_narrative_regime.py --ddl）→ 静默跳过。
+    narr = []
+    try:
+        for ds, tag, direc, summ in rc.execute(
+                "SELECT date_start,tag,direction,summary FROM narrative_regime "
+                "WHERE status='active' AND date_start<=? ORDER BY date_start DESC",
+                (iso(data_day),)):
+            narr.append({"start": ds, "tag": tag, "dir": direc, "summary": summ})
+    except sqlite3.OperationalError:
+        pass
+    D["narrative"] = narr
+
     # ── 离岸人民币 USD/CNH（当前 + 近7交易日曲线）──
     fx = {"cur": None, "date": None, "series": [], "prev": None, "src": None}
     try:
@@ -408,6 +489,23 @@ def gather(date_cap=None):
     except sqlite3.OperationalError:
         pass
     D["intl"] = {x["code"]: x for x in intl}
+
+    # ── F1 隔夜护栏（Doctor 2026-07-17 裁定 A 档）：外盘取「**严格早于** A 股数据日」的最新场次＝真隔夜。
+    #    定时链 16:00 北京跑时美股当日尚未开盘 → 与 D["intl"] 等价（护栏为 no-op）；
+    #    仅手工/盘中补数时生效，防前视（否则会拿美股 D 日未收盘场次去解释 A 股 D 日）。
+    #    只供 F1 计算，不改外盘展示栏语义（展示栏仍读 D["intl"]）。
+    intl_on = []
+    try:
+        for code, sym, name, kind, td, close, pct, note in md.execute(
+                "SELECT code, symbol, name, kind, trade_date, close, pct_chg, note "
+                "FROM intl_index_daily i WHERE trade_date=("
+                "  SELECT MAX(trade_date) FROM intl_index_daily j "
+                "  WHERE j.code=i.code AND j.trade_date<?)", (data_day,)):
+            intl_on.append({"code": code, "symbol": sym, "name": name, "kind": kind,
+                            "date": td, "close": close, "pct": pct, "note": note})
+    except sqlite3.OperationalError:
+        pass
+    D["intl_on"] = {x["code"]: x for x in intl_on}
 
     def us_info(theme):
         if theme not in THEME_US or not us_days:
@@ -1512,6 +1610,31 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .mline-ex{flex:0 0 auto;font-size:11.5px;color:var(--sub)}
 .mline-hint{flex:0 0 auto;font-size:11px;color:var(--sub);opacity:.7}
 @media(max-width:560px){.mline{flex-wrap:wrap}.mline-ex{order:3}}
+/* 二·主线板块 → 三日一表(2026-07-18 · 长表定版+美化) */
+.mtab{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
+.mtab th{font-size:10.5px;font-weight:600;color:var(--sub);letter-spacing:.08em;text-align:center;
+  padding:5px 6px;border-bottom:1.5px solid var(--line)}
+.mtab td{padding:7px 6px;border-bottom:1px solid #f0ede3;vertical-align:middle;text-align:center}
+.mtab tbody tr:hover td{background:color-mix(in srgb,#8aa0c8 8%,rgba(255,255,255,.5))}
+.mtab tr.mt-first td{border-top:1.5px solid #e8e2d0}
+.mtab .mt-num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.mt-w-d{width:15%}
+.mt-w-s{width:11%}
+.mt-sec{cursor:pointer;white-space:nowrap;border-left:2px solid color-mix(in srgb,var(--sc) 55%,transparent)}
+.mt-sec b{font-weight:600;color:var(--tx)}
+.mt-sec:hover{box-shadow:inset 3px 0 0 var(--sc)}
+.mt-sec .mt-hint{font-size:11px;color:var(--sub);opacity:.7;margin-left:4px}
+.mt-date{white-space:nowrap;vertical-align:middle;background:rgba(255,255,255,.35);
+  border-right:1px dashed #e8e2d0}
+.mt-date .mt-d{font-weight:700;font-size:12px;color:#3f3a30}
+.mt-date .mt-dt{font-size:11px;color:var(--sub)}
+.mt-vol{white-space:nowrap;vertical-align:middle;border-right:1px dashed #e8e2d0;
+  font-variant-numeric:tabular-nums;color:#43413b}
+.mt-vol .mt-unit{font-size:9.5px;color:var(--sub);margin-left:1px}
+.mt-vol .mt-sub{font-size:9.5px;color:var(--sub);opacity:.8}
+.mt-na{color:#b3a489}
+.mt-e20{color:#43413b}
+@media(max-width:560px){.mtab{font-size:11.5px}}
 .report-title{margin:2px 0 14px;padding:0 4px;display:inline-block;text-align:center}
 .report-name{display:block;font-size:24px;font-weight:700;letter-spacing:1.8px;line-height:1.18;color:var(--tx);white-space:nowrap;text-align:left}
 .report-meta{display:block;color:var(--sub);font-size:12px;line-height:1.35;text-align:center;white-space:nowrap;margin-top:6px}
@@ -1725,8 +1848,342 @@ function toggleSpark(el){
 """
 
 
+def _eval_risk_factors(D):
+    """五因风险温度评估。返回 (factors:list, triggered_n:int, band:tuple)。
+    Phase-1 在线可算：F1 外盘(D['intl'])/F2 拥挤度(D['capacity']+D['emotion'])/F5 外部(D['fx'])；
+    F3 两融 / F4 IPO / F5 油价·美债 = 待接源占位（status='pending'，不计温度）。诚实缺、禁编数。"""
+    cfg = RISK_CFG
+    intl = D.get("intl") or {}
+    cap = D.get("capacity") or {}
+    em = D.get("emotion") or {}
+    fx = D.get("fx") or {}
+    F = []
+
+    # ── F1 外盘传导（走隔夜护栏视图 intl_on＝严格早于 A 股数据日的最新场次；缺则回落 intl） ──
+    c1 = cfg["f1"]
+    intl_f1 = D.get("intl_on") or intl
+    semis = [(c, intl_f1[c]["pct"]) for c in c1["semi_codes"]
+             if intl_f1.get(c) and intl_f1[c].get("pct") is not None]
+    asia = [(c, intl_f1[c]["pct"]) for c in c1["asia_codes"]
+            if intl_f1.get(c) and intl_f1[c].get("pct") is not None]
+    ws = min((p for _, p in semis), default=None)
+    wa = min((p for _, p in asia), default=None)
+    # 2026-07-17 裁定：F1＝**条件放大器**（交互效应非主效应）——不参与「够不够格报警」，
+    # 只在计温因子已达警戒时把温度升为「警戒·外盘共振」。平静日 F1 无信息（实证 3.2% vs 3.2%）。
+    _hit1 = False
+    if not semis and not asia:
+        st1, ev1 = "na", "外盘数据缺（intl_index 无当日行情）"
+    else:
+        st1 = "amp"
+        _hit1 = bool((ws is not None and ws <= c1["semi_th"])
+                     or (wa is not None and wa <= c1["asia_th"]))
+        ev1 = (f"隔夜费半系最深 {ws:+.1f}%" if ws is not None else "费半系缺") + \
+              (f" · 亚太科技最深 {wa:+.1f}%" if wa is not None else "")
+    # 场次日期只取 F1 实际用到的码（semi+asia），避免被久未更新的无关码带偏
+    _d1 = max((intl_f1[c]["date"] for c in (c1["semi_codes"] + c1["asia_codes"])
+               if intl_f1.get(c) and intl_f1[c].get("date")), default=None)
+    if _d1:
+        ev1 += f"（隔夜场次 {iso(_d1)}）"
+    # 共振时挂叙事背景——回答「这次外盘下跌背后有没有逻辑性看空因素」（Doctor 2026-07-17）
+    _nb = [n for n in (D.get("narrative") or []) if n.get("dir") == "bearish"]
+    if _hit1 and _nb:
+        ev1 += f"　▸ 叙事背景：{_nb[0]['summary'][:34]}（自 {_nb[0]['start']}）"
+    F.append({"id": "F1", "name": c1["name"], "status": st1, "hit": _hit1, "ev": ev1,
+              "th": f"放大器·仅在已达警戒时升级（阈值 ≤{c1['semi_th']}%/亚太 ≤{c1['asia_th']}%；"
+                    f"主效应 lift 1.06＝无，调节效应 lift 2.68＝有）",
+              "src": "intl_index · 隔夜护栏(<A股数据日)"})
+
+    # ── F2 拥挤度释放 ──
+    c2 = cfg["f2"]
+    state = cap.get("state")
+    pr = em.get("pct_rank")
+    tr = em.get("trend")
+    crowd = state in c2["crowd_states"]
+    overheat_roll = (pr is not None and pr >= c2["pctrank_th"] and tr == "下行")
+    if state is None and pr is None:
+        st2, ev2 = "na", "容量/情绪数据缺"
+    else:
+        # 2026-07-17：情绪腿 lift 0、容量腿未能按时点重建 → 未经校验暂降『信息层』不计温
+        st2 = "info"
+        ev2 = f"容量态 {state or '—'} · 情绪分位 {pr if pr is not None else '—'}% · {tr or '—'}"
+    F.append({"id": "F2", "name": c2["name"], "status": st2, "ev": ev2,
+              "th": "信息层·暂不计温（情绪腿 lift 0；容量腿未回测）",
+              "src": "theme容量 / emotion_cycle"})
+
+    # ── F3 杠杆被动出清（已接 tushare margin → market_data.margin_daily） ──
+    c3 = cfg["f3"]
+    mg = D.get("margin") or {}
+    cur3, chg5, chg1 = mg.get("cur_rzye"), mg.get("chg5"), mg.get("chg1")
+    if cur3 is None:
+        st3, ev3 = "pending", c3.get("gap", "两融数据待接源")
+        th3s = "两市周净减 / 连续净流出（待接源）"
+    else:
+        # 2026-07-17 回测裁定：两融 T+1＝滞后/同期量，lift 0.87 无预测力 → 降『信息层』只列明、不计温度
+        st3 = "info"
+        ev3 = (f"融资余额 {cur3:.0f}亿"
+               + (f" · 5日 {chg5:+.0f}亿" if chg5 is not None else "")
+               + (f" · 日 {chg1:+.0f}亿" if chg1 is not None else "")
+               + (f"（截至{iso(mg['date'])}·T+1）" if mg.get("date") else ""))
+        th3s = "信息层·不计温度（回测 lift 0.87＝无预测力，两融为滞后量）"
+    F.append({"id": "F3", "name": c3["name"], "status": st3, "ev": ev3,
+              "th": th3s, "src": "market_data.margin_daily（tushare·现成）"})
+
+    # ── F4 IPO 虹吸（已接 tushare new_share → market_data.ipo_daily） ──
+    c4 = cfg["f4"]
+    ip = D.get("ipo") or {}
+    fw = ip.get("funds_win")
+    if fw is None:
+        st4, ev4 = "pending", c4.get("gap", "IPO 数据待接源")
+        th4s = "近N日募资集中（待接源）"
+    else:
+        wd = ip.get("win_days", 20)
+        th4 = c4.get("funds_win_th", 500.0)
+        st4 = "triggered" if fw >= th4 else "quiet"
+        ev4 = f"近{wd}日新股 {ip.get('n_win', 0)}只 · 募资 {fw:.0f}亿" + \
+              (f"（截至{iso(ip['latest'])}）" if ip.get("latest") else "")
+        th4s = f"近{wd}日募资≥{th4:.0f}亿（初值·待数据校准）"
+    F.append({"id": "F4", "name": c4["name"], "status": st4, "ev": ev4,
+              "th": th4s, "src": "market_data.ipo_daily（tushare·现成）"})
+
+    # ── F5 外部紧缩：汇率(fx_cnh) + 油价(BRENT) + 美债(US10Y)，任一触发即亮；缺者标『待回填』不阻断 ──
+    c5 = cfg["f5"]
+    cur, prev = fx.get("cur"), fx.get("prev")
+    series = fx.get("series") or []
+    chg = (cur - prev) if (cur is not None and prev is not None) else None
+    net7 = (series[-1][1] - series[0][1]) if len(series) >= 2 else None
+    parts5, trigs5 = [], []
+    # 汇率：USD/CNH ↑ = 人民币贬
+    if cur is not None:
+        parts5.append(f"CNH {cur:.4f}" + (f"({chg:+.4f})" if chg is not None else ""))
+        trigs5.append((chg is not None and chg >= c5["cnh_daily_th"])
+                      or (net7 is not None and net7 >= c5["cnh_7d_th"]))
+    else:
+        parts5.append("CNH 缺数")
+    # 油价：布伦特单日涨幅
+    _br = intl.get("BRENT") or {}
+    if _br.get("pct") is not None:
+        parts5.append(f"布伦特 {_br['pct']:+.1f}%")
+        trigs5.append(_br["pct"] >= c5.get("oil_daily_th", 3.0))
+    else:
+        parts5.append("油价待回填")
+    # 美债：10Y 收益率日变（bp）——由 close 与 pct 反推前值
+    _tn = intl.get("US10Y") or {}
+    _bp = None
+    if _tn.get("close") is not None and _tn.get("pct") is not None:
+        try:
+            _pv = _tn["close"] / (1 + _tn["pct"] / 100.0)
+            _bp = (_tn["close"] - _pv) * 100.0
+        except ZeroDivisionError:
+            _bp = None
+    # 2026-07-19 Doctor 批：债腿降信息层——读数照显示，不再参与 F5 触发判定。
+    # 依据 0718 敏感性扫描（≥8bp lift 0.69<1、×F1 共振 19 次零冰点，在稀释 F5）。
+    # 回滚＝config f5.bond_scoring 翻回 true。沿用 F3 两融「只列明不指导」先例。
+    _bond_scoring = bool(c5.get("bond_scoring", True))
+    if _tn.get("close") is not None:
+        parts5.append(f"美债10Y {_tn['close']:.2f}%" + (f"({_bp:+.0f}bp)" if _bp is not None else "")
+                      + ("" if _bond_scoring else "·信息层"))
+        if _bond_scoring:
+            trigs5.append(_bp is not None and _bp >= c5.get("bond_bp_th", 8.0))
+    else:
+        parts5.append("美债待回填")
+    if not trigs5:
+        st5, ev5 = "na", " · ".join(parts5) + ("（三项均缺）" if _bond_scoring else "（计温腿均缺）")
+    else:
+        st5 = "triggered" if any(trigs5) else "quiet"
+        ev5 = " · ".join(parts5) + "（↑=贬/涨/紧缩）"
+    _th5 = f"CNH日贬≥{c5['cnh_daily_th']} 或 布伦特≥{c5.get('oil_daily_th', 3.0)}%"
+    _th5 += (f" 或 美债≥{c5.get('bond_bp_th', 8.0)}bp" if _bond_scoring else "（美债为信息层·不计温）")
+    F.append({"id": "F5", "name": c5["name"], "status": st5, "ev": ev5,
+              "th": _th5,
+              "src": "fx_cnh + intl_index(BRENT/US10Y)"})
+
+    online = cfg["_meta"].get("phase1_online", ["f1", "f2", "f5"])
+    online_ids = {o.upper() for o in online}  # {'F1','F2','F5'}
+    triggered_n = sum(1 for f in F if f["status"] == "triggered")
+    bands = cfg["temp_bands"]
+    band = bands[0]
+    for b in bands:
+        if triggered_n >= b[0]:
+            band = b
+    return F, triggered_n, band, online_ids
+
+
+def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
+    """顶部『五因风险温度』预警带 + 可展开逐因子风险提示。承暖色 token，scoped 样式。
+    grade_chunk: 回调级别读数(同期层)内嵌块,由 grade_section() 生成(2026-07-18 Doctor 定版:并入本卡)。"""
+    F, tn, band, online_ids = _eval_risk_factors(D)
+    # 计温因子＝参与定级者（amp 放大器 / info 信息层 / pending 待接源 均不定级）
+    scored_n = sum(1 for f in F if f["status"] in ("triggered", "quiet", "na"))
+    amp_hit = any(f.get("hit") for f in F if f["status"] == "amp")
+    # 三态：F1 只升级不定级——平静日 F1 无信息（实证 3.2% vs 3.2%），故不由它把温度抬起来
+    _S = RISK_CFG.get("temp_states") or {}
+    if tn == 0:
+        emoji, blabel, bcol = _S.get("calm", ["🟢", "平静", "#3f9c76"])
+    elif amp_hit:
+        emoji, blabel, bcol = _S.get("resonance", ["🔴", "警戒·外盘共振", "#c0392b"])
+    else:
+        emoji, blabel, bcol = _S.get("alert", ["🟠", "警戒", "#e8731e"])
+    pend = [f'{f["id"]}{f["name"]}' for f in F if f["status"] == "pending"]
+    info = [f'{f["id"]}{f["name"]}' for f in F if f["status"] == "info"]
+    amp = [f'{f["id"]}{f["name"]}' for f in F if f["status"] == "amp"]
+    _bits = []
+    if amp:
+        _bits.append("、".join(amp) + ("放大器·共振中" if amp_hit else "放大器"))
+    if info:
+        _bits.append("、".join(info) + " 信息层")
+    if pend:
+        _bits.append("、".join(pend) + " 待接源")
+    pend_txt = " · ".join(_bits) if _bits else "全部计温"
+    DOT = {"triggered": "#c0392b", "quiet": "#3f9c76", "pending": "#b3a489",
+           "na": "#b3a489", "info": "#7b8aa0", "amp": "#7b8aa0"}
+    ZH = {"triggered": "触发", "quiet": "平静", "pending": "待接源",
+          "na": "缺数", "info": "信息层", "amp": "放大器"}
+
+    # 精简标题(2026-07-18 Doctor 定版):触发因子名直书,不再"五因风险温度:档名+计数"
+    _trig_names = "、".join(f["name"] for f in F if f["status"] == "triggered")
+    if tn > 0 and amp_hit:
+        _temp_txt = (_trig_names + "，" if _trig_names else "") + "外盘共振"
+    elif tn > 0:
+        _temp_txt = _trig_names or blabel
+    else:
+        _temp_txt = "五因平静"
+
+    def _dot(f):        # 放大器命中时着警示色（但它不定级，只升级）
+        return "#c0392b" if (f["status"] == "amp" and f.get("hit")) else DOT[f["status"]]
+
+    def _zh(f):
+        return ("放大器·共振" if f.get("hit") else "放大器·静") if f["status"] == "amp" else ZH[f["status"]]
+    # 顶部五灯
+    lamps = "".join(
+        f'<span class="rr-lamp" style="--d:{_dot(f)}" title="{f["id"]} {f["name"]}·{_zh(f)}">'
+        f'<i></i><b>{f["id"]}</b></span>' for f in F)
+    # 展开逐因子
+    rows = ""
+    for f in F:
+        pend = f["status"] in ("pending", "na")
+        rows += (
+            f'<div class="rr-row{" rr-dim" if pend else ""}">'
+            f'<span class="rr-dot" style="--d:{_dot(f)}"></span>'
+            f'<span class="rr-nm">{f["id"]} · {f["name"]}</span>'
+            f'<span class="rr-st" style="color:{_dot(f)}">{_zh(f)}</span>'
+            f'<span class="rr-ev">{f["ev"]}</span>'
+            f'<span class="rr-meta">{f["th"]} ｜ {f["src"]}</span>'
+            f'</div>')
+    return f"""
+<style>
+.rr-band{{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0 4px;padding:11px 16px;
+  border:1px solid var(--line);border-radius:14px;background:linear-gradient(150deg,#fbf8ef,#f2ecdd);
+  box-shadow:0 4px 20px rgba(20,20,19,.05)}}
+.rr-temp{{display:flex;align-items:center;gap:8px;font-weight:700;font-size:12px;color:{bcol}}}
+.rr-temp .rr-emoji{{font-size:18px}}
+.rr-temp .rr-sub{{font-weight:400;font-size:11px;color:var(--sub);margin-left:2px}}
+.rr-lamps{{display:flex;gap:12px;align-items:center;margin-left:auto}}
+.rr-lamp{{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--sub)}}
+.rr-lamp i{{width:11px;height:11px;border-radius:50%;background:var(--d);
+  box-shadow:0 0 7px -1px var(--d)}}
+.rr-lamp b{{font-weight:700;letter-spacing:.02em}}
+.rr-flagico{{font-size:10.5px;font-weight:600;color:#fff;background:#c0392b;border:1px solid #c0392b;
+  border-radius:6px;padding:0 5px;vertical-align:1px}}
+.rr-grade{{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12px;color:#43413b}}
+.rr-grade b{{font-size:10.5px;font-weight:600;color:#fff;background:var(--gc);
+  border:1px solid var(--gc);border-radius:6px;padding:0 5px;vertical-align:1px}}
+.rr-grade .rr-gest{{color:#43413b}}
+.rr-fomc{{font-size:10.5px;color:#8b6f32;background:#f4ead0;border:1px solid #e5d9b8;border-radius:8px;padding:1px 8px}}
+.rr-more{{margin:0 0 8px}}
+.rr-more>summary{{cursor:pointer;font-size:12px;color:var(--acc);padding:6px 16px;list-style:none;user-select:none}}
+.rr-more>summary::-webkit-details-marker{{display:none}}
+.rr-more>summary::before{{content:"▸ ";color:var(--gold)}}
+.rr-more[open]>summary::before{{content:"▾ "}}
+.rr-panel{{padding:4px 16px 12px}}
+.rr-row{{display:grid;grid-template-columns:14px 108px 48px 1fr;gap:8px 10px;align-items:baseline;
+  padding:7px 0;border-top:1px solid #efece2;font-size:12px}}
+.rr-row:first-child{{border-top:none}}
+.rr-dot{{width:9px;height:9px;border-radius:50%;background:var(--d);align-self:center}}
+.rr-nm{{font-weight:700;color:#3f3a30}}
+.rr-st{{font-weight:700;font-size:11px}}
+.rr-ev{{color:#43413b}}
+.rr-meta{{grid-column:2 / -1;color:var(--sub);font-size:10.5px}}
+.rr-dim{{opacity:.62}}
+.rr-foot{{grid-column:1 / -1;color:var(--sub);font-size:10.5px;padding-top:6px;border-top:1px dashed #e3dcc9;margin-top:2px}}
+</style>
+<section class="rr-band" aria-label="五因风险温度">
+  <div class="rr-temp">{('<span class="rr-flagico">风险</span>' if (tn > 0 and amp_hit) else f'<span class="rr-emoji">{emoji}</span>')}{_temp_txt}</div>
+  {grade_chunk}
+  {fomc_chunk}
+  <div class="rr-lamps">{lamps}</div>
+</section>
+<details class="rr-more">
+  <summary>展开五因风险提示（{scored_n}/5 计温 · {pend_txt}）</summary>
+  <div class="rr-panel">
+    {rows}
+    <div class="rr-row"><div class="rr-foot">因子源自 2026-07-17 A股年度冰点『五因共振』· 阈值初值待历史冰点日回测校准 · 过往不代表未来 · 仅风险提示非投资建议。信号级锚风险见下方「五 · 风险提示」。</div></div>
+  </div>
+</details>"""
+
+
+def grade_section(D):
+    """「回调级别读数」一行（同期层，姊妹于五因先行层。PRD 2026-07-18 日报接入回调级别读数）。
+    subprocess 调剑酒青丘 adjustment_grade.py --json；先 --update（增量补指数,幂等），
+    失败退無 --update（用既有数据,可能滞后一日），再失败→降级占位。绝不阻断日报；不参与温度计温。"""
+    import subprocess
+    tool = (config.DATABASE_ROOT.parent / "Claude" / "Projects" / "Financial" / "剑酒青丘"
+            / "infrastructure" / "取数工具" / "adjustment_grade.py")
+    g = None
+    for args in (["--update", "--json"], ["--json"]):
+        try:
+            r = subprocess.run([_sys.executable, str(tool)] + args,
+                               capture_output=True, text=True, timeout=150)
+            if r.returncode == 0 and r.stdout.strip():
+                g = json.loads(r.stdout.strip().splitlines()[-1])
+                break
+        except Exception:
+            continue
+    if not g:
+        return ""          # 降级=温度卡不加级别块,不阻断日报
+    v = g.get("verdict", "—")
+    col = "#c0392b" if v.startswith("L3") else ("#e8731e" if v.startswith("L2") else "#3f9c76")
+    h = g.get("hist") or {}
+    if h and g.get("ep_day"):
+        est = ("跌幅中位约 {md:.0f}%(现 {dd:+.1f})· 历时约 {du} 交易日(现第 {ed} 天)"
+               .format(md=h["median_maxdd"], dd=g.get("dd244", 0),
+                       du=h["median_dur"], ed=g["ep_day"]))
+    elif g.get("ep_day"):
+        est = "创业板距年高 %+.1f%%" % g.get("dd244", 0)
+    else:
+        est = ""
+    return (f'<span class="rr-grade"><b style="--gc:{col}">{v}</b>'
+            + (f'<span class="rr-gest">{est}</span>' if est else "") + "</span>")
+
+
+def fomc_note(D):
+    """FOMC 会前窗日历注记(叙事层·不计温。2026-07-18 Doctor 批:债腿扫描否决六因,
+    加息预期仅以日历形式提示)。数据日距会议首日 ≤7 个日历日 → 会前窗;会议两日 → 决议窗。
+    任何异常静默返回空,不阻断日报。"""
+    try:
+        import datetime as _dt
+        cal = json.load(open(config.PROJECT_ROOT / "config" / "fomc_calendar.json", encoding="utf-8"))
+        dd = str(D.get("data_day", ""))
+        d0 = _dt.date(int(dd[:4]), int(dd[4:6]), int(dd[6:8]))
+        for m in cal.get("meetings_2026", []):
+            s = _dt.date(int(m["start"][:4]), int(m["start"][4:6]), int(m["start"][6:8]))
+            e = _dt.date(int(m["end"][:4]), int(m["end"][4:6]), int(m["end"][6:8]))
+            gap = (s - d0).days
+            lab = f'{s.month}/{s.day}-{e.day}' + ("·含点阵图" if m.get("sep") else "")
+            if 0 < gap <= 7:
+                return (f'<span class="rr-fomc" title="叙事层日历注记·不计温">'
+                        f'📅 FOMC {lab} · 会前 {gap} 天</span>')
+            if s <= d0 <= e:
+                return f'<span class="rr-fomc" title="叙事层日历注记·不计温">📅 FOMC {lab} · 决议窗</span>'
+    except Exception:
+        pass
+    return ""
+
+
 def render(D):
     STARS_BG, STARS_SIZE = gen_stars()
+    grade_chunk = grade_section(D)              # 回调级别读数（同期层,降级安全,并入温度卡）
+    fomc_chunk = fomc_note(D)                   # FOMC 会前窗日历注记（叙事层,不计温）
+    risk_radar = risk_radar_section(D, grade_chunk, fomc_chunk)   # 五因风险温度（顶部带+可展开）
     s, cap, em = D["snap"], D["capacity"], D["emotion"]
     dd = iso(D["data_day"])
     season = (em["season"] or "—")[0]
@@ -1907,23 +2364,31 @@ def render(D):
         return (f'{u["tkr"]} <span class="{ucls}">{arrow}{abs(u["overnight"]):.1f}%</span>{alert} '
                 f'<span class="sub">20日超额 {u["ex20"]:+.1f}%</span>{kind}')
 
-    # ── 主线板块 · 近3日 ──
+    # ── 主线板块 · 近3日(2026-07-18 Doctor 定版三稿:长表——时间纵轴,「板块」作列头、具体板块作表内项点弹二级卡) ──
     day_names = ["当日", "前1日", "前2日"]
-    main_html = ""
-    for di, day in enumerate(D["maindays"]):
-        rows = ""
+    days3 = D["maindays"]
+    body, tpls, nrows = "", "", 0
+    for di, day in enumerate(days3):
+        amt = f"{day['amount']:.2f}" if day["amount"] else "—"
+        rs = max(1, len(day["lines"]))
+        date_td = (f'<td class="mt-date" rowspan="{rs}">'
+                   f'<span class="mt-d">{day_names[di]}</span> '
+                   f'<span class="mt-dt">{iso(day["date"])[5:]}</span></td>')
+        vol_td = (f'<td class="mt-vol" rowspan="{rs}" title="全市场成交额">'
+                  f'{amt}<span class="mt-unit">万亿</span></td>')
+        cap_td = (f'<td class="mt-vol" rowspan="{rs}" '
+                  f'title="容量 K_cap {day["kcap"] or "—"} · 达标 {day["qualified"]} 条">'
+                  f'K{day["kcap"] or "—"}<span class="mt-sub">·达{day["qualified"]}</span></td>')
+        if not day["lines"]:
+            body += f'<tr>{date_td}{vol_td}{cap_td}<td class="mt-na" colspan="4">当日无达标主线（无板块对大盘有比较优势）</td></tr>'
+            continue
         for li, L in enumerate(day["lines"]):
+            nrows += 1
             cid = f"d{di}l{li}"
-            leaders = "、".join(L["leaders"]) or "—（近月信号无标的字段）"
             sc = THEME_COLOR.get(L["short"], "#8aa0c8")
-            # 竖排行（仿信号栏 rank-list·去行业卡）；整行可点击弹二级详情，template 与 openModal 原样复用
-            rows += f"""
-<div class="mline" role="button" tabindex="0" style="--sc:{sc}" onclick="openModal('{cid}')" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}">
- <span class="mline-pct">{pct_span(L["day_pct"])}</span>
- <span class="mline-name"><b>{L["short"]}</b></span>
- <span class="mline-ex">超额 {pct_span(L["excess"], "pp")} · 20日 {L["e20"]:+.1f}%</span>
- <span class="mline-hint">详情 ›</span>
- <template id="{cid}"><div class="modal-title" style="--sc:{sc}">{L["short"]}
+            leaders = "、".join(L["leaders"]) or "—（近月信号无标的字段）"
+            tpls += f"""
+<template id="{cid}"><div class="modal-title" style="--sc:{sc}">{L["short"]}
    <span class="mc-pct">{pct_span(L["day_pct"])}</span>
    <span class="sub">{iso(day["date"])} ｜ 超额 {pct_span(L["excess"], "pp")}</span></div>
   <div><span class="dk">ETF</span>{L["etf"]}</div>
@@ -1936,18 +2401,24 @@ def render(D):
     <span class="spark-ex" style="vertical-align:middle">{spark_svg(L["spark"], 200, 36)}</span>
     <span class="spark-abs" style="display:none;vertical-align:middle">{spark_abs_svg(L["abs_spark"], L["bench_spark"], L["us_spark"], 200, 36)}<span class="spark-legend" style="display:block;font-size:9px;color:var(--sub,#8aa0c8);margin-top:1px">板块 · <span style="color:#2a3354">┄</span>大盘 · <span style="color:#4da3ff">┄</span>美股 · 绝对·自身涨跌</span></span>
   </span></div>
- </template></div>"""
-        qnote = (f'达标 {day["qualified"]} 条' +
-                 (f'，按容量展示前 {day["kcap"]}' if day["qualified"] > (day["kcap"] or 99)
-                  else ""))
-        empty = '<div class="na" style="padding:8px 0">当日无达标主线（无板块对大盘有比较优势）</div>'
-        amt = f"{day['amount']:.4f}".rstrip("0").rstrip(".") if day["amount"] else "—"
-        main_html += f"""
-<div class="mday">
- <div class="mday-h">{day_names[di]} <b>{iso(day["date"])}</b>
-  <span class="sub">成交 {amt} 万亿 → K_cap {day["kcap"] or "—"} ｜ {qnote}</span></div>
- <div class="mline-list">{rows or empty}</div>
-</div>"""
+ </template>"""
+            sec_td = (f'<td class="mt-sec" style="--sc:{sc}" role="button" tabindex="0" '
+                      f"onclick=\"openModal('{cid}')\" "
+                      f'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){{event.preventDefault();this.click();}}">'
+                      f'<b>{L["short"]}</b><span class="mt-hint">›</span></td>')
+            first_cls = ' class="mt-first"' if li == 0 else ''
+            body += (f'<tr{first_cls}>{(date_td + vol_td + cap_td) if li == 0 else ""}{sec_td}'
+                     f'<td class="mt-num">{pct_span(L["day_pct"])}</td>'
+                     f'<td class="mt-num">{pct_span(L["excess"], "pp")}</td>'
+                     f'<td class="mt-num mt-e20">{L["e20"]:+.1f}%</td></tr>')
+    if nrows or body:
+        main_html = f"""
+<table class="mtab">
+ <thead><tr><th class="mt-w-d">日期</th><th class="mt-w-s">量能</th><th class="mt-w-s">容量</th><th style="width:24%">板块</th><th style="width:12%">涨跌</th><th style="width:14%">超额</th><th style="width:13%">20日</th></tr></thead>
+ <tbody>{body}</tbody>
+</table>{tpls}"""
+    else:
+        main_html = '<div class="na" style="padding:8px 0">近 3 日无达标主线（无板块对大盘有比较优势）</div>'
 
     # ── GAP 判断链（面向使用者的文案，内部口径不外露）──
     yt_all = [g for day in D["ytdays"] for g in day["sigs"]]
@@ -2398,6 +2869,7 @@ def render(D):
 <style>{css}</style></head><body>
 {hero}
 {snapshot}
+{risk_radar}
 {p0}
 {row2}
 

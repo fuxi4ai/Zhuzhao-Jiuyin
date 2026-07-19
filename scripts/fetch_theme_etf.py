@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """主线代表 ETF 行情拉取 → 公共 market_data.db.theme_etf_daily
-（research-CC 2026-06-09；默认 Doctor 终端跑。注：『沙箱连不上 tushare』已过时——约 2026-06-11 白名单开放后沙箱经 localhost:3128 代理 + token 已可连）
+（research-CC 2026-06-09；**默认且仅在 Doctor 终端跑**——按硬约束 CC 不在沙箱跑下载/取数。历史「白名单沙箱可连 tushare」一说已弃、勿据此在沙箱抓数；G018 后试用接口亦部分失权。）
 
 分工：本脚本在 Doctor 终端用 tushare fund_daily 拉场内 ETF 日线，写入公共行情库
       market_data.db 的新表 theme_etf_daily（附加表，不动句芒既有表）。
@@ -78,6 +78,9 @@ def get_pro():
     return ts.pro_api()
 
 def ensure_table(conn):
+    # ⚠️ close 为 fund_daily 未复权价：份额折算/分红日 close 环比失真
+    #   （实测 516780@20260525 close −49.8% 而真实 +0.31%；510300@20260119 亦有污点）。
+    #   日收益一律用 pct_chg（接口已对折算校正），禁止任何 close 环比。close 仅留展示/校验。
     conn.execute("""
         CREATE TABLE IF NOT EXISTS theme_etf_daily (
             trade_date TEXT,

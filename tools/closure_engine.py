@@ -80,6 +80,19 @@ ENGINE_HINTS = {
     "光伏": ["晶科", "隆基", "组件", "硅片"],
 }
 
+# ── 映射契约守卫（防 THEME_ETF 键漂移致本表静默降级 no_data/__UNKNOWN__）──
+# CANON2THEME 值 / ENGINE_HINTS 键 与 fetch_theme_etf.THEME_ETF 键靠字符串硬耦合，
+# 改任一 THEME_ETF 键而不同步这里 → map_theme 静默返回 __UNKNOWN__ / no_data，不报错。
+# 今日全匹配→静默通过；日后漂移→启动即 fail-fast 定位。(2026-07-14 自查补 · G-map-guard)
+_valid_themes = set(THEME_ETF) | set(STOCK_BASKET)
+_bad_canon = {c: t for c, t in CANON2THEME.items() if t is not None and t not in _valid_themes}
+_bad_hint = [t for t in ENGINE_HINTS if t not in _valid_themes]
+if _bad_canon or _bad_hint:
+    raise SystemExit(
+        "❌ 映射契约破裂：CANON2THEME/ENGINE_HINTS 指向的主线键不在 THEME_ETF∪STOCK_BASKET\n"
+        f"  CANON2THEME 越界: {_bad_canon}\n  ENGINE_HINTS 越界: {_bad_hint}\n"
+        "  → 同步 fetch_theme_etf.THEME_ETF 的键，或修正此处映射。")
+
 
 def load_alias(rc):
     """sector_alias → [(alias, theme)] 按 alias 长度降序（最长匹配优先）"""

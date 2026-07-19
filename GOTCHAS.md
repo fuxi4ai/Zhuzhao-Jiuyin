@@ -462,3 +462,31 @@ cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/d
 | 回测/数据覆盖 | 4 | 3 | 1 |
 | 沙箱环境 | 2 | 1 | 1 |
 | **总计** | **29** | **24** | **5** |
+
+
+## [GOTCHA-20260718-001] stock_daily 历史段非全市场——跨期宽度/截面占比统计必锁固定宇宙
+- **发现日期**: 2026-07-18(回调级别判别器建设中,CC 核出)
+- **现象**: 跨期宽度统计(新低占比/涨跌比/≤−9%家数占比等)历史与当下数量级打架;新低占比一度被砍 10 倍。
+- **根因**: `market_data.stock_daily` 2020–2026.06 仅 ~730–880 只研究票池,2026-06 末后才扩全市场 5500+。宇宙切换污染一切跨期截面占比;新进票无 60/252 日历史,rolling 类指标静默 NaN。
+- **修复方式**: 锁固定研究宇宙(2020–2025 出现率 ≥90% 的 729 只,`AI4ME/回调级别判别/outputs/universe_fixed.json`),全窗一把尺;短窗票加 min_periods 门槛。
+- **预防规则**: ①任何用 stock_daily 做跨期截面统计,先查当期宇宙规模;②float32 价格矩阵禁用绝对容差(1e-9 会因舍入漏计等值,用相对容差)。
+- **状态**: ✅ 判别器侧已修 · 本条为下游预警(日报/回测同踩此库者自查)
+
+## [GOTCHA-20260718-002] gateway 挂载上 sqlite 原地写必失败，且残留 hot journal 会把 cp 回去的新库**悄悄回滚**
+- **发现日期**: 2026-07-18（句芒课件入库审核后执行 dim4 修正时踩中）
+- **状态**: ✅ 已解决 ｜ **优先级**: 🔴 高（会静默丢失改动，且看不出报错）
+- **触发场景**: 在沙箱内直接对挂载点 `mnt/Database/烛照九阴/recap.db` 开 sqlite 连接执行 `UPDATE`。
+- **错误信息**: `sqlite3.OperationalError: disk I/O error`（发生在 commit/写页时，**建连与只读查询均正常**，极具迷惑性）。
+- **真正的坑（第二段，比报错本身危险得多）**:
+  1. 那次失败的原地写会在挂载点留下 `recap.db-journal`（hot journal）。
+  2. 随后按正常套路 `/tmp` 改好再 `cp` 回真库——`md5sum` 当场比对**是一致的**，看起来完全成功。
+  3. 但下一次任何进程打开 `recap.db`，sqlite 检测到 hot journal 会**自动执行回滚**，把刚 cp 进去的新库还原回旧内容。md5 悄悄变回原值，改动**全部蒸发且无任何报错**。
+  4. 更麻烦的是 `rm` 该 journal 会被挂载拒绝：`Operation not permitted`。
+- **解决方案**:
+  1. **永远不要在挂载点直接对 sqlite 库执行写操作**。一律 `cp` 到 `/tmp` → 在 `/tmp` 改并 `commit` → 确认 `/tmp` 库 `integrity_check=ok` 且无 `-journal`/`-wal` → 再 `cp` 回真库。（九儿既有流程正确，本条是给"图省事想原地改"的后来者立的碑）
+  2. 若已踩坑留下 journal：先 `mcp__cowork__allow_cowork_file_delete` 拿到删除权 → `rm` 掉 `recap.db-journal` → **然后才** `cp` 新库回去。顺序颠倒则前功尽弃。
+  3. **放回后不要在挂载点直接开 sqlite 验证**（验证性打开同样可能触发写/建 journal）。改为 `cp` 到 `/tmp` 验证，挂载点只用 `md5sum` + `ls | grep journal` 核对。
+- **预防措施**:
+  - 判据口诀：**挂载点只读、/tmp 才写、放回前先清 journal、验证走副本**。
+  - 每次放回后固定跑两条：`md5sum $R/recap.db`（应等于 /tmp 版）与 `ls $R/ | grep -E 'journal|wal'`（应为空）。**两条都过才算落库成功**，只看 md5 会被回滚骗过。
+  - 写操作前先 `cp` 一份 `recap.db.bak_YYYYMMDD_{事由}`，可逆优先。
