@@ -32,6 +32,14 @@ try:
 except ValueError:
     ok("v1抛错√", True)
 
+# ── 1b · calendar_gap / F1 陈旧闸（B4 后半句·20260719 复核补丁）──
+ok("gap同日=0", rf.calendar_gap("20260719", "20260719") == 0)
+ok("gap跨月=5", rf.calendar_gap("20260702", "20260627") == 5)
+ok("gap对称", rf.calendar_gap("20260627", "20260702") == 5)
+ok("gap None入参→None", rf.calendar_gap(None, "20260719") is None)
+ok("gap坏格式→None", rf.calendar_gap("2026-07-19", "20260719") is None)
+ok("F1_MAX_AGE_DAYS=5锚", rf.F1_MAX_AGE_DAYS == 5)
+
 # ── 2 · _rolling_pct 手算对照（window=3, min_periods=2）──
 d = ["d1", "d2", "d3", "d4", "d5"]
 v = [10, 20, 15, 5, 30]
@@ -63,8 +71,13 @@ if uni.exists():
     for dd, exp in (("20260714", 100), ("20260717", 98)):
         got = round(pb[dd] * 100)
         ok(f"B6@{dd}≈p{exp}(得p{got})", abs(got - exp) <= 1)
-    # 0714 为全窗史高 63.9%（判别器/研究版双源）
-    ok("B6 share 序列尾值≈59.6%(0717)", shb is not None and abs(shb - 0.596) < 0.01)
+    # 0714 为全窗史高 63.9%（判别器/研究版双源）。
+    # 20260720 修：尾值断言只在库尾恰为 20260717 时生效——库尾随日更前进，锚库尾的定值断言
+    # 会在数据正常前进时误报（首例：0720 周一数据落库即断）。定点断言（上两行）不受影响。
+    if lastb == "20260717":
+        ok("B6 share 序列尾值≈59.6%(0717)", shb is not None and abs(shb - 0.596) < 0.01)
+    else:
+        ok(f"B6 share 尾值({lastb})在合理域", shb is not None and 0.0 < shb < 1.0)
 else:
     print("SKIP: universe_fixed.json 不在（B6 抽样对齐未跑）")
 

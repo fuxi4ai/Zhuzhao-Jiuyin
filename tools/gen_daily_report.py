@@ -1885,6 +1885,15 @@ def _eval_risk_factors(D):
                if intl_f1.get(c) and intl_f1[c].get("date")), default=None)
     if _d1:
         ev1 += f"（隔夜场次 {iso(_d1)}）"
+    # B4 后半句（PRD 2026-07-19·20260719 复核补丁）：场次距数据日 >F1_MAX_AGE_DAYS 日历日
+    # → 不可评（断更时 F1 不得继续参与共振判定；status=na 自动退出 S2 env 分母）。
+    # 仅 s2 生效——v1 回滚态保持旧行为逐位不变（A1 可逆纪律）。
+    if (st1 == "amp" and _d1
+            and (cfg.get("_meta") or {}).get("function_version") == "s2"):
+        _age1 = risk_function.calendar_gap(D.get("data_day"), _d1)
+        if _age1 is not None and _age1 > risk_function.F1_MAX_AGE_DAYS:
+            st1, _hit1 = "na", False
+            ev1 += f"　⚠ 场次距数据日 {_age1} 日历日·陈旧→不可评"
     # 共振时挂叙事背景——回答「这次外盘下跌背后有没有逻辑性看空因素」（Doctor 2026-07-17）
     _nb = [n for n in (D.get("narrative") or []) if n.get("dir") == "bearish"]
     if _hit1 and _nb:
@@ -2071,7 +2080,8 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
                    if f["id"] in _ENV_IDS and f["status"] in ("amp", "env") and f.get("hit"))
     if _fv == "s2":
         # S2（2026-07-19 PRD）：触发层(F4/F5)定"有没有警"，环境层(F1/A6/B6)定"警多重"。
-        # 实证：触发×环境0盏=0/31 未现冰点(fwd3 中位+1.3%)；触发×环境≥1盏=冰点20-30%。
+        # 实证（三环境块·20260719 复核订正误引）：触发×环境0盏=0/24 未现冰点(fwd3 +1.64%)；
+        # 触发×环境≥1盏=3/20（关键格2盏 3/10=30%）。渲染数字以 config s2 块（校准实算）为准。
         _key, _s2label = risk_function.resolve_temp(tn, env_hits, env_eval, "s2")
         emoji, blabel, bcol = _S.get(_key, {"calm": ["🟢", "平静", "#3f9c76"],
                                             "alert": ["🟠", "警戒", "#e8731e"],
@@ -2112,7 +2122,7 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
             _temp_txt = (_trig_names + "，" if _trig_names else "") + blabel
         elif tn > 0:
             _temp_txt = ((_trig_names + "，" if _trig_names else "") + blabel
-                         + f"（历史该态 {_S2C.get('evidence_alert', '0/31')} 未现冰点）")
+                         + f"（历史该态 {_S2C.get('evidence_alert', '0/23')} 未现冰点）")
         else:
             _temp_txt = "触发层平静"
     elif tn > 0 and amp_hit:
@@ -2205,7 +2215,7 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
   <summary>展开风险因子提示（{(f"触发 {tn}/2 · " + pend_txt) if _fv == "s2" else f"{scored_n}/5 计温 · {pend_txt}"}）</summary>
   <div class="rr-panel">
     {rows}
-    <div class="rr-row"><div class="rr-foot">{(f"S2 口径（触发层F4/F5×环境层F1/A6/B6）自 {iso(_S2C.get('effective_from', '20260720'))} 生效·此前序列为 v1 口径·档位证据基础样本薄（触发无共振 {_S2C.get('evidence_alert', '0/31')}·共振 {_S2C.get('evidence_resonance', '3/13')}，研究快照）·预注册中。" if _fv == "s2" else "")}因子源自 2026-07-17 A股年度冰点『五因共振』· 阈值经回测校准滚动复核 · 过往不代表未来 · 仅风险提示非投资建议。信号级锚风险见下方「五 · 风险提示」。</div></div>
+    <div class="rr-row"><div class="rr-foot">{(f"S2 口径（触发层F4/F5×环境层F1/A6/B6）自 {iso(_S2C.get('effective_from', '20260720'))} 生效·此前序列为 v1 口径·档位证据基础样本薄（触发无共振 {_S2C.get('evidence_alert', '0/23')}·共振 {_S2C.get('evidence_resonance', '3/21')}，研究快照）·预注册中。" if _fv == "s2" else "")}因子源自 2026-07-17 A股年度冰点『五因共振』· 阈值经回测校准滚动复核 · 过往不代表未来 · 仅风险提示非投资建议。信号级锚风险见下方「五 · 风险提示」。</div></div>
   </div>
 </details>"""
 

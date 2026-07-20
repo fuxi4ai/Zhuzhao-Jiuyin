@@ -13,8 +13,9 @@ PRD: brain/logs/checkpoints/2026-07-19_S2计温function重构_PRD.md
   T>0 且 E=0     -> alert 触发·无共振（历史该态未现冰点）
   T>0 且 E>=1    -> resonance 共振N（灯数入文案，不另分档）
 
-实证依据（研究快照 2026-07-19, bt_combo.py; 以校准端实算为准）:
-  触发×环境0盏 = 0/31 冰点(fwd3 中位 +1.3%) · 触发×环境>=1盏 = 冰点率 20-30%
+实证依据（研究快照 2026-07-19, bt_combo.py 三环境块 F1/A6/B6; 以校准端实算为准）:
+  触发×环境0盏 = 0/24 冰点(fwd3 +1.64%) · 触发×环境>=1盏 = 3/20（关键格2盏 3/10=30%）
+  （二环境块 A6/B6 为 0/31·3/13，另见 combo_out.txt；20260719 复核订正误引）
   A6 双尾（冰点x2.06 且暴涨x2.2, 53事件）——禁作看空计温, 只当环境;
   B6 lift 2.20(24事件); 两者有效性锁 2020s 区制（区制条款见 config a6/b6.desc）。
 
@@ -26,6 +27,20 @@ from bisect import insort, bisect_left
 
 WINDOW = 252          # 滚动分位窗（交易日）
 MIN_PERIODS = 200     # 分位可评最少样本
+F1_MAX_AGE_DAYS = 5   # B4 后半句（PRD 2026-07-19·20260719 复核补丁）：外盘场次距数据日
+                      # 超此日历日数 → F1 不可评（断更时不得继续参与共振判定，ERR-20260719-002 同族）
+
+
+def calendar_gap(d_a, d_b):
+    """YYYYMMDD 字符串日历日差 |d_a - d_b|。任一为 None/坏格式 → None（调用方按不可评处理）。
+    生产端与回测端共用（G-X73：陈旧判定不得两端各写一份）。"""
+    import datetime as _dt
+    try:
+        a = _dt.date(int(d_a[:4]), int(d_a[4:6]), int(d_a[6:8]))
+        b = _dt.date(int(d_b[:4]), int(d_b[4:6]), int(d_b[6:8]))
+    except (TypeError, ValueError):
+        return None
+    return abs((a - b).days)
 
 
 def resolve_temp(trigger_n, env_hits, env_evaluable, version="s2"):

@@ -146,8 +146,21 @@ def eval_day(d, DATA, cfg):
     if worst_semi is None and worst_asia is None:
         out["F1"] = None
     else:
-        out["F1"] = bool((worst_semi is not None and worst_semi <= c["f1"]["semi_th"])
-                         or (worst_asia is not None and worst_asia <= c["f1"]["asia_th"]))
+        # B4 陈旧闸（20260719 复核补丁·与生产端同源 risk_function）：场次距 d >5 日历日 → 不可评。
+        # 仅 s2 挂闸（与 gen 对称·A1 可逆）；历史密数据下预期恒不触发（改后须逐位比对梯度）。
+        _f1_last = None
+        for code in (c["f1"]["semi_codes"] + c["f1"]["asia_codes"]):
+            seq = DATA["intl"].get(code) or []
+            i = _latest_before(seq, d, strict=True)
+            if i is not None and seq[i][2] is not None:
+                _f1_last = seq[i][0] if _f1_last is None else max(_f1_last, seq[i][0])
+        _age1 = risk_function.calendar_gap(d, _f1_last)
+        if ((c.get("_meta") or {}).get("function_version") == "s2"
+                and _age1 is not None and _age1 > risk_function.F1_MAX_AGE_DAYS):
+            out["F1"] = None
+        else:
+            out["F1"] = bool((worst_semi is not None and worst_semi <= c["f1"]["semi_th"])
+                             or (worst_asia is not None and worst_asia <= c["f1"]["asia_th"]))
     # —— F2 情绪（容量腿无法按时点重建，仅评情绪腿：高分位且下行）——
     emo = DATA["emo"]
     i = _latest_before(emo, d, strict=False)
@@ -348,8 +361,9 @@ def run(ice_th, write):
         lines.append("\n## S2 梯度（触发层 F4∪F5 × 环境层 F1/A6/B6 亮灯数 · function_version=s2）\n")
         lines.append("> 三态映射单一真源＝`tools/risk_function.resolve_temp`（与日报端同一份代码）。"
                      "窗口＝F4/F5 至少一腿可评的交易日。研究版对照：`AI4ME/遗漏因子-成交额与浮盈/combo_out.txt`"
-                     "（触发×环境0盏 0/31·触发×环境≥1盏 3/13，口径微差：研究版布伦特为 yfinance 全历史、"
-                     "本表为库内 2024+，重叠段已证同源）。\n")
+                     "**三环境块 F1/A6/B6**（触发×环境0盏 0/24·触发×环境≥1盏 3/20·关键格2盏 3/10=30%；"
+                     "二环境块 A6/B6 为 0/31·3/13，勿混引——20260719 复核订正。口径微差：研究版布伦特为 "
+                     "yfinance 全历史、本表为库内 2024+，重叠段已证同源）。\n")
         lines.append("| 状态 | 天数 | 独立事件 | 冰点率(k/n) | fwd3 均值 | 对应温度 |")
         lines.append("|---|---|---|---|---|---|")
         s2rows = [r for r in rows if r.get("F4") is not None or r.get("F5") is not None]
@@ -372,6 +386,18 @@ def run(ice_th, write):
             _s2line(f"触发×环境{k_}盏", sub, {"alert": "🟠", "resonance": "🔴"}.get(key, "?") + lab)
         _s2line("无触发×环境≥1", [r for r in _quiet if _envn(r)[0] >= 1], "🟢平静(环境陈列)")
         _s2line("全静默", [r for r in _quiet if _envn(r)[0] == 0], "🟢平静")
+
+    # ── 回测设计七问 · 逐问对照（C4 验收：读者不查代码可答七问；20260719 复核补丁）──
+    lines.append("\n## 回测设计七问 · 逐问对照\n")
+    lines.append("| # | 问 | 本报告答案所在 |")
+    lines.append("|---|---|---|")
+    lines.append("| 1 | 可评 vs 未触发 | 主表「可评日」列；F4 按窗口内真实覆盖判不可评（ERR-20260719-002 修正），缺数≠未触发 |")
+    lines.append("| 2 | 基准同源 | 扫描表 lift 与主表同用因子窗口基准（20260719 三修之三），无双基准 |")
+    lines.append("| 3 | 观测单位 | 主表「独立事件」列（EPISODE_GAP=3）；判定卡事件数非日数，「日/事件」列=膨胀倍数 |")
+    lines.append("| 4 | 样本边界 | 全表统一窗 20240102–数据尾；本轮主导 episode（20260702–0717）在窗内 |")
+    lines.append("| 5 | 阈值性质 | F4 绝对额(200亿·跨发行制度警示挂账)；F5 相对%(布伦特≥5%)；A6/B6 滚动252日分位 |")
+    lines.append("| 6 | 增量检验 | S2 梯度对照行：无触发×环境≥1 vs 触发×环境同档——环境层单独不成警，增量在共振格 |")
+    lines.append("| 7 | 区制覆盖 | 全表 2024+ 单一牛市区制；A6/B6 区制停用条款见 config；F5 油价腿另有 2010+ 跨区制长样本（纪要§四） |")
 
     lines.append("\n> 注：lift>1 才有区分力；**独立事件数 <%d 视为不可信**（2026-07-19 起由卡"
                  "『触发日数』改为卡『独立事件数』——滚动窗口型因子的日数被人为膨胀，"
