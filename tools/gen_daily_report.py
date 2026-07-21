@@ -2033,8 +2033,9 @@ def _eval_risk_factors(D):
                   "src": "index_research.index_daily 399006 amount"})
     cb6 = cfg.get("b6")
     if cb6:
-        _uni = config.DATABASE_ROOT.parent / cb6.get(
-            "universe", "AI4ME/回调级别判别/outputs/universe_fixed.json")
+        # ERR-20260721-001:universe 属 AI4ME 域资产,挂 OUTPUT_ROOT 锚(config 值=相对 OUTPUT_ROOT)
+        _uni = config.OUTPUT_ROOT / cb6.get(
+            "universe", "回调级别判别/outputs/universe_fixed.json")
         _pb_all, _pb_last, _shb = risk_function.b6_percentiles(
             config.MARKET_DB, str(_uni), top_frac=float(cb6.get("top_frac", .05)),
             window=int(cb6.get("window", 252)), min_periods=int(cb6.get("min_periods", 200)))
@@ -2225,9 +2226,12 @@ def grade_section(D):
     subprocess 调剑酒青丘 adjustment_grade.py --json；先 --update（增量补指数,幂等），
     失败退無 --update（用既有数据,可能滞后一日），再失败→降级占位。绝不阻断日报；不参与温度计温。"""
     import subprocess
-    tool = (config.DATABASE_ROOT.parent / "Claude" / "Projects" / "Financial" / "剑酒青丘"
+    # ERR-20260721-001:zhuzhao /tmp 副本域下 DATABASE_ROOT 被覆盖,.parent 拼第三方路径必失效;
+    # 改 PROJECT_ROOT(脚本真实位置)锚——与 OUTPUT_ROOT 同款,穿透任务沙箱域。
+    tool = (config.PROJECT_ROOT.parent / "剑酒青丘"
             / "infrastructure" / "取数工具" / "adjustment_grade.py")
     g = None
+    _errs = []
     for args in (["--update", "--json"], ["--json"]):
         try:
             r = subprocess.run([_sys.executable, str(tool)] + args,
@@ -2235,10 +2239,15 @@ def grade_section(D):
             if r.returncode == 0 and r.stdout.strip():
                 g = json.loads(r.stdout.strip().splitlines()[-1])
                 break
-        except Exception:
+            _errs.append(f"{args[0]} rc={r.returncode} {(r.stderr or '').strip()[-160:]}")
+        except Exception as e:
+            _errs.append(f"{args[0]} {type(e).__name__}: {e}")
             continue
     if not g:
-        return ""          # 降级=温度卡不加级别块,不阻断日报
+        # ERR-20260721-001 显式化(0714 静默失败根治同族):两分支全败必须发声——
+        # 任务 run 日志一行 + 日报灰字占位,绝不无声消失;仍不阻断日报。
+        print("[grade_section] 级别读数降级(两分支均败): " + " | ".join(_errs), file=_sys.stderr)
+        return '<span class="rr-grade"><b style="--gc:#6b6a64">级别读数不可用</b></span>'
     v = g.get("verdict", "—")
     col = "#c0392b" if v.startswith("L3") else ("#e8731e" if v.startswith("L2") else "#3f9c76")
     h = g.get("hist") or {}

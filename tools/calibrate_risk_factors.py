@@ -108,8 +108,8 @@ def load_data():
     _idb = config.OUTPUT_ROOT / "回调级别判别" / "index_research.db"
     D["a6p"], _ = risk_function.a6_percentiles(
         str(_idb), window=int(ca6.get("window", 252)), min_periods=int(ca6.get("min_periods", 200)))
-    _uni = config.DATABASE_ROOT.parent / (cb6.get("universe")
-                                          or "AI4ME/回调级别判别/outputs/universe_fixed.json")
+    _uni = config.OUTPUT_ROOT / (cb6.get("universe")   # ERR-20260721-001:与生产端同锚(相对 OUTPUT_ROOT)
+                                 or "回调级别判别/outputs/universe_fixed.json")
     D["b6p"], _, _ = risk_function.b6_percentiles(
         config.MARKET_DB, str(_uni), top_frac=float(cb6.get("top_frac", .05)),
         window=int(cb6.get("window", 252)), min_periods=int(cb6.get("min_periods", 200)))

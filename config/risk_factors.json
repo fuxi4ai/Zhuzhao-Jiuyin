@@ -84,7 +84,7 @@
     "top_frac": 0.05,
     "window": 252,
     "min_periods": 200,
-    "universe": "AI4ME/回调级别判别/outputs/universe_fixed.json",
+    "universe": "回调级别判别/outputs/universe_fixed.json",
     "desc": "【环境层】top5%个股成交额占比处近252日前5%＝浮盈/交易集中在少数主线、出口窄、兑现踩踏传导系数大。7.17 案例实证『浮盈的有效代理是集中度而非总量』（高位股占比全程趴地、集中度0714史高63.9%）。**锁729固定宇宙**＝ERR-20260719-001 防线（stock_daily 2026-06-03 扩容，跨期截面必须锁池）。数据仅2020-11+，区制未覆盖2010s，同挂区制条款",
     "calibration": "2026-07-19：p95 141日/24事件 lift 2.20 fwd3 -0.23%（唯一过20事件门槛的浮盈代理；vwap/高位股两代理不采）。同出处",
     "source": "market_data.stock_daily × universe_fixed.json（方案甲·每日全量重算，零缓存）"
