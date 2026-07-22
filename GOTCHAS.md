@@ -460,8 +460,8 @@ cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/d
 | 代码接口 | 1 | 0 | 1 |
 | 自动化/流程 | 8 | 7 | 1 |
 | 回测/数据覆盖 | 4 | 3 | 1 |
-| 沙箱环境 | 2 | 1 | 1 |
-| **总计** | **29** | **24** | **5** |
+| 沙箱环境 | 3 | 2 | 1 |
+| **总计** | **30** | **25** | **5** |
 
 
 ## [GOTCHA-20260718-001] stock_daily 历史段非全市场——跨期宽度/截面占比统计必锁固定宇宙
@@ -490,3 +490,43 @@ cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/d
   - 判据口诀：**挂载点只读、/tmp 才写、放回前先清 journal、验证走副本**。
   - 每次放回后固定跑两条：`md5sum $R/recap.db`（应等于 /tmp 版）与 `ls $R/ | grep -E 'journal|wal'`（应为空）。**两条都过才算落库成功**，只看 md5 会被回滚骗过。
   - 写操作前先 `cp` 一份 `recap.db.bak_YYYYMMDD_{事由}`，可逆优先。
+
+## [GOTCHA-20260720-001] /tmp/dbroot 被前次会话残留占住（属主 nobody）→ 副本根不可写；且副本根缺 Raw-Recap 时 scan 假报 0 课件
+- **发现日期**: 2026-07-20（九儿课件入库定时班）
+- **状态**: ✅ 已解决 ｜ **优先级**: 🟡 中
+- **触发场景**: 定时任务按惯例 `mkdir -p /tmp/dbroot/烛照九阴` 后 cp recap.db。
+- **错误信息**: `cp: cannot create regular file '/tmp/dbroot/烛照九阴/recap.db': Permission denied` —— /tmp 是 sticky 共享目录，前次会话（不同 uid，nobody:nogroup）建的 `/tmp/dbroot` 残留至今：当前会话对它无写权、也删不掉。
+- **连带坑**: ① 换根后若只拷 recap.db，`dedup_kejian.py scan` 扫 `$ZZJY_DATABASE_ROOT/烛照九阴/Raw-Recap`——目录不存在时**假报「共 0 个课件」**（酷似"今日无新课件"，实为路径缺失，务必甄别）；② 沙箱无 sqlite3 CLI，校验改用 `python3 -c "import sqlite3; ..."`。
+- **解决方案**: 副本根改 `/var/tmp/dbroot`（会话属主可写；任何本地非挂载目录均可），`export ZZJY_DATABASE_ROOT=/var/tmp/dbroot`；再 `ln -s $REAL/Raw-Recap /var/tmp/dbroot/烛照九阴/Raw-Recap`（Raw-Recap 只读，symlink 指挂载盘安全）。
+- **预防措施**: 定时工序开头固定三步：① 副本根用 /var/tmp/dbroot（勿赖 /tmp）；② cp 库后 symlink Raw-Recap；③ scan 报 0 课件时先核 Raw-Recap 路径真实可达，再下「无新课件」结论。
+
+## [GOTCHA-20260720-002] /tmp 遗留 package-lock.json 使 npm 认错项目根 → EACCES；npm 工作目录须避开 /tmp
+- **发现日期**: 2026-07-20（九儿行情拉取与日报班 · Artifact echarts 安装步）
+- **状态**: ✅ 已解决 ｜ **优先级**: 🟢 低
+- **触发场景**: 按 SKILL 惯例 `cd /tmp && npm install echarts@5`（改在 /tmp/zz_run 子目录亦同）。
+- **错误信息**: `EACCES: open '/tmp/package-lock.json'` —— npm 向上找项目根，撞到前次会话（nobody 属主）残留的 `/tmp/package-lock.json`，把 /tmp 当项目根且无写权。与 -001 同根：sticky /tmp 跨会话残留。
+- **解决方案**: npm 工作目录放 `$HOME`（如 `~/zz_npm`），先 `npm init -y` 立本地 package.json 再装，向上探测即被截断。
+- **预防措施**: 沙箱内一切 npm 操作不落 /tmp；固定 `mkdir -p ~/zz_npm && cd ~/zz_npm && npm init -y && npm install …`。
+
+## [GOTCHA-20260720-003] Yahoo chart bars 全边缘陈旧（KR 双雄停 T-2）时，meta.regularMarketPrice/Time 仍新鲜——可作"已收盘终值"旁路
+- **发现日期**: 2026-07-20（九儿行情拉取与日报班）
+- **状态**: ✅ 已解决 ｜ **优先级**: 🟡 中
+- **触发场景**: fetch_kr_stocks.py 收盘后 10h+ 取 005930.KS/000660.KS，timestamps 数组仍停 0716（周一 0720 bar 缺）；query1/query2 × range=15d/1mo/3mo × 重试共 12 次全陈旧（期间仅偶发命中一次新鲜边缘，不可复现）。
+- **解决方案**: 同一响应的 `meta.regularMarketTime`（=当日 15:30 KST 收盘戳，证明该价为**终值**非盘中）+ `meta.regularMarketPrice`，query1/query2 双主机交叉一致 → 按脚本同 schema/写库路径落 0720 行，pct 由库内上一交易日真实前收算得。0717 韩市无 bar＝当日无交易，如实留空不编。
+- **预防措施**: ① bars 陈旧 ≠ 数据不可得，先查 meta 再判缺；② 用 meta 兜底必须核 regularMarketTime 属**已收盘**时刻（防盘中价冒充收盘）；③ 反面纪律同班例证：美东盘中绝不跑美股腿（fetch_intl_index 无未收盘 bar 防护），停旧水位待下班自愈。
+
+## [GOTCHA-20260721-001] /dev/shm 不跨 bash 调用持久（每次调用独立命名空间）→ 绝不可当库副本根；$HOME 又触 connect_write 护栏——副本根只剩 /var/tmp（/tmp 用户子目录等价）
+- **发现日期**: 2026-07-21（九儿课件入库补班 · 260720 课件）
+- **状态**: ✅ 已解决 ｜ **优先级**: 🟡 中
+- **触发场景**: 绕 -001 的 /tmp/dbroot 残留时试了两条路，各撞一坑：① 副本放 `/dev/shm/dbroot`——同一 bash 调用内 cp/integrity/scan 全正常，**下一次调用文件即消失**（`unable to open database file`）；Cowork 沙箱 /dev/shm 是 per-call tmpfs，不跨调用持久，且无任何报错提示"会消失"。② 改放 `$HOME/dbroot`（本地 ext4，看似理想）——路径含 `/sessions/` 子串，触发 config.connect_write 护栏（G019）硬拒绝写，护栏按子串判挂载盘、无法区分 $HOME 实为本地盘。
+- **错误信息**: ① `sqlite3.OperationalError: unable to open database file`（第二次调用时）；② `RuntimeError: [connect_write] 拒绝直写挂载盘真盘`。
+- **解决方案**: 副本根用会话属主可写、跨调用持久、路径不含 /sessions|/mnt 的本地目录：`/var/tmp/dbroot`（-001 标准解）或 /tmp 下新建用户子目录（本班 `/tmp/dbroot_juer`，等价）。symlink Raw-Recap 照 -001。
+- **预防措施**: ① 副本根三条件缺一不可：**可写 + 跨调用持久 + 路径干净**——/dev/shm 违②、$HOME 违③、/tmp/dbroot 违①；② 后续班次统一照 -001 用 `/var/tmp/dbroot`，勿再各起新名；③ 任何"上一步刚建的文件突然不见"，先怀疑 per-call 命名空间（/dev/shm、部分 /run），换持久盘复测再排查别的。
+
+## [GOTCHA-20260721-002] web_fetch 新增 provenance 限制：程序拼接的 URL 一律被拦 → stockanalysis 逐票路失效，us_anchor 切 Yahoo chart 备路
+**状态**: ✅ 已解决
+**优先级**: 🔴 高
+**触发场景**: 2026-07-21 二班补拉 us_anchor，逐票 `web_fetch stockanalysis.com/stocks/{t}/`（19 只并发 5 只起手）
+**错误信息**: `URL not in provenance set. web_fetch can only retrieve URLs that appeared in a user message, a prior web_fetch result, or a WebSearch result.`
+**解决方案**: SKILL 模板里的占位符 URL 不算 verbatim，凡是 agent 自行拼出的 URL 都过不了 provenance 门。当班切 **Yahoo chart API 白名单路**：直接 `from fetch_intl_index import fetch_yf` 对 19 只跑（period1/period2 真区间 + G014 回看窗算 pct），只入 `trade_date == T_anchor` 的行，`source` 如实标 `yahoo-chart`（**不得**冒标 stockanalysis——数据随源走）。实测 19/19 全新鲜含冷门票 ALM/RKLB，比 stockanalysis CDN 更稳。
+**预防措施**: ① us_anchor 日更主路建议就地改为 Yahoo chart（与 intl_index/kr_stocks 同源归一，SKILL ②a 待 Doctor 拍板改文案）；② 期货类 symbol（NKD=F/BZ=F）在亚洲时段会吐**当日进行中 bar**，入库后须 `DELETE trade_date > T_anchor`（本班清 JP_FUT/BRENT 各 1 根 0721 盘中 bar）；③ 若真需 web_fetch 某页，先 WebSearch 让目标 URL 进 provenance set 再 fetch。
