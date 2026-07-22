@@ -362,10 +362,11 @@ def gather(date_cap=None):
         pass
     D["margin"] = margin
 
-    # ── IPO 募资（F4 虹吸）——market_data.ipo_daily，近20日历日募资合计(亿元)。表未建/无数据→None，F4渲『待接源』。
-    ipo = {"funds_win": None, "n_win": None, "win_days": 20, "latest": None}
+    # ── IPO 募资（F4 虹吸）——market_data.ipo_daily，近 win_days 日历日募资合计(亿元)。窗口单一真源＝risk_factors.json f4.win_days（2026-07-22 由20→10·申购锚 ipo_date；此前 days=20 硬编码不读 config，已修）。表未建/无数据→None，F4渲『待接源』。
+    _f4wd = int((RISK_CFG.get("f4") or {}).get("win_days", 10))
+    ipo = {"funds_win": None, "n_win": None, "win_days": _f4wd, "latest": None}
     try:
-        _cut = (datetime.date.fromisoformat(iso(data_day)) - datetime.timedelta(days=20)).strftime("%Y%m%d")
+        _cut = (datetime.date.fromisoformat(iso(data_day)) - datetime.timedelta(days=_f4wd)).strftime("%Y%m%d")
         _has = md.execute("SELECT COUNT(*) FROM ipo_daily WHERE trade_date<=?", (data_day,)).fetchone()[0]
         if _has:
             irow = md.execute(

@@ -3,10 +3,11 @@
 """新股 IPO 募资拉取 → 公共 market_data.db.ipo_daily（附加表，不动句芒既有表）
 （CC 2026-07-17；五因风险温度 F4「IPO 虹吸」数据源，Doctor 终端跑——网络下载禁在沙箱）
 
-口径：按新股 **上市日 ipo_date** 聚合当日家数与募集资金合计（亿元）。
+口径：按新股 **申购日(上网发行日) ipo_date** 聚合当日家数与募集资金合计（亿元）。
   F4「虹吸」= 近 N 日新股募资合计（存量资金被超级 IPO 分流的压力）。
-来源：tushare pro `new_share`（IPO 新股列表）。字段 funds=募集资金(亿元)、ipo_date=上市日。
-  IPO 稀疏（多数交易日 0）——只对有新股上市的日期建行，消费侧按滚动窗口求和（缺日=0）。
+  ★锚在**申购日**——抽血压力在申购/缴费、领先于上市；issue_date=上市日本表未取，留待双锚对照。
+来源：tushare pro `new_share`（IPO 新股列表）。字段 funds=募集资金(亿元)、ipo_date=申购日(上网发行日)、issue_date=上市日(未取)。
+  IPO 稀疏（多数交易日 0）——只对有新股申购的日期建行，消费侧按滚动窗口求和（缺日=0）。
 
 用法：
   # 一次性回填（Doctor 终端；网络）——起始日与两融对齐 20240101
@@ -48,7 +49,7 @@ def get_pro():
 def ensure_table(conn):
     conn.execute("""
         CREATE TABLE IF NOT EXISTS ipo_daily (
-            trade_date  TEXT PRIMARY KEY,   -- 上市日 ipo_date YYYYMMDD
+            trade_date  TEXT PRIMARY KEY,   -- 申购日(上网发行日) ipo_date YYYYMMDD
             n_ipo       INTEGER,            -- 当日上市新股家数
             funds_yi    REAL,               -- 当日募集资金合计（亿元）· F4 主指标
             names       TEXT,               -- 当日新股名（逗号分隔，便于人读）
@@ -86,10 +87,10 @@ def fetch(from_date, to_date):
         "INSERT OR REPLACE INTO ipo_daily(trade_date,n_ipo,funds_yi,names) VALUES (?,?,?,?)", rows)
     conn.commit()
     if rows:
-        logger.info(f"✅ 写入 {len(rows)} 个上市日 → ipo_daily [{rows[0][0]}→{rows[-1][0]}] "
+        logger.info(f"✅ 写入 {len(rows)} 个申购日 → ipo_daily [{rows[0][0]}→{rows[-1][0]}] "
                     f"共 {sum(r[1] for r in rows)} 只新股 · 募资合计 {sum(r[2] for r in rows):.0f} 亿")
     else:
-        logger.info("✅ 0 个上市日 → ipo_daily（区间内无新股/接口无返回）")
+        logger.info("✅ 0 个申购日 → ipo_daily（区间内无新股/接口无返回）")
     conn.close()
 
 
@@ -115,10 +116,10 @@ def check():
     mx = cnt[2]
     f20, n20, s20 = _win_sum(md, mx, 20)
     f60, n60, s60 = _win_sum(md, mx, 60)
-    logger.info(f"覆盖 {cnt[0]} 个上市日 [{cnt[1]}→{mx}]")
+    logger.info(f"覆盖 {cnt[0]} 个申购日 [{cnt[1]}→{mx}]")
     logger.info(f"  近20日历日({s20}→{mx})：{n20} 只 · 募资 {f20:.0f} 亿  ← F4『IPO虹吸』窗口候选")
     logger.info(f"  近60日历日：{n60} 只 · 募资 {f60:.0f} 亿")
-    logger.info("  最近上市日：")
+    logger.info("  最近申购日：")
     for r in md.execute("SELECT trade_date,n_ipo,funds_yi,names FROM ipo_daily ORDER BY trade_date DESC LIMIT 5"):
         logger.info(f"    {r[0]}: {r[1]}只 {r[2]:.1f}亿 · {r[3]}")
 
