@@ -334,8 +334,8 @@ def gather(date_cap=None):
                                                     else (None, None, None))
     snap["ud_vintage"] = ud_vint
     snap["ud_stale"] = ud_vint is not None and iso(ud_vint) < iso(data_day)
-    amt_row = md.execute("SELECT trade_date, total_trillion FROM market_amount_daily "
-                         "WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
+    amt_row = md.execute("SELECT trade_date, volume_trillion FROM daily_market "
+                         "WHERE trade_date<=? AND volume_trillion>0 ORDER BY trade_date DESC LIMIT 1",
                          (data_day,)).fetchone()
     snap["amount"] = amt_row[1] if amt_row and amt_row[0] == data_day else None
     snap["amount_vintage"] = amt_row[0] if amt_row else None
@@ -600,7 +600,7 @@ def gather(date_cap=None):
         except Exception:
             pass
     D["_ratings"] = ratings
-    amt_all = dict(md.execute("SELECT trade_date, total_trillion FROM market_amount_daily"))
+    amt_all = dict(md.execute("SELECT trade_date, volume_trillion FROM daily_market WHERE volume_trillion>0"))
     tmap = {t["name"]: t for t in themes}
     maindays = []
     for d in dates[-3:][::-1]:          # 当日 / 前1日 / 前2日
@@ -2170,13 +2170,16 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
             f'</div>')
     return f"""
 <style>
-.rr-band{{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0 4px;padding:11px 16px;
+.rr-band{{display:flex;align-items:center;gap:14px;margin:14px 0 4px;padding:11px 16px;
   border:1px solid var(--line);border-radius:14px;background:linear-gradient(150deg,#fbf8ef,#f2ecdd);
   box-shadow:0 4px 20px rgba(20,20,19,.05)}}
+.rr-left{{display:flex;flex-direction:column;gap:7px;min-width:0;flex:1 1 auto}}
+.rr-line1{{display:flex;align-items:center;gap:12px;flex-wrap:wrap}}
+.rr-line2{{display:flex;align-items:baseline}}
 .rr-temp{{display:flex;align-items:center;gap:8px;font-weight:700;font-size:12px;color:{bcol}}}
 .rr-temp .rr-emoji{{font-size:18px}}
 .rr-temp .rr-sub{{font-weight:400;font-size:11px;color:var(--sub);margin-left:2px}}
-.rr-lamps{{display:flex;gap:12px;align-items:center;margin-left:auto}}
+.rr-lamps{{display:flex;gap:12px;align-items:center;margin-left:auto;flex-shrink:0}}
 .rr-lamp{{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--sub)}}
 .rr-lamp i{{width:11px;height:11px;border-radius:50%;background:var(--d);
   box-shadow:0 0 7px -1px var(--d)}}
@@ -2208,9 +2211,13 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
 .rr-foot{{grid-column:1 / -1;color:var(--sub);font-size:10.5px;padding-top:6px;border-top:1px dashed #e3dcc9;margin-top:2px}}
 </style>
 <section class="rr-band" aria-label="五因风险温度">
-  <div class="rr-temp">{('<span class="rr-flagico">风险</span>' if is_reso else f'<span class="rr-emoji">{emoji}</span>')}{_temp_txt}</div>
-  {grade_chunk}
-  {fomc_chunk}
+  <div class="rr-left">
+    <div class="rr-line1">
+      <div class="rr-temp">{('<span class="rr-flagico">风险</span>' if is_reso else f'<span class="rr-emoji">{emoji}</span>')}{_temp_txt}</div>
+      {fomc_chunk}
+    </div>
+    <div class="rr-line2">{grade_chunk}</div>
+  </div>
   <div class="rr-lamps">{lamps}</div>
 </section>
 <details class="rr-more">
@@ -2328,7 +2335,7 @@ def render(D):
                    f'<div class="snapshot-note">容量 K_cap≈{cap["kcap"]}</div>'
                    if amount_str else
                    '<div class="snapshot-number na">待回填</div>'
-                   f'<div class="snapshot-note">market_amount_daily 停更于 {iso(s["amount_vintage"]) if s["amount_vintage"] else "—"}</div>')
+                   f'<div class="snapshot-note">daily_market 停更于 {iso(s["amount_vintage"]) if s["amount_vintage"] else "—"}</div>')
     vin = s.get("ud_vintage")
     stale = s.get("ud_stale")
     vin_note = f'<div class="snapshot-note">T-1·昨日宽度（截至 {iso(vin)}，当日待收盘）</div>' if stale else ''
@@ -2357,7 +2364,7 @@ def render(D):
   <div class="snapshot-note">{s["bench_note"]}</div>
  </div>
  <div class="snapshot-item">
-  <div class="snapshot-label">两市总成交额</div>
+  <div class="snapshot-label">全市场成交额</div>
   {amount_html}
  </div>
  <div class="snapshot-item">
