@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.zhuzhao.marketdata</string>
+
+  <!-- 周一~五 02:30（本机本地时区，现 PDT ≈ 北京 17:30）；A股 EOD 早已就绪，
+       且排在 Cowork 句芒(01:30 PDT)之后 → Mac 当最后的 durable 写入方 -->
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>2</integer><key>Minute</key><integer>30</integer></dict>
+    <dict><key>Weekday</key><integer>2</integer><key>Hour</key><integer>2</integer><key>Minute</key><integer>30</integer></dict>
+    <dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>2</integer><key>Minute</key><integer>30</integer></dict>
+    <dict><key>Weekday</key><integer>4</integer><key>Hour</key><integer>2</integer><key>Minute</key><integer>30</integer></dict>
+    <dict><key>Weekday</key><integer>5</integer><key>Hour</key><integer>2</integer><key>Minute</key><integer>30</integer></dict>
+  </array>
+
+  <!-- 顶层程序＝python3.13(已授 FDA)，令整条链在授权解释器下跑，不必给 /bin/bash 开权限 -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13</string>
+    <string>/Users/lunarabbit/Documents/Claude/Projects/Financial/烛照九阴/ops/mac_daily_marketdata.py</string>
+  </array>
+
+  <!-- launchd 环境极简，显式给 HOME 与 PATH -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>/Users/lunarabbit</string>
+    <key>PATH</key>
+    <string>/Library/Frameworks/Python.framework/Versions/3.13/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+
+  <!-- 装载时不自动跑，靠日历触发 + 手动 kickstart 验证 -->
+  <key>RunAtLoad</key>
+  <false/>
+
+  <!-- launchd 层面的兜底日志（脚本自身另有带时间戳日志） -->
+  <key>StandardOutPath</key>
+  <string>/Users/lunarabbit/Documents/Claude/Projects/Financial/烛照九阴/logs/launchd_marketdata.out</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/lunarabbit/Documents/Claude/Projects/Financial/烛照九阴/logs/launchd_marketdata.err</string>
+</dict>
+</plist>
