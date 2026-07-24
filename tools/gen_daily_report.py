@@ -1995,7 +1995,7 @@ def _eval_risk_factors(D):
         _ratio_txt = (f" · 抽血比 {_ratio:.3f}（≈抽 {_ratio:.2f} 天成交额）" if _ratio is not None else " · 抽血比待评")
         ev4 = f"近{wd}日新股 {ip.get('n_win', 0)}只 · 募资 {fw:.0f}亿" + _ratio_txt + \
               (f"（截至{iso(ip['latest'])}）" if ip.get("latest") else "")
-        th4s = f"募资/近{ip.get('avg_days', 30)}日均成交额 ≥{_rth}（相对口径·p95·2020+校准 lift2.68/14事件）"
+        th4s = f"募资/近{ip.get('avg_days', 30)}日均成交额 ≥{_rth}（相对口径·p95·2020+校准 lift2.63/14事件）"
     F.append({"id": "F4", "name": c4["name"], "status": st4, "ev": ev4,
               "th": th4s, "src": "market_data.ipo_daily（tushare·现成）"})
 
