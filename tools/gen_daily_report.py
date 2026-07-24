@@ -1385,6 +1385,28 @@ def _echarts_inline():
     return "<script>" + ECHARTS_JS.read_text(encoding="utf-8") + "</script>"
 
 
+def _rotate_backups(dir_path, glob_pat, keep_days=5):
+    """备份跨日轮换（挂载盘友好）：按文件名里的 YYYYMMDD 日键分组，只保最近 keep_days 天，删更旧。
+    同日去重靠调用方『日键命名 + 覆盖写』实现，本函数只管跨日。
+    删除在 Cowork 挂载盘沙箱被拦（Operation not permitted）→ try/except 静默跳过、不阻断日报生成；
+    Mac 原生 / 手动跑时才真正清理（G-X45 族·挂载盘禁删）。解析不出日期的文件一律保留不删。"""
+    import re
+    days = {}
+    for f in dir_path.glob(glob_pat):
+        # 取文件名里最后一个 8 位日期组作日键——index.bak.<日> 取唯一；
+        # 日报_<数据日>.pre-<快照日> 有两个日期，末组＝快照日才是轮换该依据的（避免全归数据日一天·失效）。
+        ms = re.findall(r"\d{8}", f.name)
+        if ms:
+            days.setdefault(ms[-1], []).append(f)
+    old_days = sorted(days)[:-keep_days] if keep_days > 0 else []
+    for day in old_days:
+        for f in days[day]:
+            try:
+                f.unlink()
+            except OSError:
+                pass  # 挂载盘禁删 → 留待 Mac 侧清理，不阻断
+
+
 def _deploy_to_artifact(html, dd):
     """写本地 artifact 镜像（非 live 真身）：给日报 HTML 套上 cowork-artifact-meta 头，写入
     ARTIFACT_ROOT/zhuzhao-jiuyin-daily/index.html。此目录（<Documents>/Claude/Artifacts）是
@@ -1415,9 +1437,10 @@ def _deploy_to_artifact(html, dd):
     if "color-scheme" not in artifact_html:   # Cowork artifact 渲染须显式亮色，否则随系统转暗（2026-06-30）
         artifact_html = artifact_html.replace(":root{", ":root{color-scheme:light;", 1)
     if ARTIFACT_PATH.exists():
-        stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        bak = ARTIFACT_PATH.with_name(f"index.bak.{stamp}.html")
+        day = datetime.datetime.now().strftime("%Y%m%d")
+        bak = ARTIFACT_PATH.with_name(f"index.bak.{day}.html")  # 日键命名：同日覆盖去重（挂载盘可覆盖写·免删）
         shutil.copy2(ARTIFACT_PATH, bak)
+        _rotate_backups(bak.parent, "index.bak.*.html", keep_days=5)  # 跨日保 5 天（Mac 清·沙箱静默跳）
         logger.info(f"📦 artifact 旧版备份 → {bak.name}")
     ARTIFACT_PATH.write_text(artifact_html, encoding="utf-8")
     logger.info(f"🪞 已写本地 artifact 镜像（非 live·真身走 update_artifact）→ {ARTIFACT_PATH}（{len(artifact_html)/1048576:.2f} MB）")
@@ -3042,13 +3065,15 @@ def main():
                 logger.info(f"📦 旧报归档 → archived/{old.name}")
     out = out_dir / fname
     if is_official and out.exists():
-        # 同名旧报先存档再覆盖（永不删，删除权归 Doctor）
-        (out_dir / "archived").mkdir(exist_ok=True)
-        stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        keep = out_dir / "archived" / f"{out.stem}.pre-{stamp}{out.suffix}"
-        shutil.move(str(out), str(keep))
-        logger.info(f"📦 同名旧报存档 → archived/{keep.name}")
-    out.write_text(html, encoding="utf-8")
+        # 同名旧报先快照再覆盖（永不删，删除权归 Doctor）。改 copy2（避挂载盘 rename 覆盖不稳）+ 日键去重 + 子目录归拢。
+        snap_dir = out_dir / "archived" / "_pre-snapshots"
+        snap_dir.mkdir(parents=True, exist_ok=True)
+        day = datetime.datetime.now().strftime("%Y%m%d")
+        keep = snap_dir / f"{out.stem}.pre-{day}{out.suffix}"  # 日键：同日覆盖去重
+        shutil.copy2(str(out), str(keep))
+        _rotate_backups(snap_dir, "*.pre-*.html", keep_days=5)  # 跨日保 5 天（Mac 清·沙箱静默跳）
+        logger.info(f"📦 同名旧报快照 → archived/_pre-snapshots/{keep.name}")
+    out.write_text(html, encoding="utf-8")  # 覆盖写正档（挂载盘允许覆盖）
     mode = "正式" if is_official else "测试"
     logger.info(f"✅ 日报生成（{mode}·暖色范式 v2）→ {out}（{out.stat().st_size/1048576:.2f} MB）")
     logger.info(f"   主线 {len(D['themes'])} 条 | 渊图信号日 {len(D['ytdays'])} | 机会 {len(D['opps'])} | 风险 {len(D['risks'])}")
