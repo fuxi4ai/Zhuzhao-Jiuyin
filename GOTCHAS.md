@@ -530,3 +530,11 @@ cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/d
 **错误信息**: `URL not in provenance set. web_fetch can only retrieve URLs that appeared in a user message, a prior web_fetch result, or a WebSearch result.`
 **解决方案**: SKILL 模板里的占位符 URL 不算 verbatim，凡是 agent 自行拼出的 URL 都过不了 provenance 门。当班切 **Yahoo chart API 白名单路**：直接 `from fetch_intl_index import fetch_yf` 对 19 只跑（period1/period2 真区间 + G014 回看窗算 pct），只入 `trade_date == T_anchor` 的行，`source` 如实标 `yahoo-chart`（**不得**冒标 stockanalysis——数据随源走）。实测 19/19 全新鲜含冷门票 ALM/RKLB，比 stockanalysis CDN 更稳。
 **预防措施**: ① us_anchor 日更主路建议就地改为 Yahoo chart（与 intl_index/kr_stocks 同源归一，SKILL ②a 待 Doctor 拍板改文案）；② 期货类 symbol（NKD=F/BZ=F）在亚洲时段会吐**当日进行中 bar**，入库后须 `DELETE trade_date > T_anchor`（本班清 JP_FUT/BRENT 各 1 根 0721 盘中 bar）；③ 若真需 web_fetch 某页，先 WebSearch 让目标 URL 进 provenance set 再 fetch。
+
+## [GOTCHA-20260723-001] 跨项目脚本 adjustment_grade.py 的 `_mnt()` 硬走 `../×6`，沙箱平铺挂载下溢出到 `/` → 日报「级别读数」占位（grade_section 两分支皆败）
+**状态**: ✅ 已解决
+**优先级**: 🟡 中
+**触发场景**: 九儿定时班（zhuzhao-market-fetch-daily-report，平铺挂载 Database/烛照九阴/AI4ME）出的日报「回调级别读数」栏显示"级别读数不可用"。`gen_daily_report.grade_section()` subprocess 调 `剑酒青丘/infrastructure/取数工具/adjustment_grade.py --update --json` 与 `--json` 两分支均败降级占位；app.log 无痕（stderr 的 `[grade_section]` 行进的是定时会话 stderr，不落 app.log）。手动/全树沙箱班正常＝易误判为一次性瞬态。
+**错误信息**: 无显式栈——`adjustment_grade._mnt()` 用 `HERE + ../×6` 回推「Documents 等价根」。平铺挂载下 `剑酒青丘` 直挂 `/mnt/剑酒青丘`，`../×6` 溢出经 `/mnt`→`/sessions`→`/`，于是 `_mnt("Database",".env")`＝`/Database/.env`、`MKT`＝`/Database/Market-Data/market_data.db` 全落空 → --update 无 token、--json 无库，两败。姊妹脚本 market_health.py 未坑，因 SKILL 显式传 `MARKET_DATA_DIR` 绕开该逻辑；adjustment_grade 无此逃生口。
+**解决方案**: 2026-07-23 改 `adjustment_grade.py`：`_mnt` 前置 `_find_root()`——① `ZZJY_MNT_ROOT` env 兜底优先（`<root>/Database` 存在才采）；② 自愈：从本文件逐级上找「含 Database 子目录的最近祖先」作根；③ 回退原 `../×6`。宿主机 Documents 本含 Database → 检测结果与旧逻辑**完全一致、正路零改动**；平铺沙箱落到 `/mnt`（Database/AI4ME 皆在其下）→ `--json` 只读分支命中真库、级别读数恢复。三布局隔离测试 + 真脚本 `--json`（L3·confirm True）均过。
+**预防措施**: ① 跨项目脚本凡靠相对层级回推根目录的，一律换「探测含标志子目录的祖先」而非硬编码 `../×N`（G-X45 平铺挂载路径坑同族，跨项目复发）；② 定时班的静默降级要靠**产物**（占位/缺值）与 agent run log 反查，别指望 app.log；③ 修复生效点＝下一次工作日 10:00 定时班（本条不阻塞交付、日报其余内容完整）。
