@@ -59,6 +59,18 @@ def resolve_temp(trigger_n, env_hits, env_evaluable, version="s2"):
     return "resonance", f"共振{env_hits}{suffix}"
 
 
+def f4_ratio_trigger(funds_win, avg_turnover, cfg):
+    """F4 IPO 虹吸触发（相对口径·单一真源，G-X73：生产端 gen_daily_report 与回测端 calibrate 共用）。
+    口径：滚动 raise_win_days 日历日募资合计（funds_win，亿）÷ 近 turnover_avg_days 交易日
+    日均全市场成交额（avg_turnover，亿）≥ ratio_th → 触发。语义＝「IPO 抽走≈几天成交额」。
+    2026-07-23 由绝对 funds_win_th(200亿) 换相对（选型B·p95·2020-02→2026 校准 lift2.68/14事件·
+    Q6过[低成交额alone lift0]·跨4年散布；见 docs/五因回测校准_F4相对_20260723.md）。旧绝对键降级留注、可回滚。
+    数据不足（募资或成交额缺）→ None（不可评，绝不当"未触发"·G-X75）。"""
+    if funds_win is None or avg_turnover is None or avg_turnover <= 0:
+        return None
+    return bool(funds_win / avg_turnover >= float(cfg.get("ratio_th", 0.045)))
+
+
 def _rolling_pct(dates, values, window=WINDOW, min_periods=MIN_PERIODS):
     """逐日滚动分位: pct[d] = 窗内 <= 当日值的占比。有序插入维护窗口，O(N·logW+N·W/删)。
     返回 {date: pct(0..1)}。前 min_periods-1 日不可评（不入结果）。"""

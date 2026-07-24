@@ -363,8 +363,12 @@ def gather(date_cap=None):
     D["margin"] = margin
 
     # ── IPO 募资（F4 虹吸）——market_data.ipo_daily，近 win_days 日历日募资合计(亿元)。窗口单一真源＝risk_factors.json f4.win_days（2026-07-22 由20→10·申购锚 ipo_date；此前 days=20 硬编码不读 config，已修）。表未建/无数据→None，F4渲『待接源』。
-    _f4wd = int((RISK_CFG.get("f4") or {}).get("win_days", 10))
-    ipo = {"funds_win": None, "n_win": None, "win_days": _f4wd, "latest": None}
+    _f4cfg = (RISK_CFG.get("f4") or {})
+    _f4wd = int(_f4cfg.get("raise_win_days", _f4cfg.get("_deprecated_win_days", 10)))
+    _f4M = int(_f4cfg.get("turnover_avg_days", 30))
+    ipo = {"funds_win": None, "n_win": None, "win_days": _f4wd, "latest": None,
+           "avg_turnover": None, "ratio": None, "trigger": None,
+           "ratio_th": _f4cfg.get("ratio_th", 0.045), "avg_days": _f4M}
     try:
         _cut = (datetime.date.fromisoformat(iso(data_day)) - datetime.timedelta(days=_f4wd)).strftime("%Y%m%d")
         _has = md.execute("SELECT COUNT(*) FROM ipo_daily WHERE trade_date<=?", (data_day,)).fetchone()[0]
@@ -373,6 +377,16 @@ def gather(date_cap=None):
                 "SELECT COALESCE(SUM(funds_yi),0), COALESCE(SUM(n_ipo),0), MAX(trade_date) FROM ipo_daily "
                 "WHERE trade_date>? AND trade_date<=?", (_cut, data_day)).fetchone()
             ipo["funds_win"], ipo["n_win"], ipo["latest"] = round(irow[0], 1), irow[1], irow[2]
+            # F4 相对口径分母（2026-07-23 选型B）：近 _f4M 交易日日均全市场成交额（万亿→亿）。
+            # 须真有 _f4M 个交易日样本才算，否则不可评(None·G-X75「无数据≠未触发」)。volume_trillion 坏·勿用(ERR-20260719-003)。
+            _sub = md.execute(
+                "SELECT total_trillion FROM market_amount_daily WHERE total_trillion IS NOT NULL "
+                "AND trade_date<=? ORDER BY trade_date DESC LIMIT ?", (data_day, _f4M)).fetchall()
+            if len(_sub) >= _f4M:
+                ipo["avg_turnover"] = round(sum(r[0] for r in _sub) / _f4M * 1e4, 1)
+                if ipo["avg_turnover"]:
+                    ipo["ratio"] = round(ipo["funds_win"] / ipo["avg_turnover"], 4)
+            ipo["trigger"] = risk_function.f4_ratio_trigger(ipo["funds_win"], ipo["avg_turnover"], _f4cfg)
     except sqlite3.OperationalError:
         pass
     D["ipo"] = ipo
@@ -1973,12 +1987,15 @@ def _eval_risk_factors(D):
         st4, ev4 = "pending", c4.get("gap", "IPO 数据待接源")
         th4s = "近N日募资集中（待接源）"
     else:
-        wd = ip.get("win_days", 20)
-        th4 = c4.get("funds_win_th", 500.0)
-        st4 = "triggered" if fw >= th4 else "quiet"
-        ev4 = f"近{wd}日新股 {ip.get('n_win', 0)}只 · 募资 {fw:.0f}亿" + \
+        wd = ip.get("win_days", 10)
+        _rth = c4.get("ratio_th", 0.045)
+        _ratio = ip.get("ratio")
+        _trig = ip.get("trigger")   # True/False/None(不可评·成交额窗不足)
+        st4 = "triggered" if _trig else ("pending" if _trig is None else "quiet")
+        _ratio_txt = (f" · 抽血比 {_ratio:.3f}（≈抽 {_ratio:.2f} 天成交额）" if _ratio is not None else " · 抽血比待评")
+        ev4 = f"近{wd}日新股 {ip.get('n_win', 0)}只 · 募资 {fw:.0f}亿" + _ratio_txt + \
               (f"（截至{iso(ip['latest'])}）" if ip.get("latest") else "")
-        th4s = f"近{wd}日募资≥{th4:.0f}亿（初值·待数据校准）"
+        th4s = f"募资/近{ip.get('avg_days', 30)}日均成交额 ≥{_rth}（相对口径·p95·2020+校准 lift2.68/14事件）"
     F.append({"id": "F4", "name": c4["name"], "status": st4, "ev": ev4,
               "th": th4s, "src": "market_data.ipo_daily（tushare·现成）"})
 

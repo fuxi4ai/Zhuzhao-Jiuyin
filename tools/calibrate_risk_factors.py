@@ -70,7 +70,7 @@ def load_cfg():
                        "asia_codes": ["JP_FUT", "KR_SAMSUNG", "KR_HYNIX"],
                        "semi_th": -2.0, "asia_th": -2.0},
                 "f2": {"pctrank_th": 80}, "f3": {"rzye_5d_th": -400.0, "rzye_1d_th": -300.0},
-                "f4": {"funds_win_th": 300.0, "win_days": 20},
+                "f4": {"raise_win_days": 10, "turnover_avg_days": 30, "ratio_th": 0.045},
                 "f5": {"cnh_daily_th": 0.05, "cnh_7d_th": 0.10, "oil_daily_th": 3.0, "bond_bp_th": 8.0}}
 
 
@@ -93,6 +93,10 @@ def load_data():
         "WHERE szse_rzrqye IS NOT NULL ORDER BY trade_date")]
     # IPO
     D["ipo"] = dict(md.execute("SELECT trade_date,funds_yi FROM ipo_daily"))
+    # 全市场成交额(万亿→亿)·F4 相对口径分母（有序序列供 _latest_before；daily_market.volume_trillion 历史全0坏·勿用·ERR-20260719-003）
+    D["amt"] = [(r[0], r[1] * 1e4) for r in md.execute(
+        "SELECT trade_date,total_trillion FROM market_amount_daily "
+        "WHERE total_trillion IS NOT NULL ORDER BY trade_date")]
     # 情绪
     D["emo"] = [(_iso2c(r[0]), r[1]) for r in rc.execute(
         "SELECT date,emotion_score FROM emotion_cycle WHERE emotion_score IS NOT NULL ORDER BY date")]
@@ -181,27 +185,27 @@ def eval_day(d, DATA, cfg):
         chg1 = mg[i][1] - mg[i - 1][1]
         chg5 = mg[i][1] - mg[i - 5][1]
         out["F3"] = bool(chg5 <= c["f3"]["rzye_5d_th"] or chg1 <= c["f3"]["rzye_1d_th"])
-    # —— F4 IPO（滚动 win_days 日历日 ≤ d）——
-    wd = int(c["f4"].get("win_days", 20))
+    # —— F4 IPO 虹吸（相对口径·滚动 raise_win_days 日历日募资 ÷ 近 turnover_avg_days 交易日日均全市场成交额）——
+    #    2026-07-23 绝对(200亿)→相对(选型B·ratio_th·G-X75 跨era可比)；触发布尔走 risk_function 单一真源(两端强制一致·G-X73)。
+    #    保留 ERR-20260719-002 教训：「无数据≠未触发」——窗口与 ipo 覆盖无交集、或成交额窗不足 → None(不可评)，绝不静默记未触发(G-X75)。
+    wd = int(c["f4"].get("raise_win_days", c["f4"].get("_deprecated_win_days", 10)))
+    _mM = int(c["f4"].get("turnover_avg_days", 30))
     dt = datetime.date(int(d[:4]), int(d[4:6]), int(d[6:]))
     lo = (dt - datetime.timedelta(days=wd)).strftime("%Y%m%d")
-    # ERR-20260719-002：原写法只在**整张 ipo 表为空**时判「不可评」，一旦表非空就把
-    # 每一天都当可评——而 ipo_daily 实际只覆盖 20240102+，2020–2023 约 970 个交易日
-    # 无数据、滚动和恒为 0 → 被静默记成「未触发」。后果：可评日 1581(应~610)、
-    # 触发率 2.1%(应~5.4%)、lift 因基准用全样本 3.9% 而被**低估**(应~1.70)。
-    # 「无数据」≠「未触发」——同 [[通用教训]] G-X75。F1/F3/F5 本来就是对的，只 F4 这支漏了。
-    # 正解：按 F5 的写法，看**本窗口内**有没有真实覆盖，没有则 None(不可评)。
     ipo = DATA["ipo"]
+    amtseq = DATA["amt"]
+    _ai = _latest_before(amtseq, d, strict=False)
+    _avg_turn = (sum(v for _, v in amtseq[_ai - _mM + 1:_ai + 1]) / _mM
+                 if _ai is not None and _ai >= _mM - 1 else None)
     if not ipo:
         out["F4"] = None
     else:
         _lo_cov, _hi_cov = min(ipo), max(ipo)
-        # 窗口 (lo, d] 与 ipo 数据覆盖区间无交集 → 该日不可评
         if d <= _lo_cov or lo >= _hi_cov:
             out["F4"] = None
         else:
             s = sum(v for k, v in ipo.items() if lo < k <= d)
-            out["F4"] = bool(s >= c["f4"]["funds_win_th"])
+            out["F4"] = risk_function.f4_ratio_trigger(s, _avg_turn, c["f4"])
     # —— F5 外部（CNH ≤ d；油价/美债严格 < d）——
     trig5, any5 = False, False
     fx = DATA["fx"]
@@ -259,7 +263,7 @@ def run(ice_th, write):
     lines.append(f"- 样本：{len(rows)} 个交易日 [{rows[0]['d']}→{rows[-1]['d']}]\n"
                  f"- 冰点定义：未来 3 交易日创业板指累计 ≤ {ice_th}% → 基准冰点率 **{base_rate:.1%}**"
                  f"（{len(base)}/{len(rows)}）\n"
-                 f"- 重建口径：外盘严格 <D（真隔夜）｜两融完整日 ≤D｜IPO 滚动{cfg['f4'].get('win_days',20)}日历日 ≤D"
+                 f"- 重建口径：外盘严格 <D（真隔夜）｜两融完整日 ≤D｜F4 IPO 相对口径＝滚动{cfg['f4'].get('raise_win_days',10)}日历日募资 ÷ 近{cfg['f4'].get('turnover_avg_days',30)}交易日日均成交额 ≥{cfg['f4'].get('ratio_th',0.045)} ≤D"
                  f"｜情绪/汇率 ≤D。**F2 仅评情绪腿**（容量腿依赖当日 theme 重算，未按时点重建）。\n")
     lines.append("\n## 单因子表现（现行阈值）\n")
     lines.append(f"> **判定门槛卡的是「独立事件数」不是「触发日数」**（2026-07-19 起）。"
@@ -300,7 +304,7 @@ def run(ice_th, write):
     lines.append("\n## 阈值敏感性扫描（F3 两融 / F4 IPO）\n")
     for fid, key, grid, unit in (("F1", ("semi_th", "asia_th"), [-1.5, -2, -3, -4, -5, -6], "%"),
                                  ("F3", "rzye_5d_th", [-200, -300, -400, -500, -700, -900], "亿"),
-                                 ("F4", "funds_win_th", [100, 150, 200, 300, 400, 500], "亿"),
+                                 ("F4", "ratio_th", [0.030, 0.037, 0.045, 0.058, 0.070], "募资/成交额比"),
                                  ("F5", "oil_daily_th", [2, 3, 4, 5, 6], "%油价腿")):
         lines.append(f"\n**{fid} · {key}**\n")
         lines.append("| 阈值 | 触发率 | **独立事件** | 日/事件 | P(冰点\\|触发) | lift | 触发日 fwd3 |")
