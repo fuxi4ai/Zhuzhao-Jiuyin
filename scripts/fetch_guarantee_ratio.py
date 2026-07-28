@@ -38,10 +38,26 @@ def ensure_table(conn):
     conn.commit()
 
 
-def _load_df():
-    import akshare as ak
-    df = ak.stock_margin_account_info()
-    return df
+def _load_df(retries=3, backoff=2):
+    """全量拉取（3300+ 行）易遇 chunked 断流 → 指数退避重试。
+
+    2026-07-28 实测：同一命令 06:07 `ChunkedEncodingError: Response ended prematurely`
+    （akshare 内部裸 requests.get、无重试）、06:10 重跑即成功——**两次挂一次**。
+    接入烛阴 16:00 无人值守日链后，无重试＝当班必有概率白跑、要等次日才补。
+    全部重试失败才抛，让上层 fail-safe 生效（不写库、保留旧行、绝不编数）。
+    """
+    import akshare as ak, time
+    last = None
+    for i in range(retries):
+        try:
+            return ak.stock_margin_account_info()
+        except Exception as e:      # ChunkedEncodingError / ProtocolError / 连接超时等一并兜
+            last = e
+            logger.warning(f"取数第 {i+1}/{retries} 次失败：{type(e).__name__}: {e}")
+            if i < retries - 1:
+                time.sleep(backoff * (2 ** i))      # 2s → 4s → 8s
+    logger.error(f"取数 {retries} 次全失败，放弃本次（库不变、保留旧行）")
+    raise last
 
 
 def _pick_cols(df):
