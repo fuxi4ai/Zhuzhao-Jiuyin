@@ -334,6 +334,8 @@ def gather(date_cap=None):
                                                     else (None, None, None))
     snap["ud_vintage"] = ud_vint
     snap["ud_stale"] = ud_vint is not None and iso(ud_vint) < iso(data_day)
+    # 口径锁定（2026-07-28 Doctor 批·甲案）：快照/K_cap＝水平显示类 → 锁 volume_trillion（真·全A加总·仅2026-06-03起有效）；
+    # 分位/回测类另锁 market_amount_daily（指数口径·16年史）——两源差20-25%属口径特征，禁跨源混用（详 Market-Data/MANIFEST.md）。
     amt_row = md.execute("SELECT trade_date, volume_trillion FROM daily_market "
                          "WHERE trade_date<=? AND volume_trillion>0 ORDER BY trade_date DESC LIMIT 1",
                          (data_day,)).fetchone()
