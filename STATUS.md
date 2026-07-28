@@ -77,3 +77,11 @@ closure_engine 状态机：`open→closing`（连续超额为正≥3日）→ `c
 ---
 
 *STATUS.md · 2026-06-24 实测 · CC（2026-06-30 补日报改动+region TODO）*
+
+---
+
+## 勘误追记（2026-07-28 全金融审查·实测）
+
+- 本文件主体为 2026-06-24 快照，**多项计数已过期**：recap 对象实测 **34**（原写 31）；`stock_tracking` 实测 **3089** 行（原写 2527，回写列仍 0/3089）；`emotion_cycle` 实测 **390** 行。
+- 停更表（僵尸）13 张混在活表中：daily_summary/hot_sectors/predictor_accuracy(停05-12)、information_gap(停05-05)、cycle_quant/cycle_comparison(停03月)、bt_xiaobao_pos_3d(停05-06)、execution_log(停05-19)、dim2p_supply_demand(单日)、prediction_log/recap_guide/recap_summary(0行)、_deprecated×4——归档/标注待裁。
+- 全量现状以 `AI4ME/CC-全金融项目情报审查-20260728.md` 为准；本追记不改上文历史内容（留档）。

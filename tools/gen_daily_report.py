@@ -138,7 +138,7 @@ SIGNAL_OVERRIDE = {
         "detail": ("因果时序：中国对稀土 / 稀有金属原料的出口管制断供【在先】，已致日本东曹 / 德山化工库存告急、停产风险；"
                    "日本 2026/8/1 起对先进封装设备等 20+ 类物项【对华】出口管制（逐案审批≈禁运）为【后续】升级，"
                    "东京应化 / 信越化学停止接收中国 ArF/EUV 光刻胶新订单并撤技术团队。"
-                   "两侧互掐、定性「中日脱钩断裂」，投资逻辑＝对日 / 国产替代。（据小鲍课件 + 渊图，具体条款以官方公告为准）"),
+                   "两侧互掐、定性「中日脱钩断裂」，投资逻辑＝对日 / 国产替代。（据小鲍课件 + 渊图，具体条款以官方公告为准；本补注录于 2026-07 中·含「2026/8/1」等硬日期·过期请复核或下线）"),
     },
 }
 
@@ -702,6 +702,16 @@ def gather(date_cap=None):
                 fulfill=fulfill_of(status, desc, r[9])))
         ytdays.append({"date": sd, "sigs": sigs_d})
     D["ytdays"] = ytdays
+    # 审计修复 2026-07-28：渊图源停更「栏级」告警（fail-visible）——第三栏与 P0·GAP 卡整体依赖本源，
+    # 07-18 起源停更 9 天此前无任何整栏警示（单卡"已N日"不够醒目）。算 vintage 落 D，渲染侧挂横幅。
+    try:
+        _ytmax = yt_dates[0] if yt_dates else None
+        import datetime as _dtm
+        D["yt_max_date"] = _ytmax
+        D["yt_stale_days"] = ((_dtm.date.fromisoformat(iso(data_day)) - _dtm.date.fromisoformat(_ytmax)).days
+                              if _ytmax else None)
+    except Exception:
+        D["yt_max_date"] = None; D["yt_stale_days"] = None
 
     # 案2 暗态计数（已兑现·候二段，不渲染主栏/台账，仅留入口）
     try:
@@ -958,7 +968,7 @@ def gather(date_cap=None):
                       "（新线启动需旧线让位，注意轮动）"})
     if "源杰科技" in ratings:
         risks.append({"lvl": "黄", "txt": "估值极限标的在主线内：源杰科技（龙鱼估值维 2/15，PB 历史97.9%分位）"
-                      "、奥比中光（PB 99.5%分位）——追高赔率差"})
+                      "、奥比中光（PB 99.5%分位）——追高赔率差（分位为 2026-07 中旬快照·非逐日更新·核龙鱼库现值）"})
     em = D["emotion"]
     if "秋" in (em["season"] or "") or "冬" in (em["season"] or ""):
         risks.append({"lvl": "黄", "txt": f"情绪周期处下行期（{em['season']}，评分 {em['score']}）"
@@ -2006,11 +2016,22 @@ def _eval_risk_factors(D):
     chg = (cur - prev) if (cur is not None and prev is not None) else None
     net7 = (series[-1][1] - series[0][1]) if len(series) >= 2 else None
     parts5, trigs5 = [], []
+    # 审计修复 2026-07-28：汇率腿加年龄护栏（对齐 F1_MAX_AGE_DAYS 待遇）——fx_cnh 15 处 >4 天缺口，
+    # 此前静默用 T-N 陈值计温且证据串不带日期；超龄→该腿转不可评（读数照显+日期+超龄标）。
+    _fx_age = None
+    try:
+        _fx_age = risk_function.calendar_gap(D.get("data_day"), fx.get("date"))
+    except Exception:
+        _fx_age = None
+    _FX_MAX_AGE = getattr(risk_function, "F1_MAX_AGE_DAYS", 5)
     # 汇率：USD/CNH ↑ = 人民币贬
-    if cur is not None:
-        parts5.append(f"CNH {cur:.4f}" + (f"({chg:+.4f})" if chg is not None else ""))
+    if cur is not None and (_fx_age is None or _fx_age <= _FX_MAX_AGE):
+        parts5.append(f"CNH {cur:.4f}" + (f"({chg:+.4f})" if chg is not None else "")
+                      + (f"·{fx.get('date')}" if fx.get("date") else ""))
         trigs5.append((chg is not None and chg >= c5["cnh_daily_th"])
                       or (net7 is not None and net7 >= c5["cnh_7d_th"]))
+    elif cur is not None:
+        parts5.append(f"CNH {cur:.4f}（{fx.get('date')}·陈旧{_fx_age}d>阈{_FX_MAX_AGE}·不可评）")
     else:
         parts5.append("CNH 缺数")
     # 油价：布伦特单日涨幅
@@ -2346,6 +2367,12 @@ def render(D):
     s, cap, em = D["snap"], D["capacity"], D["emotion"]
     dd = iso(D["data_day"])
     season = (em["season"] or "—")[0]
+    # 审计修复 2026-07-28：渊图停更 >3 日历日 → 第三栏挂栏级告警横幅（fail-visible）
+    _yts = D.get("yt_stale_days"); _ytm = D.get("yt_max_date") or "—"
+    yt_stale_banner = ("" if (_yts is None or _yts <= 3) else
+        f'<div style="margin:8px 0 14px;padding:10px 14px;border:1.5px solid #c0392b;border-radius:10px;'
+        f'background:rgba(192,57,43,.07);color:#c0392b;font-weight:700">'
+        f'⚠ 渊图信号源已停更 {_yts} 天（最新信号日 {_ytm}）——本栏及 P0·GAP 卡为冷冻快照、非当日情报；请核渊图采集链路（KG _health 戳）。</div>')
 
     css = (CSS_WARM
            .replace("__FONT_FACE__", _font_face())
@@ -3038,7 +3065,7 @@ def render(D):
 {main_html}
 
 <h2 id="sec-gap">三 · GAP 信号栏 <span class="vintage">强信号 / 主线确认 / 机会风险 ｜ 点脊跳到对应区，点卡片看详情</span></h2>
-{prio_html}
+{yt_stale_banner}{prio_html}
 {dormant_html}
 
 <h2 id="sec-opp">四 · 确认走强（e20/e5 > 0），且容量允许 <span class="vintage">候选观察方向 · 按 e20 强度排位取前 K_cap 条（强新线挤弱旧线＝轮动）· 非投资建议</span></h2>
