@@ -538,3 +538,75 @@ cd /tmp/fake/Documents/Claude/Projects/Financial/烛照九阴 && python3 tools/d
 **错误信息**: 无显式栈——`adjustment_grade._mnt()` 用 `HERE + ../×6` 回推「Documents 等价根」。平铺挂载下 `剑酒青丘` 直挂 `/mnt/剑酒青丘`，`../×6` 溢出经 `/mnt`→`/sessions`→`/`，于是 `_mnt("Database",".env")`＝`/Database/.env`、`MKT`＝`/Database/Market-Data/market_data.db` 全落空 → --update 无 token、--json 无库，两败。姊妹脚本 market_health.py 未坑，因 SKILL 显式传 `MARKET_DATA_DIR` 绕开该逻辑；adjustment_grade 无此逃生口。
 **解决方案**: 2026-07-23 改 `adjustment_grade.py`：`_mnt` 前置 `_find_root()`——① `ZZJY_MNT_ROOT` env 兜底优先（`<root>/Database` 存在才采）；② 自愈：从本文件逐级上找「含 Database 子目录的最近祖先」作根；③ 回退原 `../×6`。宿主机 Documents 本含 Database → 检测结果与旧逻辑**完全一致、正路零改动**；平铺沙箱落到 `/mnt`（Database/AI4ME 皆在其下）→ `--json` 只读分支命中真库、级别读数恢复。三布局隔离测试 + 真脚本 `--json`（L3·confirm True）均过。
 **预防措施**: ① 跨项目脚本凡靠相对层级回推根目录的，一律换「探测含标志子目录的祖先」而非硬编码 `../×N`（G-X45 平铺挂载路径坑同族，跨项目复发）；② 定时班的静默降级要靠**产物**（占位/缺值）与 agent run log 反查，别指望 app.log；③ 修复生效点＝下一次工作日 10:00 定时班（本条不阻塞交付、日报其余内容完整）。
+
+---
+
+## G031 — fetch_yf 遇 Yahoo「空 bar」时 pct 跨日虚增（intl_index_daily 污染）
+
+**日期**: 2026-07-27 | **发现人**: 九儿（定时班）
+
+**状态**: ✅ 已解决（数据已修正） / ⏳ 脚本待修（`scripts/fetch_intl_index.py:fetch_yf`）
+
+**优先级**: 🔴 高（直接污染日报「外部定价·隔夜/期货」栏读数）
+
+**触发场景**: 2026-07-27 定时班跑 `fetch_intl_index.py`，US 股票类标的（NASDAQ/NVDA/AVGO/LITE/SPCX/US10Y）0727 的 `pct_chg` 明显异常——LITE 报 −15.80%，但表内 0724 收 762.99、0727 收 701.82，实为 −8.02%。期货类（JP_FUT/BRENT）与韩股无恙。
+
+**错误信息**: 无报错，静默出错数。实测 Yahoo chart API 当日对 US 股票返回 `20260724` 的 `close = null`（周五 bar 被置空，疑似盘中重算/修订），`fetch_yf` 里：
+
+```python
+for t, c in zip(ts, closes):
+    if c is None:
+        continue          # ← 直接 continue，prev 未推进
+    pct = (c / prev - 1) * 100 if prev else None
+```
+
+`c is None` 时 `continue` 发生在 `prev = c` 之前 → prev 停在 0723，0727 的 pct 变成「跨越两个交易日的累计涨跌」，幅度虚增近一倍。同源的 `fetch_us_anchor` 走另一次调用恰好取到完整序列，故 `us_anchor_daily` 未受污染 —— 两表读数打架才暴露此坑。
+
+**解决方案**:
+1. **数据面（已做）**：以表内真实 `close` 序列重算 0727 的 pct 并回填 6 条，`note` 加 `[pct修正:原X·跨空bar]` 留痕。修正前后：AVGO −3.29→−0.62 / LITE −15.81→−8.02 / NASDAQ −2.03→−0.92 / NVDA −6.21→−5.34 / SPCX −6.89→−4.33 / US10Y −1.23→−0.85。
+2. **脚本面（待改）**：`fetch_yf` 遇空 bar 应二选一 —— ① 跳过该日**且不推进 prev**时，同步把该日之后首个有效 bar 的 pct 标为 `None`（宁缺勿错）；或 ② 用「表内已存的上一交易日 close」补 prev。**绝不**沿用陈旧 prev 直接算 pct。
+3. 建议加落库前自检：`abs(pct - (close/prev_close_in_db - 1)*100) > 0.05` 即告警。
+
+**预防措施**: ① 凡「由序列环比算派生指标」的取数脚本，缺值分支必须同时处理 prev 推进与派生值置空；② 同一标的在两张表（us_anchor / intl_index）并存时，定期做交叉一致性检查——本次正是靠交叉比对才发现；③ 历史遗留：`JP_FUT 20260706` 同类不一致（2.7843 vs 0.5649）尚未修，`US10Y` 6 月起若干 0.09pp 级差异属 2dp 收盘价四舍五入，非本坑。
+
+---
+
+## G032 — 沙箱 web_fetch 上了 provenance 白名单，stockanalysis 主路失效
+
+**日期**: 2026-07-27 | **发现人**: 九儿（定时班）
+
+**状态**: ✅ 已绕过 | **优先级**: 🟡 中
+
+**触发场景**: 按 SKILL 步骤 3 对 19 只美股锚逐只 `web_fetch https://stockanalysis.com/stocks/{t}/`。
+
+**错误信息**: `URL not in provenance set. web_fetch can only retrieve URLs that appeared in a user message, a prior web_fetch result, or a WebSearch result.` —— 19 只全拒，重试无用。
+
+**根因**: 环境侧新增约束：`web_fetch` 只能取「出现在用户消息 / 前次 fetch 结果 / WebSearch 结果里的 URL」。定时班无用户消息可承载 URL，故 G018 定下的 stockanalysis 主路在无人值守班次下**结构性失效**。
+
+**解决方案**: 改走 Yahoo chart API（urllib 直取，沙箱白名单已开，与 `fetch_intl_index.fetch_yf` 同源），复用该函数拉 19 只写 `us_anchor_daily`，`source` 如实记 `yahoo`（不冒充 stockanalysis）。本次 19/19 全新鲜，无缺。
+
+**预防措施**: ① 建议把 `fetch_us_anchor.py` 增设 `--source yahoo` 正式分支（urllib 直取，不依赖 yfinance 包），取代 stockanalysis 成为沙箱日更主路，stockanalysis 降为备胎；② 修 G031 后一并落地，两脚本共用同一个「空 bar 安全」的 fetch_yf；③ 任何依赖 `web_fetch` 任意 URL 的定时班流程都需复查——同族失效面。
+
+## [GOTCHA-20260728-001] 固定名副本根跨会话必被 nobody 占位——/tmp/dbroot、/tmp/zzjy_dbroot、/var/tmp/dbroot 全部阵亡 → 副本根须当班新建唯一名（如 /tmp/dbroot-YYYYMMDD）
+- **发现日期**: 2026-07-28（九儿课件入库 · 260728 课件）
+- **状态**: ✅ 已解决 ｜ **优先级**: 🟡 中
+- **触发场景**: 照任务规程建 `/tmp/dbroot` → 已存在、属主 `nobody:nogroup`（前会话遗留；沙箱每会话换 uid，旧会话目录属主统一变 nobody）→ Permission denied。换 `/tmp/zzjy_dbroot`（0727 班用名）同样被占；连 -20260721-001 钦定的"标准解" `/var/tmp/dbroot` 也已被 0720 班遗留占位。退到 `$HOME/dbroot` 可写、ingest 正常，但 `dedup_kejian.py record` 触 connect_write 护栏（"/sessions/" 子串误判挂载盘，即 -20260721-001②，ingest 脚本不经护栏所以先没暴露）。
+- **错误信息**: `cp: cannot create regular file '…': Permission denied` ／ `RuntimeError: [connect_write] 拒绝直写挂载盘真盘`
+- **解决方案**: 副本根**当班新建、名字唯一**：`/tmp/dbroot-YYYYMMDD`（本班 `/tmp/dbroot-20260728`）。条件从 -20260721-001 的三条升为四条：可写 + 跨调用持久 + 路径不含 /sessions|/mnt + **当班新建不复用历史固定名**。Raw-Recap 照旧 symlink 回挂载盘。已跑在 $HOME 副本上的 ingest 结果可直接 `mv` 到 /tmp 唯一根再续 record（mv 不损库）。
+- **预防措施**: ① 共享 tmp（/tmp、/var/tmp）下的固定名目录活不过一个会话周期，"统一固定名"路线作废；② 建根前先 `ls -ld` 验属主，非当班 uid 即换名；③ 定时任务文本中 `/tmp/dbroot` 表述宜改为"当班日期唯一名"（待哥哥改任务文）。
+
+## [GOTCHA-20260728-002] ZZJY_DATABASE_ROOT 指向 /tmp 副本根时，ticker_resolver 种子源随根走丢 → G030 守卫拦 populate
+**状态**: ✅ 已解决
+**优先级**: 🟡 中
+**触发场景**: 定时班 /tmp 副本模式（ZZJY_DATABASE_ROOT=/tmp/dbroot-*）跑 populate_signal_targets：resolver 主种子路径 = `DATABASE_ROOT/Market-Data/tushare-cache/tushare.db`，副本根里只拷了 market_data.db，没有 tushare-cache → 索引仅 23 条 → resolve 率 5% → G030 守卫正确 abort（exit 3）。
+**错误信息**: `🛑 G030 守卫：resolve 率骤降 72% → 5%（< 0.6×现表），abort、保留现表不重灌`
+**解决方案**: 副本根补只读软链后重跑即过：`ln -sfn <Database挂载点>/Market-Data/tushare-cache /tmp/dbroot-*/Market-Data/tushare-cache`（只读种子，软链穿挂载安全；同理 `.env`、`行业研究` 也须映射，2026-07-28 班已验证 5531 条种子、72% resolve）。
+**预防措施**: 建 /tmp 副本根时的标配四件套：`Market-Data/market_data.db`（实拷）+ `Market-Data/tushare-cache`（软链）+ `行业研究`（软链）+ `.env`（实拷）。写进值班 SOP；G030 守卫行为正确，勿 --force 绕过。
+
+## [GOTCHA-20260728-003] Yahoo chart 末根 bar 三态陷阱：盘中快照 / 收盘后过渡态 null bar / 结算前抓价偏移——us_anchor/intl 盘中守卫的由来
+**状态**: ✅ 已解决
+**优先级**: 🔴 高
+**触发场景**: `--source yahoo`（2026-07-28 转正默认）任意钟点触发取数时，末根日 bar 有三种坑：① 盘中触发 → 末根是盘中快照，直写即「盘中价充收盘」；② 收盘后过渡态（实测 0728 16:00 ET 后）→ `currentTradingPeriod` 已滚到次日、当日 bar 的 close 短暂为 `None`；③ 贴近收盘抓价 → 抓到未结算价，与次日回看的官方结算价有系统性小差（实测库内 0727: NVDA 195.81/SPY 736.42/ALM 12.92 vs 结算后 196.51/739.09/13.35，≈0.3~3%）。
+**错误信息**: 无报错——三态都静默写出「看似合理」的数，属最危险的假数形态。
+**解决方案**: `_last_bar_incomplete(res)` 双条件守卫（`regularMarketTime < regular.end` **且** 末根 bar 交易所本地日==当前时段本地日，gmtoffset 换算、不碰系统钟）+ close=None bar 一律丢弃。正本在 `fetch_us_anchor.py`，`fetch_intl_index.fetch_yf` 同款（仅 overnight/us_stock 收盘语义腿开启；futures/macro 读数语义腿保持远期快照口径，Doctor 批的语义界定）。误差方向只会「晚一天」绝不「编一天」。
+**预防措施**: ③ 由日更 `--from = 表内 max 前推 5 日历日` 化解——INSERT OR REPLACE 幂等重写近端，自动吸收 Yahoo 结算修正（已写进定时任务 SKILL）。新增 yahoo 腿时一律复用 `_last_bar_incomplete`，绝不裸信末根 bar。

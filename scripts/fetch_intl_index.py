@@ -73,10 +73,34 @@ def _lookback_start(start):
             - datetime.timedelta(days=_LOOKBACK_DAYS)).isoformat()
 
 
-def fetch_yf(symbol, start, end):
+def _last_bar_incomplete(res):
+    """盘中守卫（2026-07-28 随 us_anchor --source yahoo 同修；正本注释见 fetch_us_anchor.py）：
+    末根 bar 是盘中快照 = 当前时段未收盘（regularMarketTime < regular.end）
+    且 末根 bar 交易所本地日 == 当前时段本地日。纯数据驱动，不碰系统钟；
+    元数据不全 → 保守判不完整（宁缺勿假）。"""
+    try:
+        m = res.get("meta", {})
+        reg = m.get("currentTradingPeriod", {}).get("regular", {})
+        rmt, end_ts = m.get("regularMarketTime"), reg.get("end")
+        off = reg.get("gmtoffset", m.get("gmtoffset", 0)) or 0
+        ts = res.get("timestamp") or []
+        if not ts or rmt is None or end_ts is None:
+            return True
+        if rmt >= end_ts:
+            return False
+        bar_day = datetime.datetime.utcfromtimestamp(ts[-1] + off).date()
+        cur_day = datetime.datetime.utcfromtimestamp(reg.get("start", end_ts) + off).date()
+        return bar_day == cur_day
+    except Exception:
+        return True
+
+
+def fetch_yf(symbol, start, end, complete_only=False):
     """Yahoo Finance chart API（urllib 直取，**不依赖 yfinance 包**；白名单已开、沙箱直达，
     2026-06-30 实测 LITE/日经/纳指/韩股皆新鲜，根治 stockanalysis CDN 陈旧坑）。
-    返回 [(YYYYMMDD, close, pct)] 升序，裁回 >= start（回看日仅用于算首日 pct）。"""
+    返回 [(YYYYMMDD, close, pct)] 升序，裁回 >= start（回看日仅用于算首日 pct）。
+    complete_only=True（收盘语义腿：overnight/us_stock）→ 盘中守卫丢末根盘中快照；
+    False（futures/macro 读数语义腿）→ 保持既有「远期快照」口径不变（2026-07-28 界定）。"""
     import urllib.request as _u, urllib.parse as _up, json as _j
     # 2026-07-17 修：原硬编码 range=1mo → --from/--to 只裁剪不传参，**任何长区间回填都静默只回1个月**
     # （F1/F5 历史回测因此拿不到样本才暴露）。改用 period1/period2 真区间；日更短窗行为不变。
@@ -94,6 +118,8 @@ def fetch_yf(symbol, start, end):
         return None
     ts = res.get("timestamp") or []
     closes = res.get("indicators", {}).get("quote", [{}])[0].get("close") or []
+    if complete_only and _last_bar_incomplete(res):
+        ts, closes = ts[:-1], closes[:-1]   # 丢盘中快照，绝不以盘中价充收盘
     sc = start.replace("-", "")
     out, prev = [], None
     for t, c in zip(ts, closes):
@@ -194,8 +220,10 @@ def main():
     logger.info(f"[yfinance] 待拉外盘指数 {len(INDICES)} 个 [{args.from_date}→{args.to_date}]: "
                 f"{[c for c, *_ in INDICES]}")
     for code, sym, name, kind, note in INDICES:
+        # 收盘语义腿（隔夜回望/美股个股）开盘中守卫；futures/macro 读数语义腿保持远期快照口径
+        _complete = kind in ("overnight", "us_stock")
         try:
-            rows = fetch_yf(sym, args.from_date, args.to_date)
+            rows = fetch_yf(sym, args.from_date, args.to_date, complete_only=_complete)
         except Exception as e:
             logger.warning(f"  yfinance ✗ {code}({sym}): {e}")
             rows = None
