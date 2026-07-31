@@ -72,6 +72,27 @@ def main():
     out = db_root / "烛照九阴" / "_health.json"
     now = datetime.now().astimezone().isoformat(timespec="seconds")
 
+    # ── 轮次标记（2026-07-31 加）──────────────────────────────
+    # 同一天体检会跑两轮：15:30 review 班「入库后初检」、16:00 行情班「当日终检」。
+    # 不标轮次的话，读到的人无从判断手里这份是不是当日权威读数。
+    phase = "manual"
+    for i, a in enumerate(sys.argv[1:]):
+        if a == "--phase" and i + 2 <= len(sys.argv[1:]):
+            phase = sys.argv[i + 2]
+        elif a.startswith("--phase="):
+            phase = a.split("=", 1)[1]
+
+    # ── 报告自证时效（2026-07-31 加 · 本次根因修）────────────
+    # 病例：2026-07-30 的 _health.json 生成于 09:41 报 stale/07-28，
+    # 而 21:35 与 22:02 两轮写库把数据补到了 07-30 —— 报告没人重跑，
+    # 谁读谁被误导（包括次日 resume 的 CC）。
+    # 修法：把体检时刻看到的 db mtime 一并记下。任何人读本文件时，
+    # 拿 recap.db 当前 mtime 与 db_mtime_at_check 一比，即知报告是否已被后续写库作废。
+    try:
+        db_mtime = datetime.fromtimestamp(recap.stat().st_mtime).astimezone().isoformat(timespec="seconds")
+    except Exception:
+        db_mtime = None
+
     if not recap.exists():
         payload = {
             "generated": now, "overall": "fail",
@@ -146,10 +167,14 @@ def main():
 
     overall = "fail" if fails else ("stale" if warns else "ok")
     payload = {
-        "generated": now, "overall": overall, "fails": fails, "warns": warns,
-        "target_date": target_date, "checks": checks,
+        "generated": now, "phase": phase, "overall": overall, "fails": fails, "warns": warns,
+        "target_date": target_date, "db_mtime_at_check": db_mtime, "checks": checks,
         "note": ("烛照九阴 recap.db 自检 · 六张关键 dim 表 max(date) 判 target_date · "
                  f"阈值 stale≥{STALE_DAYS}/fail≥{FAIL_DAYS} 个交易日（离线读 stock_daily 日历·含节假日；不可用退日历天）· 只读零网络"),
+        "phase_note": ("轮次：ingest-check=15:30 课件入库后初检 / eod-final=16:00 行情班当日终检（权威读数）/ manual=人工跑。"
+                       "**只有 eod-final 是当日权威**——初检跑在 16:00 班写 recap.db 之前，天然看不到当日全量。"),
+        "staleness_rule": ("判本报告是否已作废：比对 recap.db 当前 mtime 与本文件 db_mtime_at_check —— "
+                           "若库更新，说明体检之后又有写库动作，本报告结论不可用，须重跑 recap_health.py。"),
     }
     try:
         out.parent.mkdir(parents=True, exist_ok=True)
