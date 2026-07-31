@@ -37,11 +37,16 @@ INDICES = [
     ("LITE",     "LITE",  "Lumentum",       "us_stock",  "光模块 / CPO"),
     ("SPCX",     "SPCX",  "SpaceX",         "us_stock",  "商业航天 · 2026-06-12 纳指新上市（历史短·波动大）"),
     # —— 亚洲栏（期货预期）：日本开盘前的远期（韩国已移至 fetch_kr_stocks 直追三星/SK海力士）——
-    ("JP_FUT",   "NKD=F", "日经225期货",    "futures",   "CME · 亚盘开盘前远期 · 含半导体设备权重"),
+    ("JP_FUT",   "NKD=F", "日经225期货",    "futures",   "CME · 亚盘开盘前远期 · 含半导体设备权重 · ⚠读数语义腿（无盘中守卫）：close 可能是取数时点快照、非收盘价"),
     # —— 外部紧缩栏（2026-07-17 加 · 供日报五因风险温度 F5「外部紧缩」；不入外盘展示区，仅供 F5 计算）——
-    ("US10Y",    "^TNX",  "美债10年期收益率", "macro_rate",      "CBOE 10Y Yield · close 即收益率%（非价格）· ↑=外部紧缩 · F5"),
-    ("BRENT",    "BZ=F",  "布伦特原油",      "macro_commodity", "ICE Brent 期货 · ↑=输入型通胀/地缘扰动 · F5"),
+    ("US10Y",    "^TNX",  "美债10年期收益率", "macro_rate",      "CBOE 10Y Yield · close 即收益率%（非价格）· ↑=外部紧缩 · F5 · ⚠读数语义腿（无盘中守卫）：close 可能是盘中快照、非收盘价；归因/回测取收盘请用 H.15 或 FRED DGS10"),
+    ("BRENT",    "BZ=F",  "布伦特原油",      "macro_commodity", "ICE Brent 期货 · ↑=输入型通胀/地缘扰动 · F5 · ⚠读数语义腿（无盘中守卫）：close 可能是取数时点快照、非收盘价；归因/回测取收盘请用官方结算价"),
 ]
+# ⚠ 语义分层（2026-07-28 界定 · 2026-07-30 补文档）：上表 kind 决定是否开盘中守卫——
+#   收盘语义腿 overnight / us_stock → complete_only=True，丢末根盘中快照，close 即收盘价；
+#   读数语义腿 futures / macro_*    → complete_only=False，保留取数时点快照（F5 要的是方向性温度，越新鲜越好）。
+#   **这是刻意设计，不是漏修**。消费方跨表混用前必看 kind 与 note；需要真收盘的场景（事件归因/回测）
+#   一律另取官方源，勿把 macro 腿的 close 当收盘价用。见 GOTCHAS G033。
 _LOOKBACK_DAYS = 10  # 向前回看，使窗口首日 pct 由真实前一交易日得出（同 fetch_us_anchor G014）
 
 
