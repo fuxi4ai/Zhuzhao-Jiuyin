@@ -103,8 +103,10 @@ def collect(con):
 
     # ── dim4 池：dim4_stock_analysis（有名无码→反查）──
     n_d, r_d = 0, 0
+    # 2026-07-30 C2 拆列后：initial_confidence 承接的一直是「判断把握度」(高/中/低)，
+    # 该语义已从 confidence 迁至 conviction；confidence 现为信源轴(小鲍全线 P2)，取之无分辨力。
     for rid, date, name, code, sector, conf, bull in cur.execute(
-            "SELECT rowid,date,stock_name,stock_code,sector,confidence,bull_reason "
+            "SELECT rowid,date,stock_name,stock_code,sector,conviction,bull_reason "
             "FROM dim4_stock_analysis WHERE stock_name IS NOT NULL AND stock_name<>''"):
         code = code if (code and re.search(r"\d{6}", str(code))) else ticker_resolver.resolve(name)
         add("dim4_xiaobao", "dim4_stock_analysis", rid, date, name, code, sector, bull, conf,
