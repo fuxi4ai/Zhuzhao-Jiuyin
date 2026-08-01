@@ -72,15 +72,29 @@ def main():
     out = db_root / "烛照九阴" / "_health.json"
     now = datetime.now().astimezone().isoformat(timespec="seconds")
 
-    # ── 轮次标记（2026-07-31 加）──────────────────────────────
-    # 同一天体检会跑两轮：15:30 review 班「入库后初检」、16:00 行情班「当日终检」。
+    # ── 轮次标记（2026-07-31 加 · 2026-08-01 加白名单校验与钟点订正）────────
+    # 同一天体检会跑两轮：09:30 review 班「入库后初检」、10:00 行情班「当日终检」。
     # 不标轮次的话，读到的人无从判断手里这份是不是当日权威读数。
+    # ⚠ 钟点订正（2026-08-01）：原注写「15:30 / 16:00」，那是 2026-07-30 cron 整体 −6h
+    #   **之前**的旧时刻。以 list_scheduled_tasks 的 cron 为准：
+    #   recap-kejian-daily-ingest=`0 9 * * *` · recap-kejian-review=`30 9 * * *` ·
+    #   zhuzhao-market-fetch-daily-report=`0 10 * * 1-5`（显示时刻含随机抖动，比标称晚数分钟）。
+    #   **日后再动 cron，记得回来同步这几个数**——写死在正文/常量里的钟点不会自己跟着变。
+    PHASES = ("manual", "ingest-check", "eod-final")
     phase = "manual"
     for i, a in enumerate(sys.argv[1:]):
         if a == "--phase" and i + 2 <= len(sys.argv[1:]):
             phase = sys.argv[i + 2]
         elif a.startswith("--phase="):
             phase = a.split("=", 1)[1]
+    # ⚠ 白名单校验（2026-08-01 加 · 本次根因修）：原先直接取值、无任何校验——
+    #   `--phase=ingest-chek`（拼错一个字母）会一路通过、exit 0、静默写进 JSON，
+    #   下游只会当它是个陌生轮次，没有任何一层会告诉你打错了。而这两个值全靠人手
+    #   打进两份 SKILL.md（review 班 ingest-check / zhuzhao 班 eod-final），错了不可见。
+    #   实测：2026-08-01 用 `--phase=bogus-value` 跑，exit=0 且真写了盘。
+    if phase not in PHASES:
+        sys.exit(f"❌ --phase 只接受 {PHASES}，收到 {phase!r}。"
+                 f"（不写盘，避免把陌生轮次静默灌进 _health.json）")
 
     # ── 报告自证时效（2026-07-31 加 · 本次根因修）────────────
     # 病例：2026-07-30 的 _health.json 生成于 09:41 报 stale/07-28，
@@ -171,8 +185,11 @@ def main():
         "target_date": target_date, "db_mtime_at_check": db_mtime, "checks": checks,
         "note": ("烛照九阴 recap.db 自检 · 六张关键 dim 表 max(date) 判 target_date · "
                  f"阈值 stale≥{STALE_DAYS}/fail≥{FAIL_DAYS} 个交易日（离线读 stock_daily 日历·含节假日；不可用退日历天）· 只读零网络"),
-        "phase_note": ("轮次：ingest-check=15:30 课件入库后初检 / eod-final=16:00 行情班当日终检（权威读数）/ manual=人工跑。"
-                       "**只有 eod-final 是当日权威**——初检跑在 16:00 班写 recap.db 之前，天然看不到当日全量。"),
+        "phase_note": ("轮次：ingest-check=09:30 recap-kejian-review 班「课件入库后初检」/ "
+                       "eod-final=10:00 zhuzhao 行情班「当日终检」（权威读数）/ manual=人工跑。"
+                       "**只有 eod-final 是当日权威**——初检跑在 10:00 班写 recap.db 之前，天然看不到当日全量。"
+                       "（钟点 2026-08-01 订正：原写 15:30/16:00，系 2026-07-30 cron 整体 −6h 之前的旧值；"
+                       "以 list_scheduled_tasks 的 cron 为准，改 cron 后须回来同步。）"),
         "staleness_rule": ("判本报告是否已作废：比对 recap.db 当前 mtime 与本文件 db_mtime_at_check —— "
                            "若库更新，说明体检之后又有写库动作，本报告结论不可用，须重跑 recap_health.py。"),
     }
