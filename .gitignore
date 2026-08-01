@@ -29,11 +29,3 @@ tools/_fix_九儿_*.py
 
 # 运行态（每次 launchd 跑都变）
 ops/.last_run_status
-
-# 每日一次性 ingest / 订正脚本（2026-08-01 定 · 护栏另抽公共模块入仓，见 brain TODO ①）
-tools/_ingest_九儿_*.py
-tools/_archived/_ingest_九儿_*.py
-tools/_fix_九儿_*.py
-
-# 运行态（每次 launchd 跑都变）
-ops/.last_run_status
