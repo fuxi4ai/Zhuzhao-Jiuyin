@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.zhuzhao.usclose</string>
+
+  <!-- 周一~五 14:00（本机本地时区 America/Los_Angeles）＝ 美东 17:00
+       ＝ 美股收盘(16:00 ET)后 1 小时，留出 Yahoo/yfinance 数据 settle 的余量。
+       ET 与 PT 同步换夏令时，故本地墙钟对收盘的相对位置全年稳定，无需按季调整。
+
+       与日更主班 com.zhuzhao.marketdata (02:30 本地) 的关系：
+         主班 02:30 PT ＝ 05:30 ET，排在**当日美股开盘前**，所以它取到的美股腿
+         天然是隔夜/盘中读数 —— us_anchor_daily 结构性晚一天正源于此。
+         本班排在收盘后，专门消除这一天滞后。两班顺序：本班 D 14:00 → 主班 D+1 02:30。
+
+       跑早了会怎样：取数脚本自带盘中守卫，会丢弃盘中快照 → 本班少写一天，
+       下一班按 max+1 为起点自愈。宁可少一天，不可假一天。
+       没跑成会怎样（合上盖/关机）：launchd 会在唤醒后补触发；即便整天漏掉，
+       下一班同样按 max+1 把缺口一次补齐。 -->
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>14</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Weekday</key><integer>2</integer><key>Hour</key><integer>14</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>14</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Weekday</key><integer>4</integer><key>Hour</key><integer>14</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Weekday</key><integer>5</integer><key>Hour</key><integer>14</integer><key>Minute</key><integer>0</integer></dict>
+  </array>
+
+  <!-- 顶层程序＝python3.13(已授 FDA)，令整条链在授权解释器下跑，不必给 /bin/bash 开权限。
+       与主班同款理由，勿改成 /bin/bash 跑 .sh。 -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13</string>
+    <string>/Users/lunarabbit/Documents/Claude/Projects/Financial/烛照九阴/ops/mac_us_close_backfill.py</string>
+  </array>
+
+  <!-- launchd 环境极简，显式给 HOME 与 PATH -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>/Users/lunarabbit</string>
+    <key>PATH</key>
+    <string>/Library/Frameworks/Python.framework/Versions/3.13/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+
+  <!-- 装载时不自动跑，靠日历触发 + 手动 kickstart 验证 -->
+  <key>RunAtLoad</key>
+  <false/>
+
+  <!-- launchd 层面的兜底日志（脚本自身另有带日期的日志 logs/mac_usclose_*.log） -->
+  <key>StandardOutPath</key>
+  <string>/Users/lunarabbit/Documents/Claude/Projects/Financial/烛照九阴/logs/launchd_usclose.out</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/lunarabbit/Documents/Claude/Projects/Financial/烛照九阴/logs/launchd_usclose.err</string>
+</dict>
+</plist>
