@@ -50,6 +50,22 @@ EXPECT_ANCHOR_N = 19
 US_LEG_CODES = {"NASDAQ", "SPCX", "NVDA", "AVGO", "LITE"}
 US_LEG_KINDS = ("overnight", "us_stock")
 
+# —— 陈旧告警阈值（自然日）——
+# 为什么需要：取数脚本「一票都没取到」时**仍然退出码 0**（写 0 行也算正常完成）。
+# 只查「最新日票数够不够」的话，周末空跑与工作日 Yahoo 整体挂掉的日志长得一模一样，
+# 一次彻底的数据源中断会被静默上报成成功——2026-08-01 首次实跑即暴露此洞。
+#
+# 为什么允许看系统钟：本班铁律「不看系统钟」管的是**交易日锚点判定**（不许用系统钟
+# 推断"今天该写哪一天"，那会导致编数）；陈旧告警只是"多久没进新数据了"的看门狗，
+# 不参与任何入库判定，写不写、写哪天仍然完全由脚本的盘中守卫决定。
+# 主班对 margin_guarantee_ratio 已在用同款「落后 N 日 → ⚠陈旧」范式。
+#
+# 阈值怎么来的：正常最大陈旧＝周五收盘 + 周末 ＝ 3 天（周一 14:00 跑时若当日已入库则为 0）。
+# 叠上节假日（如独立日/感恩节连休）极端 4~5 天。故 >3 标 ⚠ 提醒、>5 判 ❌ 报警。
+# 宁可容忍长假期间几次 ⚠，也不要把真中断放过去。
+STALE_WARN_DAYS = 3
+STALE_FAIL_DAYS = 5
+
 _logf = open(LOG, "a", encoding="utf-8", buffering=1)
 
 
@@ -85,6 +101,24 @@ def next_iso(yyyymmdd):
     if not yyyymmdd:
         return (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
     return (datetime.strptime(str(yyyymmdd), "%Y%m%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+
+
+def stale_check(label, yyyymmdd):
+    """陈旧看门狗。返回 (落后天数, 是否判 ❌)。仅告警，不参与任何入库判定。"""
+    if not yyyymmdd:
+        log(f"  ❌ {label} 无任何数据（表为空？）")
+        return None, True
+    lag = (datetime.now().date() - datetime.strptime(str(yyyymmdd), "%Y%m%d").date()).days
+    if lag > STALE_FAIL_DAYS:
+        log(f"  ❌ {label} 陈旧 {lag} 天（阈值 {STALE_FAIL_DAYS}）"
+            f"——取数脚本可能整体取不到数却仍退出码 0，请查上方各票是否全为「无数据」")
+        return lag, True
+    if lag > STALE_WARN_DAYS:
+        log(f"  ⚠ {label} 陈旧 {lag} 天（超 {STALE_WARN_DAYS} 天）"
+            f"——若非长假连休，请留意数据源")
+        return lag, False
+    log(f"  ✓ {label} 新鲜度 落后 {lag} 天")
+    return lag, False
 
 
 def probe():
@@ -127,6 +161,12 @@ def verify(before_anchor, before_leg):
         log(f"  intl_index 美股腿 最新日 {lmx}（{moved}） 到齐 {sorted(got)}")
         if US_LEG_CODES - got:
             log(f"  ❌ 美股腿缺：{sorted(US_LEG_CODES - got)}")
+            ok = False
+
+        # —— 陈旧看门狗：堵住「取数全空但退出码 0」被误报成成功 ——
+        _, bad_a = stale_check("us_anchor_daily", mx)
+        _, bad_l = stale_check("intl_index 美股腿", lmx)
+        if bad_a or bad_l:
             ok = False
 
         # —— 两腿对齐提醒（不判 ❌：节假日/单腿停更都可能造成暂时错位）——
