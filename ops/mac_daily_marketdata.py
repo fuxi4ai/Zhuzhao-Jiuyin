@@ -29,7 +29,9 @@ os.makedirs(LOGDIR, exist_ok=True)
 LOG    = os.path.join(LOGDIR, f"mac_marketdata_{datetime.now():%Y%m%d}.log")
 STATUS = os.path.join(ZZ, "ops", ".last_run_status")
 
-# 五表增量起点：回看 7 天（INSERT OR IGNORE 幂等，重叠无害）
+# --from 增量起点：回看 7 天（INSERT OR IGNORE 幂等，重叠无害）
+# 服务四个脚本：theme_etf / market_amount / limit_list / margin。
+# （intl_index / kr_stocks 不吃 --from；guarantee_ratio 用 --fetch。原注写「五表」与实际不符，2026-08-01 订正。）
 FROM = (datetime.now() - timedelta(days=7)).strftime("%Y%m%d")
 
 _logf = open(LOG, "a", encoding="utf-8", buffering=1)
@@ -54,7 +56,7 @@ def run(name, args, cwd):
 def main():
     log("==================== Mac 原生行情落库 开始 ====================")
     log(f"python={PY}")
-    log(f"五表 --from={FROM}（回看 7 天，去重幂等）")
+    log(f"四表 --from={FROM}（theme_etf/market_amount/limit_list/margin · 回看 7 天，去重幂等）")
     ok = True
     # ① 公共层锚点大表（FUSE 下最易丢的就是它）
     ok &= run("stock_daily 落库", [os.path.join(ZZ, "ops/ingest_stock_daily.py")], ZZ)
@@ -66,6 +68,16 @@ def main():
     ok &= run("market_amount",[os.path.join(ZZ, "scripts/fetch_market_amount.py"), "--from", FROM], ZZ)
     ok &= run("limit_list",   [os.path.join(ZZ, "scripts/fetch_limit_list.py"),    "--from", FROM], ZZ)
     ok &= run("margin",       [os.path.join(ZZ, "scripts/fetch_margin.py"),        "--from", FROM], ZZ)
+    # R 值（全市场平均维持担保比例）→ margin_guarantee_ratio。走 akshare 东财、非 tushare，参数是 --fetch 不是 --from。
+    # 2026-08-01 补：此前该表**没有任何主人**——日更步骤只写在一份从未生效的 SKILL 里（落在
+    #   ~/Documents/Claude/Scheduled/ 那棵调度器不读的树上，见 [[通用教训]] G-X118），
+    #   现有数据全部来自 2026-07-28 06:10 的一次手动回填（3355 行·stat_date 止于 20260727），此后零写入。
+    #   消费方＝风险日报「杠杆踩踏」爆仓点位法（Projects/风险日报/build_risk_daily.py L103）。
+    # ⚠ 刻意不并入 ok：东财全量拉 3300+ 行**已知易 ChunkedEncodingError**（脚本自带 3 次指数退避），
+    #   而下游 build_risk_daily.py 已有 R 陈旧护栏（>3 交易日页面标 ⚠、>10 交易日 buffer 降参考）。
+    #   并进 ok 会让一条已知偶发的网络腿把整个 launchd job 标 FAIL，造成告警疲劳、反而掩盖真问题。
+    #   失败仍由 run() 打 ❌ 进日志，看得见；停更由下游护栏兜底。
+    run("guarantee_ratio", [os.path.join(ZZ, "scripts/fetch_guarantee_ratio.py"), "--fetch"], ZZ)
     ok &= run("intl_index",   [os.path.join(ZZ, "scripts/fetch_intl_index.py")], ZZ)
     ok &= run("kr_stocks",    [os.path.join(ZZ, "scripts/fetch_kr_stocks.py")], ZZ)
 
@@ -80,6 +92,17 @@ def main():
                 log(f"  {t:22s} {con.execute(f'SELECT MAX(trade_date) FROM {t}').fetchone()[0]}")
             except Exception as e:
                 log(f"  {t:22s} ERR {e}")
+        # margin_guarantee_ratio 单独一行：它的日期列是 stat_date 不是 trade_date，
+        # 塞进上面的循环只会打印 ERR（2026-08-01 加）。同时算出下游护栏用的「落后几个交易日」，
+        # 让停更在本日志里就看得见，不必等风险日报页面才发现。
+        try:
+            _r = con.execute("SELECT MAX(stat_date) FROM margin_guarantee_ratio").fetchone()[0]
+            _lag = con.execute(
+                "SELECT COUNT(*) FROM margin_daily WHERE trade_date > ?", (_r,)).fetchone()[0]
+            _flag = "" if _lag <= 3 else f"  ⚠陈旧{_lag}交易日（下游 build_risk_daily 将标警）"
+            log(f"  {'margin_guarantee_ratio':22s} {_r}  (stat_date · 落后 {_lag} 交易日){_flag}")
+        except Exception as e:
+            log(f"  {'margin_guarantee_ratio':22s} ERR {e}")
         con.close()
     except Exception as e:
         log(f"  收尾核对失败：{e}")
