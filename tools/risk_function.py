@@ -65,10 +65,12 @@ def f4_ratio_trigger(funds_win, avg_turnover, cfg):
     日均全市场成交额（avg_turnover，亿）≥ ratio_th → 触发。语义＝「IPO 抽走≈几天成交额」。
     2026-07-23 由绝对 funds_win_th(200亿) 换相对（选型B·p95·2020-02→2026 校准 lift2.63/14事件·
     Q6过[低成交额alone lift0]·跨4年散布；见 docs/五因回测校准_F4相对_20260723.md）。旧绝对键降级留注、可回滚。
+    2026-08-09 乙案重锚：分母由 market_amount_daily.total_trillion 换 daily_market.volume_trillion（真全市场·A2回补后2020+全有效），
+    ratio_th 0.045→0.030（新分母全史p95=0.0301；触发集对照 78/78全保留·仅多20210415一日；MANIFEST 定源裁定·乙案）。
     数据不足（募资或成交额缺）→ None（不可评，绝不当"未触发"·G-X75）。"""
     if funds_win is None or avg_turnover is None or avg_turnover <= 0:
         return None
-    return bool(funds_win / avg_turnover >= float(cfg.get("ratio_th", 0.045)))
+    return bool(funds_win / avg_turnover >= float(cfg.get("ratio_th", 0.030)))
 
 
 def _rolling_pct(dates, values, window=WINDOW, min_periods=MIN_PERIODS):

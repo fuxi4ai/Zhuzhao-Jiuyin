@@ -10,7 +10,7 @@
   因·赚钱效应直测: 晋级率(昨U今连板占比) / 涨停股次日溢价(昨U今日均涨幅)
   果·行为症状:     涨停数 / 跌停数(负) / 涨跌比 / 主线宽度K_day
   果·滞后症状:     成交额变化 / 连板高度(降权·24-09失灵教训)
-数据：market_data.db limit_list_daily(全口径已修复) + market_amount_daily + theme_etf_daily
+数据：market_data.db limit_list_daily(全口径已修复) + daily_market.volume_trillion(乙案2026-08-09换真全市场源) + theme_etf_daily
       + stock_daily(涨跌比,仅20260603后可用,缺则该成分剔除并降 confidence)
 
 四季：score 趋势项(MA3-MA10)定上/下行 × 水平项(滚动分位)定季节；
@@ -87,7 +87,7 @@ def load_indicators(md):
         ind[d]["limit_down"] = ld[d]
         ind[d]["height"] = hmax[d]
     # 成交额（5日变化率，水位归容量模块管）
-    amt = dict(md.execute("SELECT trade_date, total_trillion FROM market_amount_daily"))
+    amt = dict(md.execute("SELECT trade_date, volume_trillion FROM daily_market WHERE volume_trillion>0"))  # 乙案2026-08-09：换真全市场源（MANIFEST 定源裁定）
     ks = sorted(amt)
     for i, d in enumerate(ks):
         if i >= 5 and amt[ks[i - 5]]:

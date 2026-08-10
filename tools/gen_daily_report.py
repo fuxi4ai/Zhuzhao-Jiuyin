@@ -334,8 +334,8 @@ def gather(date_cap=None):
                                                     else (None, None, None))
     snap["ud_vintage"] = ud_vint
     snap["ud_stale"] = ud_vint is not None and iso(ud_vint) < iso(data_day)
-    # 口径锁定（2026-07-28 Doctor 批·甲案）：快照/K_cap＝水平显示类 → 锁 volume_trillion（真·全A加总·仅2026-06-03起有效）；
-    # 分位/回测类另锁 market_amount_daily（指数口径·16年史）——两源差20-25%属口径特征，禁跨源混用（详 Market-Data/MANIFEST.md）。
+    # 口径锁定（2026-08-09 Doctor 批·乙案，取代 07-28 甲案）：全系统统一锁 volume_trillion（真·全A加总·2020+ 全段有效）；
+    # market_amount_daily 降为 2010 前长史专用+双源对撞监控，2020+ 用途禁用（详 Market-Data/MANIFEST.md 定源裁定）。
     amt_row = md.execute("SELECT trade_date, volume_trillion FROM daily_market "
                          "WHERE trade_date<=? AND volume_trillion>0 ORDER BY trade_date DESC LIMIT 1",
                          (data_day,)).fetchone()
@@ -370,7 +370,7 @@ def gather(date_cap=None):
     _f4M = int(_f4cfg.get("turnover_avg_days", 30))
     ipo = {"funds_win": None, "n_win": None, "win_days": _f4wd, "latest": None,
            "avg_turnover": None, "ratio": None, "trigger": None,
-           "ratio_th": _f4cfg.get("ratio_th", 0.045), "avg_days": _f4M}
+           "ratio_th": _f4cfg.get("ratio_th", 0.030), "avg_days": _f4M}
     try:
         _cut = (datetime.date.fromisoformat(iso(data_day)) - datetime.timedelta(days=_f4wd)).strftime("%Y%m%d")
         _has = md.execute("SELECT COUNT(*) FROM ipo_daily WHERE trade_date<=?", (data_day,)).fetchone()[0]
@@ -380,9 +380,9 @@ def gather(date_cap=None):
                 "WHERE trade_date>? AND trade_date<=?", (_cut, data_day)).fetchone()
             ipo["funds_win"], ipo["n_win"], ipo["latest"] = round(irow[0], 1), irow[1], irow[2]
             # F4 相对口径分母（2026-07-23 选型B）：近 _f4M 交易日日均全市场成交额（万亿→亿）。
-            # 须真有 _f4M 个交易日样本才算，否则不可评(None·G-X75「无数据≠未触发」)。volume_trillion 坏·勿用(ERR-20260719-003)。
+            # 须真有 _f4M 个交易日样本才算，否则不可评(None·G-X75「无数据≠未触发」)。乙案2026-08-09：分母换 volume_trillion（真全市场·2020+全有效·ERR-20260719-003已收口）。
             _sub = md.execute(
-                "SELECT total_trillion FROM market_amount_daily WHERE total_trillion IS NOT NULL "
+                "SELECT volume_trillion FROM daily_market WHERE volume_trillion>0 "
                 "AND trade_date<=? ORDER BY trade_date DESC LIMIT ?", (data_day, _f4M)).fetchall()
             if len(_sub) >= _f4M:
                 ipo["avg_turnover"] = round(sum(r[0] for r in _sub) / _f4M * 1e4, 1)
@@ -2000,7 +2000,7 @@ def _eval_risk_factors(D):
         th4s = "近N日募资集中（待接源）"
     else:
         wd = ip.get("win_days", 10)
-        _rth = c4.get("ratio_th", 0.045)
+        _rth = c4.get("ratio_th", 0.030)
         _ratio = ip.get("ratio")
         _trig = ip.get("trigger")   # True/False/None(不可评·成交额窗不足)
         st4 = "triggered" if _trig else ("pending" if _trig is None else "quiet")
