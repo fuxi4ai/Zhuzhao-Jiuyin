@@ -49,7 +49,7 @@ def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d
 
 # ── 信号条目"稳定超额收益期"注记（回测统计参照·非承诺）2026-07-08 ──
 # 窗口=各机制超额达峰的自然持有期（交易日口径，与 docs/自主回测_20260706 一致）
-# ── PRD F7：回测注记单一真源 config/backtest_stats.json；缺文件即 fallback 回下方硬编码，不 break 07:00 定时链 ──
+# ── PRD F7：回测注记单一真源 config/backtest_stats.json；缺文件即 fallback 回下方硬编码，不 break 10:03 定时链 ──
 _BT_FALLBACK = {
     "_meta": {"sample_period": "25.10–26.7"},
     "mech_window": {"demand_surge": 10, "supply_shock": 10, "event_driven": 10,
@@ -96,7 +96,7 @@ RISK_MECH = set(BT_STATS["risk_mech"])   # 逆风类：无稳定超额期
 VOL_HINT_MECH = set(BT_STATS.get("vol_hint_mech", []))   # A2：波动源非收益源（price_driven）
 
 
-# ── 五因风险温度：预警因子单一真源 config/risk_factors.json；缺文件即 fallback 回下方硬编码，不 break 07:00 定时链 ──
+# ── 五因风险温度：预警因子单一真源 config/risk_factors.json；缺文件即 fallback 回下方硬编码，不 break 10:03 定时链 ──
 # 源自 2026-07-17 A股年度冰点 case study『催化剂链·五因共振』。Phase-1 仅 F1/F2/F5(汇率) 在线可算，
 # F3两融/F4 IPO/F5油价·美债 为待接源占位（渲灰不计温度）。阈值皆初值·待历史冰点日回测校准。
 _RISK_FALLBACK = {
@@ -1453,7 +1453,7 @@ def _deploy_to_artifact(html, dd):
         "name": "烛照九阴复盘日报",
         "schemaVersion": 1,
         "description": (f"最后更新：{datetime.datetime.now():%Y-%m-%d %H:%M}（{dd} 期）。\n"
-                        "Update at：周一至周五 07:00（定时链 step 6.5 经 update_artifact 推送）。\n\n"
+                        "Update at：周一至周五 10:03（定时链 step 6.5 经 update_artifact 推送）。\n\n"
                         "盘后复盘看板，ECharts 与字体内联、画框《果熟来禽图》内嵌，完全自包含；数据为当期快照。"),
     }
     meta_block = ('<script type="application/json" id="cowork-artifact-meta">\n'
@@ -2192,7 +2192,8 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
             _temp_txt = ((_trig_names + "，" if _trig_names else "") + blabel
                          + f"（历史该态 {_S2C.get('evidence_alert', '0/23')} 未现冰点）")
         else:
-            _temp_txt = "触发层平静"
+            _temp_txt = ("触发层平静"
+                         '<span class="rr-sub">触发层＝F4 IPO虹吸／F5 外部紧缩，事件型扳机</span>')
     elif tn > 0 and amp_hit:
         _temp_txt = (_trig_names + "，" if _trig_names else "") + "外盘共振"
     elif tn > 0:
@@ -2244,7 +2245,7 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
 .rr-line2{{display:flex;align-items:baseline}}
 .rr-temp{{display:flex;align-items:center;gap:8px;font-weight:700;font-size:12px;color:{bcol}}}
 .rr-temp .rr-emoji{{font-size:18px}}
-.rr-temp .rr-sub{{font-weight:400;font-size:11px;color:var(--sub);margin-left:2px}}
+.rr-temp .rr-sub,.rr-grade .rr-sub{{font-weight:400;font-size:11px;color:var(--sub);margin-left:2px}}
 .rr-lamps{{display:flex;gap:12px;align-items:center;margin-left:auto;flex-shrink:0}}
 .rr-lamp{{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--sub)}}
 .rr-lamp i{{width:11px;height:11px;border-radius:50%;background:var(--d);
@@ -2254,9 +2255,12 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
 .rr-lamp b{{font-weight:700;letter-spacing:.02em}}
 .rr-flagico{{font-size:10.5px;font-weight:600;color:#fff;background:#c0392b;border:1px solid #c0392b;
   border-radius:6px;padding:0 5px;vertical-align:1px}}
+.rr-pill{{font-size:10.5px;font-weight:600;color:#fff;background:#3f9c76;border:1px solid #3f9c76;
+  border-radius:6px;padding:0 5px;vertical-align:1px}}
 .rr-grade{{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12px;color:#43413b}}
 .rr-grade b{{font-size:10.5px;font-weight:600;color:#fff;background:var(--gc);
   border:1px solid var(--gc);border-radius:6px;padding:0 5px;vertical-align:1px}}
+.rr-gname{{font-weight:700;font-size:12px;color:var(--gc)}}
 .rr-grade .rr-gest{{color:#43413b}}
 .rr-fomc{{font-size:10.5px;color:#8b6f32;background:#f4ead0;border:1px solid #e5d9b8;border-radius:8px;padding:1px 8px}}
 .rr-more{{margin:0 0 8px}}
@@ -2279,7 +2283,7 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
 <section class="rr-band" aria-label="五因风险温度">
   <div class="rr-left">
     <div class="rr-line1">
-      <div class="rr-temp">{('<span class="rr-flagico">风险</span>' if is_reso else f'<span class="rr-emoji">{emoji}</span>')}{_temp_txt}</div>
+      <div class="rr-temp">{('<span class="rr-flagico">风险</span>' if is_reso else (f'<span class="rr-pill">{blabel}</span>' if (_fv == "s2" and _key == "calm") else f'<span class="rr-emoji">{emoji}</span>'))}{_temp_txt}</div>
       {fomc_chunk}
     </div>
     <div class="rr-line2">{grade_chunk}</div>
@@ -2333,8 +2337,10 @@ def grade_section(D):
         est = "创业板距年高 %+.1f%%" % g.get("dd244", 0)
     else:
         est = ""
+    gloss = "中级调整偏强档" if v == "L2+" else ""  # 2026-08-11 Doctor 定：代码做胶囊，译名后置彩色文字（同触发层平静）
     return (f'<span class="rr-grade"><b style="--gc:{col}">{v}</b>'
-            + (f'<span class="rr-gest">{est}</span>' if est else "") + "</span>")
+            + (f'<span class="rr-gname" style="--gc:{col}">{gloss}</span>' if gloss else "")
+            + (f'<span class="rr-sub">{est}</span>' if est else "") + "</span>")
 
 
 def fomc_note(D):
