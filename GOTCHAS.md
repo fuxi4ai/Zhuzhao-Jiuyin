@@ -706,3 +706,15 @@ macro 腿服务的是日报五因 **F5「外部紧缩」**——那是方向性�
 **错误信息**: 无报错，打印「✅ 已记录 0 个课件到 processed_kejian」——静默漏登记。
 **解决方案**: record --all-new 内部重跑 scan()，而 scan 的 RAW_RECAP_DIR 同样由 config 从 ZZJY_DATABASE_ROOT 推导（/tmp/dbroot/烛照九阴/Raw-Recap 不存在→0 文件）。在副本根下补 symlink：`ln -sfn <真Raw-Recap> /tmp/dbroot/烛照九阴/Raw-Recap` 后重跑即正常（record 只读课件算 md5、写 /tmp 副本库，symlink 无副作用）。同族：GOTCHA-20260728-002（ticker_resolver 种子源随根走丢）——**env 切根时，凡 config 推导的资源路径都要过一遍**。
 **预防措施**: 课件入库 SOP 的 /tmp 建副本步骤里固化这条 symlink；或日后给 dedup_kejian 加 --raw-dir 显式参数（需改脚本，另立项）。
+
+## [NOTE-20260813-001] market_data.db 双写者权属清单（风险已消解 · 2026-08-13 重盘定）
+**状态**: ✅ 已解决（2026-08-13 问答板 · Doctor 裁「标已解决+补注记」）
+**优先级**: 🟢 低
+**背景**: 原 TODO「us-close-backfill 与 zhuzhao 双写者职责未理清」担心的「两班重叠后放回者整片 cp 抹掉先放回者」。
+**重盘结论（08-13）**: 三写者全部 **INSERT OR IGNORE 幂等 + 直接写**，无任何一方走 /tmp 副本整库覆盖回写 → 「整片抹掉」机制已不存在。
+**写入者清单**:
+- `us_anchor_daily`：zhuzhao 班（10:03 PT·隔夜 T-1）+ launchd `com.zhuzhao.usclose`（收盘后 ~19:02 PT·补数 T）——互补分工、不同 trade_date、不重叠。
+- `intl_index_daily`：zhuzhao 班 + launchd `com.zhuzhao.marketdata`（02:30）+ launchd usclose（美股腿/macro 腿）。
+- `theme_etf_daily`/`market_amount_daily`/`limit_list_daily`/`margin_daily`：zhuzhao 班（10:03）+ launchd marketdata（02:30 回看 7 天）。
+- `us-close-backfill` 班：**只读看门狗，不写库**。
+**两处诊断过时**: ①「五表双写」订正为「四表+intl_index+kr_stocks」（mac_daily_marketdata.py 注释 2026-08-01 已订正）；② `kr_stocks` 表已不在 market_data.db（脚本 fetch_kr_stocks.py 仍在跑，写不存在表，隐患另核）。
