@@ -237,7 +237,7 @@
 
 **解法** ✅:
 - 校验铁律：凡 db 回写挂载盘后**必跑 `integrity_check`（非 `quick_check`）**才算成功；失败即回退备份。
-- `_ingest_九儿_*.py` 已加固：认 `ZZJY_DATABASE_ROOT`、沙箱拒写挂载盘真盘（除非显式 `ZZJY_ALLOW_MOUNT_WRITE`）、写后强 integrity_check。
+- `_ingest_九儿_*.py` 已加固：经 `import config` 走 `config.connect_write()` 中央护栏（认 `ZZJY_DATABASE_ROOT`、沙箱拒写挂载盘真盘除非显式 `ZZJY_ALLOW_MOUNT_WRITE`）、写后强 integrity_check。
 - 恢复手法：逐表 `SELECT*→INSERT` 重建干净库（损坏多在索引/页指针，行数据可全救），integrity ok 后落 `recap.db.recovered_*`；真盘换库走 Mac 终端 `cp 恢复件→recap.db` + integrity 复核（沙箱覆盖既有库必坏）。损坏件隔离留证 `recap.db.CORRUPT_*`。
 
 **更新（2026-06-29 · 探针复测 + 护栏集中化 Phase-1）**:
@@ -698,3 +698,11 @@ macro 腿服务的是日报五因 **F5「外部紧缩」**——那是方向性�
 **③ 质疑错在哪（量纲/传导没核）**：拿 **close 的绝对舍入误差 ±0.005** 直接去比 **`pct_chg` 的差 0.09pp**——两者量纲不同。`pct=(c/prev−1)×100`，close 的舍入误差经两条腿各放大 `100/prev`，yield≈4.6 时合计约 **43 倍**，传播上限 `100×(0.005/prev + c×0.005/prev²) ≈ ±0.217pp`。0.09pp 稳在舍入噪声内。
 
 **④ 结论**：**G031 ③ 的归因成立，G031 正文一字不改**；US10Y 的 0.09pp 级两表差异**与本条（G033）的读数语义无关**，勿再把两者混为一谈。同族提醒见 `brain/permanent` 四问纪律——本次栽的是第四问之外的一问：**量纲与传导**。
+
+## [GOTCHA-20260804-001] dedup_kejian record --all-new 在 ZZJY_DATABASE_ROOT=/tmp 下记 0 个——RAW_RECAP_DIR 也随根走丢
+**状态**: ✅ 已解决
+**优先级**: 🟡 中
+**触发场景**: 课件入库 /tmp 副本往返流程（G-X33）中，`ZZJY_DATABASE_ROOT=/tmp/dbroot python3 tools/dedup_kejian.py record --all-new`。
+**错误信息**: 无报错，打印「✅ 已记录 0 个课件到 processed_kejian」——静默漏登记。
+**解决方案**: record --all-new 内部重跑 scan()，而 scan 的 RAW_RECAP_DIR 同样由 config 从 ZZJY_DATABASE_ROOT 推导（/tmp/dbroot/烛照九阴/Raw-Recap 不存在→0 文件）。在副本根下补 symlink：`ln -sfn <真Raw-Recap> /tmp/dbroot/烛照九阴/Raw-Recap` 后重跑即正常（record 只读课件算 md5、写 /tmp 副本库，symlink 无副作用）。同族：GOTCHA-20260728-002（ticker_resolver 种子源随根走丢）——**env 切根时，凡 config 推导的资源路径都要过一遍**。
+**预防措施**: 课件入库 SOP 的 /tmp 建副本步骤里固化这条 symlink；或日后给 dedup_kejian 加 --raw-dir 显式参数（需改脚本，另立项）。

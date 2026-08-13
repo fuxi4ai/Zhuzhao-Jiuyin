@@ -425,6 +425,14 @@ def main():
     if args.apply:
         for table in {"industry_signals", "yuantu_buy_signals"}:
             ensure_cols(rc, table)
+        old_gap = {}
+        for _t in {"industry_signals", "yuantu_buy_signals"}:
+            try:
+                for _row in rc.execute(f"SELECT id, gap_status FROM {_t}"):
+                    old_gap[(_t, _row[0])] = _row[1]
+            except Exception:
+                pass
+        changed = []
         n = 0
         for r in out:
             # no_anchor 也回写——否则映射纠错后旧锚残留库中（2026-06-10 教训）
@@ -439,9 +447,22 @@ def main():
                  r.get("relit_count") if r.get("relit_count") not in ("", None) else None,
                  r.get("direction_flip_date") or None,
                  r["id"]))
+            _old = old_gap.get((r['table'], r['id']))
+            if _old is not None and _old != r['gap_status']:
+                changed.append((r['id'], _old, r['gap_status']))
             n += 1
         rc.commit()
         logger.info(f"✅ 回填 {n} 条（no_anchor/坏日期未写）")
+        _rpt = config.PROJECT_ROOT / "docs" / f"兑现变更_{datetime.date.today():%Y%m%d}.md"
+        _L = [f"# 兑现变更 {datetime.date.today():%Y-%m-%d}（closure_engine --apply 留痕审计）", "",
+              f"- 信号总数：{n}（predaily 锚 {n}）", f"- gap_status 变更 **{len(changed)}** 条"]
+        if changed:
+            _L += ["", "| signal | 旧状态 | 新状态 |", "|---|---|---|"]
+            for _id, _o, _n2 in changed:
+                _L.append(f"| {_id} | {_o} | {_n2} |")
+        _L += ["", "## 回滚命令", "", "```bash", f"cp {bak} {config.RECAP_DB}", "```", ""]
+        _rpt.write_text("\n".join(_L), encoding="utf-8")
+        logger.info(f"📄 兑现变更留痕 → {_rpt}")
     else:
         logger.info("🔍 dry-run 完成，未写库。过目审核表后 --apply。")
 
