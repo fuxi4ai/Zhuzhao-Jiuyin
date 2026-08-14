@@ -4,8 +4,11 @@
 （CC 2026-06-10；方案见 docs/兑现检测引擎-dryrun方案-20260610.md，Doctor 已批口径）
 
 状态机（ETF 级，主线锚定）：
-  open    → closing : 发现日后，主线代表 ETF 对 510300 超额连续为正 ≥ Y=3 日
-                      （streak 首日 = date_realized）
+  open    → closing : 发现日后，主线代表 ETF 对 510300 累计超额 ≥ CUM_GATE=2pp
+                      （达标当日 = date_realized）
+                      【2026-08-13 回测裁定：原 Y=3「连续为正 streak」弃用——
+                        回测证其几乎不筛（97% 触发）且误启动 32%；累计 ≥2pp 精度 84%、
+                        召回 100%、中位触发 2 天全面占优。回测见 2026-08-13 会话。】
   closing → closed  : 累计超额峰值 peak ≥ X=5% 且 绝对回撤 peak−cum ≥ 5pp
                       （Doctor 2026-06-10 拍板：绝对回撤，防小峰值相对回撤误触）
 
@@ -30,7 +33,8 @@ _sys.path.insert(0, str(config.PROJECT_ROOT / "scripts"))
 from fetch_theme_etf import THEME_ETF, BENCHMARK
 
 # ── 口径常量（Doctor 2026-06-10 拍板）─────────────────────────────
-Y_STREAK = 3        # open→closing：连续超额为正天数
+Y_STREAK = 3        # 【2026-08-13 弃用】曾为 open→closing 连续超额为正天数；回测裁定换累计幅度 CUM_GATE
+CUM_GATE = 0.02     # open→closing：累计超额 ≥ 2pp（2026-08-13 回测裁定：精度84%/召回100%/中位2天）
 X_PEAK = 0.05       # 【弃用 2026-06-29】曾为 closing→dormant 的峰值下限门槛，回测后去除（低幅信号被困死）；常量留作历史/勿引用
 DD_ABS = 0.05       # closing→closed：绝对回撤 5pp
 # 案2（2026-06-24 Doctor 批 · Phase1 价格层）：closed 不终止 → dormant（暗态），价格再起则点亮回 closing（二段）。
@@ -215,8 +219,9 @@ def run_machine(ex, dates, disc):
             streak = 0
         if state == "open":
             leg_peak = max(leg_peak, cum)
-            if realized is None and streak >= Y_STREAK:
-                realized = streak_start
+            # 2026-08-13 回测裁定：闸门由「连续为正 ≥Y=3 日」换为「累计超额 ≥CUM_GATE」
+            if realized is None and cum >= CUM_GATE:
+                realized = d
                 state = "closing"
         elif state == "closing":
             leg_peak = max(leg_peak, cum)
