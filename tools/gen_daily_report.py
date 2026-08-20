@@ -960,11 +960,26 @@ def gather(date_cap=None):
             risk_themes.append(t["short"])
             risks.append({"lvl": "红", "txt": f"美股锚背离：{t['short']} A股20日超额 {t['e20']:+.1f}% "
                           f"但锚 {u['tkr']} 20日超额 {u['ex20']:+.1f}%（全球定价撤退，A股独舞）"})
+    # 2026-08-20 ERR-20260820-001（Doctor 裁 C 案）：条目级「逾期未启动」是单条信号锚失效判定，
+    # 不得升维成板块名单（15 板块兑现率 82-99% 却曾整版列进「等轮动」）。
+    # A 文案精确化 + B 聚合过滤（只列该锚逾期未兑现条目占比 ≥30% 的锚，阈值 Doctor 2026-08-20 裁）。
     od = rc.execute("SELECT COUNT(*), GROUP_CONCAT(DISTINCT etf_anchor) FROM industry_signals "
                     "WHERE gap_desc LIKE '%逾期%'").fetchone()
+    odf = rc.execute("""
+        SELECT GROUP_CONCAT(anchor) FROM (
+          SELECT etf_anchor AS anchor
+          FROM industry_signals
+          GROUP BY etf_anchor
+          HAVING SUM(CASE WHEN gap_desc LIKE '%逾期%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) >= 0.30
+        )""").fetchone()
     if od and od[0]:
-        risks.append({"lvl": "黄", "txt": f"逾期未启动信号 {od[0]} 条（{(od[1] or '').replace('创新药/医药/CRO','创新药')}）"
-                      "——逻辑存疑或等轮动"})
+        od_themes = (odf[0] if odf and odf[0] else "").replace('创新药/医药/CRO', '创新药')
+        if od_themes:
+            risks.append({"lvl": "黄", "txt": f"逾期未兑现锚点信号 {od[0]} 条（高占比板块：{od_themes}）"
+                          "——单条信号锚存疑，板块整体启动状态见兑现状态区"})
+        else:
+            risks.append({"lvl": "黄", "txt": f"逾期未兑现锚点信号 {od[0]} 条——单条信号锚存疑，"
+                          "分散于各板块（无板块占比超 30%，板块整体启动状态见兑现状态区）"})
     if D["capacity"]["state"] == "满载":
         risks.append({"lvl": "黄", "txt": f"容量满载：K(5日中位) {kday} ≥ K_cap {D['capacity']['kcap']}"
                       "（新线启动需旧线让位，注意轮动）"})
