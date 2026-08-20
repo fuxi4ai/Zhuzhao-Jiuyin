@@ -46,9 +46,10 @@ Cowork 沙箱经 FUSE 直写挂载盘真盘是 **GOTCHAS G019** 明令禁止的�
 ## 安装 / 验证 / 卸载
 
 ```bash
-# 安装（软链，改仓内文件即生效，不必重装）
-ln -sf ~/Documents/Claude/Projects/Financial/烛照九阴/ops/com.zhuzhao.usclose.plist \
-       ~/Library/LaunchAgents/com.zhuzhao.usclose.plist
+# 安装（实体拷贝，与 marketdata 同模式；软链曾致 usclose 失载停摆——2026-08-12。
+# 代价：改仓内 plist 后需重新 cp + bootstrap 才生效）
+cp ~/Documents/Claude/Projects/Financial/烛照九阴/ops/com.zhuzhao.usclose.plist \
+   ~/Library/LaunchAgents/com.zhuzhao.usclose.plist
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.zhuzhao.usclose.plist
 
 # 立刻跑一次验证（不等日历触发）
@@ -105,3 +106,7 @@ cd ~/Documents/Claude/Projects/Financial/烛照九阴
   迁本机原生后，护栏放行、写入 durable，且不必为此拆掉 G019 防线。
   同日 `mac_daily_marketdata.sh` 因与 `.py` 编排逻辑漂移（缺 guarantee_ratio 等）
   且 plist 只调 `.py`，改名 `_DEPRECATED_` 前缀弃用（未删）。
+- **2026-08-12** 补数班停摆并恢复：launchd 报 service not found（job 未加载、软链仍在；
+  失载机制为推断，同期 marketdata 实体文件存活）。重 bootstrap 复活，plist 改实体拷贝。
+  另手动 `--from 2026-08-11` 回补当日缺口（6 锚票 ALM/GEV/LITE/MP/PLTR/RKLB + 美股腿
+  LITE/SPCX）——编排器 max+1 起点不回头补部分缺失日，此洞未改代码、靠人工盯。

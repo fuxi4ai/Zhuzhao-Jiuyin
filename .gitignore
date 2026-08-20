@@ -29,3 +29,4 @@ tools/_fix_九儿_*.py
 
 # 运行态（每次 launchd 跑都变）
 ops/.last_run_status
+ops/.last_run_status_usclose
