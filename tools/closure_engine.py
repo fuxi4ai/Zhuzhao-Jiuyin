@@ -59,7 +59,17 @@ SIGNAL_THEME_OVERRIDE = {"concept_LaserShortage2026": "光芯片",
                          "concept_OpticalFiberSupplyShortage2026": "光纤光缆",
                          "concept_FiberSeasonalDemandPeak": "光纤光缆",
                          "concept_OpticalFiberUpstreamRawMaterial": "光纤光缆",
-                         "concept_FiberPricingUpside": "光纤光缆"}
+                         "concept_FiberPricingUpside": "光纤光缆",
+                         # 2026-08-21 56 条逾期抽审改锚批（Doctor 裁「改锚7+退役28+留观察21」）：
+                         # 半导体硅片×4/四氯化硅/SOFC/长鑫半导体修复，原锚错挂光伏/钨/光模块。
+                         # key 取 kw 唯一子串（已对库验证每 key 仅命中目标行，SOFC 因多行命中改用「算力能源」）
+                         "12英寸硅片": "半导体/芯片/半导体材料",
+                         "硅片供需缺口": "半导体/芯片/半导体材料",
+                         "供需剪刀差": "半导体/芯片/半导体材料",
+                         "靶材供不应求": "半导体/芯片/半导体材料",
+                         "高纯四氯化硅": "光模块/CPO/光通信/光纤",
+                         "算力能源": "电力/电网/算电协同/燃气轮机",
+                         "半导体/光模块": "半导体/芯片/半导体材料"}
 
 # ── sector_alias canonical → THEME_ETF 键 ────────────────────────
 CANON2THEME = {
@@ -304,8 +314,10 @@ def norm_date(s):
 def load_signals(rc, which):
     sigs = []
     if which in ("all", "industry"):
+        # status='retired' 为锚存疑退役态（2026-08-21 立）：引擎跳过不重算、gap_* 字段保留历史账
         for sid, dt, kw, content in rc.execute(
-                "SELECT id, date, keyword, signal_content FROM industry_signals"):
+                "SELECT id, date, keyword, signal_content FROM industry_signals "
+                "WHERE status != 'retired'"):
             d, prec = norm_date(dt)
             sigs.append(dict(table="industry_signals", id=sid, disc=d, prec=prec,
                              kw_text=kw or "", content_text=content or "",

@@ -964,11 +964,12 @@ def gather(date_cap=None):
     # 不得升维成板块名单（15 板块兑现率 82-99% 却曾整版列进「等轮动」）。
     # A 文案精确化 + B 聚合过滤（只列该锚逾期未兑现条目占比 ≥30% 的锚，阈值 Doctor 2026-08-20 裁）。
     od = rc.execute("SELECT COUNT(*), GROUP_CONCAT(DISTINCT etf_anchor) FROM industry_signals "
-                    "WHERE gap_desc LIKE '%逾期%'").fetchone()
+                    "WHERE gap_desc LIKE '%逾期%' AND status != 'retired'").fetchone()
     odf = rc.execute("""
         SELECT GROUP_CONCAT(anchor) FROM (
           SELECT etf_anchor AS anchor
           FROM industry_signals
+          WHERE status != 'retired'
           GROUP BY etf_anchor
           HAVING SUM(CASE WHEN gap_desc LIKE '%逾期%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) >= 0.30
         )""").fetchone()
