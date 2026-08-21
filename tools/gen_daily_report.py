@@ -1589,7 +1589,11 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .opp{border:1px solid #d7deea;border-radius:14px;padding:12px 14px;margin-bottom:10px;
  background:linear-gradient(135deg,var(--brand-tint),var(--card))}
 .opp-h{font-weight:600} .opp-d{color:var(--sub);font-size:12px;margin:4px 0}
-.risk{border-radius:14px;padding:10px 14px;margin-bottom:8px;font-size:13px}
+.risk{border-radius:14px;padding:10px 14px;margin-bottom:8px;font-size:13px;display:flex;align-items:flex-start;gap:10px}
+.rk-led{flex-shrink:0;padding-top:2px}
+.rk-txt{flex:1 1 auto;min-width:0}
+.ledbar{display:inline-flex;gap:2.5px;align-items:center}
+.led{width:5px;height:15px;border-radius:2px}
 .r-红{border-color:#e3c4bb;background:linear-gradient(135deg,#f4e5df,var(--card))}
 .r-黄{border-color:#dfd0aa;background:linear-gradient(135deg,#f3ead6,var(--card))}
 .foot{color:#9a9386;font-size:11px;margin:30px 0 10px;border-top:1px solid var(--line);padding-top:10px}
@@ -2382,6 +2386,20 @@ def fomc_note(D):
     return ""
 
 
+def _sev_led(lvl):
+    """暖色·警示页杀伤灯范式（实抽自 build_risk_daily.py killLed · 2026-08-21 Doctor 令替换圆标）：
+    5 段圆角竖条·灯位固定色[绿绿黄橙红]·亮数=档（0全灰/1-2亮2绿/3+黄/4+橙/5+红）。
+    风险提示数据仅黄/红两档 → 黄=3档（金）·红=5档（红），固定色阶梯自身定义映射、无自由裁量。"""
+    COL = ("#2f7d63", "#2f7d63", "#c8962a", "#e0791e", "#c0392b")
+    GREY = "#d3cdbe"
+    sev = 5 if lvl == "红" else 3
+    segs = "".join(
+        f'<span class="led" style="background:{COL[i]};box-shadow:0 0 3px {COL[i]}99"></span>' if i < sev
+        else f'<span class="led" style="background:{GREY}"></span>'
+        for i in range(5))
+    return f'<span class="ledbar" title="风险档 {sev}/5">{segs}</span>'
+
+
 def render(D):
     STARS_BG, STARS_SIZE = gen_stars()
     grade_chunk = grade_section(D)              # 回调级别读数（同期层,降级安全,并入温度卡）
@@ -3046,8 +3064,10 @@ def render(D):
                     f'<span class="rank-sub">按 e20 强度排位取前 round(K_cap) 条 · {len(D["opps"])} 条 · 强新线挤弱旧线＝轮动 · 点击看排位/超额/标的 · 非投资建议</span></div>'
                     f'<div class="mech-chips">{opp_chips}</div></div>')
 
-    risk_html = "".join(f'<div class="risk r-{r["lvl"]}">{"🔴" if r["lvl"]=="红" else "🟡"} {r["txt"]}</div>'
-                        for r in D["risks"]) or '<div class="na">无自动风险命中</div>'
+    risk_html = "".join(
+        f'<div class="risk r-{r["lvl"]}"><span class="rk-led">{_sev_led(r["lvl"])}</span>'
+        f'<span class="rk-txt">{r["txt"]}</span></div>'
+        for r in D["risks"]) or '<div class="na">无自动风险命中</div>'
 
     pos = D["positions"]
     xbp = (f'{pos["xiaobao"]["band"]}（{pos["xiaobao"]["pref"]}/5）'
