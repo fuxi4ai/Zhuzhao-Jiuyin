@@ -48,9 +48,18 @@ WINDOW = 120        # 信号后观察窗口（交易日）
 # 篮子从 stock_daily 读、与 ETF 主线同口径（篮内个股 pct_chg 均值 − 基准 510300）；
 # 等权、缺则按当日可用只数降级。⚠️ 长光华芯 688048 stock_daily 仅 20260603 起
 # （口径断裂遗留）→ 该日前篮子实为源杰单只。
-STOCK_BASKET = {"光芯片": ["688498.SH", "688048.SH"]}   # 源杰科技 + 长光华芯（等权）
+STOCK_BASKET = {"光芯片": ["688498.SH", "688048.SH"],   # 源杰科技 + 长光华芯（等权）
+                "光纤光缆": ["601869.SH", "600487.SH", "600522.SH", "600498.SH"]}  # 长飞+亨通+中天+烽火（等权）
+# 光纤光缆无纯 ETF：通信ETF(515880)由中兴/光模块主导、光模块 ETF 对光纤厂逻辑反号
+# （光纤涨价是光模块成本项）——与光芯片同构，锚 A 股纯标的（Doctor 裁 2026-08-20）。
+# 口径注记：亨通/中天 stock_daily 自 2025-01 起（长飞/烽火 2020 起），
+# 篮子按当日可用只数降级，2025 年前退化长飞+烽火两只。
 # 按 signal_node 精确改锚（不靠模糊词，避免误伤模组级光模块信号）
-SIGNAL_THEME_OVERRIDE = {"concept_LaserShortage2026": "光芯片"}
+SIGNAL_THEME_OVERRIDE = {"concept_LaserShortage2026": "光芯片",
+                         "concept_OpticalFiberSupplyShortage2026": "光纤光缆",
+                         "concept_FiberSeasonalDemandPeak": "光纤光缆",
+                         "concept_OpticalFiberUpstreamRawMaterial": "光纤光缆",
+                         "concept_FiberPricingUpside": "光纤光缆"}
 
 # ── sector_alias canonical → THEME_ETF 键 ────────────────────────
 CANON2THEME = {
