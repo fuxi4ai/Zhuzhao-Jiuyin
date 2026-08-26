@@ -1264,14 +1264,15 @@ def _ep_idx(label, note, it):
             f'<div class="ext-mt">{shown}</div></div>')
 
 
-def _ep_row(name, note, it):
+def _ep_row(name, note, it, sym_override=None):
     """区内行的三个网格单元（名｜涨跌幅｜收盘·日期）——由外层 .ext-rows inline-grid 统一对齐+整体居中。缺数→待回填。"""
     if not it or it.get("pct") is None:
         return (f'<span class="ext-rn">{name}</span>'
                 f'<span class="ext-rp na">—</span><span class="ext-rc">待回填</span>')
     cv = it.get("close")
     close = "—" if cv is None else (f'{cv:,.0f}' if cv >= 1000 else f'{cv:,.2f}')
-    return (f'<span class="ext-rn">{name}<span class="ext-rsy">{it.get("symbol","")}</span></span>'
+    sym = sym_override or it.get("symbol", "")
+    return (f'<span class="ext-rn">{name}<span class="ext-rsy">{sym}</span></span>'
             f'<span class="ext-rp">{_ep_pct(it["pct"])}</span>'
             f'<span class="ext-rc">{close}·{iso(it["date"])[5:]}</span>')
 
@@ -1290,7 +1291,7 @@ def _ep_lead(it, note):
 
 
 # 区头英文简称（各市场实际跟踪标的代码；缺数时的回退）
-_EP_SYM = {"NASDAQ": "QQQ", "JP_FUT": "NKD", "KR_PROXY": "EWY"}
+_EP_SYM = {"NASDAQ": "NQ100", "JP_FUT": "NKD", "KR_PROXY": "EWY"}
 
 
 def external_pricing_section(D):
@@ -1298,7 +1299,7 @@ def external_pricing_section(D):
     intl = D.get("intl") or {}
     fx = D.get("fx") or {}
     expected = ([INTL_US_INDEX[0]] + [s[0] for s in INTL_US_STOCKS]
-                + [INTL_ASIA[0][0]] + [s[0] for s in INTL_KR])
+                + [INTL_ASIA[0][0]] + [s[0] for s in INTL_KR] + ["US30Y"])
     have = sum(1 for c in expected if intl.get(c)) + (1 if fx.get("cur") is not None else 0)
     vint = f'{have}/{len(expected) + 1} 已取' if have else '待回填'
 
@@ -1339,10 +1340,36 @@ def external_pricing_section(D):
     def _sym(code):
         it = intl.get(code)
         return ((it.get("symbol") if it else None) or _EP_SYM.get(code, "")).replace("=F", "")
-    nasdaq_lead = _ep_lead(intl.get(INTL_US_INDEX[0]), INTL_US_INDEX[2])
+    nasdaq_row = _ep_row("纳斯达克", INTL_US_INDEX[2], intl.get(INTL_US_INDEX[0]),
+                         sym_override=_EP_SYM.get(INTL_US_INDEX[0], ""))
     stk_rows = "".join(_ep_row(nm, note, intl.get(code)) for code, nm, note in INTL_US_STOCKS)
     jp_lead = _ep_lead(intl.get(INTL_ASIA[0][0]), INTL_ASIA[0][2])
     kr_rows = "".join(_ep_row(nm, note, intl.get(code)) for code, nm, note in INTL_KR)
+
+    # 30 年期美债行（汇率栏底部 · 2026-08-25 Doctor 令：与美股个股同款三格范式；bp 由 pct 反推，口径同 F5 美债腿）
+    _b30 = intl.get("US30Y") or {}
+    if _b30.get("close") is None or _b30.get("pct") is None:
+        bond30_row = ('<div class="ext-rows" style="margin-top:12px">'
+                      '<span class="ext-rn">美国30年国债<span class="ext-rsy">^TYX</span></span>'
+                      '<span class="ext-rp na">—</span><span class="ext-rc">待回填</span></div>')
+    else:
+        try:
+            _pv = _b30["close"] / (1 + _b30["pct"] / 100.0)
+            _bp = (_b30["close"] - _pv) * 100.0
+        except ZeroDivisionError:
+            _bp = None
+        if _bp is None:
+            _bp_html = "—"
+        elif _bp > 0:
+            _bp_html = f'<span style="color:var(--red)">+{_bp:.1f}bp</span>'
+        elif _bp < 0:
+            _bp_html = f'<span style="color:var(--grn)">−{abs(_bp):.1f}bp</span>'
+        else:
+            _bp_html = "≈0bp"
+        bond30_row = (f'<div class="ext-rows" style="margin-top:12px">'
+                      f'<span class="ext-rn">美国30年国债<span class="ext-rsy">^TYX</span></span>'
+                      f'<span class="ext-rp">{_bp_html}</span>'
+                      f'<span class="ext-rc">{_b30["close"]:.2f}%·{iso(_b30["date"])[5:]}</span></div>')
 
     style = ("<style>"
              ".ext-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;"
@@ -1382,9 +1409,9 @@ def external_pricing_section(D):
             f'各市场按自身最新交易日 · {vint}</span></h2>'
             '<div class="ext-panel">'
             '<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>汇率 · 美元兑离岸人民币(USD/CNH)</div>'
-            f'{fx_body}</div></div>'
-            f'<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>隔夜 · 美股（{_sym("NASDAQ")}）</div>'
-            f'{nasdaq_lead}<div class="ext-rows">{stk_rows}</div></div></div>'
+            f'{fx_body}{bond30_row}</div></div>'
+            f'<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>隔夜 · 美股</div>'
+            f'<div class="ext-rows">{nasdaq_row}{stk_rows}</div></div></div>'
             f'<div class="ext-zone"><div class="ext-inner">'
             f'<div class="ext-zhd"><span class="dot"></span>期指 · 日本（{_sym("JP_FUT")}）</div>{jp_lead}'
             f'<div class="ext-zhd" style="margin-top:18px"><span class="dot"></span>韩国 · 存储双雄</div>'

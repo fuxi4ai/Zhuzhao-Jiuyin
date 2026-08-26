@@ -31,7 +31,7 @@ MARKET_DB = config.MARKET_DB
 INDICES = [
     # code,       symbol,  name,            kind,        note
     # —— 美股栏（隔夜回望）：纳指 + AI/科技硬件代表股 ——
-    ("NASDAQ",   "QQQ",   "纳指100(QQQ)",   "overnight", "美股隔夜 · Nasdaq-100 ETF 代纳指"),
+    ("NASDAQ",   "^NDX",  "纳指100指数",     "overnight", "美股隔夜 · Nasdaq-100 指数（2026-08-25 Doctor 裁：QQQ ETF 代理退役·改指数本身）"),
     ("NVDA",     "NVDA",  "英伟达",         "us_stock",  "AI 算力"),
     ("AVGO",     "AVGO",  "博通",           "us_stock",  "AI 网络 / ASIC"),
     ("LITE",     "LITE",  "Lumentum",       "us_stock",  "光模块 / CPO"),
@@ -40,6 +40,7 @@ INDICES = [
     ("JP_FUT",   "NKD=F", "日经225期货",    "futures",   "CME · 亚盘开盘前远期 · 含半导体设备权重 · ⚠读数语义腿（无盘中守卫）：close 可能是取数时点快照、非收盘价"),
     # —— 外部紧缩栏（2026-07-17 加 · 供日报五因风险温度 F5「外部紧缩」；不入外盘展示区，仅供 F5 计算）——
     ("US10Y",    "^TNX",  "美债10年期收益率", "macro_rate",      "CBOE 10Y Yield · close 即收益率%（非价格）· ↑=外部紧缩 · F5 · ⚠读数语义腿（无盘中守卫）：close 可能是盘中快照、非收盘价；归因/回测取收盘请用 H.15 或 FRED DGS10"),
+    ("US30Y",    "^TYX",  "美债30年期收益率", "macro_rate",      "CBOE 30Y Yield · close 即收益率%（非价格）· ↑=外部紧缩 · 汇率栏底部展示（2026-08-25 Doctor 令）· ⚠读数语义腿（无盘中守卫）：close 可能是盘中快照、非收盘价"),
     ("BRENT",    "BZ=F",  "布伦特原油",      "macro_commodity", "ICE Brent 期货 · ↑=输入型通胀/地缘扰动 · F5 · ⚠读数语义腿（无盘中守卫）：close 可能是取数时点快照、非收盘价；归因/回测取收盘请用官方结算价"),
 ]
 # ⚠ 语义分层（2026-07-28 界定 · 2026-07-30 补文档）：上表 kind 决定是否开盘中守卫——
