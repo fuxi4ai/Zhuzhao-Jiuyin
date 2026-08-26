@@ -1316,9 +1316,9 @@ def external_pricing_section(D):
         if chg is None:
             chg_html = '<span>日变动 —</span>'
         elif chg < 0:
-            chg_html = f'<span style="color:var(--grn)">▼ {abs(chg):.4f} · 人民币走强</span>'
+            chg_html = f'<span style="color:var(--red)">▼ {abs(chg):.4f} · 人民币走强</span>'
         elif chg > 0:
-            chg_html = f'<span style="color:var(--red)">▲ {chg:.4f} · 人民币走弱</span>'
+            chg_html = f'<span style="color:var(--grn)">▲ {chg:.4f} · 人民币走弱</span>'
         else:
             chg_html = '<span>≈持平</span>'
         spark = ""
@@ -1343,10 +1343,15 @@ def external_pricing_section(D):
     nasdaq_row = _ep_row("纳斯达克", INTL_US_INDEX[2], intl.get(INTL_US_INDEX[0]),
                          sym_override=_EP_SYM.get(INTL_US_INDEX[0], ""))
     stk_rows = "".join(_ep_row(nm, note, intl.get(code)) for code, nm, note in INTL_US_STOCKS)
-    jp_lead = _ep_lead(intl.get(INTL_ASIA[0][0]), INTL_ASIA[0][2])
+    # 日本期指区改三格行范式（2026-08-25 Doctor 令：与韩国存储双雄同款「名称代码+涨跌幅+价·日期」；源注（CME/读数语义腿）移出展示，
+    # 真身保留在 fetch_intl_index.INDICES note 与 GOTCHAS G033。name 取 DB 行——SA 应急代理时如实显示「日本(EWJ代理)」）
+    _jpf = intl.get(INTL_ASIA[0][0])
+    jp_row = _ep_row((_jpf.get("name") if _jpf else "日经225期货"), INTL_ASIA[0][2], _jpf,
+                     sym_override=_sym("JP_FUT"))
     kr_rows = "".join(_ep_row(nm, note, intl.get(code)) for code, nm, note in INTL_KR)
 
-    # 30 年期美债行（汇率栏底部 · 2026-08-25 Doctor 令：与美股个股同款三格范式；bp 由 pct 反推，口径同 F5 美债腿）
+    # 30 年期美债行（汇率栏底部 · 2026-08-25 Doctor 令：与美股个股同款三格范式；bp 由 pct 反推，口径同 F5 美债腿；
+    # 染色=语义向（2026-08-25 Doctor 令）：收益率下行(利好)=红 / 上行(利空)=绿，与人民币行走弱=绿同口径）
     _b30 = intl.get("US30Y") or {}
     if _b30.get("close") is None or _b30.get("pct") is None:
         bond30_row = ('<div class="ext-rows" style="margin-top:12px">'
@@ -1361,9 +1366,9 @@ def external_pricing_section(D):
         if _bp is None:
             _bp_html = "—"
         elif _bp > 0:
-            _bp_html = f'<span style="color:var(--red)">+{_bp:.1f}bp</span>'
+            _bp_html = f'<span style="color:var(--grn)">+{_bp:.1f}bp</span>'
         elif _bp < 0:
-            _bp_html = f'<span style="color:var(--grn)">−{abs(_bp):.1f}bp</span>'
+            _bp_html = f'<span style="color:var(--red)">−{abs(_bp):.1f}bp</span>'
         else:
             _bp_html = "≈0bp"
         bond30_row = (f'<div class="ext-rows" style="margin-top:12px">'
@@ -1413,7 +1418,7 @@ def external_pricing_section(D):
             f'<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>隔夜 · 美股</div>'
             f'<div class="ext-rows">{nasdaq_row}{stk_rows}</div></div></div>'
             f'<div class="ext-zone"><div class="ext-inner">'
-            f'<div class="ext-zhd"><span class="dot"></span>期指 · 日本（{_sym("JP_FUT")}）</div>{jp_lead}'
+            f'<div class="ext-zhd"><span class="dot"></span>期指 · 日本</div><div class="ext-rows">{jp_row}</div>'
             f'<div class="ext-zhd" style="margin-top:18px"><span class="dot"></span>韩国 · 存储双雄</div>'
             f'<div class="ext-rows">{kr_rows}</div>'
             f'</div></div>'
