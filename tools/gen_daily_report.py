@@ -1140,7 +1140,7 @@ def fx_section(D):
 
 # ── 外盘栏目（隔夜·期货预期）：A股开盘前的外部定价背景 ──────────────────
 # 两栏：美股(隔夜回望)在左、亚洲(期货预期)在右。code/symbol 与 fetch_intl_index.INDICES 同步。
-INTL_US_INDEX = ("NASDAQ", "纳斯达克 · 隔夜", "美股隔夜 · 宽科技 tone")
+INTL_US_INDEX = ("NASDAQ", "纳斯达克 · 隔夜", "美股隔夜 · Nasdaq-100 指数（^NDX）")
 INTL_US_STOCKS = [   # 美股栏代表股（AI/科技硬件链）
     ("NVDA", "英伟达",     "AI 算力"),
     ("AVGO", "博通",       "AI 网络 / ASIC"),

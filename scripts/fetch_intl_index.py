@@ -143,10 +143,10 @@ def fetch_yf(symbol, start, end, complete_only=False):
 # 九儿在 SKILL 里逐个 web_fetch 下列 URL，解析「At close: 日期 / 收盘 / 1D%」写成 JSON：
 #   {"NASDAQ":{"date":"2026-06-26","close":..,"pct":..}, "NVDA":{..}, ..., "JP_FUT":{..EWJ..}}
 # 再 `--source stockanalysis --infile <json>`。键＝code，本表定义各 code 在 SA 下的真实标的与口径。
-# ⚠️ SA 无 CME 期货：NASDAQ→QQQ(纳指100ETF)、JP_FUT→EWJ(日本ETF隔夜代理)；二者口径如实记 symbol/kind。
+# ⚠️ SA 无 CME 期货：NASDAQ→QQQ(纳指100ETF·应急代理·与主路 ^NDX 指数口径不同·2026-08-25 对齐标注)、JP_FUT→EWJ(日本ETF隔夜代理)；二者口径如实记 symbol/kind。
 SA_SOURCES = {
     # code:      (sa_symbol, kind,        name,             note,                                     url_path)
-    "NASDAQ":   ("QQQ",  "overnight", "纳指100(QQQ)",   "美股隔夜 · Nasdaq-100 ETF 代纳指",        "etf/qqq"),
+    "NASDAQ":   ("QQQ",  "overnight", "纳指100(QQQ代理)", "美股隔夜 · QQQ ETF 应急代理（SA 无 ^NDX 指数源·数值为 ETF 价非指数点位）", "etf/qqq"),
     "NVDA":     ("NVDA", "us_stock",  "英伟达",          "AI 算力",                                 "stocks/nvda"),
     "AVGO":     ("AVGO", "us_stock",  "博通",            "AI 网络 / ASIC",                          "stocks/avgo"),
     "LITE":     ("LITE", "us_stock",  "Lumentum",        "光模块 / CPO",                            "stocks/lite"),

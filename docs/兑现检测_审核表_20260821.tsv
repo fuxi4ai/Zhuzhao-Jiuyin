@@ -1629,7 +1629,7 @@ yuantu_buy_signals	46	concept_FiberSeasonalDemandPeak	20260702	day	光纤光缆	
 yuantu_buy_signals	47	concept_NearlineHDDTightness	20260503	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）							
 yuantu_buy_signals	48	concept_TSMCLeadingEdgeConstraint	20260503	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）							
 yuantu_buy_signals	49	concept_3dot2TTransceiverDemand2028	20260816	day	光模块/CPO/光通信/光纤	alias	dormant	暗态·深回吐候二段（峰值+2.6%→现-0.5%）	20260817	-0.0051	0.0261	20260819	20260819		0
-yuantu_buy_signals	50	concept_OpticalFiberUpstreamRawMaterial	20260702	day	光纤光缆	override	open	⚠️逾期未启动（36日，累计-29.5%）——逻辑存疑或锚不对		-0.2953	0.0				0
+yuantu_buy_signals	50	concept_OpticalFiberUpstreamRawMaterial	20260820	day	光纤光缆	override	open	潜伏期（发现1日未启动）		0.0177	0.0177				0
 yuantu_buy_signals	51	concept_GlobalTGlassDemand	20260503	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）							
 yuantu_buy_signals	52	concept_BTSubstrateDemand	20260503	day	AI算力/AI硬件/科技硬件	hint	dormant	暗态·已兑现候二段（峰值+38.2%→现+16.0%）·已点亮2次	20260506	0.1595	0.3825	20260819	20260601	20260807	2
 yuantu_buy_signals	53	concept_ASICServerOpticalDemand	20260816	day	光模块/CPO/光通信/光纤	alias	dormant	暗态·深回吐候二段（峰值+2.6%→现-0.5%）	20260817	-0.0051	0.0261	20260819	20260819		0
@@ -1678,7 +1678,7 @@ yuantu_buy_signals	95	concept_MemoryPriceRiseCycle2025	20260816	day	AI算力/AI�
 yuantu_buy_signals	96	concept_ConsumerElectronicsMemoryHeadwin	20260816	day	消费电子/华为/鸿蒙	alias	dormant	暗态·深回吐候二段（峰值+2.5%→现-2.3%）	20260817	-0.0228	0.0246	20260819	20260819		0
 yuantu_buy_signals	97	concept_SemiWaferPriceHike2026	20260331	day	半导体/芯片/半导体材料	alias	dormant	暗态·已兑现候二段（峰值+65.1%→现+37.9%）·已点亮3次	20260408	0.3786	0.6509	20260819	20260529	20260807	3
 yuantu_buy_signals	98	concept_OCSGlobalDemandSupplyGap2026	20260816	day		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）							
-yuantu_buy_signals	99	concept_FAUBottleneck	20260709	day	光模块/CPO/光通信/光纤	hint	open	⚠️逾期未启动（31日，累计-9.4%）——逻辑存疑或锚不对		-0.0936	0.0				0
+yuantu_buy_signals	99	concept_FAUBottleneck	20260821	day	光模块/CPO/光通信/光纤	hint	open	刚发现·行情待走		0.0	0.0				0
 yuantu_buy_signals	100	concept_TaiwanTechPullInDemand2026Q1	20260315	month		unmatched	no_anchor	无锚未跟踪（情绪周期类或覆盖洞）							
 yuantu_buy_signals	101	concept_AIServerSupplyChainStrength2026	20260816	day	AI算力/AI硬件/科技硬件	alias	dormant	暗态·深回吐候二段（峰值+3.0%→现-1.4%）	20260817	-0.0142	0.0301	20260819	20260819		0
 yuantu_buy_signals	102	concept_JapanSemiconductorExportControl	20260816	day	半导体/芯片/半导体材料	hint	dormant	暗态·深回吐候二段（峰值+3.8%→现-2.3%）	20260817	-0.0233	0.0377	20260819	20260819		0
