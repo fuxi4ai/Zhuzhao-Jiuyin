@@ -9,6 +9,8 @@
   禁用「最新批/前1批/前2批/入库批次」及 created_at/tagged_at。
 模板铁律：.report-hero 的 --hero-lock-* / --hero-art-* / --season-* 为锁定变量，
   调整画框只改变量值，不散改布局属性（Doctor 已确认构图）。
+  窄屏媒体块构图（≤900px 画/季节/日期三列 · ≤520px 日期折行）2026-08-26 Doctor 裁三列，
+  桌面变量区仍锁定不动。
 
 输出：AI4ME/烛照九阴-outputs/烛照九阴日报_{数据日}.html（根目录最新；旧报自动移 archived/，永不删）
 
@@ -1521,7 +1523,7 @@ def _deploy_to_artifact(html, dd):
 
 
 # 暖色日报 CSS（普通字符串 + 占位符，规避 f-string 花括号转义——G-04）
-# 注意：.report-hero 的 --hero-lock-* / --hero-art-* / --season-* 为 Doctor 锁定变量。
+# 注意：.report-hero 的 --hero-lock-* / --hero-art-* / --season-* 为 Doctor 锁定变量（桌面构图；窄屏媒体块 2026-08-26 Doctor 裁三列）。
 CSS_WARM = """
 __FONT_FACE__
 :root{--bg:#f5f4ed;--card:#faf9f5;--panel:#f1eee4;--line:#e8e6dc;--tx:#141413;--sub:#6b6a64;
@@ -1810,7 +1812,14 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .gap-step.jump{cursor:pointer;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
 .gap-step.jump:hover,.gap-step.jump:focus-visible{transform:translateY(-1px);border-color:var(--acc);box-shadow:0 5px 16px rgba(0,0,0,.07);outline:none}
 .gap-step .jhint{position:absolute;right:11px;bottom:7px;margin:0;font-size:10px;color:var(--acc);opacity:.55}
-@media(max-width:900px){.report-title{max-width:100%}.report-meta{white-space:normal}.report-hero{--hero-lock-min-height:520px;--hero-lock-grid:1fr;--hero-art-width:340px;--hero-art-height:100%;--season-top:150px;--season-width:260px;grid-template-columns:var(--hero-lock-grid);min-height:var(--hero-lock-min-height)}.hero-art{background-size:auto 100%;filter:blur(.25px) saturate(1.02)}.hero-date-vertical{right:16px;top:22px;bottom:auto;height:180px;font-size:12px;opacity:.78}.season-glyph{font-size:92px}.snapshot-band,.p0-strip,.gap-chain{grid-template-columns:1fr}.snapshot-band{margin:0 0 14px;padding:0}.snapshot-item{min-height:auto}}
+@media(max-width:900px){.report-title{max-width:100%}.report-meta{white-space:normal}
+.report-hero{min-height:0;padding:18px 16px;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center}
+.hero-art{position:static;left:auto;top:auto;width:auto;height:min(52vw,330px);aspect-ratio:2/3;grid-column:1;background:var(--laiqin-art) left top/auto 100% no-repeat;filter:blur(.25px) saturate(1.02)}
+.season-core{position:static;transform:none;width:auto;grid-column:2}
+.hero-date-vertical{position:static;right:auto;top:auto;bottom:auto;height:auto;grid-column:3;font-size:12px;opacity:.78}
+.season-glyph{font-size:92px}
+.snapshot-band,.p0-strip,.gap-chain{grid-template-columns:1fr}.snapshot-band{margin:0 0 14px;padding:0}.snapshot-item{min-height:auto}}
+@media(max-width:520px){.report-hero{grid-template-columns:auto minmax(0,1fr)}.season-core{grid-column:2;grid-row:1}.hero-date-vertical{grid-column:2;grid-row:2;writing-mode:horizontal-tb;font-size:11px}.season-glyph{font-size:76px}}
 /* ── 星空卡（低对比纹理，重点模块专用）── */
 .glass{position:relative;
  background:linear-gradient(150deg,#fbf8ef,#f0eadc 46%,#f7f3ea);
