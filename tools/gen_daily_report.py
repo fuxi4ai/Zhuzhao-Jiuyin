@@ -9,8 +9,9 @@
   禁用「最新批/前1批/前2批/入库批次」及 created_at/tagged_at。
 模板铁律：.report-hero 的 --hero-lock-* / --hero-art-* / --season-* 为锁定变量，
   调整画框只改变量值，不散改布局属性（Doctor 已确认构图）。
-  窄屏媒体块构图（≤900px 画/季节/日期三列 · ≤520px 日期折行）2026-08-26 Doctor 裁三列，
-  桌面变量区仍锁定不动。
+  窄屏构图 2026-08-26 Doctor 裁（历经三列→居中→终稿）：≤900px 画入流随宽连续缩小（min(24.5vw,220px)×min(36.7vw,330px)）、
+  季节字沿用桌面绝对居中（50%/50%）、日期右侧竖排——全宽度统一构图，跨断点零跳变；
+  ≤520px 仅留 190px 高度地板防季节块裁切 + 冬字号 76。桌面变量区仍锁定不动。
 
 输出：AI4ME/烛照九阴-outputs/烛照九阴日报_{数据日}.html（根目录最新；旧报自动移 archived/，永不删）
 
@@ -1523,7 +1524,7 @@ def _deploy_to_artifact(html, dd):
 
 
 # 暖色日报 CSS（普通字符串 + 占位符，规避 f-string 花括号转义——G-04）
-# 注意：.report-hero 的 --hero-lock-* / --hero-art-* / --season-* 为 Doctor 锁定变量（桌面构图；窄屏媒体块 2026-08-26 Doctor 裁三列）。
+# 注意：.report-hero 的 --hero-lock-* / --hero-art-* / --season-* 为 Doctor 锁定变量（桌面构图；窄屏媒体块 2026-08-26 Doctor 裁统一构图：画缩宽入流/季节字绝对居中/日期右竖）。
 CSS_WARM = """
 __FONT_FACE__
 :root{--bg:#f5f4ed;--card:#faf9f5;--panel:#f1eee4;--line:#e8e6dc;--tx:#141413;--sub:#6b6a64;
@@ -1814,12 +1815,11 @@ td.tname,td.desc,td.kw{font-family:var(--zh)}
 .gap-step .jhint{position:absolute;right:11px;bottom:7px;margin:0;font-size:10px;color:var(--acc);opacity:.55}
 @media(max-width:900px){.report-title{max-width:100%}.report-meta{white-space:normal}
 .report-hero{min-height:0;padding:18px 16px;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center}
-.hero-art{position:static;left:auto;top:auto;width:auto;height:min(52vw,330px);aspect-ratio:2/3;grid-column:1;background:var(--laiqin-art) left top/auto 100% no-repeat;filter:blur(.25px) saturate(1.02)}
-.season-core{position:static;transform:none;width:auto;grid-column:2}
-.hero-date-vertical{position:static;right:auto;top:auto;bottom:auto;height:auto;grid-column:3;font-size:12px;opacity:.78}
+.hero-art{position:static;left:auto;top:auto;width:min(24.5vw,220px);height:min(36.7vw,330px);grid-column:1;grid-row:1;background:var(--laiqin-art) left top/auto 100% no-repeat;filter:blur(.25px) saturate(1.02)}
+.hero-date-vertical{right:16px;top:22px;font-size:12px;opacity:.78}
 .season-glyph{font-size:92px}
 .snapshot-band,.p0-strip,.gap-chain{grid-template-columns:1fr}.snapshot-band{margin:0 0 14px;padding:0}.snapshot-item{min-height:auto}}
-@media(max-width:520px){.report-hero{grid-template-columns:auto minmax(0,1fr)}.season-core{grid-column:2;grid-row:1}.hero-date-vertical{grid-column:2;grid-row:2;writing-mode:horizontal-tb;font-size:11px}.season-glyph{font-size:76px}}
+@media(max-width:520px){.report-hero{min-height:190px}.season-core{width:min(320px,42vw)}.season-glyph{font-size:76px}}
 /* ── 星空卡（低对比纹理，重点模块专用）── */
 .glass{position:relative;
  background:linear-gradient(150deg,#fbf8ef,#f0eadc 46%,#f7f3ea);
