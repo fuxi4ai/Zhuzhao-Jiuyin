@@ -511,6 +511,17 @@ def gather(date_cap=None):
         pass
     D["intl"] = {x["code"]: x for x in intl}
 
+    # 美债 FRED 序列（2026-08-27 Doctor 令 · 10Y 实际收益率 DFII10 / 期限溢价 THREEFYTP10 · 二级详情页数据）
+    # 表缺则空 dict → 详情页对应指标标「待回填」（诚实缺·禁编数）
+    fred = {}
+    try:
+        for sd, ts, v in md.execute("SELECT series_id, trade_date, value FROM fred_ust_daily"):
+            if sd not in fred or ts > fred[sd]["date"]:
+                fred[sd] = {"date": ts, "value": v}
+    except sqlite3.OperationalError:
+        pass
+    D["fred"] = fred
+
     # ── F1 隔夜护栏（Doctor 2026-07-17 裁定 A 档）：外盘取「**严格早于** A 股数据日」的最新场次＝真隔夜。
     #    定时链 16:00 北京跑时美股当日尚未开盘 → 与 D["intl"] 等价（护栏为 no-op）；
     #    仅手工/盘中补数时生效，防前视（否则会拿美股 D 日未收盘场次去解释 A 股 D 日）。
@@ -1301,6 +1312,7 @@ def external_pricing_section(D):
     """盘前·外部定价背景——一张大卡内分四区（汇率/隔夜美股/期指日本/期指韩国），全用报告暖色 token。"""
     intl = D.get("intl") or {}
     fx = D.get("fx") or {}
+    fred = D.get("fred") or {}
     expected = ([INTL_US_INDEX[0]] + [s[0] for s in INTL_US_STOCKS]
                 + [INTL_ASIA[0][0]] + [s[0] for s in INTL_KR] + ["US30Y"])
     have = sum(1 for c in expected if intl.get(c)) + (1 if fx.get("cur") is not None else 0)
@@ -1353,17 +1365,19 @@ def external_pricing_section(D):
                      sym_override=_sym("JP_FUT"))
     kr_rows = "".join(_ep_row(nm, note, intl.get(code)) for code, nm, note in INTL_KR)
 
-    # 30 年期美债行（汇率栏底部 · 2026-08-25 Doctor 令：与美股个股同款三格范式；bp 由 pct 反推，口径同 F5 美债腿；
-    # 染色=语义向（2026-08-25 Doctor 令）：收益率下行(利好)=红 / 上行(利空)=绿，与人民币行走弱=绿同口径）
+    # 10 年期美债行（汇率栏底部 · 2026-08-27 Doctor 令：30Y 换 10Y + 点击开二级详情；bp 由 pct 反推，口径同 F5 美债腿；
+    # 染色=语义向（2026-08-25 Doctor 令沿用）：收益率下行(利好)=红 / 上行(利空)=绿，与人民币行走弱=绿同口径）
+    _b10 = intl.get("US10Y") or {}
     _b30 = intl.get("US30Y") or {}
-    if _b30.get("close") is None or _b30.get("pct") is None:
-        bond30_row = ('<div class="ext-rows" style="margin-top:12px">'
-                      '<span class="ext-rn">美国30年国债<span class="ext-rsy">^TYX</span></span>'
+    if _b10.get("close") is None or _b10.get("pct") is None:
+        bond10_row = ('<div class="ext-rows" style="margin-top:12px">'
+                      '<span class="ext-rn">美国10年国债<span class="ext-rsy">^TNX</span></span>'
                       '<span class="ext-rp na">—</span><span class="ext-rc">待回填</span></div>')
+        us10y_tmpl = ""
     else:
         try:
-            _pv = _b30["close"] / (1 + _b30["pct"] / 100.0)
-            _bp = (_b30["close"] - _pv) * 100.0
+            _pv = _b10["close"] / (1 + _b10["pct"] / 100.0)
+            _bp = (_b10["close"] - _pv) * 100.0
         except ZeroDivisionError:
             _bp = None
         if _bp is None:
@@ -1374,10 +1388,67 @@ def external_pricing_section(D):
             _bp_html = f'<span style="color:var(--red)">−{abs(_bp):.1f}bp</span>'
         else:
             _bp_html = "≈0bp"
-        bond30_row = (f'<div class="ext-rows" style="margin-top:12px">'
-                      f'<span class="ext-rn">美国30年国债<span class="ext-rsy">^TYX</span></span>'
+        bond10_row = (f'<div class="ext-rows" style="margin-top:12px;cursor:pointer" role="button" tabindex="0" '
+                      f'onclick="openModal(\'us10y\')" '
+                      f'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){{event.preventDefault();this.click();}}" '
+                      f'aria-label="打开美债10年期收益率详情" title="点击查看四维拆解">'
+                      f'<span class="ext-rn">美国10年国债<span class="ext-rsy">^TNX ▸</span></span>'
                       f'<span class="ext-rp">{_bp_html}</span>'
-                      f'<span class="ext-rc">{_b30["close"]:.2f}%·{iso(_b30["date"])[5:]}</span></div>')
+                      f'<span class="ext-rc">{_b10["close"]:.2f}%·{iso(_b10["date"])[5:]}</span></div>')
+
+        # ── 美债10Y 二级详情页（2026-08-27 Doctor 令 · 统一 modal 范式 · 四指标各带核心问题+性质+来源）──
+        def _ust_item(k, tag, v_html, q, src):
+            return (f'<div class="ust-item"><div class="ust-k">{k}'
+                    f'<span class="ust-tag">{tag}</span></div>'
+                    f'<div class="ust-v">{v_html}</div>'
+                    f'<div class="ust-q">{q}</div>'
+                    f'<div class="ust-s">{src}</div></div>')
+
+        _d2 = fred.get("DFII10")
+        _d3 = fred.get("THREEFYTP10")
+        r1 = _ust_item("10年名义收益率", "总结果",
+                       f'{_b10["close"]:.2f}%<span class="ust-vd">日变 {_bp_html}</span>',
+                       "长期美元资金的「总价格」是多少？",
+                       f'^TNX 盘中读数 · {iso(_b10["date"])} · ↑=外部紧缩')
+        r2 = _ust_item("10年实际收益率", "实际利率维度",
+                       f'{_d2["value"]:.2f}%' if _d2 else '—',
+                       "扣除通胀补偿后，真实资金成本是多少？",
+                       f'FRED DFII10（TIPS 口径） · as_of {iso(_d2["date"])}' if _d2 else 'FRED 未取 · 待九儿班回填')
+        r3 = _ust_item("10年期限溢价", "模型分解维度",
+                       f'{_d3["value"]:.2f}%' if _d3 else '—',
+                       "除了美联储路径，投资者还要求多少持有长期债券的风险补偿？",
+                       f'NY Fed ACM 模型 · 周更 · as_of {iso(_d3["date"])}' if _d3 else 'FRED 未取 · 待九儿班回填')
+        if (_b30.get("close") is not None and _b30.get("pct") is not None
+                and _b30.get("date") == _b10.get("date")):
+            _sp = _b30["close"] - _b10["close"]
+            try:
+                _bp30 = (_b30["close"] - _b30["close"] / (1 + _b30["pct"] / 100.0)) * 100.0
+                _spd = _bp30 - _bp if _bp is not None else None
+            except ZeroDivisionError:
+                _spd = None
+            if _spd is None:
+                _spd_html = "—"
+            elif _spd > 0:
+                _spd_html = f'<span style="color:var(--grn)">+{_spd:.1f}bp</span>'
+            elif _spd < 0:
+                _spd_html = f'<span style="color:var(--red)">−{abs(_spd):.1f}bp</span>'
+            else:
+                _spd_html = "≈0bp"
+            r4 = _ust_item("30Y−10Y 利差", "超长端相对维度",
+                           f'+{_sp * 100:.0f}bp<span class="ust-vd">日变 {_spd_html}</span>',
+                           "超长期债券是否在相对 10 年期独立走弱？",
+                           f'^TYX−^TNX 同日现算 · {iso(_b10["date"])}')
+        else:
+            r4 = _ust_item("30Y−10Y 利差", "超长端相对维度", "—",
+                           "超长期债券是否在相对 10 年期独立走弱？",
+                           "30Y/10Y 非同一交易日 · 暂不可算")
+        us10y_tmpl = ('<template id="us10y">'
+                      '<div class="modal-title" style="--sc:#1B365D">美债10年期收益率'
+                      '<span class="sub">长期美元资金成本 · 四维拆解</span></div>'
+                      f'<div class="ust-grid">{r1}{r2}{r3}{r4}</div>'
+                      '<div class="ust-foot">名义=^TNX 盘中读数（非收盘）；实际/期限溢价=FRED 官方序列，'
+                      '更新滞后 1-2 天属正常；利差=两腿同日现算。数据口径与卡片一致（单一真源）。</div>'
+                      '</template>')
 
     style = ("<style>"
              ".ext-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;"
@@ -1409,6 +1480,20 @@ def external_pricing_section(D):
              ".ext-rp{font-size:13px;font-weight:600;font-family:var(--num);"
              "font-variant-numeric:tabular-nums;text-align:right}"
              ".ext-rc{font-size:10px;color:var(--sub);text-align:right;font-variant-numeric:tabular-nums}"
+             # ── 美债10Y 二级详情页（2026-08-27 Doctor 令 · modal 内 2×2 指标卡）──
+             ".ust-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}"
+             "@media(max-width:520px){.ust-grid{grid-template-columns:1fr}}"
+             ".ust-item{background:#fbf8ef;border:1px solid var(--line);border-radius:12px;padding:12px 14px}"
+             ".ust-k{font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:7px}"
+             ".ust-tag{font-size:9px;font-weight:400;color:var(--sub);background:#fdfcf7;"
+             "border:1px solid var(--line);border-radius:999px;padding:1px 7px;letter-spacing:0}"
+             ".ust-v{font-size:22px;font-family:var(--num);font-variant-numeric:tabular-nums;"
+             "font-weight:600;margin:7px 0 4px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}"
+             ".ust-vd{font-size:11px;font-weight:400;font-family:var(--num);color:var(--sub)}"
+             ".ust-q{font-size:11px;color:var(--tx);opacity:.82;line-height:1.5}"
+             ".ust-s{font-size:10px;color:var(--sub);margin-top:4px;font-variant-numeric:tabular-nums}"
+             ".ust-foot{font-size:10px;color:var(--sub);margin-top:10px;line-height:1.55;"
+             "border-top:1px dashed var(--line);padding-top:9px}"
              "</style>")
 
     return (style +
@@ -1417,7 +1502,7 @@ def external_pricing_section(D):
             f'各市场按自身最新交易日 · {vint}</span></h2>'
             '<div class="ext-panel">'
             '<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>汇率 · 美元兑离岸人民币(USD/CNH)</div>'
-            f'{fx_body}{bond30_row}</div></div>'
+            f'{fx_body}{bond10_row}</div></div>'
             f'<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>隔夜 · 美股</div>'
             f'<div class="ext-rows">{nasdaq_row}{stk_rows}</div></div></div>'
             f'<div class="ext-zone"><div class="ext-inner">'
@@ -1425,7 +1510,7 @@ def external_pricing_section(D):
             f'<div class="ext-zhd" style="margin-top:18px"><span class="dot"></span>韩国 · 存储双雄</div>'
             f'<div class="ext-rows">{kr_rows}</div>'
             f'</div></div>'
-            '</div>')
+            '</div>' + us10y_tmpl)
 
 
 def _font_face():
