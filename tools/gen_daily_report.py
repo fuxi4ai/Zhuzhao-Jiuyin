@@ -510,6 +510,12 @@ def gather(date_cap=None):
     except sqlite3.OperationalError:
         pass
     D["intl"] = {x["code"]: x for x in intl}
+    # QQQ 应急代理 fallback（2026-08-28 Doctor 裁「另立 code」）：主路 ^NDX 缺当日行时用 SA 应急 QQQ 行顶替并标注
+    if "NASDAQ" not in D["intl"] and "NASDAQ_QQQ" in D["intl"]:
+        _qqq = dict(D["intl"]["NASDAQ_QQQ"])
+        _qqq["code"] = "NASDAQ"
+        _qqq["note"] = (_qqq.get("note") or "") + "（主路^NDX缺·应急代理）"
+        D["intl"]["NASDAQ"] = _qqq
 
     # 美债 FRED 序列（2026-08-27 Doctor 令 · 10Y 实际收益率 DFII10 / 期限溢价 THREEFYTP10 · 二级详情页数据）
     # 表缺则空 dict → 详情页对应指标标「待回填」（诚实缺·禁编数）
@@ -538,6 +544,12 @@ def gather(date_cap=None):
     except sqlite3.OperationalError:
         pass
     D["intl_on"] = {x["code"]: x for x in intl_on}
+    # QQQ 应急代理 fallback（F1 隔夜护栏同款 · 2026-08-28 Doctor 裁「另立 code」）
+    if "NASDAQ" not in D["intl_on"] and "NASDAQ_QQQ" in D["intl_on"]:
+        _qqq = dict(D["intl_on"]["NASDAQ_QQQ"])
+        _qqq["code"] = "NASDAQ"
+        _qqq["note"] = (_qqq.get("note") or "") + "（主路^NDX缺·应急代理）"
+        D["intl_on"]["NASDAQ"] = _qqq
 
     def us_info(theme):
         if theme not in THEME_US or not us_days:

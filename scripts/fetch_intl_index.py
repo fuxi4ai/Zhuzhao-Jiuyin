@@ -155,6 +155,10 @@ SA_SOURCES = {
     "KR_PROXY": ("EWY",  "etf_proxy", "韩国(EWY代理)",   "MSCI韩国ETF · 三星/SK海力士存储芯 · 隔夜代理", "etf/ewy"),
 }
 
+# SA 应急写入映射（2026-08-28 Doctor 裁「另立 code」）：输入键契约不动（九儿班 JSON 仍喂 "NASDAQ"），
+# 库内 code 另立 NASDAQ_QQQ——防 ETF 代理价与主路 ^NDX 指数点位同主键(trade_date,code)互覆（两口径差~40倍）。
+SA_WRITE_CODE = {"NASDAQ": "NASDAQ_QQQ"}
+
 
 def fetch_stockanalysis(infile):
     """读九儿 web_fetch 解析好的 JSON（键＝code）→ {code: [(date,close,pct)]}。
@@ -211,10 +215,11 @@ def main():
                 miss += 1
                 continue
             d, c, p = row
+            db_code = SA_WRITE_CODE.get(code, code)  # QQQ 应急另立 code，防覆盖 ^NDX 主列
             conn.execute(
                 "INSERT OR REPLACE INTO intl_index_daily"
                 "(trade_date,code,symbol,name,kind,close,pct_chg,note,source) "
-                "VALUES (?,?,?,?,?,?,?,?,?)", (d, code, sym, name, kind, c, p, note, "stockanalysis"))
+                "VALUES (?,?,?,?,?,?,?,?,?)", (d, db_code, sym, name, kind, c, p, note, "stockanalysis"))
             conn.commit()
             total += 1
             logger.info(f"  ✓ {code:9s} {sym:7s} 最新 {d} close={c} pct={p}")
