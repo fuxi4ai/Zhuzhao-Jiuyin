@@ -17,6 +17,15 @@ import sqlite3
 import sys
 import urllib.parse
 import urllib.request
+import os as _os
+
+# ── bootstrap：保证 import config 成功（班域 ZZJY_DATABASE_ROOT 生效）──
+# ERR-20260827-001 同根四犯的根治（2026-09-01 Doctor 裁「根治」）：
+# 此前本脚本无此 bootstrap，班内 import config 失败被 except 吞掉 → fallback 直写 live。
+_sys_path_root = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+if _sys_path_root not in sys.path:
+    sys.path.insert(0, _sys_path_root)
+import config  # noqa: E402
 
 LOOKBACK_DAYS = 45  # 回看窗口（FRED 滞后 1-2 天/周更序列，45 天足够增量对账）
 SERIES = {
@@ -37,11 +46,9 @@ def _docroot():
 
 
 def _db_path():
-    try:
-        import config
-        return config.MARKET_DB
-    except Exception:
-        return str(_docroot() / "Database" / "Market-Data" / "market_data.db")
+    # bootstrap 后 import config 必成功；config.MARKET_DB 已随 ZZJY_DATABASE_ROOT 指向班域副本根。
+    # 不再静默 fallback 直写 live（根治 ERR-20260827-001）。
+    return config.MARKET_DB
 
 
 def _fred_key():
@@ -68,7 +75,7 @@ def fetch(series_id):
 
 
 def main():
-    con = sqlite3.connect(_db_path())
+    con = config.connect_write(_db_path())   # 中央写护栏：沙箱挂载盘直写拒绝（G019/ERR-20260827-001 兜底）
     con.execute(f"""CREATE TABLE IF NOT EXISTS {TABLE} (
         trade_date TEXT NOT NULL,
         series_id  TEXT NOT NULL,
