@@ -325,8 +325,22 @@ def gather(date_cap=None):
 
     # ── 市场快照（画框下方四联条） ──
     snap = {}
-    snap["bench_pct"] = round(px[BENCHMARK][data_day] * 100, 2)
-    snap["bench_note"] = "沪深300代理"
+    # 大盘基准：沪深300指数真身（2026-09-01 Doctor 裁「换指数真身」· 弃 510300 ETF 代理——
+    #   ETF 二级折溢价曾致连续三日与指数偏离 0.2pp+，见 GOTCHAS ERR-20260901-002）。
+    #   表未建/无数据 → None，渲染标「待取数」不冒充（fail-closed）。缺当日则取最新并标 vintage。
+    idx = defaultdict(dict)
+    try:
+        for d, c, p in md.execute("SELECT trade_date, idx_code, pct_chg FROM cn_index_daily "
+                                  "WHERE pct_chg IS NOT NULL"):
+            idx[c][d] = p / 100
+    except sqlite3.OperationalError:
+        pass
+    IDX = idx.get("000300.SH", {})
+    _idxv = sorted(d for d in IDX if d <= data_day)
+    snap["bench_pct"] = round(IDX[_idxv[-1]] * 100, 2) if _idxv else None
+    snap["bench_note"] = ("沪深300指数" + (f" · vintage {iso(_idxv[-1])}"
+                           if _idxv and _idxv[-1] < data_day else "") if _idxv
+                          else "沪深300指数 · 待取数")
     # 涨跌家数：对齐成交额 vintage 范式——当日缺则回退最新可得交易日(T-1)并记 vintage，如实标注不空显「待回填」
     _uddd = md.execute("SELECT MAX(trade_date) FROM stock_daily WHERE trade_date<=?",
                        (data_day,)).fetchone()
@@ -606,7 +620,7 @@ def gather(date_cap=None):
         for d in win:
             vv = [px[c][d] for c in THEME_ETF[t] if d in px[c]]
             ca += (sum(vv) / len(vv)) if vv else 0.0
-            cb += px[BENCHMARK].get(d, 0.0)
+            cb += IDX.get(d, 0.0)   # 大盘线=沪深300指数累计（价格指数口径，与快照同源）
             abs_sp.append(round(ca * 100, 2))
             bench_sp.append(round(cb * 100, 2))
         us_sp = us_abs_series(THEME_US[t][0] if t in THEME_US else None, win) if win else None
@@ -1115,7 +1129,7 @@ def pct_span(v, suffix="%"):
     if v is None:
         return '<span class="na">—</span>'
     cls = "up" if v > 0 else ("dn" if v < 0 else "")
-    return f'<span class="{cls}">{v:+.1f}{suffix}</span>'
+    return f'<span class="{cls}">{v:+.2f}{suffix}</span>'
 
 
 # ── 汇率栏目：美元兑（离岸）人民币 USD/CNH（当前 + 近7交易日曲线）──────────

@@ -105,6 +105,11 @@ def main():
     codes = all_codes()
     logger.info(f"待拉 ETF {len(codes)} 只 [{args.from_date}→{to_date}]: {codes}")
     if args.dry_run:
+        try:
+            from fetch_index_daily import INDICES
+            logger.info(f"  附带指数真身 {list(INDICES)}")
+        except Exception:
+            pass
         logger.info("dry-run，仅列出，不写库"); return
 
     pro = get_pro()
@@ -128,7 +133,15 @@ def main():
         total += len(rows)
         logger.info(f"  ✓ {c}: {len(rows)} 行")
         time.sleep(0.3)   # 限频友好
-    logger.info(f"\n✅ 完成，写入 {total} 行 → market_data.db.theme_etf_daily")
+    # ── 大盘基准指数真身（2026-09-01 Doctor 裁「换指数真身」· ERR-20260901-002）──
+    # 与 ETF 同批同连接拉取（原子性·班 prompt 零改动）；失败不阻断 ETF 已写部分。
+    try:
+        from fetch_index_daily import pull_indices, INDICES
+        logger.info(f"  附带指数真身 {list(INDICES)} ...")
+        total += pull_indices(conn, pro, args.from_date, to_date)
+    except Exception as e:
+        logger.error(f"  ✗ 指数真身拉取失败（ETF 部分已写）: {e}")
+    logger.info(f"\n✅ 完成，写入 {total} 行 → market_data.db（theme_etf_daily + cn_index_daily）")
     conn.close()
 
 if __name__ == "__main__":
