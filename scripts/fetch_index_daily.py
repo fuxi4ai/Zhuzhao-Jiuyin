@@ -90,7 +90,8 @@ def pull_indices(conn, pro, from_date, to_date):
             "VALUES (?,?,?,?,?,?)", rows)
         conn.commit()
         total += len(rows)
-        logger.info(f"  ✓ {c} {name}: {len(rows)} 行, 最新 {rows[-1][0]} pct={rows[-1][3]}")
+        _mx = max(rows, key=lambda r: r[0])   # tushare index_daily 降序返回，最新=日期最大行
+        logger.info(f"  ✓ {c} {name}: {len(rows)} 行, 最新 {_mx[0]} pct={_mx[3]}")
         time.sleep(0.3)
     return total
 
