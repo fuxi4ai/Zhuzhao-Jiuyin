@@ -396,6 +396,7 @@ def gather(date_cap=None):
                 "SELECT COALESCE(SUM(funds_yi),0), COALESCE(SUM(n_ipo),0), MAX(trade_date) FROM ipo_daily "
                 "WHERE trade_date>? AND trade_date<=?", (_cut, data_day)).fetchone()
             ipo["funds_win"], ipo["n_win"], ipo["latest"] = round(irow[0], 1), irow[1], irow[2]
+            ipo["covered"] = ipo["latest"] is not None and ipo["latest"] >= _cut   # ERR-20260911-002：窗口内无覆盖=不可判，非 0
             # F4 相对口径分母（2026-07-23 选型B）：近 _f4M 交易日日均全市场成交额（万亿→亿）。
             # 须真有 _f4M 个交易日样本才算，否则不可评(None·G-X75「无数据≠未触发」)。乙案2026-08-09：分母换 volume_trillion（真全市场·2020+全有效·ERR-20260719-003已收口）。
             _sub = md.execute(
@@ -2170,6 +2171,10 @@ def _eval_risk_factors(D):
     if fw is None:
         st4, ev4 = "pending", c4.get("gap", "IPO 数据待接源")
         th4s = "近N日募资集中（待接源）"
+    elif not ip.get("covered"):
+        # ERR-20260911-002（2026-09-11 修）：事件表窗口内无覆盖=不可判，非「0 募资=平静」
+        st4, ev4 = "pending", f"◌不可判 · 事件表覆盖不足（数据至 {iso(ip['latest'])}）——「无新股」与「采集未覆盖」无法区分"
+        th4s = "覆盖判断：事件表无新行≠无事件（fail-visible）"
     else:
         wd = ip.get("win_days", 10)
         _rth = c4.get("ratio_th", 0.030)
