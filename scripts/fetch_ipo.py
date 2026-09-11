@@ -57,6 +57,15 @@ def ensure_table(conn):
             updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    # 覆盖证明（ERR-20260911-002 验收修 · 2026-09-11）：事件表无行≠无事件，消费端需要「采集承诺」
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS ipo_coverage (
+            scan_end      TEXT PRIMARY KEY,   -- 扫描区间末端 YYYYMMDD——承诺「至该日（含）事件数据完整」
+            complete      INTEGER,            -- 1=接口正常返回（完整覆盖·零事件也算完整）
+            funds_missing INTEGER,            -- 金额缺失/无法转换条数（0=金额完整）
+            fetched_at    TEXT
+        )
+    """)
     conn.commit()
 
 
@@ -66,6 +75,7 @@ def fetch(from_date, to_date):
     ensure_table(conn)
     df = pro.new_share(start_date=from_date, end_date=to_date)
     agg = {}  # ipo_date -> {'n':int,'funds':float,'names':[]}
+    funds_missing = 0   # 金额缺失/无法转换计数（ERR-20260911-002：缺失≠0，消费端据此判金额完整性）
     for r in df.itertuples():
         d = getattr(r, "ipo_date", None)
         if not d or not (from_date <= d <= to_date):   # 防接口忽略区间返回全量
@@ -73,11 +83,13 @@ def fetch(from_date, to_date):
         a = agg.setdefault(d, {"n": 0, "funds": 0.0, "names": []})
         a["n"] += 1
         f = getattr(r, "funds", None)
-        if f is not None:
+        if f is None:
+            funds_missing += 1
+        else:
             try:
                 a["funds"] += float(f)
             except (TypeError, ValueError):
-                pass
+                funds_missing += 1
         nm = getattr(r, "name", None)
         if nm:
             a["names"].append(str(nm))
@@ -85,6 +97,10 @@ def fetch(from_date, to_date):
             for d, v in sorted(agg.items())]
     conn.executemany(
         "INSERT OR REPLACE INTO ipo_daily(trade_date,n_ipo,funds_yi,names) VALUES (?,?,?,?)", rows)
+    # 覆盖证明：无论有无事件都落一行（零事件=完整覆盖的证据）
+    conn.execute(
+        "INSERT OR REPLACE INTO ipo_coverage(scan_end,complete,funds_missing,fetched_at) VALUES (?,1,?,?)",
+        (to_date, funds_missing, datetime.datetime.now().isoformat(timespec="seconds")))
     conn.commit()
     if rows:
         logger.info(f"✅ 写入 {len(rows)} 个申购日 → ipo_daily [{rows[0][0]}→{rows[-1][0]}] "
