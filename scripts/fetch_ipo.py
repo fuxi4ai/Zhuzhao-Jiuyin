@@ -60,7 +60,8 @@ def ensure_table(conn):
     # 覆盖证明（ERR-20260911-002 验收修 · 2026-09-11）：事件表无行≠无事件，消费端需要「采集承诺」
     conn.execute("""
         CREATE TABLE IF NOT EXISTS ipo_coverage (
-            scan_end      TEXT PRIMARY KEY,   -- 扫描区间末端 YYYYMMDD——承诺「至该日（含）事件数据完整」
+            scan_start    TEXT PRIMARY KEY,   -- 扫描区间起点 YYYYMMDD（区间+末端绑定事件版本）
+            scan_end      TEXT,               -- 扫描区间末端 YYYYMMDD——承诺「[start,end] 内事件数据完整」
             complete      INTEGER,            -- 1=接口正常返回（完整覆盖·零事件也算完整）
             funds_missing INTEGER,            -- 金额缺失/无法转换条数（0=金额完整）
             fetched_at    TEXT
@@ -97,10 +98,10 @@ def fetch(from_date, to_date):
             for d, v in sorted(agg.items())]
     conn.executemany(
         "INSERT OR REPLACE INTO ipo_daily(trade_date,n_ipo,funds_yi,names) VALUES (?,?,?,?)", rows)
-    # 覆盖证明：无论有无事件都落一行（零事件=完整覆盖的证据）
+    # 覆盖证明：无论有无事件都落一行（零事件=完整覆盖的证据；scan_start/end 绑定事件版本）
     conn.execute(
-        "INSERT OR REPLACE INTO ipo_coverage(scan_end,complete,funds_missing,fetched_at) VALUES (?,1,?,?)",
-        (to_date, funds_missing, datetime.datetime.now().isoformat(timespec="seconds")))
+        "INSERT OR REPLACE INTO ipo_coverage(scan_start,scan_end,complete,funds_missing,fetched_at) VALUES (?,?,1,?,?)",
+        (from_date, to_date, funds_missing, datetime.datetime.now().isoformat(timespec="seconds")))
     conn.commit()
     if rows:
         logger.info(f"✅ 写入 {len(rows)} 个申购日 → ipo_daily [{rows[0][0]}→{rows[-1][0]}] "

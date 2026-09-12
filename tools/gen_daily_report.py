@@ -396,13 +396,14 @@ def gather(date_cap=None):
                 "SELECT COALESCE(SUM(funds_yi),0), COALESCE(SUM(n_ipo),0), MAX(trade_date) FROM ipo_daily "
                 "WHERE trade_date>? AND trade_date<=?", (_cut, data_day)).fetchone()
             ipo["funds_win"], ipo["n_win"], ipo["latest"] = round(irow[0], 1), irow[1], irow[2]
-            # 覆盖证明（ERR-20260911-002 验收修·2026-09-11）：读采集端承诺，MAX(event_date) 仅展示最新事件日
+            # 覆盖证明（ERR-20260911-002 验收修·2026-09-11）：读采集端承诺（区间+事件版本绑定），MAX(event_date) 仅展示
             try:
                 _cov = md.execute(
-                    "SELECT scan_end, complete, funds_missing FROM ipo_coverage ORDER BY scan_end DESC LIMIT 1").fetchone()
-                _cov_end = _cov[0] if _cov and _cov[1] == 1 else None
-                ipo["covered"] = _cov_end is not None and _cov_end >= iso(data_day).replace("-", "")
-                ipo["funds_missing"] = _cov[2] if _cov else None
+                    "SELECT scan_start, scan_end, complete, funds_missing FROM ipo_coverage ORDER BY scan_end DESC LIMIT 1").fetchone()
+                _cov_start, _cov_end = (_cov[0], _cov[1]) if _cov and _cov[2] == 1 else (None, None)
+                ipo["covered"] = _cov_start is not None and _cov_end is not None \
+                    and _cov_start <= _cut and _cov_end >= iso(data_day).replace("-", "")
+                ipo["funds_missing"] = _cov[3] if _cov else None
             except sqlite3.OperationalError:
                 ipo["covered"] = False   # 无覆盖表 = 无证明（fail-closed）
                 ipo["funds_missing"] = None
@@ -2189,7 +2190,8 @@ def _eval_risk_factors(D):
         _rth = c4.get("ratio_th", 0.030)
         _ratio = ip.get("ratio")
         _trig = ip.get("trigger")   # True/False/None(不可评·成交额窗不足)
-        st4 = "triggered" if _trig else ("pending" if _trig is None else "quiet")
+        _fmiss = ip.get("funds_missing")   # 金额缺失条数（>0=合计为下限·不可评 quiet）
+        st4 = "pending" if (_fmiss or _trig is None) else ("triggered" if _trig else "quiet")
         _ratio_txt = (f" · 抽血比 {_ratio:.3f}（≈抽 {_ratio:.2f} 天成交额）" if _ratio is not None else " · 抽血比待评")
         ev4 = f"近{wd}日新股 {ip.get('n_win', 0)}只 · 募资 {fw:.0f}亿" + _ratio_txt + \
               (f"（截至{iso(ip['latest'])}）" if ip.get("latest") else "")
