@@ -391,30 +391,29 @@ def gather(date_cap=None):
     try:
         _cut = (datetime.date.fromisoformat(iso(data_day)) - datetime.timedelta(days=_f4wd)).strftime("%Y%m%d")
         _d_s = iso(data_day).replace("-", "")
-        # 覆盖证明 + 事件版本绑定（ERR-20260911-002 第三轮验收修·2026-09-12）：按 fetched_at 取最新证明并校验事件状态哈希
-        _cov_ok = False
-        _cov_start = _cov_end = None
-        _cov_missing_total = None
-        try:
-            _cov = md.execute(
-                "SELECT scan_start, scan_end, complete, funds_missing, events_hash FROM ipo_coverage ORDER BY fetched_at DESC LIMIT 1").fetchone()
-            if _cov and _cov[2] == 1 and _cov[4]:
-                import hashlib as _hl
-                _rows_iv = md.execute(
-                    "SELECT trade_date,n_ipo,funds_yi,funds_missing FROM ipo_daily WHERE trade_date BETWEEN ? AND ? ORDER BY trade_date",
-                    (_cov[0], _cov[1])).fetchall()
-                _cov_ok = (_hl.sha256(repr(_rows_iv).encode("utf-8")).hexdigest()[:16] == _cov[4])
-                _cov_start, _cov_end = _cov[0], _cov[1]
-                _cov_missing_total = _cov[3]
-        except sqlite3.OperationalError:
-            _cov_ok = False
-        ipo["covered"] = _cov_ok and _cov_start is not None and _cov_end is not None \
-            and _cov_start <= _cut and _cov_end >= _d_s
-        # 行级金额完整性（窗口内）：旧行 funds_missing NULL / funds_yi NULL → 缺失数未知（fail-closed）
+        _win_start = (datetime.date.fromisoformat(iso(data_day)) - datetime.timedelta(days=_f4wd - 1)).strftime("%Y%m%d")  # 窗口 (D-10,D] 首个包含日
+        md.execute("BEGIN")   # 显式只读事务快照：覆盖/hash/金额/分母同一版本（VV 第四轮验收修）
+        import hashlib as _hl
+        # 覆盖候选：先验后选——区间含窗口 + complete + events_hash 一致，不盲选最新
+        _cov_row = None
+        for _c in md.execute(
+                "SELECT scan_start, scan_end, complete, funds_missing, events_hash FROM ipo_coverage ORDER BY fetched_at DESC LIMIT 5").fetchall():
+            if _c[2] != 1 or not _c[4] or _c[0] is None or _c[1] is None:
+                continue
+            if not (_c[0] <= _win_start and _c[1] >= _d_s):
+                continue
+            _rows_iv = md.execute(
+                "SELECT trade_date,n_ipo,funds_yi,funds_missing FROM ipo_daily WHERE trade_date BETWEEN ? AND ? ORDER BY trade_date",
+                (_c[0], _c[1])).fetchall()
+            if _hl.sha256(repr(_rows_iv).encode("utf-8")).hexdigest()[:16] == _c[4]:
+                _cov_row = _c
+                break
+        ipo["covered"] = _cov_row is not None
+        # 行级金额完整性（窗口内）：计数聚合空集返回 0（真零可评）；旧行无标记/金额 NULL → 缺失数未知（fail-closed）
         _wm = md.execute(
             "SELECT COALESCE(SUM(funds_yi),0), COALESCE(SUM(n_ipo),0), MAX(trade_date), "
-            "COALESCE(SUM(funds_missing),0), SUM(CASE WHEN funds_missing IS NULL THEN 1 ELSE 0 END), "
-            "SUM(CASE WHEN funds_yi IS NULL THEN 1 ELSE 0 END) FROM ipo_daily "
+            "COALESCE(SUM(funds_missing),0), COUNT(CASE WHEN funds_missing IS NULL THEN 1 END), "
+            "COUNT(CASE WHEN funds_yi IS NULL THEN 1 END) FROM ipo_daily "
             "WHERE trade_date>? AND trade_date<=?", (_cut, _d_s)).fetchone()
         ipo["funds_win"], ipo["n_win"], ipo["latest"] = round(_wm[0], 1), _wm[1], _wm[2]
         ipo["funds_missing"] = _wm[3] if (_wm[4] == 0 and _wm[5] == 0) else None   # None=未知
@@ -430,7 +429,12 @@ def gather(date_cap=None):
         # 触发判定：金额/缺失数未知 → 不可评（第三轮验收修）
         ipo["trigger"] = risk_function.f4_ratio_trigger(ipo["funds_win"], ipo["avg_turnover"], _f4cfg) \
             if ipo["funds_missing"] is not None else None
+        md.execute("COMMIT")
     except sqlite3.OperationalError:
+        try:
+            md.execute("ROLLBACK")
+        except Exception:
+            pass
         pass
     D["ipo"] = ipo
 
@@ -2348,6 +2352,9 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
     _fv = (RISK_CFG.get("_meta") or {}).get("function_version", "v1")
     _S2C = RISK_CFG.get("s2") or {}
     _ENV_IDS = ("F1", "A6", "B6")
+    # 显示状态仅从 F4/F5 派生（VV 第四轮验收修：pending/na 均属未知；F3 等信息层缺失只在明细提示）
+    _f45 = [f for f in F if f.get("id") in ("F4", "F5")]
+    _f45_unk = any(f.get("status") in ("pending", "na", None) for f in _f45)
     env_eval = sum(1 for f in F if f["id"] in _ENV_IDS and f["status"] in ("amp", "env"))
     env_hits = sum(1 for f in F
                    if f["id"] in _ENV_IDS and f["status"] in ("amp", "env") and f.get("hit"))
@@ -2360,10 +2367,14 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
                                             "alert": ["🟠", "警戒", "#e8731e"],
                                             "resonance": ["🔴", "警戒", "#c0392b"]}[_key])
         blabel = _s2label
+        if tn == 0 and _f45_unk:
+            emoji, blabel, bcol = "◌", "部分不可评", "#9a9386"   # 徽标与正文共用同一显示状态
         is_reso = _key == "resonance"
     else:
         # v1（保留可回滚）：F1 只升级不定级——平静日 F1 无信息（实证 3.2% vs 3.2%）
-        if tn == 0:
+        if tn == 0 and _f45_unk:
+            emoji, blabel, bcol = "◌", "部分不可评", "#9a9386"
+        elif tn == 0:
             emoji, blabel, bcol = _S.get("calm", ["🟢", "平静", "#3f9c76"])
         elif amp_hit:
             emoji, blabel, bcol = _S.get("resonance", ["🔴", "警戒·外盘共振", "#c0392b"])
@@ -2390,7 +2401,7 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
 
     # 精简标题(2026-07-18 Doctor 定版):触发因子名直书。S2(2026-07-19):温度语义=触发×共振
     _trig_names = "、".join(f["name"] for f in F if f["status"] == "triggered")
-    _any_pend = any(f.get("status") == "pending" for f in F)   # 有缺项（第三轮验收修：部分不可评不得概括为平静）
+    _any_pend = _f45_unk   # 部分不可评（仅 F4/F5 未知·与徽标共用同一状态·VV 第四轮验收修）
     if _fv == "s2":
         if tn > 0 and is_reso:
             _temp_txt = (_trig_names + "，" if _trig_names else "") + blabel

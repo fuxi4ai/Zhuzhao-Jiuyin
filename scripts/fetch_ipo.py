@@ -58,10 +58,9 @@ def ensure_table(conn):
         )
     """)
     # 行级金额完整性标记（ERR-20260911-002 第三轮验收修·2026-09-12）：缺失数按消费窗口求和，不借全区间计数
-    try:
+    _ipo_cols = [r[1] for r in conn.execute("PRAGMA table_info(ipo_daily)").fetchall()]
+    if "funds_missing" not in _ipo_cols:
         conn.execute("ALTER TABLE ipo_daily ADD COLUMN funds_missing INTEGER")
-    except sqlite3.OperationalError:
-        pass   # 列已存在
     # 覆盖证明（ERR-20260911-002 验收修 · 2026-09-11）：事件表无行≠无事件，消费端需要「采集承诺」
     conn.execute("""
         CREATE TABLE IF NOT EXISTS ipo_coverage (
@@ -73,6 +72,12 @@ def ensure_table(conn):
             fetched_at    TEXT
         )
     """)
+    # 旧 schema 迁移（VV 第四轮验收修：PRAGMA 检查补列；旧行无法认证保持未验证，不做破坏性迁移）
+    _cov_cols = [r[1] for r in conn.execute("PRAGMA table_info(ipo_coverage)").fetchall()]
+    if "events_hash" not in _cov_cols:
+        conn.execute("ALTER TABLE ipo_coverage ADD COLUMN events_hash TEXT")
+    if "scan_start" not in _cov_cols:
+        logger.warning("ipo_coverage 为旧版 schema（缺 scan_start）——旧行无法认证，待合法采集重写；不做破坏性迁移")
     conn.commit()
 
 
