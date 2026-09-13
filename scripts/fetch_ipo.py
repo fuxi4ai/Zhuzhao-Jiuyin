@@ -72,12 +72,25 @@ def ensure_table(conn):
             fetched_at    TEXT
         )
     """)
-    # 旧 schema 迁移（VV 第四轮验收修：PRAGMA 检查补列；旧行无法认证保持未验证，不做破坏性迁移）
+    # 旧 schema 迁移（VV 第四/五轮验收修：PRAGMA 检查补列；最老版 scan_end 主键表 rename 留档重建，旧行无法认证不破坏迁移）
     _cov_cols = [r[1] for r in conn.execute("PRAGMA table_info(ipo_coverage)").fetchall()]
+    if "scan_start" not in _cov_cols:
+        _legacy = f"ipo_coverage_legacy_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+        conn.execute(f"ALTER TABLE ipo_coverage RENAME TO {_legacy}")
+        logger.warning(f"ipo_coverage 为最老版 schema（缺 scan_start）——已 rename 留档为 {_legacy}（旧行无法认证），重建新 schema")
+        conn.execute("""
+            CREATE TABLE ipo_coverage (
+                scan_start    TEXT PRIMARY KEY,
+                scan_end      TEXT,
+                complete      INTEGER,
+                funds_missing INTEGER,
+                events_hash   TEXT,
+                fetched_at    TEXT
+            )
+        """)
+        _cov_cols = [r[1] for r in conn.execute("PRAGMA table_info(ipo_coverage)").fetchall()]
     if "events_hash" not in _cov_cols:
         conn.execute("ALTER TABLE ipo_coverage ADD COLUMN events_hash TEXT")
-    if "scan_start" not in _cov_cols:
-        logger.warning("ipo_coverage 为旧版 schema（缺 scan_start）——旧行无法认证，待合法采集重写；不做破坏性迁移")
     conn.commit()
 
 

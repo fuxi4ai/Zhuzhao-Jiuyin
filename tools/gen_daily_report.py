@@ -397,11 +397,9 @@ def gather(date_cap=None):
         # 覆盖候选：先验后选——区间含窗口 + complete + events_hash 一致，不盲选最新
         _cov_row = None
         for _c in md.execute(
-                "SELECT scan_start, scan_end, complete, funds_missing, events_hash FROM ipo_coverage ORDER BY fetched_at DESC LIMIT 5").fetchall():
-            if _c[2] != 1 or not _c[4] or _c[0] is None or _c[1] is None:
-                continue
-            if not (_c[0] <= _win_start and _c[1] >= _d_s):
-                continue
+                "SELECT scan_start, scan_end, complete, funds_missing, events_hash FROM ipo_coverage "
+                "WHERE scan_start<=? AND scan_end>=? AND complete=1 AND events_hash IS NOT NULL "
+                "ORDER BY fetched_at DESC", (_win_start, _d_s)).fetchall():
             _rows_iv = md.execute(
                 "SELECT trade_date,n_ipo,funds_yi,funds_missing FROM ipo_daily WHERE trade_date BETWEEN ? AND ? ORDER BY trade_date",
                 (_c[0], _c[1])).fetchall()
