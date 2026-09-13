@@ -57,13 +57,19 @@ def ensure_table(conn):
             updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    # 行级金额完整性标记（ERR-20260911-002 第三轮验收修·2026-09-12）：缺失数按消费窗口求和，不借全区间计数
+    try:
+        conn.execute("ALTER TABLE ipo_daily ADD COLUMN funds_missing INTEGER")
+    except sqlite3.OperationalError:
+        pass   # 列已存在
     # 覆盖证明（ERR-20260911-002 验收修 · 2026-09-11）：事件表无行≠无事件，消费端需要「采集承诺」
     conn.execute("""
         CREATE TABLE IF NOT EXISTS ipo_coverage (
             scan_start    TEXT PRIMARY KEY,   -- 扫描区间起点 YYYYMMDD（区间+末端绑定事件版本）
             scan_end      TEXT,               -- 扫描区间末端 YYYYMMDD——承诺「[start,end] 内事件数据完整」
-            complete      INTEGER,            -- 1=接口正常返回（完整覆盖·零事件也算完整）
-            funds_missing INTEGER,            -- 金额缺失/无法转换条数（0=金额完整）
+            complete      INTEGER,            -- 1=接口正常返回且无坏行（完整覆盖·零事件也算完整）
+            funds_missing INTEGER,            -- 全区间金额缺失/无法转换条数（0=金额完整）
+            events_hash   TEXT,               -- [scan_start,scan_end] 内事件行状态哈希（版本绑定·第三轮验收修）
             fetched_at    TEXT
         )
     """)
@@ -71,37 +77,52 @@ def ensure_table(conn):
 
 
 def fetch(from_date, to_date):
+    import hashlib, math
     pro = get_pro()
     conn = sqlite3.connect(config.MARKET_DB)
     ensure_table(conn)
     df = pro.new_share(start_date=from_date, end_date=to_date)
-    agg = {}  # ipo_date -> {'n':int,'funds':float,'names':[]}
-    funds_missing = 0   # 金额缺失/无法转换计数（ERR-20260911-002：缺失≠0，消费端据此判金额完整性）
+    agg = {}  # ipo_date -> {'n':int,'funds':float,'names':[], 'miss':int}
+    bad_rows = 0   # 缺 ipo_date 的坏行（响应有缺字段 → complete=0·第三轮验收修）
     for r in df.itertuples():
         d = getattr(r, "ipo_date", None)
-        if not d or not (from_date <= d <= to_date):   # 防接口忽略区间返回全量
+        if not d:
+            bad_rows += 1
             continue
-        a = agg.setdefault(d, {"n": 0, "funds": 0.0, "names": []})
+        if not (from_date <= d <= to_date):   # 防接口忽略区间返回全量
+            continue
+        a = agg.setdefault(d, {"n": 0, "funds": 0.0, "names": [], "miss": 0})
         a["n"] += 1
         f = getattr(r, "funds", None)
         if f is None:
-            funds_missing += 1
+            a["miss"] += 1
         else:
             try:
-                a["funds"] += float(f)
+                fv = float(f)
+                if not math.isfinite(fv):      # NaN/Infinity 治理：非有限值=缺失（第三轮验收修）
+                    a["miss"] += 1
+                else:
+                    a["funds"] += fv
             except (TypeError, ValueError):
-                funds_missing += 1
+                a["miss"] += 1
         nm = getattr(r, "name", None)
         if nm:
             a["names"].append(str(nm))
-    rows = [(d, v["n"], round(v["funds"], 3), ",".join(v["names"]))
+    rows = [(d, v["n"], round(v["funds"], 3), ",".join(v["names"]), v["miss"])
             for d, v in sorted(agg.items())]
     conn.executemany(
-        "INSERT OR REPLACE INTO ipo_daily(trade_date,n_ipo,funds_yi,names) VALUES (?,?,?,?)", rows)
-    # 覆盖证明：无论有无事件都落一行（零事件=完整覆盖的证据；scan_start/end 绑定事件版本）
+        "INSERT OR REPLACE INTO ipo_daily(trade_date,n_ipo,funds_yi,names,funds_missing) VALUES (?,?,?,?,?)", rows)
+    # 事件版本绑定：扫描后 [scan_start,scan_end] 内事件行状态哈希（消费端据此判证明是否过期）
+    rows_iv = conn.execute(
+        "SELECT trade_date,n_ipo,funds_yi,funds_missing FROM ipo_daily WHERE trade_date BETWEEN ? AND ? ORDER BY trade_date",
+        (from_date, to_date)).fetchall()
+    events_hash = hashlib.sha256(repr(rows_iv).encode("utf-8")).hexdigest()[:16]
+    total_missing = sum(v["miss"] for v in agg.values())
+    # 覆盖证明：无论有无事件都落一行（零事件=完整覆盖的证据）；坏行存在则 complete=0
     conn.execute(
-        "INSERT OR REPLACE INTO ipo_coverage(scan_start,scan_end,complete,funds_missing,fetched_at) VALUES (?,?,1,?,?)",
-        (from_date, to_date, funds_missing, datetime.datetime.now().isoformat(timespec="seconds")))
+        "INSERT OR REPLACE INTO ipo_coverage(scan_start,scan_end,complete,funds_missing,events_hash,fetched_at) VALUES (?,?,?,?,?,?)",
+        (from_date, to_date, 0 if bad_rows else 1, total_missing, events_hash,
+         datetime.datetime.now().isoformat(timespec="seconds")))
     conn.commit()
     if rows:
         logger.info(f"✅ 写入 {len(rows)} 个申购日 → ipo_daily [{rows[0][0]}→{rows[-1][0]}] "

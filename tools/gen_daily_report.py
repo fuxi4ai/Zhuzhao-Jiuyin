@@ -390,33 +390,46 @@ def gather(date_cap=None):
            "ratio_th": _f4cfg.get("ratio_th", 0.030), "avg_days": _f4M}
     try:
         _cut = (datetime.date.fromisoformat(iso(data_day)) - datetime.timedelta(days=_f4wd)).strftime("%Y%m%d")
-        _has = md.execute("SELECT COUNT(*) FROM ipo_daily WHERE trade_date<=?", (data_day,)).fetchone()[0]
-        if _has:
-            irow = md.execute(
-                "SELECT COALESCE(SUM(funds_yi),0), COALESCE(SUM(n_ipo),0), MAX(trade_date) FROM ipo_daily "
-                "WHERE trade_date>? AND trade_date<=?", (_cut, data_day)).fetchone()
-            ipo["funds_win"], ipo["n_win"], ipo["latest"] = round(irow[0], 1), irow[1], irow[2]
-            # 覆盖证明（ERR-20260911-002 验收修·2026-09-11）：读采集端承诺（区间+事件版本绑定），MAX(event_date) 仅展示
-            try:
-                _cov = md.execute(
-                    "SELECT scan_start, scan_end, complete, funds_missing FROM ipo_coverage ORDER BY scan_end DESC LIMIT 1").fetchone()
-                _cov_start, _cov_end = (_cov[0], _cov[1]) if _cov and _cov[2] == 1 else (None, None)
-                ipo["covered"] = _cov_start is not None and _cov_end is not None \
-                    and _cov_start <= _cut and _cov_end >= iso(data_day).replace("-", "")
-                ipo["funds_missing"] = _cov[3] if _cov else None
-            except sqlite3.OperationalError:
-                ipo["covered"] = False   # 无覆盖表 = 无证明（fail-closed）
-                ipo["funds_missing"] = None
-            # F4 相对口径分母（2026-07-23 选型B）：近 _f4M 交易日日均全市场成交额（万亿→亿）。
-            # 须真有 _f4M 个交易日样本才算，否则不可评(None·G-X75「无数据≠未触发」)。乙案2026-08-09：分母换 volume_trillion（真全市场·2020+全有效·ERR-20260719-003已收口）。
-            _sub = md.execute(
-                "SELECT volume_trillion FROM daily_market WHERE volume_trillion>0 "
-                "AND trade_date<=? ORDER BY trade_date DESC LIMIT ?", (data_day, _f4M)).fetchall()
-            if len(_sub) >= _f4M:
-                ipo["avg_turnover"] = round(sum(r[0] for r in _sub) / _f4M * 1e4, 1)
-                if ipo["avg_turnover"]:
-                    ipo["ratio"] = round(ipo["funds_win"] / ipo["avg_turnover"], 4)
-            ipo["trigger"] = risk_function.f4_ratio_trigger(ipo["funds_win"], ipo["avg_turnover"], _f4cfg)
+        _d_s = iso(data_day).replace("-", "")
+        # 覆盖证明 + 事件版本绑定（ERR-20260911-002 第三轮验收修·2026-09-12）：按 fetched_at 取最新证明并校验事件状态哈希
+        _cov_ok = False
+        _cov_start = _cov_end = None
+        _cov_missing_total = None
+        try:
+            _cov = md.execute(
+                "SELECT scan_start, scan_end, complete, funds_missing, events_hash FROM ipo_coverage ORDER BY fetched_at DESC LIMIT 1").fetchone()
+            if _cov and _cov[2] == 1 and _cov[4]:
+                import hashlib as _hl
+                _rows_iv = md.execute(
+                    "SELECT trade_date,n_ipo,funds_yi,funds_missing FROM ipo_daily WHERE trade_date BETWEEN ? AND ? ORDER BY trade_date",
+                    (_cov[0], _cov[1])).fetchall()
+                _cov_ok = (_hl.sha256(repr(_rows_iv).encode("utf-8")).hexdigest()[:16] == _cov[4])
+                _cov_start, _cov_end = _cov[0], _cov[1]
+                _cov_missing_total = _cov[3]
+        except sqlite3.OperationalError:
+            _cov_ok = False
+        ipo["covered"] = _cov_ok and _cov_start is not None and _cov_end is not None \
+            and _cov_start <= _cut and _cov_end >= _d_s
+        # 行级金额完整性（窗口内）：旧行 funds_missing NULL / funds_yi NULL → 缺失数未知（fail-closed）
+        _wm = md.execute(
+            "SELECT COALESCE(SUM(funds_yi),0), COALESCE(SUM(n_ipo),0), MAX(trade_date), "
+            "COALESCE(SUM(funds_missing),0), SUM(CASE WHEN funds_missing IS NULL THEN 1 ELSE 0 END), "
+            "SUM(CASE WHEN funds_yi IS NULL THEN 1 ELSE 0 END) FROM ipo_daily "
+            "WHERE trade_date>? AND trade_date<=?", (_cut, _d_s)).fetchone()
+        ipo["funds_win"], ipo["n_win"], ipo["latest"] = round(_wm[0], 1), _wm[1], _wm[2]
+        ipo["funds_missing"] = _wm[3] if (_wm[4] == 0 and _wm[5] == 0) else None   # None=未知
+        # F4 相对口径分母（2026-07-23 选型B）：近 _f4M 交易日日均全市场成交额（万亿→亿）。
+        # 须真有 _f4M 个交易日样本才算，否则不可评(None·G-X75「无数据≠未触发」)。乙案2026-08-09：分母换 volume_trillion（真全市场·2020+全有效·ERR-20260719-003已收口）。
+        _sub = md.execute(
+            "SELECT volume_trillion FROM daily_market WHERE volume_trillion>0 "
+            "AND trade_date<=? ORDER BY trade_date DESC LIMIT ?", (data_day, _f4M)).fetchall()
+        if len(_sub) >= _f4M:
+            ipo["avg_turnover"] = round(sum(r[0] for r in _sub) / _f4M * 1e4, 1)
+            if ipo["avg_turnover"]:
+                ipo["ratio"] = round(ipo["funds_win"] / ipo["avg_turnover"], 4)
+        # 触发判定：金额/缺失数未知 → 不可评（第三轮验收修）
+        ipo["trigger"] = risk_function.f4_ratio_trigger(ipo["funds_win"], ipo["avg_turnover"], _f4cfg) \
+            if ipo["funds_missing"] is not None else None
     except sqlite3.OperationalError:
         pass
     D["ipo"] = ipo
@@ -2197,6 +2210,8 @@ def _eval_risk_factors(D):
               (f"（截至{iso(ip['latest'])}）" if ip.get("latest") else "")
         if ip.get("funds_missing"):
             ev4 += f" · 金额缺失 {ip['funds_missing']} 条·合计为已知下限"
+        elif ip.get("funds_missing") is None and ip.get("funds_win") is not None:
+            ev4 += " · 金额缺失数未知（旧行无标记）"
         th4s = f"募资/近{ip.get('avg_days', 30)}日均成交额 ≥{_rth}（相对口径·p95·2020+校准 lift2.63/14事件）"
     F.append({"id": "F4", "name": c4["name"], "status": st4, "ev": ev4,
               "th": th4s, "src": "market_data.ipo_daily（tushare·现成）"})
@@ -2375,6 +2390,7 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
 
     # 精简标题(2026-07-18 Doctor 定版):触发因子名直书。S2(2026-07-19):温度语义=触发×共振
     _trig_names = "、".join(f["name"] for f in F if f["status"] == "triggered")
+    _any_pend = any(f.get("status") == "pending" for f in F)   # 有缺项（第三轮验收修：部分不可评不得概括为平静）
     if _fv == "s2":
         if tn > 0 and is_reso:
             _temp_txt = (_trig_names + "，" if _trig_names else "") + blabel
@@ -2382,14 +2398,14 @@ def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
             _temp_txt = ((_trig_names + "，" if _trig_names else "") + blabel
                          + f"（历史该态 {_S2C.get('evidence_alert', '0/23')} 未现冰点）")
         else:
-            _temp_txt = ("触发层平静"
-                         '<span class="rr-sub">触发层＝F4 IPO虹吸／F5 外部紧缩，事件型扳机</span>')
+            _temp_txt = (("已知项未触发·部分不可评" if _any_pend else "触发层平静")
+                         + '<span class="rr-sub">触发层＝F4 IPO虹吸／F5 外部紧缩，事件型扳机</span>')
     elif tn > 0 and amp_hit:
         _temp_txt = (_trig_names + "，" if _trig_names else "") + "外盘共振"
     elif tn > 0:
         _temp_txt = _trig_names or blabel
     else:
-        _temp_txt = "五因平静"
+        _temp_txt = "已知项未触发·部分不可评" if _any_pend else "五因平静"
 
     def _dot(f):        # 环境/放大器命中时着警示色（但它不定级，只升级）
         return "#c0392b" if (f["status"] in ("amp", "env") and f.get("hit")) else DOT[f["status"]]
