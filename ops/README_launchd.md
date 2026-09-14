@@ -1,4 +1,4 @@
-# ops/ · 本机 launchd 行情落库（两个 job 的分工）
+# ops/ · 本机 launchd 行情落库（三个 job 的分工）
 
 > 本机时区 **America/Los_Angeles**（PDT/PST）。下表钟点一律指**本机墙钟**。
 > ET 与 PT 同步换夏令时，故墙钟对美股收盘的相对位置全年稳定，换季无需调整。
@@ -12,36 +12,43 @@ Cowork 沙箱经 FUSE 直写挂载盘真盘是 **GOTCHAS G019** 明令禁止的�
 顶层程序一律用 `python3.13` 而非 `/bin/bash`：launchd 执行的顶层程序即 TCC（完全磁盘访问）
 的授权主体。用 bash 跑则主体是未授 FDA 的 `/bin/bash`，写 `~/Documents` 会被拦；
 用已授 FDA 的 python3.13 直接跑，整条链（含它 spawn 的 python 子进程）都被覆盖。
-**两个 job 都别改回 .sh。**
+**三个 job 都别改回 .sh。**
 
-## 两个 job
+## 三个 job
 
 | Label | 钟点（本地） | 换算美东 | 入口 | 管什么 |
 |---|---|---|---|---|
 | `com.zhuzhao.marketdata` | 周一~五 **02:30** | 05:30 ET（**开盘前**） | `mac_daily_marketdata.py` | A 股五表 + 句芒派生 + intl_index/kr_stocks 隔夜读数 |
 | `com.zhuzhao.usclose` | 周一~五 **14:00** | 17:00 ET（**收盘后 1h**） | `mac_us_close_backfill.py` | 补 `us_anchor_daily` + `intl_index_daily` 美股腿的**当日收盘价** |
+| `com.zhuzhao.ipo-rolling` | 每日 **09:00** | —（北京日窗口，与时区无关） | `scripts/fetch_ipo_rolling.py` | IPO 滚动窗口 [D-29, D]（北京日）采集 + 覆盖证明，直写两表（不整库放回） |
 
 **为什么要两个**：主班排在美股开盘前，它取到的美股腿天然是隔夜/盘中读数，
 `us_anchor_daily` 因此结构性晚一天。补数班排在收盘后，专门消除这一天滞后。
 顺序是 补数班 D 14:00 → 主班 D+1 02:30。
 
+**第三班 ipo-rolling 为什么独立**（2026-09-13 VV 复核定案）：IPO 消费合同要求
+「单条覆盖完整包含 [D-29, D] 窗口」，沙箱班整库放回会丢他人写入（VV 实测证伪），
+分段续采的窄条又永远满足不了合同——故走 Mac 原生 launchd 滚动采集，每日 09:00 PT
+覆盖周末（北京日的 D 每天都在前移，无交易日停跑之说），漏跑一天次日补扫仍覆盖。
+
 **注意**：`fetch_us_anchor.py` **不在主班里**，`us_anchor_daily` 的唯一主人就是补数班。
 补数班停摆 = 美股锚断更（2026-08-01 之前一直如此）。
 
-**第三班（不在 launchd 里）**：Cowork 定时任务 `us-close-backfill` 于 **14:30 PT**
+**看门狗班（不在 launchd 里）**：Cowork 定时任务 `us-close-backfill` 于 **14:30 PT**
 （补数班之后 30 分）跑**只读看门狗**——核对两表水位与新鲜度、出简报给 Doctor，
 绝不写库。它是"告警直达人眼"的一层，launchd 自身的 ❌ 只落在日志里没人看。
 两边的陈旧阈值必须一致，见下方铁律 7。
 
 ## 落地状态与日志
 
-| | 主班 | 补数班 |
-|---|---|---|
-| 脚本日志 | `logs/mac_marketdata_YYYYMMDD.log` | `logs/mac_usclose_YYYYMMDD.log` |
-| launchd 兜底 | `logs/launchd_marketdata.{out,err}` | `logs/launchd_usclose.{out,err}` |
-| 状态文件 | `ops/.last_run_status` | `ops/.last_run_status_usclose` |
+| | 主班 | 补数班 | IPO 班 |
+|---|---|---|---|
+| 脚本日志 | `logs/mac_marketdata_YYYYMMDD.log` | `logs/mac_usclose_YYYYMMDD.log` | （脚本内自管） |
+| launchd 兜底 | `logs/launchd_marketdata.{out,err}` | `logs/launchd_usclose.{out,err}` | `/tmp/ipo_rolling.{log,err}`（plist StandardOut/ErrorPath） |
+| 状态文件 | `ops/.last_run_status` | `ops/.last_run_status_usclose` | `ipo_coverage` 表内覆盖证明（scan_start/scan_end/events_hash） |
 
 状态文件内容为 `OK <时间戳>` 或 `FAIL <时间戳>`，一行，供快速检查/看板消费。
+IPO 班不设状态文件——其覆盖证明落在数据库 `ipo_coverage` 表，比文件更接近消费端。
 
 ## 安装 / 验证 / 卸载
 
@@ -61,6 +68,14 @@ launchctl print gui/$(id -u)/com.zhuzhao.usclose | head -30
 
 # 卸载
 launchctl bootout gui/$(id -u)/com.zhuzhao.usclose
+
+# IPO 班（2026-09-12 部署 · 源 = ops/com.zhuzhao.ipo-rolling.plist，同为实体拷贝模式）
+cp ~/Documents/Claude/Projects/Financial/烛照九阴/ops/com.zhuzhao.ipo-rolling.plist \
+   ~/Library/LaunchAgents/com.zhuzhao.ipo-rolling.plist
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.zhuzhao.ipo-rolling.plist
+launchctl kickstart -k gui/$(id -u)/com.zhuzhao.ipo-rolling
+launchctl print gui/$(id -u)/com.zhuzhao.ipo-rolling | head -30
+launchctl bootout gui/$(id -u)/com.zhuzhao.ipo-rolling   # 卸载
 ```
 
 手动直跑（绕过 launchd，排障用）：
@@ -110,3 +125,7 @@ cd ~/Documents/Claude/Projects/Financial/烛照九阴
   失载机制为推断，同期 marketdata 实体文件存活）。重 bootstrap 复活，plist 改实体拷贝。
   另手动 `--from 2026-08-11` 回补当日缺口（6 锚票 ALM/GEV/LITE/MP/PLTR/RKLB + 美股腿
   LITE/SPCX）——编排器 max+1 起点不回头补部分缺失日，此洞未改代码、靠人工盯。
+- **2026-09-12/13** IPO 班 `com.zhuzhao.ipo-rolling` 上线（VV 九轮验收 · Doctor 部署）：
+  覆盖证明 + 滚动窗口 [D-29, D] 北京日 + python3.13 顶层入口（TCC/FDA 授权主体）。
+  plist 由 VV 在复验证据目录生成、Doctor 直接部署——**装机后源未同步落 ops/**
+  致巡检报「有装机无源」（NOTE-20260914-001），09-14 已归位并补本表登记。
