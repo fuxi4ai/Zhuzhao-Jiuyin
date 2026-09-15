@@ -781,6 +781,16 @@ def gather(date_cap=None):
     except Exception:
         D["yt_max_date"] = None; D["yt_stale_days"] = None
 
+    # 2026-09-14 NOTE-20260914-002：KG 健康分诊戳（sync_buy_signals 落库；旧 recap 无此表→None）
+    try:
+        _kgr = rc.execute("SELECT kg_updated, health_overall, health_stamped, checked_at "
+                          "FROM yuantu_kg_health WHERE id=1").fetchone()
+        D["yt_kg_health"] = (dict(kg_updated=_kgr[0], health_overall=_kgr[1],
+                                  health_stamped=_kgr[2], checked_at=_kgr[3])
+                             if _kgr else None)
+    except Exception:
+        D["yt_kg_health"] = None
+
     # 案2 暗态计数（已兑现·候二段，不渲染主栏/台账，仅留入口）
     try:
         D["dormant_n"] = rc.execute(
@@ -2605,11 +2615,26 @@ def render(D):
     dd = iso(D["data_day"])
     season = (em["season"] or "—")[0]
     # 审计修复 2026-07-28：渊图停更 >3 日历日 → 第三栏挂栏级告警横幅（fail-visible）
+    # 2026-09-14 NOTE-20260914-002 分诊改：>7 天红冷冻（真停更级）；4-7 天黄提示（信号层低频·
+    # 若 KG 图谱健康则明说非链路断，不再误导排查方向）
     _yts = D.get("yt_stale_days"); _ytm = D.get("yt_max_date") or "—"
-    yt_stale_banner = ("" if (_yts is None or _yts <= 3) else
-        f'<div style="margin:8px 0 14px;padding:10px 14px;border:1.5px solid #c0392b;border-radius:10px;'
-        f'background:rgba(192,57,43,.07);color:#c0392b;font-weight:700">'
-        f'⚠ 渊图信号源已停更 {_yts} 天（最新信号日 {_ytm}）——本栏及 P0·GAP 卡为冷冻快照、非当日情报；请核渊图采集链路（KG _health 戳）。</div>')
+    _kgh = D.get("yt_kg_health") or {}
+    _kgu = _kgh.get("kg_updated") or "—"
+    if _yts is None or _yts <= 3:
+        yt_stale_banner = ""
+    elif _yts > 7:
+        yt_stale_banner = (
+            f'<div style="margin:8px 0 14px;padding:10px 14px;border:1.5px solid #c0392b;border-radius:10px;'
+            f'background:rgba(192,57,43,.07);color:#c0392b;font-weight:700">'
+            f'⚠ 渊图信号源已停更 {_yts} 天（最新信号日 {_ytm}）——本栏及 P0·GAP 卡为冷冻快照、非当日情报；请核渊图采集链路（KG _health 戳）。</div>')
+    else:
+        _kg_note = (f"KG 图谱链路健康（最新图 {_kgu}）——信号层为事件驱动低频，本栏为最近信号快照。"
+                    if _kgh.get("health_overall") == "ok" and _kgu != "—"
+                    else f"KG 健康戳未确认（图谱 {_kgu}）——请留意信号层与 KG 链路两侧。")
+        yt_stale_banner = (
+            f'<div style="margin:8px 0 14px;padding:10px 14px;border:1.5px solid #e0a53a;border-radius:10px;'
+            f'background:rgba(224,165,58,.08);color:#8a6d1f;font-weight:700">'
+            f'⚠ 渊图市场信号 {_yts} 天无新标注（最新信号日 {_ytm}）——{_kg_note}</div>')
 
     css = (CSS_WARM
            .replace("__FONT_FACE__", _font_face())

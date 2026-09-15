@@ -141,8 +141,35 @@ def build(dry_run=False):
     """, rows)
     conn.commit()
     n = conn.execute("SELECT COUNT(*) FROM yuantu_buy_signals").fetchone()[0]
-    conn.close()
     logger.info(f"✅ 已写入 recap.db.yuantu_buy_signals，现共 {n} 条。")
+
+    # 2026-09-14 NOTE-20260914-002：KG 健康分诊戳落 recap（日报横幅区分「信号层低频」vs「KG 链路断」）
+    try:
+        km = yc.kg_health_meta()
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS yuantu_kg_health (
+              id INTEGER PRIMARY KEY CHECK (id=1),
+              checked_at TEXT, kg_updated TEXT, health_overall TEXT, health_stamped TEXT,
+              node_count INTEGER, edge_count INTEGER, signal_count INTEGER)
+        """)
+        conn.execute("""
+            INSERT INTO yuantu_kg_health (id, checked_at, kg_updated, health_overall,
+                                          health_stamped, node_count, edge_count, signal_count)
+            VALUES (1,?,?,?,?,?,?,?)
+            ON CONFLICT(id) DO UPDATE SET
+              checked_at=excluded.checked_at, kg_updated=excluded.kg_updated,
+              health_overall=excluded.health_overall, health_stamped=excluded.health_stamped,
+              node_count=excluded.node_count, edge_count=excluded.edge_count,
+              signal_count=excluded.signal_count
+        """, (datetime.now().isoformat(timespec="seconds"), km.get("kg_updated"),
+              km.get("health_overall"), km.get("health_stamped"),
+              hc.get("node_count"), hc.get("edge_count"), hc.get("signal_count")))
+        conn.commit()
+        logger.info(f"✅ KG 健康分诊戳已落 recap：图谱 {km.get('kg_updated')} · "
+                    f"health {km.get('health_overall')}（{km.get('health_stamped')}）")
+    except Exception as e:
+        logger.warning(f"KG 健康分诊戳写入失败（不阻塞主链）: {e}")
+    conn.close()
 
     # A3 影子模式（PRD 2026-07-16·Doctor 批）：信息升级检测，只写 escalation_shadow 表+docs 日志，
     # 不改 yuantu_buy_signals、不进日报。任何异常吞掉不阻塞主链。

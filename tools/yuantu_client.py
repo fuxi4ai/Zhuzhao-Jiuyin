@@ -70,6 +70,32 @@ def healthcheck():
             "edge_count": len(edges), "signal_count": sig, "contract": "yuantu-烛阴-v1"}
 
 
+def kg_health_meta():
+    """KG 健康分诊戳（NOTE-20260914-002）——供日报横幅区分「信号层低频」vs「KG 链路断」。
+
+    返回 dict: kg_updated(canonical 文件 mtime 日期·图谱真实更新日) /
+    health_overall / health_stamped(_health.json 戳)。任何读取失败字段为 None，不抛。
+    """
+    import os as _os, json as _json
+    from datetime import datetime as _dtm
+    meta = {"kg_updated": None, "health_overall": None, "health_stamped": None}
+    try:
+        kg_path = str(config.YUANTU_KG)
+        m = _os.path.getmtime(kg_path)
+        meta["kg_updated"] = _dtm.fromtimestamp(m).strftime("%Y-%m-%d")
+    except Exception:
+        pass
+    try:
+        hp = _os.path.join(str(config.YUANTU_ROOT), "mapping", "_health.json")
+        if _os.path.exists(hp):
+            h = _json.load(open(hp, encoding="utf-8"))
+            meta["health_overall"] = h.get("overall")
+            meta["health_stamped"] = (h.get("stamped_at") or "")[:10]
+    except Exception:
+        pass
+    return meta
+
+
 def get_signals(min_conf=0.7, category=None):
     """返回市场信号节点列表。"""
     out = []
