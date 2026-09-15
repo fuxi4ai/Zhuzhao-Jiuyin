@@ -832,6 +832,18 @@ def gather(date_cap=None):
         realized_today = []
     D["realized_today"] = realized_today
 
+    # ERR-20260911-001 ②：胜率引用改滚动窗口——stock_tracking 实时回测列（signal_winrate_backtest 已入日链）
+    # 口径：own 可交易池（resolved · 剔「已无信息差·不做」gap1×price_driven）· 3 日超额命中
+    try:
+        _wr = rc.execute(
+            "SELECT COUNT(*), ROUND(AVG(hit_3d)*100,1), ROUND(AVG(excess_3d),2), MAX(signal_date) "
+            "FROM stock_tracking WHERE target_pool='own' AND resolve_status='resolved' "
+            "AND NOT (logic_type='price_driven' AND info_gap_level=1) AND hit_3d IS NOT NULL").fetchone()
+        D["own_winrate"] = ({"n": _wr[0], "wr": _wr[1], "exc": _wr[2], "max_sig": _wr[3]}
+                            if _wr and _wr[0] else None)
+    except Exception:
+        D["own_winrate"] = None
+
     # 卡B「需求爆发主线」：在途(open/closing)且 signal_type 含 demand_surge 的渊图信号
     #   回测锚 docs/自主回测_20260706/agg_stock.json own_分逻辑 demand_surge n=188·10d 超额 +5.23%
     #   ⚠ 口径：own 标的池（logic_type），非渊图信号级——注记须如实标口径来源（Doctor 2026-07-08）
@@ -2987,7 +2999,13 @@ def render(D):
         body_b = f'<ul class="prio-list">{items_b}</ul>'
     else:
         body_b = '<div class="prio-empty">当前无在途需求爆发信号</div>'
-    _gy = BT_STATS["glow"]["yiduan"]; _gd = BT_STATS["glow"]["demand_surge"]
+    _gy = dict(BT_STATS["glow"]["yiduan"]); _gd = BT_STATS["glow"]["demand_surge"]
+    # ERR-20260911-001 ②：滚动样本≥30 时用 stock_tracking 实时回测替代静态锚（口径如实标注）
+    _ow = D.get("own_winrate")
+    if _ow and _ow.get("n", 0) >= 30:
+        _gy.update({"win_rate": _ow["wr"], "n": _ow["n"], "max_sig": _ow["max_sig"],
+                    "title": "stock_tracking 滚动回测 · own 可交易池（实时）",
+                    "text_tpl": "确认后 {win_days} 日滚动胜率 {win_rate}%（n={n} · 样本至 {max_sig} · 过往不代表未来）"})
     prio_html = f"""
 <div class="prio-strip" aria-label="强信号优先·回测最有力量的两类">
  <div class="prio-card prio-glow" style="--sc:#e0a53a">

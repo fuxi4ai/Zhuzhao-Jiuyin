@@ -18,7 +18,7 @@ PRD: brain/logs/checkpoints/2026-06-15_标的级胜率回测_PRD.md
 回写 stock_tracking；并分池出胜率：
   自有池(own)  : 按 info_gap_level × logic_type 分组超额胜率
   dim4 池      : 单列「小鲍命中率」，**绝不并入自有池分母**
-未解析(resolve_status='unresolved')与无行情的标的：不计入任一池胜率分母。
+未解析(resolve_status='unresolved')与无行情的标的：收益列照常回写（VV 修正 2026-09-11：按持有窗到期即写、不论 resolve 与否），但不计入任一池胜率分母。
 
 用法:
   python3 tools/signal_winrate_backtest.py --dry-run
@@ -101,7 +101,7 @@ def main():
     cur = con.cursor()
     targets = cur.execute(
         "SELECT id, stock_code, signal_date FROM stock_tracking "
-        "WHERE target_pool IS NOT NULL AND resolve_status='resolved' "
+        "WHERE target_pool IS NOT NULL "
         "AND stock_code IS NOT NULL AND stock_code<>''").fetchall()
 
     updates, n_ok, n_nodata, n_gap = [], 0, 0, 0
@@ -152,7 +152,7 @@ def main():
             f"GROUP BY info_gap_level, logic_type ORDER BY info_gap_level DESC, n DESC").fetchall()
 
     # 「已无信息差·不做」(price_driven×gap1) 从可交易分母剔除并单列（signal_flags 单一真源）
-    TRADABLE = f"target_pool='own' AND NOT {signal_flags.NO_INFO_GAP_SQL}"
+    TRADABLE = f"target_pool='own' AND resolve_status='resolved' AND NOT {signal_flags.NO_INFO_GAP_SQL}"
     print("\n【自有池 own · 超额胜率（next3d 超额>0 计命中）· 按 info_gap_level × logic_type】")
     print(f"  （已剔除「{signal_flags.NO_INFO_GAP_REASON}」= price_driven×gap1，单列见下）")
     print(f"  {'gap':>3} {'logic_type':<16} {'样本':>4} {'胜率%':>6} {'均超额%':>7} {'均收益%':>7}")
@@ -167,14 +167,14 @@ def main():
     # 单列：已无信息差·不做（留痕 + 提醒，仅参考，不计入可交易胜率）
     ng = cur.execute(f"SELECT COUNT(*), ROUND(AVG(hit_3d)*100,1), ROUND(AVG(excess_3d),2), "
                      f"ROUND(AVG(next_3d_return),2) FROM stock_tracking "
-                     f"WHERE target_pool='own' AND hit_3d IS NOT NULL AND {signal_flags.NO_INFO_GAP_SQL}").fetchone()
+                     f"WHERE target_pool='own' AND resolve_status='resolved' AND hit_3d IS NOT NULL AND {signal_flags.NO_INFO_GAP_SQL}").fetchone()
     print(f"\n⚠ 【{signal_flags.NO_INFO_GAP_REASON}】单列（price_driven×gap1·涨价已公开=信息差归零·不计可交易分母）"
           f"\n  样本 {ng[0]} · 命中 {ng[1]}% · 均超额 {ng[2]}% · 均收益 {ng[3]}%（仅留痕参考，不做）")
 
     # ── dim4 池：单列「小鲍命中率」，绝不并入自有 ──
     d = cur.execute("SELECT COUNT(*), ROUND(AVG(hit_3d)*100,1), ROUND(AVG(excess_3d),2), "
                     "ROUND(AVG(next_3d_return),2) FROM stock_tracking "
-                    "WHERE target_pool='dim4_xiaobao' AND hit_3d IS NOT NULL").fetchone()
+                    "WHERE target_pool='dim4_xiaobao' AND resolve_status='resolved' AND hit_3d IS NOT NULL").fetchone()
     print(f"\n【dim4 池 · 小鲍命中率（独立·不并入自有）】样本 {d[0]} · 命中率 {d[1]}% · 均超额 {d[2]}% · 均收益 {d[3]}%")
 
     con.close(); mkt.close()
