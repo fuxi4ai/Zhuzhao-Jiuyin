@@ -63,6 +63,11 @@ python3 tools/recap_import.py
 python3 tools/xiaobao_extractor.py
 ```
 
+## ⚠️ 防再犯提炼（2026-09-14 错题本复盘）
+
+1. **stock_tracking 回写**（GOTCHAS ERR-20260911-001 · 🔄 待修复·待 Doctor 授权）：信号收益闭环 = 回写脚本入调度链（t+3/5/10 到点写 excess 列）——未授权前不得自称闭环；「结果回写 0/3986」= 断链硬证据。
+2. **RAW_RECAP_DIR 派生**（GOTCHAS ERR-20260830-001 · ⚠️ 已知风险）：config 路径从 DATABASE_ROOT 派生，人为设 `ZZJY_DATABASE_ROOT` 时会漂移——写库脚本的路径派生须有「Mac 原生不设 env」兜底注释与自检。
+
 ## 文档导航
 
 | 文档 | 说明 |
