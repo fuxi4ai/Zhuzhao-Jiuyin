@@ -16,6 +16,8 @@
 四季：score 趋势项(MA3-MA10)定上/下行 × 水平项(滚动分位)定季节；
 极寒：冬内 跌停>涨停 且 跌停>10 家（资格），强度=跌停数滚动分位（P90+ 深度极寒）。
 前瞻倾向：夏×高位→"秋风险积累中"；冬×极寒后→"春机会孕育中"。
+单向不变量（2026-09-16 Doctor 修复「后变更」）：春夏秋冬仅单向循环，无报错撤回/无历史改写；
+周期解释不了的差异样本由人工标注层积累（docs/情绪周期_人工标注.tsv）。
 
 用法：
   python3 tools/emotion_engine_v2.py --dry-run                # 历史全跑+校准报告，不写库
@@ -156,7 +158,11 @@ def compute(md, w_jinji=1.0, pct_win=PCT_WIN):
                         limit_up=ind[d].get("limit_up"), limit_down=ind[d].get("limit_down"),
                         jinji=ind[d].get("jinji"),
                         premium=ind[d].get("premium"), height=ind[d].get("height")))
-    # 趋势 + 单向季节状态机（Doctor 2026-06-10 四次对齐：春夏秋冬单向前进，倒退=报错修正）
+    # 趋势 + 单向季节状态机（Doctor 2026-06-10 四次对齐：春夏秋冬单向前进；
+    # 2026-09-16 修复「后变更」：移除秋/冬→夏 与 春/夏→冬 两处报错撤回触发器——
+    # 历史一旦落标不再反向改写（坚持单向不反向跳跃；周期解释不了的差异样本由
+    # 人工标注层 docs/情绪周期_人工标注.tsv 积累，引擎不做回溯裁决）。
+    # 自此每日期 label 仅依赖当日及之前数据＝因果稳定、无后变更。
     ks = [r["date"] for r in out]
     sc = [r["score"] for r in out]
     spct = rolling_pct(dict(zip(ks, sc)), pct_win)
@@ -168,52 +174,21 @@ def compute(md, w_jinji=1.0, pct_win=PCT_WIN):
         r["_lv"] = spct.get(r["date"]) or 50
 
     ORDER = ["春", "夏", "秋", "冬"]
-    S, cyc, corrections = None, 1, 0
-    trans_idx = 0            # 当前段起点
-    summer_peak = None       # 本周期夏段评分峰值（秋/冬修正基准）
-    winter_trough = None     # 上周期冬段评分谷值（春修正基准）
-    prev_winter_trough = None
+    S, cyc = None, 1
     for i, r in enumerate(out):
         up, lv, s = r["_up"], r["_lv"], r["score"]
         if S is None:
             S = ("春" if lv < 60 else "夏") if up else ("秋" if lv >= 40 else "冬")
         else:
-            # ── 修正触发器（先于推进判断）──
-            if S in ("秋", "冬") and summer_peak is not None and s > summer_peak:
-                # 秋/冬报错：FOMO 未死，本段撤回为夏
-                for j in range(trans_idx, i):
-                    out[j]["season"] = "夏"
-                    out[j]["corrected"] = True
-                S, corrections = "夏", corrections + 1
-                trans_idx = i
-            elif S in ("春", "夏") and winter_trough is not None and s < winter_trough \
-                    and cyc > 1 and trans_idx > 0 and out[trans_idx - 1].get("season") == "冬":
-                # 春报错：fear 未尽，撤回新周期宣告
-                for j in range(trans_idx, i):
-                    out[j]["season"] = "冬"
-                    out[j]["corrected"] = True
-                S, cyc, corrections = "冬", cyc - 1, corrections + 1
-                trans_idx = i
-            else:
-                # ── 单向推进（先行，无确认期）──
-                adv = ((S == "春" and up and lv >= 60) or
-                       (S == "夏" and not up) or
-                       (S == "秋" and not up and lv < 40) or
-                       (S == "冬" and up))
-                if adv:
-                    if S == "冬":
-                        prev_winter_trough = winter_trough
-                    S = ORDER[(ORDER.index(S) + 1) % 4]
-                    if S == "春":
-                        cyc += 1
-                        winter_trough = prev_winter_trough if prev_winter_trough is not None else winter_trough
-                    if S == "夏":
-                        summer_peak = s   # 新夏段重置峰值
-                    trans_idx = i
-        if S == "夏":
-            summer_peak = max(summer_peak if summer_peak is not None else s, s)
-        if S == "冬":
-            winter_trough = min(winter_trough if winter_trough is not None else s, s)
+            # ── 单向推进（先行，无确认期）：仅允许 春→夏→秋→冬→春，绝不反向 ──
+            adv = ((S == "春" and up and lv >= 60) or
+                   (S == "夏" and not up) or
+                   (S == "秋" and not up and lv < 40) or
+                   (S == "冬" and up))
+            if adv:
+                S = ORDER[(ORDER.index(S) + 1) % 4]
+                if S == "春":
+                    cyc += 1
         extreme = (S == "冬" and r["limit_down"] is not None
                    and r["limit_up"] is not None
                    and r["limit_down"] > r["limit_up"]
@@ -226,8 +201,8 @@ def compute(md, w_jinji=1.0, pct_win=PCT_WIN):
         r.update(season=S, cycle_no=cyc, level_pct=round(r.pop("_lv"), 1),
                  trend="上行" if r.pop("_up") else "下行",
                  extreme=extreme, hint=hint, season_confidence=season_conf[S])
-        r.setdefault("corrected", False)
-    logger.info(f"单向状态机：周期数 {cyc} | 修正(报错撤回) {corrections} 次")
+        r.setdefault("corrected", False)   # 兼容字段：2026-09-16 起恒 False（无改写）
+    logger.info(f"单向状态机：周期数 {cyc}（无报错撤回——历史不改写，异常样本归人工标注层）")
     # 火热点（先行风险提示）：夏×分位≥LV_FIRE 的段首日 + FIRE_GAP 去重
     armed, last_fire = True, None
     for i, r in enumerate(out):
