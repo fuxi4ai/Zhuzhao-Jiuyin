@@ -37,10 +37,17 @@
   <key>RunAtLoad</key>
   <false/>
 
-  <!-- launchd 层面的兜底日志（脚本自身另有带时间戳日志） -->
+  <!-- ⚠️ stdio 路径必须落在 TCC 保护区之外（2026-09-18 迁 · GOTCHA `剑酒青丘/GOTCHAS.md` NOTE-20260918-001）：
+       旧址在 ~/Documents（TCC 区）内，launchd 在 spawn 前**自己**去 open 这两个文件，被 TCC/macl 拒
+       → 进程根本没被创建 → 零 stdout 零 stderr、只留 `last exit code = 78: EX_CONFIG`，静默停摆。
+       本班即重灾户：`ops/.last_run_status` 停在 `OK 2026-09-16 02:31:05`，
+       2026-09-17 与 09-18 两次 02:30 排期均未点火（连停两天）。
+       治本＝迁出保护区：~/Library/Logs 不在 TCC 保护面内，且是系统既有目录（launchd 不会替我们建目录）。
+       注意：bootout/bootstrap 单独治不好这个病，计数器归零不等于修复。
+       脚本自身另有带时间戳日志 logs/mac_marketdata_*.log（脚本自管，不受此约束）。 -->
   <key>StandardOutPath</key>
-  <string>/Users/lunarabbit/Documents/Claude/Projects/Financial/烛照九阴/logs/launchd_marketdata.out</string>
+  <string>/Users/lunarabbit/Library/Logs/com.zhuzhao.marketdata-stdout.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/lunarabbit/Documents/Claude/Projects/Financial/烛照九阴/logs/launchd_marketdata.err</string>
+  <string>/Users/lunarabbit/Library/Logs/com.zhuzhao.marketdata-stderr.log</string>
 </dict>
 </plist>

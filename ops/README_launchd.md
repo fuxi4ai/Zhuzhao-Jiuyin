@@ -44,7 +44,13 @@ Cowork 沙箱经 FUSE 直写挂载盘真盘是 **GOTCHAS G019** 明令禁止的�
 | | 主班 | 补数班 | IPO 班 |
 |---|---|---|---|
 | 脚本日志 | `logs/mac_marketdata_YYYYMMDD.log` | `logs/mac_usclose_YYYYMMDD.log` | （脚本内自管） |
-| launchd 兜底 | `logs/launchd_marketdata.{out,err}` | `logs/launchd_usclose.{out,err}` | `/tmp/ipo_rolling.{log,err}`（plist StandardOut/ErrorPath） |
+| launchd 兜底 | `~/Library/Logs/com.zhuzhao.marketdata-{stdout,stderr}.log` | `~/Library/Logs/com.zhuzhao.usclose-{stdout,stderr}.log` | `/tmp/ipo_rolling.{log,err}`（plist StandardOut/ErrorPath） |
+
+> **⚠️ stdio 必须在 TCC 保护区之外（2026-09-18 迁 · GOTCHA `brain/剑酒青丘/GOTCHAS.md` NOTE-20260918-001）**
+> 旧址 `logs/launchd_{marketdata,usclose}.{out,err}` 落在 `~/Documents`（TCC 区）内。launchd 在 spawn 前**自己**去 open 这两个文件，被 TCC/macl 拒 → **进程根本没被创建**，零 stdout 零 stderr、只留 `last exit code = 78: EX_CONFIG`，整族 agent 静默停摆（触发点＝系统重启 TCC 重评）。
+> 实绩：本班 09-17/09-18 两次 02:30 排期未点火（`.last_run_status` 停 09-16 02:31）；usclose 缺 09-17 14:00 一次。
+> **bootout/bootstrap 单独治不好这个病——计数器归零不等于修复**（`runs = 0 / never exited` 只是新载入）。
+> 修复＝把带 macl 的日志件改名留档让 launchd 重建；**治本＝ stdio 迁出保护区**（`~/Library/Logs/`，系统既有目录，launchd 不会替我们建目录）。IPO 班的 `/tmp` 亦在区外，但重启即失、不留史。
 | 状态文件 | `ops/.last_run_status` | `ops/.last_run_status_usclose` | `ipo_coverage` 表内覆盖证明（scan_start/scan_end/events_hash） |
 
 状态文件内容为 `OK <时间戳>` 或 `FAIL <时间戳>`，一行，供快速检查/看板消费。
