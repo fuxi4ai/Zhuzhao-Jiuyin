@@ -15,6 +15,10 @@ Mac 原生 · 每日行情落库 编排器（launchd 入口）
         ops/mac_daily_marketdata.py
 
 失败可见性铁律：任一步非零退出 → 日志标 ❌ 且本程序退出码非 0，绝不静默。
+
+陈旧可见性（2026-09-22 加）：**子步退出码为 0 不等于数据落地**——有的取数脚本把网络失败降级成
+WARNING 或「0 日新增」照样 exit 0（09-22 实撞：theme_etf / margin 报 ✅ 而当日一行未落）。
+故收尾加「各表 vs 市场时钟」判定，应到未到的硬档位折进本程序退出码（见 STALE_POLICY）。
 """
 import os, sys, subprocess
 from datetime import datetime, timedelta
@@ -33,6 +37,35 @@ STATUS = os.path.join(ZZ, "ops", ".last_run_status")
 # 服务四个脚本：theme_etf / market_amount / limit_list / margin。
 # （intl_index / kr_stocks 不吃 --from；guarantee_ratio 用 --fetch。原注写「五表」与实际不符，2026-08-01 订正。）
 FROM = (datetime.now() - timedelta(days=7)).strftime("%Y%m%d")
+
+# ── 陈旧判定策略（2026-09-22 加）──────────────────────────────────────────────
+# 动机＝2026-09-22 实撞：margin_daily 与 margin_guarantee_ratio 双双停在 09-15（连缺 4 个
+#   交易日），而旧自检是「两表互比」——COUNT(margin_daily WHERE trade_date > MAX(stat_date))
+#   ⇒ 两表一起停更时恒为 0，共模停更完全不可见。风险日报 build_risk_daily.py 的同款护栏
+#     用的是同一条自指查询，因而同样失明（页面照常显示 09-15 的 R，无任何陈旧标记）。
+#   ⇒ 改与**市场时钟**比：stock_daily 的最近交易日 D0 与其前一交易日 D1。
+#     选 stock_daily 的理由＝同库同族、天然只含交易日（无日历/节假日毛刺），
+#     与 build_risk_daily.py 原注释「交易日差用 margin_daily 数，不用日历天」同源。
+# 档位依据＝实读 09-15/09-16 两份运行日志的落库行为：
+#   D0（当日 17:30 北京可得）：stock_daily / daily_market / theme_etf_daily / market_amount_daily
+#   D1（T+1 发布）：limit_list_daily / margin_daily / us_anchor_daily / intl_index_daily
+# ⚠ 本表**不含 stock_daily**：D0 就是由它定义的 ⇒ `stock_daily < D0` 恒假，写进来只是一条
+#   **恒真死条目**，会让「被覆盖了」是错觉。它自己的时效由收尾段的**市场时钟判定**单独负责
+#   （与**日历天**比，>7 天才报——A 股最长连休约 8–10 天，留足防误报余量）。
+# ⚠ 残留盲区（如实标注）：D0/D1 取自一张**待取数**的表 ⇒ 网络整体中断时，时钟与各表**一起冻结**，
+#   本判定仍会全绿。彻底根治需独立日历源（当前 market_data.db 无 trade_cal 表）。
+#   缓解：各取数子步失败已让退出码非 0；且市场时钟判定会把「时钟陈旧 >7 天」显式打出来。
+# 每项第二字段＝是否计入本程序退出码。标 False 的是「境外市场假期与 A 股不同步」，
+#   判红会天天误报 —— G-X122：一条误报就能让真信号从此没人看。
+STALE_POLICY = {
+    "daily_market":        ("D0", True),
+    "theme_etf_daily":     ("D0", True),
+    "market_amount_daily": ("D0", True),
+    "limit_list_daily":    ("D1", True),
+    "margin_daily":        ("D1", True),
+    "intl_index_daily":    ("D0", False),
+    "us_anchor_daily":     ("D1", False),
+}
 
 _logf = open(LOG, "a", encoding="utf-8", buffering=1)
 def log(msg):
@@ -81,8 +114,10 @@ def main():
     ok &= run("intl_index",   [os.path.join(ZZ, "scripts/fetch_intl_index.py")], ZZ)
     ok &= run("kr_stocks",    [os.path.join(ZZ, "scripts/fetch_kr_stocks.py")], ZZ)
 
-    # ④ 收尾：核各表 max 落日志
+    # ④ 收尾：核各表 max 落日志 + 陈旧判定（2026-09-22 加）
+    #    ⚠ 本段必须在**所有写库方之后**跑（2026-06-30 为 Market-Data 立的「体检挪到末位写库方」）。
     log("---- 各表 MAX(trade_date) ----")
+    _stale_hard, _stale_soft, _closing_failed = [], [], False
     try:
         import sqlite3
         con = sqlite3.connect(f"file:{DB}?mode=ro&immutable=1", uri=True)
@@ -97,15 +132,66 @@ def main():
         # 让停更在本日志里就看得见，不必等风险日报页面才发现。
         try:
             _r = con.execute("SELECT MAX(stat_date) FROM margin_guarantee_ratio").fetchone()[0]
-            _lag = con.execute(
-                "SELECT COUNT(*) FROM margin_daily WHERE trade_date > ?", (_r,)).fetchone()[0]
-            _flag = "" if _lag <= 3 else f"  ⚠陈旧{_lag}交易日（下游 build_risk_daily 将标警）"
-            log(f"  {'margin_guarantee_ratio':22s} {_r}  (stat_date · 落后 {_lag} 交易日){_flag}")
+            # 2026-09-22 订正基数：原基数是 margin_daily ⇒ 两表一起停更时恒为 0（共模盲区，
+            #   风险日报同款护栏一并失明）。改以市场时钟、天然只含交易日的 stock_daily 为基数；
+            #   两个数都打出来，便于和旧口径对照。
+            # ⚠ 必须 COUNT(DISTINCT trade_date)：stock_daily 是**每股一行**（每日 ~5500 行），
+            #   COUNT(*) 会把 5 个交易日算成 27763（2026-09-22 实测踩到，靠真实形状夹具逮出）。
+            _lag_cal = con.execute(
+                "SELECT COUNT(DISTINCT trade_date) FROM stock_daily WHERE trade_date > ?",
+                (_r,)).fetchone()[0]
+            _lag_peer = con.execute(
+                "SELECT COUNT(DISTINCT trade_date) FROM margin_daily WHERE trade_date > ?",
+                (_r,)).fetchone()[0]
+            _flag = "" if _lag_cal <= 3 else f"  ⚠陈旧{_lag_cal}交易日（下游 build_risk_daily 将标警）"
+            log(f"  {'margin_guarantee_ratio':22s} {_r}  (stat_date · 落后大盘 {_lag_cal} 交易日"
+                f" · 落后 margin_daily {_lag_peer} 交易日){_flag}")
         except Exception as e:
             log(f"  {'margin_guarantee_ratio':22s} ERR {e}")
+
+        # ── 陈旧判定：各表 vs 市场时钟（STALE_POLICY）──
+        _days = [r[0] for r in con.execute(
+            "SELECT DISTINCT trade_date FROM stock_daily ORDER BY trade_date DESC LIMIT 2")]
+        if len(_days) < 2:
+            log("  ⚠ 市场时钟不足（stock_daily 交易日 < 2），本次跳过陈旧判定"
+                "——「全绿」不成立，请人工看")
+        else:
+            D0, D1 = str(_days[0]), str(_days[1])
+            log(f"---- 陈旧判定（市场时钟 D0={D0} · D1={D1}）----")
+            # 时钟自身时效：D0 由 stock_daily 定义 ⇒ 它不能自证。与**日历天**比，>7 天才报
+            #   （A 股最长连休约 8–10 天），宁可漏报也不制造假期误报（G-X122）。
+            _cal_lag = (datetime.now() - datetime.strptime(D0, "%Y%m%d")).days
+            log(f"  {'市场时钟 stock_daily':22s} {D0}（距今 {_cal_lag} 日历天）"
+                + ("  ⚠ 时钟本身疑似冻结——此时「各表达档」不可信" if _cal_lag > 7 else ""))
+            _skipped = []
+            for _t, (_tier, _hard) in STALE_POLICY.items():
+                _floor = D0 if _tier == "D0" else D1
+                try:
+                    _mx = con.execute(f"SELECT MAX(trade_date) FROM {_t}").fetchone()[0]
+                except Exception as e:
+                    log(f"  {_t:22s} 判定跳过 ERR {e}")
+                    # 判不了 ≠ 没问题：硬档位表无法判定时按「应到未到」处理（fail-visible）
+                    if _hard:
+                        _skipped.append(_t)
+                    continue
+                if _mx is None or str(_mx) < _floor:
+                    (_stale_hard if _hard else _stale_soft).append(f"{_t}({_mx}<{_floor})")
+            if _stale_hard:
+                log(f"  ❌ 应到未到（计入退出码）：" + " · ".join(_stale_hard))
+            if _skipped:
+                log(f"  ❌ 硬档位表无法判定（计入退出码）：" + " · ".join(_skipped))
+                _stale_hard += [f"{t}(判定失败)" for t in _skipped]
+            if _stale_soft:
+                log(f"  ⚠ 应到未到（仅记录·境外假期不同步）：" + " · ".join(_stale_soft))
+            if not _stale_hard and not _stale_soft:
+                log("  ✅ 各表均达到市场时钟所要求的档位（时钟时效见上一行；时钟自身的残余"
+                    "共模盲区见文件头 STALE_POLICY 注）")
         con.close()
     except Exception as e:
-        log(f"  收尾核对失败：{e}")
+        # fail-visible：收尾核验本身失败意味着「本轮没有任何陈旧判定」，绝不能默认放行
+        log(f"  ❌ 收尾核对失败（本轮无陈旧判定，按失败处理）：{e}")
+        _closing_failed = True
+    ok &= (not _stale_hard) and (not _closing_failed)
 
     stamp = f"{datetime.now():%Y-%m-%d %H:%M:%S %Z}"
     if ok:
