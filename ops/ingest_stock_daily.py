@@ -69,6 +69,38 @@ def cur_max(con):
     return r or "20000101"
 
 
+CAL_LOOKBACK_DAYS = 120
+
+
+def persist_trade_cal(con, token, end_yyyymmdd, lookback_days=CAL_LOOKBACK_DAYS):
+    """把 tushare trade_cal 落成 `market_data.db.trade_cal`（2026-09-22 加）。
+
+    **为什么落表**：陈旧判定需要一个**独立于「待取数的行情表」**的日历参照系。
+    原先两处陈旧判定（本目录 mac_daily_marketdata.py 的收尾、风险日报 build_risk_daily.py
+    的 R 护栏）都拿 `stock_daily` 当时钟，而 stock_daily 本身也要取数 ⇒ 网络共模停摆时
+    时钟与各表**一起冻结**，判定恒绿（通用教训 G-X193）。
+    trade_cal 走 tushare 的**日历**接口、与行情表无耦合，且一次拉多天、对网络抖动的
+    暴露面小得多，是这条链上唯一够格当参照系的东西。
+
+    写 (cal_date, is_open) 两列，**忠实保存源数据**（含闭市日），由消费者自行过滤 is_open=1。
+    INSERT OR REPLACE 幂等；窗口锚在**今天**而非 stock_daily 的 max，故即使行情停更多日，
+    日历仍是新的。
+    """
+    start = (datetime.strptime(end_yyyymmdd, "%Y%m%d")
+             - timedelta(days=lookback_days)).strftime("%Y%m%d")
+    fields, items = api_call(token, "trade_cal",
+                             {"exchange": "SSE", "start_date": start,
+                              "end_date": end_yyyymmdd}, "cal_date,is_open")
+    con.execute("CREATE TABLE IF NOT EXISTS trade_cal "
+                "(cal_date TEXT PRIMARY KEY, is_open INTEGER)")
+    con.executemany("INSERT OR REPLACE INTO trade_cal (cal_date, is_open) VALUES (?,?)",
+                    [(str(c), int(o)) for c, o in items])
+    con.commit()
+    open_n = sum(1 for _, o in items if int(o) == 1)
+    log(f"  ✓ trade_cal：{start}→{end_yyyymmdd} 共 {len(items)} 天（开市 {open_n}）")
+    return len(items)
+
+
 def ingest_one(con, token, day):
     fields, items = api_call(token, "daily", {"trade_date": day}, FIELDS)
     n = len(items)
@@ -91,6 +123,12 @@ def main():
     today_bj = now.strftime("%Y%m%d")
     con = sqlite3.connect(DB)
     try:
+        # 日历落表先行。刻意独立 try：日历失败**不阻断**行情落库（两者职责不同），
+        # 只留下游陈旧判定退回 stock_daily 时钟的告警。
+        try:
+            persist_trade_cal(con, token, today_bj)
+        except Exception as e:
+            log(f"  ⚠ trade_cal 落表失败（不阻断行情落库；下游陈旧判定将退回 stock_daily 时钟）：{e}")
         mx = cur_max(con)
         if len(sys.argv) > 1:                       # 调试：只补指定日
             targets = [sys.argv[1]]

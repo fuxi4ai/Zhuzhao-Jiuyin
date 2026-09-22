@@ -39,8 +39,9 @@ STATUS = os.path.join(ZZ, "ops", ".last_run_status")
 FROM = (datetime.now() - timedelta(days=7)).strftime("%Y%m%d")
 
 # ── 陈旧判定策略（2026-09-22 加）──────────────────────────────────────────────
-# 动机＝2026-09-22 实撞：margin_daily 与 margin_guarantee_ratio 双双停在 09-15（连缺 4 个
-#   交易日），而旧自检是「两表互比」——COUNT(margin_daily WHERE trade_date > MAX(stat_date))
+# 动机＝2026-09-22 实撞：margin_daily 与 margin_guarantee_ratio 双双停在 09-15，其后
+#   09-16/17/18/21/22 五个交易日无数据（按东财 T+1 口径，当班时点应有的是前四个），
+#   而旧自检是「两表互比」——COUNT(margin_daily WHERE trade_date > MAX(stat_date))
 #   ⇒ 两表一起停更时恒为 0，共模停更完全不可见。风险日报 build_risk_daily.py 的同款护栏
 #     用的是同一条自指查询，因而同样失明（页面照常显示 09-15 的 R，无任何陈旧标记）。
 #   ⇒ 改与**市场时钟**比：stock_daily 的最近交易日 D0 与其前一交易日 D1。
@@ -150,19 +151,42 @@ def main():
             log(f"  {'margin_guarantee_ratio':22s} ERR {e}")
 
         # ── 陈旧判定：各表 vs 市场时钟（STALE_POLICY）──
-        _days = [r[0] for r in con.execute(
-            "SELECT DISTINCT trade_date FROM stock_daily ORDER BY trade_date DESC LIMIT 2")]
-        if len(_days) < 2:
-            log("  ⚠ 市场时钟不足（stock_daily 交易日 < 2），本次跳过陈旧判定"
+        # 时钟来源（2026-09-22 二轮复验后改）：**优先 trade_cal** —— 它是独立于行情表的日历接口
+        #   （ingest_stock_daily.persist_trade_cal 落表），一次拉多天、网络暴露面小。
+        #   缺失时退回 stock_daily **并显式标注共模盲区**（G-X193：网络整体中断时二者一起冻结）。
+        bj = datetime.utcnow() + timedelta(hours=8)               # 北京时间
+        # 今日尚未收盘（北京 <15:00）时把日历截到昨日，否则会把还没产生的当日数据算成缺口
+        cutoff = (bj.strftime("%Y%m%d") if bj.hour >= 15
+                  else (bj - timedelta(days=1)).strftime("%Y%m%d"))
+        D0 = D1 = clock_src = None
+        try:
+            _c = [r[0] for r in con.execute(
+                "SELECT cal_date FROM trade_cal WHERE is_open=1 AND cal_date <= ? "
+                "ORDER BY cal_date DESC LIMIT 2", (cutoff,))]
+            if len(_c) >= 2:
+                D0, D1, clock_src = str(_c[0]), str(_c[1]), "trade_cal"
+        except Exception:
+            pass
+        if clock_src is None:
+            _days = [r[0] for r in con.execute(
+                "SELECT DISTINCT trade_date FROM stock_daily ORDER BY trade_date DESC LIMIT 2")]
+            if len(_days) >= 2:
+                D0, D1, clock_src = str(_days[0]), str(_days[1]), "stock_daily(回退·有共模盲区)"
+        if clock_src is None:
+            log("  ⚠ 市场时钟不可得（trade_cal 缺失且 stock_daily 交易日 < 2），本次跳过陈旧判定"
                 "——「全绿」不成立，请人工看")
         else:
-            D0, D1 = str(_days[0]), str(_days[1])
-            log(f"---- 陈旧判定（市场时钟 D0={D0} · D1={D1}）----")
-            # 时钟自身时效：D0 由 stock_daily 定义 ⇒ 它不能自证。与**日历天**比，>7 天才报
-            #   （A 股最长连休约 8–10 天），宁可漏报也不制造假期误报（G-X122）。
-            _cal_lag = (datetime.now() - datetime.strptime(D0, "%Y%m%d")).days
-            log(f"  {'市场时钟 stock_daily':22s} {D0}（距今 {_cal_lag} 日历天）"
-                + ("  ⚠ 时钟本身疑似冻结——此时「各表达档」不可信" if _cal_lag > 7 else ""))
+            log(f"---- 陈旧判定（市场时钟 = {clock_src} · D0={D0} · D1={D1} · 截到 {cutoff}）----")
+            # 时钟自身时效。阈值随来源而不同：
+            #  · trade_cal：日历一次拉多天且与行情无耦合 ⇒ 健康的日历**永远**给出 D0=cutoff 当日
+            #    （或最近的已收盘开市日），故 >3 天即说明日历没刷新/拉取失败，可判得紧。
+            #  · stock_daily 回退：日历天含长假，据二轮复验对真实库全历史实算，相邻交易日间隔
+            #    **最大 11 天、13 处 >7 天**（春节/国庆）⇒ 必须放到 12 天，否则每个长假误报。
+            #    （原注释写「A 股最长连休约 8–10 天」是错的，已订正。）
+            _cal_lag = (datetime.strptime(cutoff, "%Y%m%d") - datetime.strptime(D0, "%Y%m%d")).days
+            _thr = 3 if clock_src == "trade_cal" else 12
+            log(f"  {'市场时钟':22s} {D0}（落后截点 {_cal_lag} 日历天·阈值 {_thr}）"
+                + ("  ⚠ 时钟本身疑似冻结——此时「各表达档」不可信" if _cal_lag > _thr else ""))
             _skipped = []
             for _t, (_tier, _hard) in STALE_POLICY.items():
                 _floor = D0 if _tier == "D0" else D1

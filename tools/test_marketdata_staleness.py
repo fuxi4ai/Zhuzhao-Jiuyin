@@ -65,7 +65,8 @@ def load_instrumented(db_path: Path, workdir: Path):
     return ns
 
 
-def build_db(path: Path, rows: dict, stat_date: str, stock_per_day: int = 3, omit=()):
+def build_db(path: Path, rows: dict, stat_date: str, stock_per_day: int = 3, omit=(),
+             trade_cal=None):
     """造一张最小库：各表只留 trade_date 列；margin_guarantee_ratio 留 stat_date。
 
     ⚠ stock_daily 刻意每日塞多行（`stock_per_day`）——它在真实库里是**每股一行**（每日 ~5500 行）。
@@ -86,13 +87,17 @@ def build_db(path: Path, rows: dict, stat_date: str, stock_per_day: int = 3, omi
         payload = [(d,) for d in days for _ in range(stock_per_day if t == "stock_daily" else 1)]
         con.executemany(f"INSERT INTO {t}(trade_date) VALUES(?)", payload)
     con.execute("INSERT INTO margin_guarantee_ratio(stat_date) VALUES(?)", (stat_date,))
+    if trade_cal is not None:                      # [(cal_date, is_open), …]
+        con.execute("CREATE TABLE trade_cal (cal_date TEXT PRIMARY KEY, is_open INTEGER)")
+        con.executemany("INSERT OR REPLACE INTO trade_cal (cal_date, is_open) VALUES (?,?)",
+                        trade_cal)
     con.commit()
     con.close()
 
 
-def run_case(name, rows, stat_date, workdir, omit=()):
+def run_case(name, rows, stat_date, workdir, omit=(), trade_cal=None):
     db = workdir / f"{name}.db"
-    build_db(db, rows, stat_date, omit=omit)
+    build_db(db, rows, stat_date, omit=omit, trade_cal=trade_cal)
     # 每案例独立 logdir：日志文件名按日期生成，共用目录会让后一个案例读到前一个的判词。
     case_dir = workdir / name
     case_dir.mkdir(exist_ok=True)
@@ -139,8 +144,8 @@ def main():
     check("硬档**恰为**三张表（非子集断言）",
           got_hard == sorted(["margin_daily", "market_amount_daily", "theme_etf_daily"]),
           f"got={got_hard}")
-    check("打印市场时钟行（含日历天，供人判时钟自身时效）",
-          "市场时钟 stock_daily" in log and "日历天" in log)
+    check("时钟来源标注为「回退」（无 trade_cal 时）且打出时效行",
+          "市场时钟 = stock_daily(回退" in log and "日历天" in log)
     check("margin 行同时打出新旧两个基数",
           "落后大盘" in log and "落后 margin_daily" in log)
 
@@ -157,14 +162,18 @@ def main():
         "SELECT COUNT(DISTINCT trade_date) FROM stock_daily WHERE trade_date > "
         "(SELECT MAX(stat_date) FROM margin_guarantee_ratio)").fetchone()[0]
     con.close()
-    check("旧口径（与 margin_daily 互比）= 0 ← 这正是盲区", old_metric == 0, f"old={old_metric}")
-    check(f"不去重会把 {len(TD_SERIES)} 个交易日算成 {naive} 行 ← 这是必须防的坑",
+    # 下面前三条是**夹具属性**（构造出来的，与生产代码无关，永不可能失败）——
+    # 保留只为把「盲区长什么样」写清楚；**真正的回归锁是第四条**（读生产代码打出的日志）。
+    check("[夹具属性·非生产断言] 旧口径（与 margin_daily 互比）= 0 ← 盲区长这样",
+          old_metric == 0, f"old={old_metric}")
+    check(f"[夹具属性·非生产断言] 不去重会把 {len(TD_SERIES)} 个交易日算成 {naive} 行",
           naive == len(TD_SERIES) * 3, f"naive={naive}")
-    check(f"去重后 = {len(TD_SERIES)} 个交易日（> 阈值 3 → 可见）",
+    check(f"[夹具属性·非生产断言] 去重后 = {len(TD_SERIES)} 个交易日",
           distinct == len(TD_SERIES), f"distinct={distinct}")
-    # 端到端：生产代码打出的「落后大盘 N 交易日」必须等于去重后的值
+    # ★ 端到端回归锁：生产代码打出的「落后大盘 N 交易日」必须等于去重后的值
+    #   （变异 N1 证明：把 COUNT(DISTINCT) 改回 COUNT(*) 只有这一条会响）
     m = re.search(r"落后大盘 (\d+) 交易日", log)
-    check(f"脚本日志里的「落后大盘」= {len(TD_SERIES)}（非 {naive}）",
+    check(f"★ 脚本日志里的「落后大盘」= {len(TD_SERIES)}（非 {naive}）",
           bool(m) and int(m.group(1)) == len(TD_SERIES),
           f"log={m.group(1) if m else '未匹配'}")
 
@@ -194,7 +203,7 @@ def main():
     E = {t: [D0] for t in TRADE_TABLES}
     E["stock_daily"] = [D0]
     rc, log = run_case("e", E, D0, workdir)
-    check("给出「市场时钟不足」而非误判", "市场时钟不足" in log)
+    check("给出「市场时钟不可得」而非误判", "市场时钟不可得" in log)
     check("退出码 = 0", rc == 0, f"rc={rc}")
 
     # ── 案例 F：收尾核验本身失败（库不是 sqlite）→ 必须 fail-visible，不得默认放行 ──
@@ -213,10 +222,35 @@ def main():
     check("明写「硬档位表无法判定」", "硬档位表无法判定" in log)
     check("不打「✅ 各表均达到…」", "✅ 各表均达到" not in log)
 
+    # ── 案例 H：trade_cal 独立日历 —— 共模停摆的根治路径（G-X193）──
+    #   两臂对照：数据完全相同，唯一差别是「有没有 trade_cal」。
+    #   无 cal 时时钟自己也冻住 ⇒ 相对落后被压缩 ⇒ 全绿（这正是 09-22 事故的形状）；
+    #   有 cal 时时钟靠独立日历保持正确 ⇒ 各表落后被如实判出。
+    print("\n案例 H · trade_cal 独立日历：同数据、有/无日历两臂对照")
+    frozen = {t: [D2] for t in TRADE_TABLES}
+    frozen["stock_daily"] = [D3, D2]                     # 共模：时钟自己也冻在 09-18
+    frozen.update({"limit_list_daily": [D3], "margin_daily": [D3],
+                   "us_anchor_daily": [D3], "intl_index_daily": [D3]})
+    cal = [("20260917", 1), ("20260918", 1), ("20260919", 0),
+           ("20260920", 0), ("20260921", 1), ("20260922", 1)]
+
+    rc_no, log_no = run_case("h_no", frozen, D3, workdir)
+    check("[对照臂·无 trade_cal] rc = 0 ← 共模停摆下全绿，正是事故形状",
+          rc_no == 0, f"rc={rc_no}")
+    check("[对照臂] 时钟来源标为回退", "市场时钟 = stock_daily(回退" in log_no)
+
+    rc_cal, log_cal = run_case("h_cal", frozen, D3, workdir, trade_cal=cal)
+    check("[治疗臂·有 trade_cal] rc = 1 ← 时钟保持正确，落后被如实判出",
+          rc_cal == 1, f"rc={rc_cal}")
+    check("[治疗臂] 时钟来源 = trade_cal", "市场时钟 = trade_cal" in log_cal)
+    check("[治疗臂] 确有表被判落后", "❌ 应到未到" in log_cal,
+          (re.search(r"❌ 应到未到（计入退出码）：(.+)", log_cal).group(1)[:70]
+           if "❌ 应到未到" in log_cal else "无"))
+
     # ── 安全断言：全程未碰真库（真断言，非恒真）──
     print("\n安全核验")
     if before is None:
-        check("真库不存在，无从被改（记为通过）", True)
+        print("  ⚠ 未核 · 真库路径不可达，本条安全断言**未执行**（不计入通过）")
     else:
         after = REAL_DB.stat()
         check("真库 mtime/size 逐位未变",
