@@ -24,8 +24,8 @@
 		<string>/Library/Frameworks/Python.framework/Versions/3.13/bin:/usr/bin:/bin</string>
 	</dict>
 	<key>StandardOutPath</key>
-	<string>/tmp/ipo_rolling.log</string>
+	<string>/Users/lunarabbit/Library/Logs/com.zhuzhao.ipo-rolling-stdout.log</string>
 	<key>StandardErrorPath</key>
-	<string>/tmp/ipo_rolling.err</string>
+	<string>/Users/lunarabbit/Library/Logs/com.zhuzhao.ipo-rolling-stderr.log</string>
 </dict>
 </plist>
