@@ -34,7 +34,7 @@ LOG    = os.path.join(LOGDIR, f"mac_marketdata_{datetime.now():%Y%m%d}.log")
 STATUS = os.path.join(ZZ, "ops", ".last_run_status")
 
 # --from 增量起点：回看 7 天（INSERT OR IGNORE 幂等，重叠无害）
-# 服务四个脚本：theme_etf / market_amount / limit_list / margin。
+# 服务五个脚本：theme_etf / market_amount / limit_list / margin / ks50_index（2026-10-13 加）。
 # （intl_index / kr_stocks 不吃 --from；guarantee_ratio 用 --fetch。原注写「五表」与实际不符，2026-08-01 订正。）
 FROM = (datetime.now() - timedelta(days=7)).strftime("%Y%m%d")
 
