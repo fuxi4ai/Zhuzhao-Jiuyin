@@ -101,6 +101,9 @@ def main():
     # ② 句芒派生（只填空不覆盖）
     ok &= run("aggregate_derived", [os.path.join(JQ, "aggregate_derived.py")], JQ)
     ok &= run("fill_index_north",  [os.path.join(JQ, "fill_index_north.py")], JQ)
+    # 科创50 指数日线 → cn_index_daily（2026-10-13 Doctor 裁「取数器集成进 marketdata 班」：
+    #   V1 仓位管理策略日更信号器消费 KS50 收盘；本步即提示器取数器的 KS50 腿迁入市场班）
+    ok &= run("ks50_index",   [os.path.join(JQ, "fetch_ks50_index.py"), "--from", FROM], JQ)
     # ③ 烛照五表
     ok &= run("theme_etf",    [os.path.join(ZZ, "scripts/fetch_theme_etf.py"),     "--from", FROM], ZZ)
     ok &= run("market_amount",[os.path.join(ZZ, "scripts/fetch_market_amount.py"), "--from", FROM], ZZ)
@@ -127,7 +130,7 @@ def main():
         import sqlite3
         con = sqlite3.connect(f"file:{DB}?mode=ro&immutable=1", uri=True)
         for t in ["stock_daily","daily_market","theme_etf_daily","market_amount_daily",
-                  "limit_list_daily","margin_daily","us_anchor_daily","intl_index_daily"]:
+                  "limit_list_daily","margin_daily","us_anchor_daily","intl_index_daily","cn_index_daily"]:
             try:
                 log(f"  {t:22s} {con.execute(f'SELECT MAX(trade_date) FROM {t}').fetchone()[0]}")
             except Exception as e:
