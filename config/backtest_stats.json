@@ -2,11 +2,12 @@
   "_meta": {
     "purpose": "日报回测注记单一真源（PRD F7）；月度复算只改此文件，脚本不再散改硬编码",
     "sources": {
-      "relit": "docs/自主回测_20260706/relit.json",
-      "agg_stock": "docs/自主回测_20260706/agg_stock.json"
+      "relit": "archived/2026-10-17_回测归整/自主回测_20260706/relit.json",
+      "agg_stock": "archived/2026-10-17_回测归整/自主回测_20260706/agg_stock.json"
     },
     "sample_period": "25.10–26.7",
     "last_recompute": "2026-07-16",
+    "note_20261017": "回测归整裁定：sources 原件归档至 archived/2026-10-17_回测归整/（内容已并入剑酒青丘量化技术面回测总纲）；本文件仍为注记单一真源",
     "note_20260716": "A1/A2 改造（PRD 2026-07-16_日报信号逻辑A1A2A3改造）：price_driven 移出正向窗口改波动提示；新增 relit 中性观察注记",
     "disclaimer": "统计参照·非个体承诺·过往不代表未来"
   },
