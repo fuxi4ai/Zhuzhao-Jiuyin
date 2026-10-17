@@ -3007,14 +3007,14 @@ def render(D):
                     "title": "stock_tracking 滚动回测 · own 可交易池（实时）",
                     "text_tpl": "确认后 {win_days} 日滚动胜率 {win_rate}%（n={n} · 样本至 {max_sig} · 过往不代表未来）"})
     prio_html = f"""
-<div class="prio-strip" aria-label="强信号优先·回测最有力量的两类">
+<div class="prio-strip" aria-label="优先提示 · 一段兑现启动 + 需求爆发主题观察">
  <div class="prio-card prio-glow" style="--sc:#e0a53a">
   <div class="prio-h"><span class="prio-badge">⚡ 强信号</span>一段兑现启动</div>
   {body_a}
   <div class="bt-note" title="{_gy['title']}">{_gy['text_tpl'].format(sample_period=SAMPLE_PERIOD, **_gy)}</div>
  </div>
  <div class="prio-card prio-glow" style="--sc:#17a2b8">
-  <div class="prio-h"><span class="prio-badge">⚡ 强信号</span>需求爆发主线</div>
+  <div class="prio-h"><span class="prio-badge">主题观察</span>需求爆发在途</div>
   {body_b}
   <div class="bt-note" title="{_gd['title']}">{_gd['text_tpl'].format(sample_period=SAMPLE_PERIOD, **_gd)}</div>
  </div>
@@ -3057,7 +3057,7 @@ def render(D):
     prio_rank = f"""
 <div class="prio-rank" aria-label="其他机制·按各自窗口回测胜率">
  <div class="rank-h">其他机制 · 兑现口径胜率 / 均超额
-  <span class="rank-sub">仅列渊图信号实有机制 · 胜率/均超额=渊图兑现口径(excess_cum 累计超额) · 供给冲击含组合、持续失衡=纯持续失衡 · 样本极小仅方向性参考 · 过往不代表未来</span></div>
+  <span class="rank-sub">仅列渊图信号实有机制 · 胜率/均超额=渊图兑现口径(excess_cum 累计超额) · 供给冲击含组合、持续失衡=纯持续失衡 · 样本极小仅方向性参考 · 过往不代表未来 · 产业逻辑信号=主题观察参考、非择时依据（BT-22）</span></div>
  <ul class="rank-list">{rank_rows}</ul>
 </div>"""
     prio_html += prio_rank
