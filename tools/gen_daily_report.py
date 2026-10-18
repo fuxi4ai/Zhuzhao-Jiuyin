@@ -52,7 +52,21 @@ def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d
 
 # ── 信号条目"稳定超额收益期"注记（回测统计参照·非承诺）2026-07-08 ──
 # 窗口=各机制超额达峰的自然持有期（交易日口径，与 docs/自主回测_20260706 一致）
-# ── PRD F7：回测注记单一真源 config/backtest_stats.json；缺文件即 fallback 回下方硬编码，不 break 10:03 定时链 ──
+# ── 回测注记单一真源（2026-10-17 归整三裁「把 json 安排到总纲」）：＝剑酒青丘量化总纲内嵌 JSON 块；
+#    缺块/坏块即 fallback 回下方硬编码，不 break 10:03 定时链（原 PRD F7 的 config/backtest_stats.json 已归档）──
+_BT_STATS_SUMMARY_REL = Path("剑酒青丘") / "回测报告" / "2026-10-17_综合_量化技术面回测总纲.md"
+
+def _resolve_bt_stats_summary():
+    """总纲路径多基探测：env 覆盖 → 原生父目录（Financial/剑酒青丘）→ 平铺挂载同级（/sessions/x/mnt/剑酒青丘）→ 各上级。
+    班沙箱为平铺挂载时 PROJECT_ROOT.parent 即 mnt/ 层、同级命中；全部不中返回 None → 回落 fallback。"""
+    env = _os.environ.get("ZZJY_BT_SUMMARY")
+    if env:
+        return Path(env)
+    for base in [config.PROJECT_ROOT.parent, config.PROJECT_ROOT, *config.PROJECT_ROOT.parents]:
+        cand = base / _BT_STATS_SUMMARY_REL
+        if cand.exists():
+            return cand
+    return None
 _BT_FALLBACK = {
     "_meta": {"sample_period": "25.10–26.7"},
     "mech_window": {"demand_surge": 10, "supply_shock": 10, "event_driven": 10,
@@ -82,16 +96,32 @@ _BT_FALLBACK = {
         {"key": "persistent_imbalance", "zh": "持续失衡", "n": 7, "win_rate": 14.3, "avg_excess": -4.11, "flag": "风险"},
     ],
 }
+def _extract_bt_stats_block(md_text):
+    """从总纲提取注记 JSON fenced 块；判据＝含 mech_window 与 bt_logic 键。"""
+    for m in re.finditer(r"```json\s*\n(.*?)\n```", md_text, re.S):
+        try:
+            data = json.loads(m.group(1))
+        except Exception:
+            continue
+        if isinstance(data, dict) and "mech_window" in data and "bt_logic" in data:
+            return data
+    return None
+
 def _load_bt_stats():
     try:
-        with open(config.PROJECT_ROOT / "config" / "backtest_stats.json", encoding="utf-8") as f:
-            cfg = json.load(f)
+        path = _resolve_bt_stats_summary()
+        if not path:
+            raise FileNotFoundError("总纲文件未找到（各探测基均不中）")
+        with open(path, encoding="utf-8") as f:
+            cfg = _extract_bt_stats_block(f.read())
+        if not cfg:
+            raise ValueError("总纲内未找到注记 JSON 块")
         for k, v in _BT_FALLBACK.items():          # 缺键逐一回落，容忍部分配置
             cfg.setdefault(k, v)
         cfg["_meta"] = {**_BT_FALLBACK["_meta"], **cfg.get("_meta", {})}
         return cfg
     except Exception as e:
-        logger.warning("backtest_stats.json 未加载(%s)，回落硬编码 fallback", e)
+        logger.warning("注记真源（剑酒青丘量化总纲 JSON 块）未加载(%s)，回落硬编码 fallback", e)
         return _BT_FALLBACK
 BT_STATS = _load_bt_stats()
 MECH_WINDOW = BT_STATS["mech_window"]
