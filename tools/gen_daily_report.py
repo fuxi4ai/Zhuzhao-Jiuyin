@@ -1111,6 +1111,18 @@ def gather(date_cap=None):
                       "——风险偏好收缩中，机会提示需折扣"})
     D["risks"] = risks
     D["risk_themes"] = risk_themes
+    # ── 体系提炼摘录（2026-10-21 · PRD 2026-10-21_烛照日报整合上游提炼 · 班内摘录写 docs/）──
+    # 只读 docs/daily_integration_{data_day}.json（九儿摘录步产出）；缺件/格式坏 → None，渲染「今日无」。
+    _intg = None
+    try:
+        _ip = Path(__file__).resolve().parent.parent / "docs" / f"daily_integration_{iso(data_day)}.json"
+        if _ip.exists():
+            _intg = json.loads(_ip.read_text(encoding="utf-8"))
+            if not isinstance(_intg, dict) or not isinstance(_intg.get("notes"), list):
+                _intg = None
+    except Exception:
+        _intg = None
+    D["integration"] = _intg
     return D
 
 
@@ -1615,6 +1627,35 @@ def external_pricing_section(D):
             f'<div class="ext-rows">{kr_rows}</div>'
             f'</div></div>'
             '</div>' + us10y_tmpl)
+
+
+# ── 体系提炼摘录栏目（2026-10-21 Doctor 裁「接提炼过的有价值信息」· 班内摘录形态）──────────
+# 数据 = docs/daily_integration_{data_day}.json（九儿摘录步产出 · 只读）。缺件/空 → 如实「今日无」。
+def integration_section(D):
+    head = ('<h2 id="sec-intg" style="margin-bottom:4px">隔日关注 '
+            '<span class="vintage">体系提炼摘录 ｜ 来源=上游项目提炼结论（非原始数据）｜ 转述不改判 ｜ 无增量如实标注</span></h2>')
+    _esc = lambda s: (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    it = D.get("integration")
+    notes = (it or {}).get("notes") or []
+    rows = []
+    for i, n in enumerate(notes[:8], 1):
+        txt = _esc((n.get("text") or "").strip())
+        if not txt:
+            continue
+        src = _esc(n.get("source") or "—")
+        asof = _esc(n.get("as_of") or "—")
+        rows.append(
+            f'<div class="card" style="margin-top:8px"><div class="k">{i}. {src}'
+            f'<span class="sub" style="float:right;font-weight:400">as_of {asof}</span></div>'
+            f'<div style="margin-top:4px">{txt}</div></div>')
+    if not rows:
+        body = ('<div class="card"><div class="k">隔日关注 · 体系提炼摘录</div>'
+                '<div class="v na" style="font-size:22px;margin-top:3px">今日无</div>'
+                '<div class="sub" style="font-size:11px;margin-top:4px">'
+                '上游提炼产物无新增量（或摘录步未跑/上游缺失）——不空栏不编造</div></div>')
+    else:
+        body = "".join(rows)
+    return head + f'<div style="margin:6px 0 16px">{body}</div>'
 
 
 def _font_face():
@@ -3351,6 +3392,7 @@ def render(D):
  </div><div class="sub" style="margin-top:6px">{pos["note"]}</div></div>"""
 
     ext_html = external_pricing_section(D)
+    intg_html = integration_section(D)   # 隔日关注 · 体系提炼摘录（2026-10-21 加）
 
     js = (JS_TPL
           .replace("__EM_SERIES__", em_series)
@@ -3372,6 +3414,7 @@ def render(D):
 {row2}
 
 {ext_html}
+{intg_html}
 
 <h2 id="sec-main">二 · 主线板块 · 近3日 <span class="vintage">资格=涨幅>1%且对大盘超额>0.5pp（跟涨不算主线）｜ 数量≤当日成交额对应K_cap ｜ 点主线行看详情</span></h2>
 {main_html}
