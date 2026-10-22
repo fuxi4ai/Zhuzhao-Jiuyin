@@ -1123,6 +1123,23 @@ def gather(date_cap=None):
     except Exception:
         _intg = None
     D["integration"] = _intg
+    # ── 持仓清单（复核提示用 · 2026-10-21 Doctor 批「3、轻量修复」· 只读龙鱼 holdings.json）──
+    # 挂载探测降级安全：读不到 → 空清单 → 提示不显示（不编）。只取持仓中 holdings[] 的 name/ts_code。
+    _holds = []
+    try:
+        _hold_paths = [Path.home() / "Documents" / "Database" / "龙鱼-标的分析库" / "holdings.json"]
+        if Path("/sessions").is_dir():
+            _hold_paths = [p / "Database" / "龙鱼-标的分析库" / "holdings.json"
+                           for p in sorted(Path("/sessions").glob("*/mnt/Documents"))] + _hold_paths
+        for _hp in _hold_paths:
+            if _hp.is_file():
+                _hd = json.loads(_hp.read_text(encoding="utf-8"))
+                _holds = [{"name": h.get("name") or "", "code": h.get("ts_code") or ""}
+                          for h in (_hd.get("holdings") or [])]
+                break
+    except Exception:
+        _holds = []
+    D["holdings"] = _holds
     return D
 
 
@@ -1655,6 +1672,22 @@ def integration_section(D):
                 '上游提炼产物无新增量（或摘录步未跑/上游缺失）——不空栏不编造</div></div>')
     else:
         body = "".join(rows)
+        # 持仓命中复核提示（2026-10-21 Doctor 批「3、轻量修复」：摘录条目文本命中龙鱼持仓清单 →
+        # 栏尾红框提示复核仓位；读不到 holdings → 静默不显示；动作归 Doctor，本行只是触发）
+        _hit = []
+        for n in notes[:8]:
+            _txt = n.get("text") or ""
+            for h in (D.get("holdings") or []):
+                _nm, _cd = h.get("name") or "", h.get("code") or ""
+                if (_nm and _nm in _txt) or (_cd and _cd.split(".")[0] and _cd.split(".")[0] in _txt):
+                    _hit.append(_nm or _cd)
+                    break
+        if _hit:
+            _hit = sorted(set(_hit))
+            body += (f'<div class="card" style="margin-top:10px;border:1.5px solid #c0392b">'
+                     f'<div class="k" style="color:#c0392b">⚠ 摘录命中持仓标的（{"、".join(_hit)}）</div>'
+                     f'<div class="sub" style="font-size:11px;margin-top:4px">'
+                     f'建议复核仓位——本行仅为体系内信号触发的复核提示，动作归您</div></div>')
     return head + f'<div style="margin:6px 0 16px">{body}</div>'
 
 
