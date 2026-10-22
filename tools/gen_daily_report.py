@@ -2413,7 +2413,7 @@ def _eval_risk_factors(D):
     data_day = D.get("data_day")
     ca6 = cfg.get("a6")
     if ca6:
-        _idb = config.OUTPUT_ROOT / "回调级别判别" / "index_research.db"
+        _idb = config.PROJECT_ROOT.parent / "剑酒青丘" / "回调级别判别" / "index_research.db"
         _pa_all, _pa_last = risk_function.a6_percentiles(
             str(_idb), window=int(ca6.get("window", 252)),
             min_periods=int(ca6.get("min_periods", 200)))
@@ -2433,9 +2433,8 @@ def _eval_risk_factors(D):
                   "src": "index_research.index_daily 399006 amount"})
     cb6 = cfg.get("b6")
     if cb6:
-        # ERR-20260721-001:universe 属 AI4ME 域资产,挂 OUTPUT_ROOT 锚(config 值=相对 OUTPUT_ROOT)
-        _uni = config.OUTPUT_ROOT / cb6.get(
-            "universe", "回调级别判别/outputs/universe_fixed.json")
+        # 2026-10-21 迁址剑酒青丘（Doctor 裁「AI4ME 属可删目录」）——universe_fixed.json 归剑酒青丘仓
+        _uni = config.PROJECT_ROOT.parent / "剑酒青丘" / "回调级别判别" / "outputs" / "universe_fixed.json"
         _pb_all, _pb_last, _shb = risk_function.b6_percentiles(
             config.MARKET_DB, str(_uni), top_frac=float(cb6.get("top_frac", .05)),
             window=int(cb6.get("window", 252)), min_periods=int(cb6.get("min_periods", 200)))
