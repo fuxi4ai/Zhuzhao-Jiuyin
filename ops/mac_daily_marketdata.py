@@ -20,7 +20,7 @@ Mac 原生 · 每日行情落库 编排器（launchd 入口）
 WARNING 或「0 日新增」照样 exit 0（09-22 实撞：theme_etf / margin 报 ✅ 而当日一行未落）。
 故收尾加「各表 vs 市场时钟」判定，应到未到的硬档位折进本程序退出码（见 STALE_POLICY）。
 """
-import os, sys, subprocess
+import os, re, sys, subprocess
 from datetime import datetime, timedelta
 
 PY  = sys.executable                                   # 当前 python3.13（已授 FDA）
@@ -90,6 +90,37 @@ def run(name, args, cwd):
         return True
     log(f"❌ {name} 失败 (exit {p.returncode})（详见上方日志）")
     return False
+
+# ── 状态戳追加式（NOTE-20260922-002 · Doctor 2026-10-23 批）──────────────────
+# 旧 open(STATUS,"w") 覆盖写只留最后一行——同日重跑（手工补跑/kickstart）会把当天的
+# FAIL 抹成 OK，同一盲区已三次咬人（09-18 判连停 / 09-22 查 launchd / 09-22 补跑）。
+# 改为追加 + 滚动保留最近 STATUS_KEEP_DAYS 天：最后一行仍是「此刻最新一次是成是败」
+# （既有消费口径不变——看门狗 SKILL 与人读的都是末行），历史行让同日多次跑各自成败可追。
+# 不换文件名（.jsonl 改名会打断 cat ops/.last_run_status 的既有消费方；.gitignore
+# 已按现名忽略——纯运行态不入仓）。
+STATUS_KEEP_DAYS = 30
+_STATUS_DATE = re.compile(r"(\d{4}-\d{2}-\d{2})")
+
+
+def write_status(line):
+    """追加式状态戳 + 按天滚动。写失败只打日志、不折进退出码（旧行为同款裸写无保护）。"""
+    try:
+        lines = []
+        if os.path.exists(STATUS):
+            with open(STATUS, encoding="utf-8") as f:
+                lines = [l.rstrip("\n") for l in f if l.strip()]
+        lines.append(line)
+        floor = (datetime.now() - timedelta(days=STATUS_KEEP_DAYS)).strftime("%Y-%m-%d")
+        kept = []
+        for l in lines:
+            m = _STATUS_DATE.search(l)
+            if m is None or m.group(1) >= floor:
+                kept.append(l)
+        kept = kept[-500:]   # 封顶防呆：无日期行（理论上不存在）也不致撑爆
+        with open(STATUS, "w", encoding="utf-8") as f:
+            f.write("\n".join(kept) + "\n")
+    except OSError as e:
+        log(f"⚠ 状态戳写入失败（不折进退出码）：{e}")
 
 def main():
     log("==================== Mac 原生行情落库 开始 ====================")
@@ -257,10 +288,10 @@ def main():
     stamp = f"{datetime.now():%Y-%m-%d %H:%M:%S %Z}"
     if ok:
         log("==================== 全部完成 · 无 ❌ ====================")
-        open(STATUS, "w").write(f"OK {stamp}\n")
+        write_status(f"OK {stamp}")
         return 0
     log("==================== 完成但有 ❌ · 见日志 ====================")
-    open(STATUS, "w").write(f"FAIL {stamp}\n")
+    write_status(f"FAIL {stamp}")
     return 1
 
 if __name__ == "__main__":

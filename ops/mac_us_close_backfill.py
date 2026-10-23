@@ -29,6 +29,7 @@ Mac 原生 · 美股收盘后补数班 编排器（launchd 入口）
   ④ 只碰 us_anchor_daily / intl_index_daily 两张表，不碰 recap.db、不生成日报。
 """
 import os
+import re
 import sqlite3
 import subprocess
 import sys
@@ -89,6 +90,36 @@ def run(name, args, cwd=ZZ):
     return False
 
 
+# ── 状态戳追加式（NOTE-20260922-002 盲区再现 · Doctor 2026-10-23 批）──────────
+# 本班旧 open(STATUS,"w") 覆盖写与主班同款：只留最后一行、同日重跑抹掉失败记录
+# （GOTCHAS ERR-20260925-001 追记 2026-09-26 已存照「usclose 班成败无痕」）。
+# 改为追加 + 滚动保留最近 STATUS_KEEP_DAYS 天：最后一行仍是「最新一次成败」
+# （看门狗 SKILL `cat` 后读末行的口径不变），历史行可追同日多次跑各自成败。
+STATUS_KEEP_DAYS = 30
+_STATUS_DATE = re.compile(r"(\d{4}-\d{2}-\d{2})")
+
+
+def write_status(line):
+    """追加式状态戳 + 按天滚动。写失败只打日志、不折进退出码（旧行为同款裸写无保护）。"""
+    try:
+        lines = []
+        if os.path.exists(STATUS):
+            with open(STATUS, encoding="utf-8") as f:
+                lines = [l.rstrip("\n") for l in f if l.strip()]
+        lines.append(line)
+        floor = (datetime.now() - timedelta(days=STATUS_KEEP_DAYS)).strftime("%Y-%m-%d")
+        kept = []
+        for l in lines:
+            m = _STATUS_DATE.search(l)
+            if m is None or m.group(1) >= floor:
+                kept.append(l)
+        kept = kept[-500:]   # 封顶防呆：无日期行（理论上不存在）也不致撑爆
+        with open(STATUS, "w", encoding="utf-8") as f:
+            f.write("\n".join(kept) + "\n")
+    except OSError as e:
+        log(f"⚠ 状态戳写入失败（不折进退出码）：{e}")
+
+
 def ro():
     """只读连接。探水位/核对一律走只读，避免本编排器自身持写锁。"""
     return sqlite3.connect(f"file:{DB}?mode=ro", uri=True)
@@ -129,6 +160,40 @@ def probe():
         q = "SELECT MAX(trade_date) FROM intl_index_daily WHERE kind IN (?,?)"
         b = con.execute(q, US_LEG_KINDS).fetchone()[0]
         return a, b
+    finally:
+        con.close()
+
+
+def anchor_from():
+    """us_anchor --from 起点 —— 修法①（ERR-20260925-001 · Doctor 2026-10-23 批）。
+
+    旧 next_iso(MAX(trade_date)) 只对「整日没写」自愈；「最新日部分缺票」时 MAX 已推进、
+    缺票日落起点之后，此后无任何代码路径重试（2026-09-24 NVDA 单票 SSL 超时实撞 →
+    当日永久空洞，kickstart 重跑区间为空、写 0 行）。
+    改锚「最新完整日」＝票数 ≥ EXPECT_ANCHOR_N 的最新 trade_date 的次日——缺票日
+    次班自动重试；取数 INSERT OR REPLACE 幂等、重叠无害（多给才不漏）。
+    无完整日（新表首拉半途失败）回退 MAX 当日：只重拉末根日、有界，不整表重拉；
+    表空仍回看 7 天兜底。intl_index 美股腿起点不动（本批条目只点 us_anchor）。
+    COUNT(*) 与 COUNT(DISTINCT ticker) 等价：表 PK 即 (trade_date, ticker)，无重复行。
+    """
+    con = ro()
+    try:
+        row = con.execute(
+            "SELECT trade_date FROM us_anchor_daily GROUP BY trade_date "
+            "HAVING COUNT(*) >= ? ORDER BY trade_date DESC LIMIT 1",
+            (EXPECT_ANCHOR_N,)).fetchone()
+        if row:
+            floor = row[0]
+            mx = con.execute("SELECT MAX(trade_date) FROM us_anchor_daily").fetchone()[0]
+            if str(mx) != str(floor):
+                log(f"  ⚠ 最新日 {mx} 缺票（完整日止于 {floor}）——起点回退重试缺口")
+            return next_iso(floor)
+        mx = con.execute("SELECT MAX(trade_date) FROM us_anchor_daily").fetchone()[0]
+        if mx:
+            log(f"  ⚠ 无任何完整日（票数≥{EXPECT_ANCHOR_N}）——起点回退 MAX 当日 {mx}"
+                f"（只重拉末根日，有界；表空才回看 7 天）")
+            return datetime.strptime(str(mx), "%Y%m%d").strftime("%Y-%m-%d")
+        return next_iso(None)
     finally:
         con.close()
 
@@ -195,11 +260,11 @@ def main():
         a_max, l_max = probe()
     except Exception as e:
         log(f"❌ 探水位失败（库不可读？）：{e}")
-        open(STATUS, "w").write(f"FAIL probe {datetime.now():%Y-%m-%d %H:%M:%S}\n")
+        write_status(f"FAIL probe {datetime.now():%Y-%m-%d %H:%M:%S}")
         return 1
     log(f"水位：us_anchor_daily={a_max}  intl_index 美股腿={l_max}")
 
-    a_from, l_from = next_iso(a_max), next_iso(l_max)
+    a_from, l_from = anchor_from(), next_iso(l_max)
     log(f"起点：us_anchor --from={a_from}   intl_index --from={l_from}")
 
     ok = True
@@ -218,10 +283,10 @@ def main():
     stamp = f"{datetime.now():%Y-%m-%d %H:%M:%S %Z}"
     if ok:
         log("==================== 全部完成 · 无 ❌ ====================")
-        open(STATUS, "w").write(f"OK {stamp}\n")
+        write_status(f"OK {stamp}")
         return 0
     log("==================== 完成但有 ❌ · 见日志 ====================")
-    open(STATUS, "w").write(f"FAIL {stamp}\n")
+    write_status(f"FAIL {stamp}")
     return 1
 
 

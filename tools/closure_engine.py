@@ -459,6 +459,7 @@ def main():
             except Exception:
                 pass
         changed = []
+        firsts = []      # NULL → 首评单列（ERR-20261008-002：旧判据排除首评致留痕盲区）
         n = 0
         for r in out:
             # no_anchor 也回写——否则映射纠错后旧锚残留库中（2026-06-10 教训）
@@ -474,18 +475,39 @@ def main():
                  r.get("direction_flip_date") or None,
                  r["id"]))
             _old = old_gap.get((r['table'], r['id']))
-            if _old is not None and _old != r['gap_status']:
+            if _old is None:
+                # NULL → 首评：单列并计入变更总数（ERR-20261008-002 修复）
+                if r['gap_status']:
+                    firsts.append((r['id'], r['gap_status']))
+            elif _old != r['gap_status']:
                 changed.append((r['id'], _old, r['gap_status']))
             n += 1
         rc.commit()
         logger.info(f"✅ 回填 {n} 条（no_anchor/坏日期未写）")
-        _rpt = config.PROJECT_ROOT / "docs" / f"兑现变更_{datetime.date.today():%Y%m%d}.md"
-        _L = [f"# 兑现变更 {datetime.date.today():%Y-%m-%d}（closure_engine --apply 留痕审计）", "",
-              f"- 信号总数：{n}（predaily 锚 {n}）", f"- gap_status 变更 **{len(changed)}** 条"]
+        # 留痕按次命名（ERR-20261008-002 修复：原固定名 兑现变更_{今日}.md 同日二次触发同名覆盖）
+        _t = datetime.datetime.now()
+        _stamp = _t.strftime("%H%M")
+        _rpt = config.PROJECT_ROOT / "docs" / f"兑现变更_{datetime.date.today():%Y%m%d}_{_stamp}.md"
+        if _rpt.exists():          # 同分钟罕见碰撞兜底：降秒级；仍撞则加序号，同日永不覆盖
+            _stamp = _t.strftime("%H%M%S")
+            _rpt = config.PROJECT_ROOT / "docs" / f"兑现变更_{datetime.date.today():%Y%m%d}_{_stamp}.md"
+            _k = 2
+            while _rpt.exists():
+                _rpt = config.PROJECT_ROOT / "docs" / \
+                    f"兑现变更_{datetime.date.today():%Y%m%d}_{_stamp}_{_k}.md"
+                _k += 1
+        _total = len(changed) + len(firsts)
+        _L = [f"# 兑现变更 {datetime.date.today():%Y-%m-%d} {_stamp}（closure_engine --apply 留痕审计）", "",
+              f"- 信号总数：{n}（predaily 锚 {n}）",
+              f"- gap_status 变更 **{_total}** 条（状态变更 {len(changed)} 条 + 首评 {len(firsts)} 条）"]
         if changed:
             _L += ["", "| signal | 旧状态 | 新状态 |", "|---|---|---|"]
             for _id, _o, _n2 in changed:
                 _L.append(f"| {_id} | {_o} | {_n2} |")
+        if firsts:
+            _L += ["", "## 首评（NULL → 首评）", "", "| signal | 新状态 |", "|---|---|"]
+            for _id, _s in firsts:
+                _L.append(f"| {_id} | {_s} |")
         _L += ["", "## 回滚命令", "", "```bash", f"cp {bak} {config.RECAP_DB}", "```", ""]
         _rpt.write_text("\n".join(_L), encoding="utf-8")
         logger.info(f"📄 兑现变更留痕 → {_rpt}")

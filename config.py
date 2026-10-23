@@ -18,7 +18,7 @@
     RECAP_DB       四维度复盘 + 量化周期库（烛阴自有，可写）
     NEWS_DB        新闻原料/清洗/事件库（烛阴自有，可写）
     MARKET_DB      公共行情库 market_data.db（句芒维护，**只读**）
-    RAW_RECAP_DIR  小鲍四维度课件第三方语料（只读）
+    RAW_RECAP_DIR  小鲍四维度课件第三方语料（只读；可用环境变量 ZZJY_RAW_RECAP_DIR 独立覆盖）
     YUANTU_ROOT    渊图（行业研究）正源（CC 维护，烛阴**只读引用**）
     ENV_FILE       Database/.env（TUSHARE_TOKEN / FRED_API_KEY）
 """
@@ -57,7 +57,10 @@ NEWS_DB = str(DATABASE_ROOT / "烛照九阴" / "archive" / "news_财新试验_20
 
 # ─── 公共/外部资源（只读引用）────────────────────────────────
 MARKET_DB = str(DATABASE_ROOT / "Market-Data" / "market_data.db")
-RAW_RECAP_DIR = str(DATABASE_ROOT / "烛照九阴" / "Raw-Recap")
+# 输入侧独立覆盖（GOTCHAS ERR-20260830-001）：输入目录与输出侧 DATABASE_ROOT 解耦——
+# 设 ZZJY_DATABASE_ROOT 做隔离操作时，可另设 ZZJY_RAW_RECAP_DIR 固定指向真实语料，不再随根漂移。
+# 未设 ZZJY_RAW_RECAP_DIR 时回退 DATABASE_ROOT 派生，默认行为与修前完全一致。
+RAW_RECAP_DIR = os.environ.get("ZZJY_RAW_RECAP_DIR") or str(DATABASE_ROOT / "烛照九阴" / "Raw-Recap")
 YUANTU_ROOT = str(DATABASE_ROOT / "行业研究")          # 渊图正源，只读
 YUANTU_KG = str(DATABASE_ROOT / "行业研究" / "mapping" / "latest.json")   # 渊图稳定入口（软链）
 YUANTU_SCORES = str(DATABASE_ROOT / "行业研究" / "scoring")               # yuantu_scoring 标的分
