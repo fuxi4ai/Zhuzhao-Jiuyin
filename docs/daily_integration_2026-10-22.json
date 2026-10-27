@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-22",
+  "notes": [
+    {
+      "text": "仓位四态 hold：科创50(000688.SH) 维持 tier 4/4（1.0），T 无需减仓、无待发订单，执行理由 NO_CHANGE，下一会话 2026-10-23。",
+      "source": "剑酒青丘 v25_et_position_signal.json",
+      "as_of": "2026-10-22"
+    },
+    {
+      "text": "FOMC 市场隐含预期（CME FedWatch 转述）：下次会议 hold 83.9% / 累计加息25bp 16.1% / cut 0%；12 月会累计 +25bp 76.0%、+50bp 14.2% 仍为市场主流预期。",
+      "source": "风险日报 fomc_market_exp.json",
+      "as_of": "2026-10-22"
+    },
+    {
+      "text": "观星自建模型判 hike 信号（P(Hike)=25.4%>20 触发，P(Hold)=74.6%）；输入 10Y=5.12 / 2Y=4.79（as_of 10-20）。模型口径 risk_overlay_not_alpha·预注册候选·不进生产判定；8 样本 extreme 版，方向真不确证（与市场隐含 hold 主流相分歧，如实并列）。",
+      "source": "白泽观星 fed_prediction_20261022.json",
+      "as_of": "2026-10-22"
+    },
+    {
+      "text": "大宗 yoy 哨兵：碳酸锂 +22.1%、铜 +26.8%、原油SC(人民币代理) +59.5%、钨(SMM) +46.9% 均 above；黄金 -7.5% below——8-11 结构性购金事件已 closed、C2 exited。钨读数 as_of 2026-10-14 滞后一周，如实标注。",
+      "source": "白泽大宗 sentinel_state.json",
+      "as_of": "2026-10-22"
+    }
+  ]
+}
