@@ -85,6 +85,17 @@ def pull_indices(conn, pro, from_date, to_date):
                  float(r.vol) if r.vol is not None else None,
                  float(r.amount) if r.amount is not None else None)
                 for r in df.itertuples()]
+        # 日期归一（2026-11-01 Doctor 裁「统一横杠」· ERR-20261016-001 修法）：
+        # tushare index_daily 返回紧凑 YYYYMMDD；cn_index_daily 消费端（V1 信号器）规范为横杠
+        # YYYY-MM-DD（10-13 TypeError 先例+当日已裁源头归一）。此处与 fetch_ks50_index.py 同形入库。
+        def _norm_date(d):
+            d = str(d)
+            if len(d) == 8 and d.isdigit():
+                return f"{d[:4]}-{d[4:6]}-{d[6:]}"
+            if len(d) == 10 and d[4] == "-":
+                return d
+            raise ValueError(f"无法识别的日期格式：{d!r}，拒绝写入")
+        rows = [(_norm_date(r[0]), r[1], r[2], r[3], r[4], r[5]) for r in rows]
         conn.executemany(
             "INSERT OR REPLACE INTO cn_index_daily(trade_date,idx_code,close,pct_chg,vol,amount) "
             "VALUES (?,?,?,?,?,?)", rows)
