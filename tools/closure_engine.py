@@ -315,9 +315,10 @@ def load_signals(rc, which):
     sigs = []
     if which in ("all", "industry"):
         # status='retired' 为锚存疑退役态（2026-08-21 立）：引擎跳过不重算、gap_* 字段保留历史账
+        # status 为 NULL 的行也要算（2026-11-04 · GOTCHAS ERR-20261104-002：裸 `!=` 在 SQL 三值逻辑下漏 NULL）
         for sid, dt, kw, content in rc.execute(
                 "SELECT id, date, keyword, signal_content FROM industry_signals "
-                "WHERE status != 'retired'"):
+                "WHERE COALESCE(status, '') != 'retired'"):
             d, prec = norm_date(dt)
             sigs.append(dict(table="industry_signals", id=sid, disc=d, prec=prec,
                              kw_text=kw or "", content_text=content or "",
