@@ -19,6 +19,23 @@ import config
 SHARED_FUNDAMENTALS_DB = os.path.join(config.DATABASE_ROOT, "宏观-大宗商品", "business_breakdown.db")
 LONGYU_RECORDS = os.path.join(config.DATABASE_ROOT, "龙鱼-标的分析库", "records")  # 公司级真源
 
+_MISSING_WARNED = False
+
+
+def _warn_missing_once():
+    """缺件告警（2026-11-05 · GOTCHAS ERR-20261008-003）：副本根缺龙鱼库/大宗库软链时，
+    lookup 会静默回退图谱口径。此处在首次查询时向 stderr 打一行告警（每进程一次），
+    不改返回值与退出码——只把「静默降级」变成「可见降级」。"""
+    global _MISSING_WARNED
+    if _MISSING_WARNED:
+        return
+    _MISSING_WARNED = True
+    miss = [p for p in (LONGYU_RECORDS, SHARED_FUNDAMENTALS_DB) if not os.path.exists(p)]
+    if miss:
+        print("[fundamentals_lookup] ⚠ 缺件：" + " ; ".join(miss)
+              + " 不存在——六维分/白泽口径将回退图谱口径（副本根缺软链？见 GOTCHAS ERR-20261008-003）",
+              file=sys.stderr)
+
 
 def _longyu_six(ts_code):
     """龙鱼库（公司级真源）取 latest 那次六维总分。返回 (six_total, six_max, analysis_date) 或 None。
@@ -57,6 +74,7 @@ def lookup(ts_code):
               long_term, data_source, report_period}。"""
     if not ts_code:
         return None
+    _warn_missing_once()
     c = _conn()
     if c is None:
         return None
