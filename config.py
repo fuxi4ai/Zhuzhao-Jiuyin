@@ -43,7 +43,33 @@ def _find_database_root(start: Path) -> Path:
     return start.parents[3] / "Database"
 
 
+def _load_database_paths(db_root):
+    """优先加载公共路径契约 Database/paths.py（2026-11-06 立）；缺文件或加载失败返回 None，调用方退回原逻辑。"""
+    try:
+        import importlib.util
+        f = Path(db_root) / "paths.py"
+        if not f.is_file():
+            return None
+        spec = importlib.util.spec_from_file_location("database_paths", f)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod if hasattr(mod, "layout") else None
+    except Exception:
+        return None
+
+
 DATABASE_ROOT = _find_database_root(PROJECT_ROOT)
+_DBP = _load_database_paths(DATABASE_ROOT)   # Database/paths.py 契约模块；None ⇒ 退回本文件相对拼接
+
+
+def _p(name, *rel) -> Path:
+    """优先取 Database/paths.py 的 layout(DATABASE_ROOT)[name]；paths.py 缺席或无此名则按 rel 相对拼接（原逻辑）。"""
+    if _DBP is not None:
+        try:
+            return _DBP.layout(DATABASE_ROOT)[name]
+        except KeyError:
+            pass
+    return DATABASE_ROOT.joinpath(*rel)
 
 # ─── 输出/产物根（沙箱平铺挂载下用 env 覆盖，见通用教训 G-X45）──────
 # AI4ME 报告输出根：ZZJY_OUTPUT_ROOT 覆盖；否则回退 <Documents>/AI4ME（parents[3]）
@@ -52,19 +78,19 @@ OUTPUT_ROOT = Path(os.environ.get("ZZJY_OUTPUT_ROOT") or (PROJECT_ROOT.parents[3
 ARTIFACT_ROOT = Path(os.environ.get("ZZJY_ARTIFACT_ROOT") or (PROJECT_ROOT.parents[3] / "Claude" / "Artifacts"))
 
 # ─── 烛阴自有库（可写）────────────────────────────────────────
-RECAP_DB = str(DATABASE_ROOT / "烛照九阴" / "recap.db")
-NEWS_DB = str(DATABASE_ROOT / "烛照九阴" / "archive" / "news_财新试验_20260511.db")  # 2026-06-10 归档，财新搁置
+RECAP_DB = str(_p("RECAP_DB", "烛照九阴", "recap.db"))
+NEWS_DB = str(_p("NEWS_DB", "烛照九阴", "archive", "news_财新试验_20260511.db"))  # 2026-06-10 归档，财新搁置
 
 # ─── 公共/外部资源（只读引用）────────────────────────────────
-MARKET_DB = str(DATABASE_ROOT / "Market-Data" / "market_data.db")
+MARKET_DB = str(_p("MARKET_DATA_DB", "Market-Data", "market_data.db"))
 # 输入侧独立覆盖（GOTCHAS ERR-20260830-001）：输入目录与输出侧 DATABASE_ROOT 解耦——
 # 设 ZZJY_DATABASE_ROOT 做隔离操作时，可另设 ZZJY_RAW_RECAP_DIR 固定指向真实语料，不再随根漂移。
 # 未设 ZZJY_RAW_RECAP_DIR 时回退 DATABASE_ROOT 派生，默认行为与修前完全一致。
-RAW_RECAP_DIR = os.environ.get("ZZJY_RAW_RECAP_DIR") or str(DATABASE_ROOT / "烛照九阴" / "Raw-Recap")
-YUANTU_ROOT = str(DATABASE_ROOT / "行业研究")          # 渊图正源，只读
-YUANTU_KG = str(DATABASE_ROOT / "行业研究" / "mapping" / "latest.json")   # 渊图稳定入口（软链）
-YUANTU_SCORES = str(DATABASE_ROOT / "行业研究" / "scoring")               # yuantu_scoring 标的分
-ENV_FILE = str(DATABASE_ROOT / ".env")
+RAW_RECAP_DIR = os.environ.get("ZZJY_RAW_RECAP_DIR") or str(_p("RAW_RECAP_DIR", "烛照九阴", "Raw-Recap"))
+YUANTU_ROOT = str(_p("YUANTU_DIR", "行业研究"))          # 渊图正源，只读
+YUANTU_KG = str(_p("YUANTU_KG_LATEST", "行业研究", "mapping", "latest.json"))   # 渊图稳定入口（软链）
+YUANTU_SCORES = str(_p("YUANTU_SCORING_DIR", "行业研究", "scoring"))               # yuantu_scoring 标的分
+ENV_FILE = str(_p("ENV_FILE", ".env"))
 
 # ─── 项目内本地目录 ──────────────────────────────────────────
 LOG_DIR = str(PROJECT_ROOT / "logs")
