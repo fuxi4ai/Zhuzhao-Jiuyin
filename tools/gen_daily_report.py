@@ -1116,12 +1116,33 @@ def gather(date_cap=None):
     _intg = None
     try:
         _ip = Path(__file__).resolve().parent.parent / "docs" / f"daily_integration_{iso(data_day)}.json"
+        # L3 文件名格式断言（2026-11-06）：契约＝横杠日期 daily_integration_YYYY-MM-DD.json；
+        # 紧凑格式（daily_integration_20261028.json）会在此读漏而渲染「今日无」（2026-10-28 实例）→ fail-visible 警告。
+        _ip_compact = _ip.with_name(f"daily_integration_{iso(data_day).replace('-', '')}.json")
+        if not _ip.exists() and _ip_compact.exists():
+            logger.warning(f"⚠ 隔日关注文件名不合契约：{_ip_compact.name}（应为 {_ip.name}）——本期按缺件渲染「今日无」，请改名")
         if _ip.exists():
             _intg = json.loads(_ip.read_text(encoding="utf-8"))
             if not isinstance(_intg, dict) or not isinstance(_intg.get("notes"), list):
                 _intg = None
     except Exception:
         _intg = None
+    # L3 固定槽位（2026-11-06）：EAL 宏观惊奇 / 星空 NE 两键，由 scripts/integration_slots.py 只读上游算出；
+    # 文件在场则写回 docs/ 当日 json（两键），缺件则只随 D 渲染、不代建文件；没有当日产物 text="无"，不编数。
+    try:
+        import integration_slots as _islots
+        _intg2, _slots, _sinfo = _islots.ensure_slots(iso(data_day), write_back=True)
+        if _intg is not None:
+            for _k in _islots.SLOT_KEYS:
+                _intg[_k] = _slots[_k]
+        if _sinfo.get("written"):
+            logger.info(f"🧩 隔日关注固定槽位已写回 {_sinfo.get('path')}")
+        if _sinfo.get("filename_warning"):   # 横杠名与紧凑名并存时也告警（独立复核 2026-11-06 建议）
+            logger.warning(f"⚠ {_sinfo['filename_warning']}")
+        D["integration_slots"] = _slots
+    except Exception as _e:
+        logger.warning(f"⚠ 隔日关注固定槽位计算失败（不阻断）：{type(_e).__name__}: {_e}")
+        D["integration_slots"] = None
     D["integration"] = _intg
     # ── 持仓清单（复核提示用 · 2026-10-21 Doctor 批「3、轻量修复」· 只读龙鱼 holdings.json）──
     # 挂载探测降级安全：读不到 → 空清单 → 提示不显示（不编）。只取持仓中 holdings[] 的 name/ts_code。
@@ -1665,11 +1686,25 @@ def integration_section(D):
             f'<div class="card" style="margin-top:8px"><div class="k">{i}. {src}'
             f'<span class="sub" style="float:right;font-weight:400">as_of {asof}</span></div>'
             f'<div style="margin-top:4px">{txt}</div></div>')
+    # L3 固定槽位（2026-11-06）：EAL 宏观惊奇 / 星空 NE 恒显两卡，无当日产物显「无」（不编数）
+    _slots = D.get("integration_slots") or {}
+    _slot_rows = []
+    for _key, _label in (("eal", "EAL · 宏观惊奇"), ("starry_ne", "星空 · Newly Emerged 新出现信号")):
+        _sv = _slots.get(_key) or {"text": "无（槽位未计算）", "source": "—", "as_of": "—"}
+        _st = _esc((_sv.get("text") or "无").strip())
+        _na = _st.startswith("无")
+        _slot_rows.append(
+            f'<div class="card" style="margin-top:8px"><div class="k">固定槽位 · {_label}'
+            f'<span class="sub" style="float:right;font-weight:400">as_of {_esc(_sv.get("as_of") or "—")}</span></div>'
+            + (f'<div class="v na" style="font-size:18px;margin-top:3px">{_st}</div>' if _na else
+               f'<div style="margin-top:4px">{_st}</div>')
+            + f'<div class="sub" style="font-size:11px;margin-top:4px">来源：{_esc(_sv.get("source") or "—")}'
+            + (f' · {_esc(_sv.get("note"))}' if _sv.get("note") else "") + '</div></div>')
     if not rows:
         body = ('<div class="card"><div class="k">隔日关注 · 体系提炼摘录</div>'
                 '<div class="v na" style="font-size:22px;margin-top:3px">今日无</div>'
                 '<div class="sub" style="font-size:11px;margin-top:4px">'
-                '上游提炼产物无新增量（或摘录步未跑/上游缺失）——不空栏不编造</div></div>')
+                '上游提炼产物无新增量（或摘录步未跑/上游缺失）——不空栏不编造</div></div>') + "".join(_slot_rows)
     else:
         body = "".join(rows)
         # 持仓命中复核提示（2026-10-21 Doctor 批「3、轻量修复」：摘录条目文本命中龙鱼持仓清单 →
@@ -1688,6 +1723,7 @@ def integration_section(D):
                      f'<div class="k" style="color:#c0392b">⚠ 摘录命中持仓标的（{"、".join(_hit)}）</div>'
                      f'<div class="sub" style="font-size:11px;margin-top:4px">'
                      f'建议复核仓位——本行仅为体系内信号触发的复核提示，动作归您</div></div>')
+        body += "".join(_slot_rows)
     return head + f'<div style="margin:6px 0 16px">{body}</div>'
 
 
