@@ -282,9 +282,12 @@ def write_to_db(date, market_data, sectors_with_logic, dry_run=False):
             up_down_ratio = market_data.get("up_count", 0) / market_data["down_count"]
         
         conn.execute("""
-            INSERT OR REPLACE INTO emotion_cycle 
+            INSERT INTO emotion_cycle 
             (date, limit_up, limit_down, seal_rate, total_volume, up_down_ratio, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+            ON CONFLICT(date) DO UPDATE SET
+                limit_up=excluded.limit_up, limit_down=excluded.limit_down, seal_rate=excluded.seal_rate,
+                total_volume=excluded.total_volume, up_down_ratio=excluded.up_down_ratio, updated_at=datetime('now')
         """, (
             date,
             market_data.get("limit_up", 0),
