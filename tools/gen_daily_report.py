@@ -1672,11 +1672,93 @@ def external_pricing_section(D):
 # 2026-11-14 卡片正文排版优化（Doctor 令）：标题（首个「：」前）大字；正文按顶层「；」拆行；
 # 每行首个数字放大为要点数；括注降为小字；「——」后为口径脚注。
 # 着色只读条目自带标注（不由渲染端判方向 · 转述不改判）：
-#   n["polarity"] ∈ {"bull","bear"} → 整卡左色条+标题着色；
+#   n["polarity"] ∈ {"bull","bear"} → 整条顶边色线+标题着色+小签；
 #   n["marks"] = [{"match": 子串, "pol": "bull|bear"}] → 含该子串的那一行着色+小签。
 #   利好=红金（--bull）/ 利空=青绿（--bear）；无标注 → 中性墨色，不着色。
-_INTG_NUM = re.compile(r'(?<![\w.])([+\-−]?\d+(?:\.\d+)?(?:\s*[~～]\s*[+\-−]?\d+(?:\.\d+)?)?\s*(?:%|bp|pp))')
+# 2026-11-14 栏目美化（Doctor 令）：整栏收成一张「札记页」——
+#   条目并列成栏、界行分隔；来源项目名刻成印（如「风险日报」2×2）；
+#   正文排成账目行（名目｜要点数｜附注，三列对齐）；顶层「 / 」并列项、句尾括注里的「；」清单各自成行；
+#   拿不准的一律不排表、整行照原文（见 _intg_nums / _intg_kv / _intg_rows_of 的说明）；
+#   固定槽位（EAL / 星空）收到页脚一条；持仓命中提示改页内红条（位置不变：条目之后、槽位之前）。
+#   只重排不改字：除分隔符（；/，——：）与被拆开的那层括号外，原文逐字保留
+#   （tests/test_integration_section.py 对账）。
+# 带单位数字（%/bp/pp）的识别。原则：认得准才单独成格（名目｜要点数｜附注），认不准就整行照原文排。
+# 做法是白名单：先把「号、数字、单位、区间号」连成的一整串取出来（_INTG_RUN），再判这一串是不是下列认得准的形态：
+#   单个数：可带正负号——「+20.1%」「纳指-1.38%」「yoy+42.4%」「黄金 yoy －7.5%」「±0.5%」；
+#   波浪号区间：两端可各自带号、带单位——「84.7~87%」「-5~-3%」「+3%~+5%」；
+#   横杠区间：两端都不带号、前小后大——「3-5%」「3%-5%」；
+#   名字尾数＋横杠＋小数：「沪深300-1.40%」＝沪深300 跌 1.40%（横杠当负号，名字留在名目里）；
+#   名字尾数＋明确的正负号：「中证1000+0.5%」。
+# 其余一律算认不准（三段以上、前大后小的横杠串、号后带空格「- 3.8%」、少见横线字符「—3%」、
+# 后面还接着「至/—/~ + 数字」没取全的串……），所在行不排表。
+_INTG_SGC = "+\\-−－＋±–"
+_INTG_N = r'(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?'
+_INTG_U = r'(?:%|(?:bp|pp)(?![A-Za-z]))'
+_INTG_RUN = re.compile(
+    r'(?:[' + _INTG_SGC + r'](?=\d))?(?<![A-Za-z0-9_.,])'
+    r'(?:' + _INTG_N + r'(?:\s*' + _INTG_U + r')?(?:\s*[~～]\s*|[\-–])[' + _INTG_SGC + r']?)*'
+    + _INTG_N + r'\s*' + _INTG_U)
+_INTG_EL0 = re.compile(r'([' + _INTG_SGC + r']?)(' + _INTG_N + r')(\s*' + _INTG_U + r')?')
+_INTG_EL = re.compile(r'(\s*[~～]\s*|[\-–])([' + _INTG_SGC + r']?)(' + _INTG_N + r')(\s*' + _INTG_U + r')?')
+_INTG_SIGNS = "+-−－＋±–"
+_INTG_ODD = "—―‐‑‒﹣﹘"                       # 可能是负号也可能是破折的横线字符
+_INTG_LEFT_OK = " \u3000\t（(〔[「『《\"'“‘=＝:：，、;；/|·→↑↓≥≤＞＜"    # 数字左邻允许的标点（转义后的 &gt; 以「;」结尾）
+_INTG_TAIL = re.compile(r'\s*[~～\-–—―‐‑‒﹣﹘至到]\s*[' + _INTG_SGC + r']?\d')
 _INTG_OPEN, _INTG_CLOSE = "（(〔[", "）)〕]"
+_INTG_CJK = re.compile(r'^[一-鿿]{2,6}$')
+_INTG_LATIN = re.compile(r'^(?=.{2,8}$)[A-Za-z0-9]+(?: [A-Za-z0-9]+)?$')
+# 不当要点数的：门槛（比较号后「连续22周>20%」）、旧值（「由 72.8% 升至 78.0%」「前值 +22.8%」「较 11-09 的 +37.0%」「较前日 81.5%」）
+_INTG_NOTKEY = re.compile(r'(?:(?:&gt;|&lt;|[≥≤＞＜])=?|[由从自]|前值|较前[日周月值]|较[^，；。、/]{1,12}的)\s*$')
+
+
+def _intg_val(x):
+    return float(x.replace(",", ""))
+
+
+def _intg_nums(t):
+    """一段顶层文字里的带单位数字 → [(起, 止, 能否单独成格)]"""
+    out = []
+    for m in _INTG_RUN.finditer(t):
+        s, e = m.span()
+        run = m.group(0)
+        m0 = _INTG_EL0.match(run)
+        els, pos = [("",) + m0.groups()], m0.end()      # 每段＝(区间号, 正负号, 数, 单位)
+        while pos < len(run):
+            mk = _INTG_EL.match(run, pos)
+            els.append(mk.groups())
+            pos = mk.end()
+        left = t[:s]
+        lc, ls = left[-1:], left.rstrip(" 　")
+        ok = not _INTG_TAIL.match(t[e:])                # 后面还接着区间号/破折再跟数字 → 没取全
+        if ls != left and ls[-1:] and ls[-1] in _INTG_SIGNS + _INTG_ODD + "~～":
+            ok = False                                  # 号、破折或区间号后带空格：「- 3.8%」「…~ 9%」
+        elif not lc or lc.isalpha() or lc in _INTG_LEFT_OK:
+            pass                                        # 左邻是空、空白、文字或普通标点
+        elif els[0][1] and lc.isdigit():
+            k = len(left)                               # 号前是数字：只认「名字尾数 + 明确的正负号」（中证1000+0.5%）
+            while k > 0 and (left[k - 1].isdigit() or left[k - 1] in ".,"):
+                k -= 1
+            if not (els[0][1] in "+＋−－" and left[k - 1:k].isalpha()):
+                ok = False
+        else:
+            ok = False                                  # 其余左邻（横线、区间号、百分号、小数点……）一律认不准
+        if len(els) == 2:
+            (_, sg_a, a, u_a), (sep, sg_b, b, u_b) = els
+            sep = sep.strip()
+            if sep in ("~", "～"):
+                pass                                    # 波浪号区间，两端带不带号都算一个数
+            elif lc and lc.isalpha() and not sg_a:      # 首数是名字的尾巴
+                if sep == "-" and not u_a and not sg_b and _intg_val(a) > _intg_val(b):
+                    s += len(a)                         # 「沪深300-1.40%」：横杠当负号，从横杠起算
+                else:
+                    ok = False
+            elif not (not sg_a and not sg_b and _intg_val(a) < _intg_val(b)
+                      and (not u_a or u_a.strip() == u_b.strip())):
+                ok = False                              # 横杠串：只认两端不带号、前小后大
+        elif len(els) > 2:
+            ok = False
+        out.append((s, e, ok))
+    return out
 
 
 def _intg_split_top(s, sep):
@@ -1699,8 +1781,26 @@ def _intg_split_top(s, sep):
     return out
 
 
-def _intg_fmt_seg(seg, pol, why=""):
-    """一行正文：顶层括注降小字；首个数字=要点大数，其余数字加粗"""
+def _intg_split_slash(s):
+    """按顶层「/」拆并列项：只认后接空白、且前接空白或右括号的斜杠（12/8、A/B 这类不拆）"""
+    out, buf, dep = [], "", 0
+    for i, ch in enumerate(s):
+        if ch in _INTG_OPEN:
+            dep += 1
+        elif ch in _INTG_CLOSE:
+            dep = max(0, dep - 1)
+        if (ch == "/" and dep == 0 and 0 < i < len(s) - 1 and s[i + 1].isspace()
+                and (s[i - 1].isspace() or s[i - 1] in _INTG_CLOSE)):
+            out.append(buf)
+            buf = ""
+            continue
+        buf += ch
+    out.append(buf)
+    return [x.strip() for x in out]
+
+
+def _intg_parts(seg):
+    """一行拆成 [("t", 顶层文字) | ("p", 含括号的括注)]"""
     parts, buf, dep = [], "", 0
     for ch in seg:
         if ch in _INTG_OPEN:
@@ -1719,88 +1819,281 @@ def _intg_fmt_seg(seg, pol, why=""):
             buf += ch
     if buf:
         parts.append(("p" if dep else "t", buf))
-    big_done = [False]
+    return parts
 
-    def _num(m):
-        if not big_done[0]:
-            big_done[0] = True
-            return f'<b class="ig-big">{m.group(1)}</b>'
-        return f'<b class="ig-n">{m.group(1)}</b>'
-    html = ""
-    for kind, t in parts:
-        if kind == "t":
-            html += _INTG_NUM.sub(_num, t)
-        else:
-            html += '<span class="ig-par">' + _INTG_NUM.sub(lambda m: f'<b>{m.group(1)}</b>', t) + '</span>'
+
+def _intg_bold(t, cls=""):
+    """把一段文字里的带单位数字加粗"""
+    out, pos = "", 0
+    for s, e, _ in _intg_nums(t):
+        out += t[pos:s] + (f'<b class="{cls}">' if cls else "<b>") + t[s:e] + "</b>"
+        pos = e
+    return out + t[pos:]
+
+
+def _intg_inline(parts):
+    """行内排版：顶层数字加粗，括注降小字"""
+    return "".join(_intg_bold(t, "ig-n") if kind == "t"
+                   else '<span class="ig-par">' + _intg_bold(t) + '</span>' for kind, t in parts)
+
+
+def _intg_kv(parts):
+    """能排成「名目｜要点数｜附注」→ (名目段, 要点数, 附注段)；否则 None。parts 为已转义文字。
+    要点数＝顶层文字里第一个百分数，没有百分数则第一个 bp/pp 数（「12 月会累计 +25bp 76.1%」取 76.1%）；
+    门槛与旧值不当要点数。以下情形不排、整行照原文：顶层有拿不准的数字；名目为空；
+    数字后面紧接「、」（并列清单的第一项，单拎出来会误导）。"""
+    toks = [(idx, s, e, ok) for idx, (kind, t) in enumerate(parts) if kind == "t"
+            for s, e, ok in _intg_nums(t)]
+    if any(not ok for _, _, _, ok in toks):
+        return None
+    cand = [(idx, s, e) for idx, s, e, _ in toks if not _INTG_NOTKEY.search(parts[idx][1][:s])]
+    pick = next((c for c in cand if parts[c[0]][1][c[1]:c[2]].endswith("%")), cand[0] if cand else None)
+    if not pick:
+        return None
+    idx, s, e = pick
+    t = parts[idx][1]
+    pre = parts[:idx] + [("t", t[:s])]
+    post = [("t", t[e:])] + parts[idx + 1:]
+    if not "".join(x for _, x in pre).strip():
+        return None
+    if "".join(x for _, x in post).lstrip().startswith("、"):
+        return None
+    return pre, t[s:e], post
+
+
+def _intg_is_kv(seg):
+    """「名目 + 带单位数字」形态"""
+    return _intg_kv(_intg_parts(seg)) is not None
+
+
+def _intg_slash_rows(clause):
+    """顶层「 / 」并列、且每项都是「名目+数字」→ 各自成行；末项句尾的括注多半管整组，单列一行跟在组后。否则 []"""
+    sl = _intg_split_slash(clause)
+    if len(sl) < 2 or not all(_intg_is_kv(x) for x in sl):
+        return []
+    rows = [(x, "") for x in sl]
+    lp = _intg_parts(sl[-1])
+    if len(lp) >= 2 and lp[-1][0] == "p" and lp[-1][1][-1] in _INTG_CLOSE:
+        body = "".join(t for _, t in lp[:-1]).strip()
+        if _intg_is_kv(body):
+            rows[-1:] = [(body, ""), (lp[-1][1], "after")]
+    return rows
+
+
+def _intg_rows_of(seg):
+    """一段正文（已转义）→ [(文字, 行类型)]，行类型 ∈ ""/"lead"/"after"。
+    ① 句尾括注自身是「；」清单、且括号前只是名目不带数字 → 括号前为提要行，括注内按「；」「，」逐项成行；
+    ② 按顶层「，」分句后，某一句是「 / 」并列的「名目+数字」→ 该句各项成行，其余分句各自一行；
+    ③ 否则原样一行。"""
+    parts = _intg_parts(seg)
+    last = parts[-1][1] if parts else ""
+    if (len(parts) >= 2 and parts[-1][0] == "p" and last[0] in "（(" and last[-1] in "）)"
+            and "；" in last):
+        lead = "".join(t for _, t in parts[:-1]).strip()
+        items = [y.strip() for x in _intg_split_top(last[1:-1], "；") for y in _intg_split_top(x, "，")]
+        items = [x for x in items if x]
+        if lead and items and not any(_intg_nums(t) for k, t in parts[:-1] if k == "t"):
+            return [(lead, "lead")] + [(x, "") for x in items]
+    clauses = [c.strip() for c in _intg_split_top(seg, "，")]
+    clauses = [c for c in clauses if c]
+    split = [_intg_slash_rows(c) for c in clauses]
+    if any(split):
+        rows = []
+        for c, sp in zip(clauses, split):
+            rows += sp or [(c, "")]
+        return rows
+    return [(seg, "")]
+
+
+def _intg_tag(pol, why=""):
+    if pol not in ("bull", "bear"):
+        return ""
     _t = f' title="{why}"' if why else ""
-    tag = {"bull": f'<span class="ig-tag"{_t}>利好</span>', "bear": f'<span class="ig-tag"{_t}>利空</span>'}.get(pol, "")
-    cls = f" ig-{pol}" if pol in ("bull", "bear") else ""
-    return f'<div class="ig-row{cls}">{html}{tag}</div>'
+    return f'<span class="ig-tag ig-tag-{pol}"{_t}>{"利好" if pol == "bull" else "利空"}</span>'
+
+
+def _intg_row(seg, pol="", why="", kind="", gap=False):
+    """一行正文（seg 已转义）：名目｜要点数｜附注；排不成 → 通栏文字行（数字加粗）"""
+    parts = _intg_parts(seg)
+    cls = (" ig-gap" if gap else "") + (f" ig-{pol}" if pol in ("bull", "bear") else "")
+    tag = _intg_tag(pol, why)
+    kv = None if kind else _intg_kv(parts)
+    if kv:
+        pre, num, post = kv
+        return (f'<div class="ig-row ig-kv{cls}"><span class="ig-l">{_intg_inline(pre).strip()}{tag}</span>'
+                f'<b class="ig-big">{num}</b>'
+                f'<span class="ig-r">{_intg_inline(post).strip()}</span></div>')
+    k = {"lead": "ig-lead", "after": "ig-tx ig-after"}.get(kind, "ig-tx")
+    return f'<div class="ig-row {k}{cls}"><span>{_intg_inline(parts)}{tag}</span></div>'
+
+
+def _intg_seal(source):
+    """来源「项目·子项」（或「项目 子项」）→ (印章 HTML, 子项)。
+    项目名是 2~6 个汉字、或 8 字符内的拉丁名（如 EAL、X Board）才刻印；否则不刻，来源整串留在页脚。"""
+    source = (source or "").strip()
+    proj, _, sub = source.partition("·")
+    proj, sub = proj.strip(), sub.strip()
+    if not _ and not (_INTG_CJK.match(proj) or _INTG_LATIN.match(proj)):
+        _h, _sp, _t = source.partition(" ")
+        if _sp and _INTG_CJK.match(_h):
+            proj, sub = _h, _t.strip()
+    if _INTG_CJK.match(proj):
+        cols = {2: 1, 3: 1, 4: 2, 5: 3, 6: 3}[len(proj)]
+        cells = "".join(f"<i>{c}</i>" for c in proj)
+        return f'<span class="ig-seal c{cols}" title="来源：{source}">{cells}</span>', sub
+    if _INTG_LATIN.match(proj):
+        return f'<span class="ig-seal la" title="来源：{source}">{proj}</span>', sub
+    return "", source or "—"
 
 
 def _intg_card(i, n, _esc):
-    raw = (n.get("text") or "").strip()
-    src = _esc(n.get("source") or "—")
-    asof = _esc(n.get("as_of") or "—")
+    raw = str(n.get("text") or "").strip()
+    src = _esc(str(n.get("source") or "—")).replace('"', "&quot;")
+    asof = _esc(str(n.get("as_of") or "—"))
     pol = n.get("polarity") if n.get("polarity") in ("bull", "bear") else ""
     marks = [m for m in (n.get("marks") or []) if isinstance(m, dict)
-             and m.get("match") and m.get("pol") in ("bull", "bear")]
+             and isinstance(m.get("match"), str) and m["match"] and m.get("pol") in ("bull", "bear")]
+    # 标题＝括号外第一个「：」之前（≤40 字）；冒号在括号里的不算（「（口径：…）」）
     head_txt, rest = "", raw
-    _c = raw.find("：")
-    if 0 < _c <= 40:
-        head_txt, rest = raw[:_c], raw[_c + 1:]
+    _hs = _intg_split_top(raw, "：")
+    if len(_hs) >= 2 and 0 < len(_hs[0]) <= 40:
+        head_txt, rest = _hs[0], "：".join(_hs[1:])
     _tail = _intg_split_top(rest, "——")
     body_txt, foot = _tail[0], "——".join(_tail[1:]).strip()
-    rows = []
+    rows, _prev_n = [], 0
     for seg in _intg_split_top(body_txt, "；"):
         seg = seg.strip()
         if not seg:
             continue
-        _m = next((m for m in marks if m["match"] in seg), None)
-        rows.append(_intg_fmt_seg(_esc(seg), _m["pol"] if _m else "",
-                                  _esc(str(_m.get("why") or "")).replace('"', "&quot;") if _m else ""))
+        subs = _intg_rows_of(_esc(seg))
+        # 标注逐行找：含该子串的行着色（一行命中多条取先写的那条）；
+        # 子串跨行（这一段里哪一行都不完整包含）→ 这一段里还没着色的行全部着色
+        _row_m = [None] * len(subs)
+        for m in marks:
+            if m["match"] not in seg:
+                continue
+            _on = [_esc(m["match"]) in t for t, _ in subs]
+            if not any(_on):
+                _on = [True] * len(subs)
+            for k in range(len(subs)):
+                if _on[k] and _row_m[k] is None:
+                    _row_m[k] = m
+        # 原文用「；」分开的两组，其中一组拆成了多行 → 组间留一道实线，免得压平成同级
+        _gap = bool(rows) and (len(subs) > 1 or _prev_n > 1)
+        for k, (t, kind) in enumerate(subs):
+            _m = _row_m[k]
+            _why = _esc(str(_m.get("why") or "")).replace('"', "&quot;") if _m else ""
+            rows.append(_intg_row(t, _m["pol"] if _m else "", _why, kind=kind, gap=_gap and k == 0))
+        _prev_n = len(subs)
+    # 标题：句尾的全角括注（如「（12/8-9 会次）」）降为副题；半角括号多是名字的一部分（P(hike)），不动
+    hmain, hsub = _esc(head_txt), ""
+    hp = _intg_parts(hmain)
+    if (len(hp) >= 2 and hp[-1][0] == "p" and sum(1 for k, _ in hp if k == "p") == 1
+            and hp[-1][1][0] == "（" and hp[-1][1][-1] == "）" and "".join(t for _, t in hp[:-1]).strip()):
+        hmain, hsub = "".join(t for _, t in hp[:-1]).strip(), hp[-1][1][1:-1].strip()
+    seal, sub = _intg_seal(src)
     cls = f" ig-{pol}" if pol else ""
     _pw = _esc(str(n.get("polarity_why") or "")).replace('"', "&quot;") if pol else ""
-    return (f'<div class="card ig-card{cls}"' + (f' title="{_pw}"' if _pw else "") + '>'
-            f'<div class="ig-meta"><span class="ig-no">{i:02d}</span><span class="ig-src">{src}</span>'
-            f'<span class="ig-asof">as_of {asof}</span></div>'
-            + (f'<div class="ig-head">{_esc(head_txt)}</div>' if head_txt else "")
+    top = ""
+    if seal or hmain or pol:      # 没标题也要让整条的利好/利空看得见
+        top = ('<div class="ig-top">' + seal
+               + (f'<div class="ig-head">{hmain}'
+                  + (f' <span class="ig-hsub">{hsub}</span>' if hsub else "")
+                  + f'{_intg_tag(pol, _pw)}</div>' if hmain else _intg_tag(pol, _pw))
+               + '</div>')
+    return (f'<div class="ig-note{cls}"' + (f' title="{_pw}"' if _pw else "") + '>'
+            + top
             + f'<div class="ig-body">{"".join(rows)}</div>'
             + (f'<div class="ig-foot">{_esc(foot)}</div>' if foot else "")
+            + f'<div class="ig-meta"><span class="ig-src">{sub}</span>'
+              f'<span class="ig-asof">as_of {asof}</span></div>'
             + '</div>')
 
 
 _INTG_STYLE = (
     "<style>"
-    ".ig-wrap{--bull:#b4472c;--bull-g:#9a7432;--bull-bg:#fbefe4;--bear:#2a7a6c;--bear-bg:#e9f3ef}"
-    ".ig-card{margin-top:10px;position:relative;padding:15px 18px 13px 20px;overflow:hidden}"
-    ".ig-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line)}"
-    ".ig-card.ig-bull::before{background:linear-gradient(180deg,var(--bull),var(--bull-g))}"
-    ".ig-card.ig-bear::before{background:var(--bear)}"
-    ".ig-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--sub)}"
-    ".ig-no{font-family:var(--num);font-weight:600;color:var(--gold);letter-spacing:.5px}"
-    ".ig-src{background:#fbf8ef;border:1px solid var(--line);border-radius:999px;padding:1px 8px}"
-    ".ig-asof{margin-left:auto;font-variant-numeric:tabular-nums}"
-    ".ig-head{font-family:var(--zh);font-size:19px;font-weight:700;color:var(--tx);"
-    "margin:8px 0 6px;line-height:1.35;letter-spacing:.3px}"
-    ".ig-card.ig-bull .ig-head{color:var(--bull)}.ig-card.ig-bear .ig-head{color:var(--bear)}"
-    ".ig-body{display:flex;flex-direction:column;gap:5px}"
-    ".ig-row{font-size:14.5px;line-height:1.6;color:var(--tx);padding:3px 0 3px 10px;"
-    "border-left:2px solid var(--line);border-radius:0 6px 6px 0}"
-    ".ig-big{font-family:var(--num);font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;"
-    "letter-spacing:0;margin:0 2px;line-height:1}"
+    ".ig-wrap{--bull:#b4472c;--bull-g:#9a7432;--bull-bg:#fbefe4;--bear:#2a7a6c;--bear-bg:#e9f3ef;"
+    "--seal:#a8442f;--rule:#e2decf;--ink2:#45443f;--faint:#9a9386}"
+    ".card.ig-sheet{padding:0}.ig-sheet>*{position:relative;z-index:1}"
+    # 栏：界行用每格右/下各 1px 外影画，容器裁掉最外一圈；换行后行间有线、末行空格上沿也有线
+    ".ig-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));overflow:hidden}"
+    ".ig-note{container-type:inline-size;position:relative;display:flex;flex-direction:column;min-width:0;padding:22px 24px 14px;"
+    "box-shadow:1px 0 0 var(--rule),0 1px 0 var(--rule)}"
+    ".ig-note.ig-bull{box-shadow:1px 0 0 var(--rule),0 1px 0 var(--rule),inset 0 3px 0 var(--bull)}"
+    ".ig-note.ig-bear{box-shadow:1px 0 0 var(--rule),0 1px 0 var(--rule),inset 0 3px 0 var(--bear)}"
+    ".ig-top{display:flex;align-items:center;gap:13px;min-height:42px}"
+    # 印：来源项目名，朱文方印
+    ".ig-seal{flex:none;display:grid;grid-template-columns:repeat(2,1em);gap:1px;padding:4px;"
+    "font:700 12px/1.1 var(--zh);letter-spacing:0;color:var(--seal);"
+    "border:1.5px solid var(--seal);border-radius:3px;transform:rotate(-2deg);cursor:default}"
+    ".ig-seal i{font-style:normal;text-align:center}"
+    ".ig-note:nth-child(3n+2) .ig-seal{transform:rotate(1.4deg)}.ig-note:nth-child(3n) .ig-seal{transform:rotate(-.7deg)}"
+    ".ig-seal.c1{grid-template-columns:1em}.ig-seal.c3{grid-template-columns:repeat(3,1em)}"
+    ".ig-seal.la{display:block;font-size:11px;letter-spacing:.6px;padding:6px 5px}"
+    ".ig-head{min-width:0;font-family:var(--zh);font-size:19px;font-weight:700;color:var(--tx);"
+    "line-height:1.3;letter-spacing:.3px}"
+    ".ig-note.ig-bull .ig-head{color:var(--bull)}.ig-note.ig-bear .ig-head{color:var(--bear)}"
+    ".ig-hsub{font-size:12px;font-weight:400;color:var(--sub);letter-spacing:0;white-space:nowrap}"
+    # 账目行：名目｜要点数｜附注
+    ".ig-body{display:grid;grid-template-columns:fit-content(46%) max-content minmax(0,1fr);"
+    "column-gap:12px;margin-top:14px}"
+    ".ig-row{grid-column:1/-1;display:grid;grid-template-columns:subgrid;align-items:baseline;"
+    "padding:7px 0;border-top:1px dotted var(--rule);font-size:14px;line-height:1.5;color:var(--tx)}"
+    "@supports not (grid-template-columns:subgrid){.ig-row{grid-template-columns:fit-content(46%) max-content minmax(0,1fr);column-gap:12px}}"
+    ".ig-row:first-child{border-top:0}"
+    ".ig-row>span:only-child{grid-column:1/-1}"
+    # 窄栏：附注落到名目下一行，要点数贴右
+    "@container (max-width:400px){.ig-body{grid-template-columns:minmax(0,1fr) max-content}"
+    ".ig-r{grid-column:1/-1;margin-top:1px}.ig-r:empty{display:none}}"
+    ".ig-lead{font-size:15px;font-weight:600;letter-spacing:.2px}"
+    ".ig-lead+.ig-row{border-top-style:solid}"
+    ".ig-row.ig-gap{border-top:1px solid var(--rule);margin-top:8px;padding-top:11px}"
+    ".ig-row.ig-after{border-top:0;padding-top:0;margin-top:-4px}"
+    ".ig-big{font-family:var(--num);font-size:20px;font-weight:700;line-height:1.15;text-align:right;"
+    "font-variant-numeric:tabular-nums lining-nums;letter-spacing:0}"
+    ".ig-r{font-size:13px;color:var(--ink2)}"
     ".ig-n{font-family:var(--num);font-weight:600;font-variant-numeric:tabular-nums}"
     ".ig-par{font-size:12px;color:var(--sub)}"
-    ".ig-row.ig-bull{border-left-color:var(--bull-g);background:var(--bull-bg)}"
+    ".ig-row.ig-bull,.ig-row.ig-bear{border-radius:6px;border-top-color:transparent;padding:7px 9px;margin:0 -9px}"
+    ".ig-row.ig-bull+.ig-row,.ig-row.ig-bear+.ig-row{border-top-color:transparent}"
+    ".ig-row.ig-bull{background:var(--bull-bg)}.ig-row.ig-bear{background:var(--bear-bg)}"
+    ".ig-row.ig-gap.ig-bull,.ig-row.ig-gap.ig-bear{margin-top:12px}"
     ".ig-row.ig-bull .ig-big,.ig-row.ig-bull .ig-n{color:var(--bull)}"
-    ".ig-row.ig-bear{border-left-color:var(--bear);background:var(--bear-bg)}"
     ".ig-row.ig-bear .ig-big,.ig-row.ig-bear .ig-n{color:var(--bear)}"
-    ".ig-tag{font-size:10px;font-weight:600;border-radius:999px;padding:1px 7px;margin-left:8px;"
-    "vertical-align:2px;white-space:nowrap}"
-    ".ig-bull .ig-tag{color:#fff;background:linear-gradient(90deg,var(--bull),var(--bull-g))}"
-    ".ig-bear .ig-tag{color:#fff;background:var(--bear)}"
-    ".ig-foot{font-size:11px;color:var(--sub);margin-top:8px;padding-top:7px;"
-    "border-top:1px dashed var(--line);line-height:1.5}"
+    ".ig-tag{display:inline-block;font:600 10px/1.5 var(--zh);letter-spacing:.5px;border-radius:999px;"
+    "padding:0 7px;margin-left:8px;vertical-align:2px;white-space:nowrap;color:#fff}"
+    ".ig-tag-bull{background:linear-gradient(90deg,var(--bull),var(--bull-g))}"
+    ".ig-tag-bear{background:var(--bear)}"
+    ".ig-top>.ig-tag{margin-left:0}"
+    ".ig-foot{margin-top:12px;padding-left:10px;border-left:2px solid var(--rule);"
+    "font-size:11.5px;line-height:1.6;color:var(--sub)}"
+    ".ig-meta{margin-top:auto;padding-top:14px;display:flex;justify-content:space-between;gap:12px;"
+    "font-size:10.5px;color:var(--faint);font-variant-numeric:tabular-nums}"
+    ".ig-src{min-width:0;overflow-wrap:anywhere}.ig-asof{flex:none}"
+    # 持仓命中红条
+    ".ig-hit{padding:11px 24px;border-top:1px solid rgba(192,57,43,.35);background:#fbeeea;"
+    "color:#c0392b;font-size:13.5px;font-weight:600}"
+    ".ig-hit span{display:block;font-size:11px;font-weight:400;margin-top:2px;color:#a2463b}"
+    # 今日无
+    ".ig-empty{padding:26px 24px 22px}"
+    ".ig-empty b{display:block;font:600 22px/1.3 var(--zh);color:var(--faint);letter-spacing:2px}"
+    ".ig-empty span{display:block;font-size:11.5px;color:var(--sub);margin-top:6px}"
+    # 页脚：固定槽位
+    ".ig-slots{display:grid;grid-template-columns:auto minmax(0,1fr);border-top:1px solid var(--rule);"
+    "background:rgba(238,230,214,.32)}"
+    ".ig-slots-k{writing-mode:vertical-rl;padding:12px 9px;font-size:11px;letter-spacing:4px;"
+    "color:var(--faint);border-right:1px solid var(--rule);text-align:center}"
+    ".ig-slot-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));overflow:hidden}"
+    ".ig-slot{min-width:0;padding:12px 20px;box-shadow:1px 0 0 var(--rule),0 1px 0 var(--rule)}"
+    ".ig-slot-h{display:flex;justify-content:space-between;gap:12px;align-items:baseline;"
+    "font-size:12.5px;font-weight:600;color:var(--ink2);letter-spacing:.3px}"
+    ".ig-slot-h span{flex:none;font-size:10.5px;font-weight:400;color:var(--faint);letter-spacing:0;"
+    "font-variant-numeric:tabular-nums}"
+    ".ig-slot-v{margin-top:3px;font-size:14px;line-height:1.55;color:var(--tx)}"
+    ".ig-slot-v.na{color:var(--faint)}"
+    ".ig-slot-s{margin-top:4px;font-size:10.5px;line-height:1.5;color:var(--faint);overflow-wrap:anywhere}"
+    "@media (max-width:640px){.ig-note{padding:18px 16px 12px}.ig-hit,.ig-empty{padding-left:16px;padding-right:16px}"
+    ".ig-slot{padding:11px 14px}}"
     "</style>")
 
 
@@ -1809,51 +2102,53 @@ def integration_section(D):
             '<span class="vintage">体系提炼摘录 ｜ 来源=上游项目提炼结论（非原始数据）｜ 转述不改判 ｜ 无增量如实标注</span></h2>')
     _esc = lambda s: (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
     it = D.get("integration")
-    notes = (it or {}).get("notes") or []
+    notes = it.get("notes") if isinstance(it, dict) else None
+    notes = notes if isinstance(notes, list) else []
     rows = []
     for n in notes[:8]:
-        if not (n.get("text") or "").strip():
+        if not isinstance(n, dict) or not str(n.get("text") or "").strip():
             continue
         rows.append(_intg_card(len(rows) + 1, n, _esc))
-    # L3 固定槽位（2026-11-06）：EAL 宏观惊奇 / 星空 NE 恒显两卡，无当日产物显「无」（不编数）
+    # L3 固定槽位（2026-11-06）：EAL 宏观惊奇 / 星空 NE 恒显两格，无当日产物显「无」（不编数）
     _slots = D.get("integration_slots") or {}
     _slot_rows = []
     for _key, _label in (("eal", "EAL · 宏观惊奇"), ("starry_ne", "星空 · Newly Emerged 新出现信号")):
-        _sv = _slots.get(_key) or {"text": "无（槽位未计算）", "source": "—", "as_of": "—"}
-        _st = _esc((_sv.get("text") or "无").strip())
+        _sv = _slots.get(_key) if isinstance(_slots, dict) else None
+        if not isinstance(_sv, dict) or not _sv:
+            _sv = {"text": "无（槽位未计算）", "source": "—", "as_of": "—"}
+        _st = _esc(str(_sv.get("text") or "").strip() or "无")
         _na = _st.startswith("无")
         _slot_rows.append(
-            f'<div class="card" style="margin-top:8px"><div class="k">固定槽位 · {_label}'
-            f'<span class="sub" style="float:right;font-weight:400">as_of {_esc(_sv.get("as_of") or "—")}</span></div>'
-            + (f'<div class="v na" style="font-size:18px;margin-top:3px">{_st}</div>' if _na else
-               f'<div style="margin-top:4px">{_st}</div>')
-            + f'<div class="sub" style="font-size:11px;margin-top:4px">来源：{_esc(_sv.get("source") or "—")}'
-            + (f' · {_esc(_sv.get("note"))}' if _sv.get("note") else "") + '</div></div>')
+            f'<div class="ig-slot"><div class="ig-slot-h">{_label}'
+            f'<span>as_of {_esc(str(_sv.get("as_of") or "—"))}</span></div>'
+            f'<div class="ig-slot-v{" na" if _na else ""}">{_st}</div>'
+            f'<div class="ig-slot-s">来源：{_esc(str(_sv.get("source") or "—"))}'
+            + (f' · {_esc(str(_sv.get("note")))}' if _sv.get("note") else "") + '</div></div>')
+    slots_html = ('<div class="ig-slots"><div class="ig-slots-k">固定槽位</div>'
+                  f'<div class="ig-slot-list">{"".join(_slot_rows)}</div></div>')
     if not rows:
-        body = ('<div class="card"><div class="k">隔日关注 · 体系提炼摘录</div>'
-                '<div class="v na" style="font-size:22px;margin-top:3px">今日无</div>'
-                '<div class="sub" style="font-size:11px;margin-top:4px">'
-                '上游提炼产物无新增量（或摘录步未跑/上游缺失）——不空栏不编造</div></div>') + "".join(_slot_rows)
+        body = ('<div class="ig-empty"><b>今日无</b>'
+                '<span>上游提炼产物无新增量（或摘录步未跑/上游缺失）——不空栏不编造</span></div>')
     else:
-        body = "".join(rows)
+        body = f'<div class="ig-cols">{"".join(rows)}</div>'
         # 持仓命中复核提示（2026-10-21 Doctor 批「3、轻量修复」：摘录条目文本命中龙鱼持仓清单 →
-        # 栏尾红框提示复核仓位；读不到 holdings → 静默不显示；动作归 Doctor，本行只是触发）
+        # 条目后红条提示复核仓位；读不到 holdings → 静默不显示；动作归 Doctor，本行只是触发）
         _hit = []
         for n in notes[:8]:
-            _txt = n.get("text") or ""
+            _txt = str(n.get("text") or "") if isinstance(n, dict) else ""
             for h in (D.get("holdings") or []):
-                _nm, _cd = h.get("name") or "", h.get("code") or ""
+                if not isinstance(h, dict):
+                    continue
+                _nm, _cd = str(h.get("name") or ""), str(h.get("code") or "")
                 if (_nm and _nm in _txt) or (_cd and _cd.split(".")[0] and _cd.split(".")[0] in _txt):
                     _hit.append(_nm or _cd)
                     break
         if _hit:
             _hit = sorted(set(_hit))
-            body += (f'<div class="card" style="margin-top:10px;border:1.5px solid #c0392b">'
-                     f'<div class="k" style="color:#c0392b">⚠ 摘录命中持仓标的（{"、".join(_hit)}）</div>'
-                     f'<div class="sub" style="font-size:11px;margin-top:4px">'
-                     f'建议复核仓位——本行仅为体系内信号触发的复核提示，动作归您</div></div>')
-        body += "".join(_slot_rows)
-    return _INTG_STYLE + head + f'<div class="ig-wrap" style="margin:6px 0 16px">{body}</div>'
+            body += (f'<div class="ig-hit">⚠ 摘录命中持仓标的（{"、".join(_esc(x) for x in _hit)}）'
+                     f'<span>建议复核仓位——本行仅为体系内信号触发的复核提示，动作归您</span></div>')
+    return (_INTG_STYLE + head
+            + f'<div class="ig-wrap" style="margin:6px 0 16px"><div class="card ig-sheet">{body}{slots_html}</div></div>')
 
 
 def _font_face():
