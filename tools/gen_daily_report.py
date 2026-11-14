@@ -1702,13 +1702,51 @@ _INTG_EL0 = re.compile(r'([' + _INTG_SGC + r']?)(' + _INTG_N + r')(\s*' + _INTG_
 _INTG_EL = re.compile(r'(\s*[~～]\s*|[\-–])([' + _INTG_SGC + r']?)(' + _INTG_N + r')(\s*' + _INTG_U + r')?')
 _INTG_SIGNS = "+-−－＋±–"
 _INTG_ODD = "—―‐‑‒﹣﹘"                       # 可能是负号也可能是破折的横线字符
-_INTG_LEFT_OK = " \u3000\t（(〔[「『《\"'“‘=＝:：，、;；/|·→↑↓≥≤＞＜"    # 数字左邻允许的标点（转义后的 &gt; 以「;」结尾）
+_INTG_ARROW_STYLE = frozenset(
+    "RIGHTWARDS ARROW ARROWS ARROWHEAD POINTING DIRECTLY RIGHT "            # 方向与本体
+    "LONG DOUBLE TRIPLE TWO THREE HEADED PAIRED WAVE SQUIGGLE DASHED DASH "  # 线形
+    "WHITE BLACK HEAVY OPEN TRIANGLE WIDE ROUND TIPPED DRAFTING POINT SQUAT CONCAVE POINTED "
+    "SHADED SHADOWED TILTED BACK FRONT LOWER NOTCHED FEATHERED TEARDROP BARBED SHANKED "
+    "WEDGE TAILED OUTLINED EQUILATERAL D TOP BOTTOM LIGHTED".split())         # 字重与装饰
+
+
+def _intg_right_arrows():
+    """「旧值 → 新值」只认**纯右向箭头**：Unicode 箭头区段（Arrows / Supplemental Arrows-A/B / Misc Symbols and Arrows /
+    Dingbat 箭头）里，字符名指向右边、且名中每个词都只是线形与装饰（_INTG_ARROW_STYLE）的字符。
+    名中出现任何别的词即不认——左/上/下/斜向（LEFT、UP、NORTH…）、带否定或关系含义（STROKE「不→」、THROUGH X、
+    EQUALS/TILDE/GREATER-THAN/SUBSET ABOVE、PLUS BELOW）、带端点修饰（FROM BAR、TO BAR、WITH HOOK/LOOP/TAIL）。
+    按词表正向筛，不按黑名单逐个排除；结果 51 个，测试里钉死。"""
+    import unicodedata
+    out = []
+    for lo, hi in ((0x2190, 0x21FF), (0x27F0, 0x27FF), (0x2900, 0x297F), (0x2B00, 0x2BFF), (0x2794, 0x27BF)):
+        for cp in range(lo, hi + 1):
+            n = unicodedata.name(chr(cp), "")
+            if n and ("RIGHTWARDS" in n or "POINTING DIRECTLY RIGHT" in n) and set(re.split(r"[ \-]", n)) <= _INTG_ARROW_STYLE:
+                out.append(chr(cp))
+    return "".join(out)
+
+
+_INTG_ARROW_CH = re.escape(_intg_right_arrows())
+_INTG_ARROW1 = re.compile('[' + _INTG_ARROW_CH + ']')
+_INTG_LEFT_OK = " \u3000\t（(〔[「『《\"'“‘=＝:：，、;；/|·→⇒➜➔⟶↑↓≥≤＞＜"    # 数字左邻允许的标点（转义后的 &gt; 以「;」结尾）
+_INTG_GLUE = re.compile(r'[^\s\u3000\u4e00-\u9fff（(〔[「『《"\'“‘，、；;。：＝=|·' + _INTG_ARROW_CH + r']*$')   # 数字左侧紧贴的非汉字词（遇空白/汉字/开括号/逗顿分号，以及名目分隔「：＝=|·」、箭头「→」即断；「/」「:」不断——「28/72%」「55:45%」是成对读数）
+_INTG_ARROWS = r'(?:[' + _INTG_ARROW_CH + r']|[\-–—~]+\s?&gt;)(?:\s?(?:[' + _INTG_ARROW_CH + r']|[\-–—~]+\s?&gt;))*'   # 箭头＝Unicode 箭头字符，或 ASCII 拼法「横/波浪若干＋(空格)＋>」（转义后为 &gt;），可重复。「=>」「==>」不是箭头（Doctor 2026-11-14 裁），也不是门槛 ≥——当普通符号，不赋予含义
+_INTG_ARROW_NEXT = re.compile(r'\s*' + _INTG_ARROWS + r'\s*(?:约|≈)?\s*[' + _INTG_SGC + r']?\d')
+# 数字后接「升至/回落至/下行至…＋数」：前一个是旧值（「hike 74.9% 升至 81.2%」取 81.2%）
+_INTG_MOVE_NEXT = re.compile(r'\s*(?:[升降涨跌]|回[落升调]|上[升行调涨]|下[降行跌调]|提升|扩大|收窄|放大|缩小)[至到]\s*(?:约|≈)?\s*['
+                             + _INTG_SGC + r']?\d')   # 箭头后紧跟数字＝同一读数的新值（「→ 沪深300…」另起名目，不算）
+# 对称名目的成对读数：名目本身带斜杠且段数与数字段数相同（「hold/hike 28/72%」「cut/hold/hike 10 / 30 / 60%」）→ 整组成一格，
+# 缺单位的段补上末段单位（补的字包在 ig-fill 里，对账时剔除）。名目段不含数字（「+25bp/+50bp 88.5/11.5%」不认）。
+_INTG_PAIRL = re.compile(r'(?:^|(?<=[\s\u3000（(，、；;：:]))([^\s\u3000/（()）\d]+(?:/[^\s\u3000/（()）\d]+)+)\s+'
+                         r'((?:[' + _INTG_SGC + r']?' + _INTG_N + r'(?:\s*' + _INTG_U + r')?\s*/\s*)+)$')
+_INTG_LEADNUM = re.compile(r'[' + _INTG_SGC + r']?' + _INTG_N + r'\s*' + _INTG_U)
+_INTG_BARE_END = re.compile(r'(?<![\d.,])' + _INTG_N + r'$')
 _INTG_TAIL = re.compile(r'\s*[~～\-–—―‐‑‒﹣﹘至到]\s*[' + _INTG_SGC + r']?\d')
 _INTG_OPEN, _INTG_CLOSE = "（(〔[", "）)〕]"
 _INTG_CJK = re.compile(r'^[一-鿿]{2,6}$')
 _INTG_LATIN = re.compile(r'^(?=.{2,8}$)[A-Za-z0-9]+(?: [A-Za-z0-9]+)?$')
 # 不当要点数的：门槛（比较号后「连续22周>20%」）、旧值（「由 72.8% 升至 78.0%」「前值 +22.8%」「较 11-09 的 +37.0%」「较前日 81.5%」）
-_INTG_NOTKEY = re.compile(r'(?:(?:&gt;|&lt;|[≥≤＞＜])=?|[由从自]|前值|较前[日周月值]|较[^，；。、/]{1,12}的)\s*$')
+_INTG_NOTKEY = re.compile(r'(?:(?:(?<![\-–—=~])(?<![\-–—=~]\s)&gt;|&lt;|[≥≤＞＜])=?|[由从自]|前值|较前[日周月值]|较[^，；。、/]{1,12}的)\s*$')
 
 
 def _intg_val(x):
@@ -1732,7 +1770,7 @@ def _intg_nums(t):
         ok = not _INTG_TAIL.match(t[e:])                # 后面还接着区间号/破折再跟数字 → 没取全
         if ls != left and ls[-1:] and ls[-1] in _INTG_SIGNS + _INTG_ODD + "~～":
             ok = False                                  # 号、破折或区间号后带空格：「- 3.8%」「…~ 9%」
-        elif not lc or lc.isalpha() or lc in _INTG_LEFT_OK:
+        elif not lc or lc.isalpha() or lc in _INTG_LEFT_OK or _INTG_ARROW1.match(lc):
             pass                                        # 左邻是空、空白、文字或普通标点
         elif els[0][1] and lc.isdigit():
             k = len(left)                               # 号前是数字：只认「名字尾数 + 明确的正负号」（中证1000+0.5%）
@@ -1742,6 +1780,15 @@ def _intg_nums(t):
                 ok = False
         else:
             ok = False                                  # 其余左邻（横线、区间号、百分号、小数点……）一律认不准
+        lg = left.rstrip(" \u3000\t")
+        lg = lg if lg[-1:] in "/:" else left                  # 「28/ 72%」：斜杠/冒号后带空格也算紧贴（「tier 4 / 1.0%」号前有空格，不算）
+        pm = _INTG_PAIRL.search(left) if len(els) == 1 else None
+        if ok and pm and pm.group(1).count("/") == pm.group(2).count("/"):
+            s = pm.start(2)                             # 对称名目的成对读数：整组成一格
+            while out and out[-1][0] >= s:
+                out.pop()                               # 组内前几段若已单独认出，并入本格
+        elif ok and lc and not lc.isdigit() and re.search(r'\d', _INTG_GLUE.search(lg).group(0)):
+            ok = False                                  # 紧贴的左侧词里有数字：「1e-3%」「28/72%」「55:45%」
         if len(els) == 2:
             (_, sg_a, a, u_a), (sep, sg_b, b, u_b) = els
             sep = sep.strip()
@@ -1837,6 +1884,17 @@ def _intg_inline(parts):
                    else '<span class="ig-par">' + _intg_bold(t) + '</span>' for kind, t in parts)
 
 
+def _intg_is_old(parts, idx, e):
+    """parts[idx] 里止于 e 的数字是不是旧值：后面紧跟「箭头＋数」或「升至/回落至…＋数」；
+    中间隔一个括注也算（「72.8%（非农前）→ 78.0%（非农后）」）"""
+    tail = parts[idx][1][e:]
+    nxt = lambda x: bool(_INTG_ARROW_NEXT.match(x) or _INTG_MOVE_NEXT.match(x))
+    if nxt(tail):
+        return True
+    return (not tail.strip() and idx + 2 < len(parts) and parts[idx + 1][0] == "p"
+            and parts[idx + 2][0] == "t" and nxt(parts[idx + 2][1]))
+
+
 def _intg_kv(parts):
     """能排成「名目｜要点数｜附注」→ (名目段, 要点数, 附注段)；否则 None。parts 为已转义文字。
     要点数＝顶层文字里第一个百分数，没有百分数则第一个 bp/pp 数（「12 月会累计 +25bp 76.1%」取 76.1%）；
@@ -1846,7 +1904,8 @@ def _intg_kv(parts):
             for s, e, ok in _intg_nums(t)]
     if any(not ok for _, _, _, ok in toks):
         return None
-    cand = [(idx, s, e) for idx, s, e, _ in toks if not _INTG_NOTKEY.search(parts[idx][1][:s])]
+    cand = [(idx, s, e) for idx, s, e, _ in toks if not _INTG_NOTKEY.search(parts[idx][1][:s])
+            and not _intg_is_old(parts, idx, e)]       # 箭头/「升至」前的是旧值：「72%→81%」取 81%
     pick = next((c for c in cand if parts[c[0]][1][c[1]:c[2]].endswith("%")), cand[0] if cand else None)
     if not pick:
         return None
@@ -1858,7 +1917,21 @@ def _intg_kv(parts):
         return None
     if "".join(x for _, x in post).lstrip().startswith("、"):
         return None
-    return pre, t[s:e], post
+    return pre, _intg_fill(t[s:e]), post
+
+
+def _intg_fill(num):
+    """成对读数「28/72%」→ 缺单位的段补末段单位「28%/72%」（补的字包 ig-fill）；非成对原样返回"""
+    m = re.search(r'(%|bp|pp)\s*$', num)
+    if "/" not in num or not m:
+        return num
+    out = []
+    for piece in re.split(r'(\s*/\s*)', num):
+        if "/" in piece or re.search(r'(%|bp|pp)\s*$', piece):
+            out.append(piece)
+        else:
+            out.append(piece + f'<span class="ig-fill">{m.group(1)}</span>')
+    return "".join(out)
 
 
 def _intg_is_kv(seg):
@@ -1869,7 +1942,16 @@ def _intg_is_kv(seg):
 def _intg_slash_rows(clause):
     """顶层「 / 」并列、且每项都是「名目+数字」→ 各自成行；末项句尾的括注多半管整组，单列一行跟在组后。否则 []"""
     sl = _intg_split_slash(clause)
-    if len(sl) < 2 or not all(_intg_is_kv(x) for x in sl):
+    if len(sl) < 2:
+        return []
+    if not all(_intg_is_kv(x) for x in sl):
+        # 「tier 4 / 1.0% 仓位」：前项以裸数结尾、后项以带单位数开头 → 各自成行，免得名目挂悬空斜杠；
+        # 对称名目的成对读数（「hold/hike 28 / 72%」）不拆
+        kv = _intg_kv(_intg_parts(clause))
+        if kv and "/" in kv[1]:
+            return []
+        if any(_INTG_LEADNUM.match(sl[i]) and _INTG_BARE_END.search(sl[i - 1]) for i in range(1, len(sl))):
+            return [(x, "") for x in sl]
         return []
     rows = [(x, "") for x in sl]
     lp = _intg_parts(sl[-1])

@@ -45,6 +45,7 @@ def fragments(card_html):
     h = card_html[:card_html.index('<div class="ig-meta">')]
     h = re.sub(r'<span class="ig-seal[^>]*>.*?</span>', "\0", h, flags=re.S)
     h = re.sub(r'<span class="ig-tag[^>]*>[^<]*</span>', "\0", h)
+    h = re.sub(r'<span class="ig-fill">[^<]*</span>', "", h)                  # 成对读数补的单位不是原文
     h = re.sub(r'<b class="ig-big">([^<]*)</b>', "\0\\1\0", h)
     h = re.sub(r'</?b(?: class="ig-n")?>', "", h)                              # 行内加粗不算分格
     h = re.sub(r'<span class="ig-par">(.*?)</span>', r"\1", h, flags=re.S)     # 括注小字不算分格
@@ -80,7 +81,9 @@ _U = r"\s*(?:%|bp|pp)"
 _NUM_OK = re.compile(                                   # 要点数白名单
     "^(?:[%s]?%s%s"                                     # 单个数，可带号
     "|[%s]?%s(?:%s)?\\s*[~～]\\s*[%s]?%s%s"              # 波浪号区间，两端可带号
-    "|%s(?:%s)?[\\-–]%s%s)$" % (_SG, _N, _U, _SG, _N, _U, _SG, _N, _U, _N, _U, _N, _U))
+    "|%s(?:%s)?[\\-–]%s%s"                               # 横杠区间
+    "|(?:[%s]?%s%s\\s*/\\s*)+[%s]?%s%s)$"                  # 成对读数（补齐单位后每段都带单位）
+    % (_SG, _N, _U, _SG, _N, _U, _SG, _N, _U, _N, _U, _N, _U, _SG, _N, _U, _SG, _N, _U))
 _LABEL_BAD_END = re.compile(r"[+\-−－＋±–—―‐‑‒﹣﹘~～]\s*$")
 _NOTE_BAD_START = re.compile(r"^\s*[~～\-–—―‐‑‒﹣﹘至到]\s*[+\-−－＋±–]?\d")
 
@@ -100,6 +103,9 @@ def cell_violations(raw, card_html):
             out.append("附注以区间号+数字开头：%r｜%r" % (num, note))
         if lab and (lab[-1].isdigit() or lab[-1] in ".,") and num[0] not in "+-−－＋±–" and (lab + num) in raw:
             out.append("数字被从中间拆开：%r｜%r" % (lab, num))
+        if lab and (lab + num) in raw and not lab[-1].isspace() and not (lab[-1].isdigit() and num[0] in "+-−－＋±–") \
+                and re.search(r"\d", re.search(r"[^\s\u3000\u4e00-\u9fff（(〔\[「『《\"'“‘，、；;。：＝=→|·]*$", lab).group(0)):
+            out.append("紧贴的名目尾词里有数字（数被从中间拆开）：%r｜%r" % (lab, num))
         if note and (note[0].isdigit() or note[0] == "%") and (num + note) in raw:
             out.append("数字后半截落进附注：%r｜%r" % (num, note))
     return out
@@ -283,6 +289,111 @@ class Regress(unittest.TestCase):
         self.assertIn("利差 3%至5%", text_rows(c))
         self.assertIn("波幅 3%—5%", text_rows(c))
 
+    def test_number_glued_to_a_digit_word_is_left_inline(self):
+        # 三轮复验（2026-11-14）：科学计数、斜杠成对读数、箭头前后两读数——紧贴的左侧词里有数字即不排表
+        for t in ("x：误差 1e-3%", "x：1.2e-3% 误差", "x：误差 2.5E-2% 内", "x：步长 1.0e+2bp",
+                  "x：多空比 55/45% 偏多", "x：+25bp/+50bp 88.5/11.5%", "x：a/b/c 28/72%", "x：Q3/Q4 5/6%", "x：H20/B30 5/6%",
+                  "x：多空比 55:45%", "x：降息概率 28/ 72%", "x：多空比 55: 45%"):
+            c = one(t)
+            self.assertEqual(cells(c), [], "%s 不应排成账目行：%r" % (t, cells(c)))
+
+    def test_label_separators_and_arrows_still_lay_out(self):
+        # 四轮前再修（2026-11-14 Doctor 令）：名目分隔与箭头不该让整行退回原文；箭头前是旧值、取箭头后的新值
+        for t, want in (("x：Q3：5%", ("Q3：", "5%", "")), ("x：Top10：45%", ("Top10：", "45%", "")),
+                        ("x：H20=5%", ("H20=", "5%", "")), ("x：Q3|5%", ("Q3|", "5%", "")),
+                        ("x：hike 72%→81%", ("hike 72%→", "81%", "")),
+                        ("x：hike 72% → 81% 定价", ("hike 72% →", "81%", "定价")),
+                        ("x：yoy -12.7%→-9.9%", ("yoy -12.7%→", "-9.9%", "")),
+                        ("x：1%→2%→3%", ("1%→2%→", "3%", "")),
+                        ("x：（截至11-13）3.2%", ("（截至11-13）", "3.2%", "")),
+                        ("x：Q3·5%", ("Q3·", "5%", "")),
+                        ("x：hike 72% -> 81%", ("hike 72% ->", "81%", "")),
+                        ("x：hike 72%->81%", ("hike 72%->", "81%", "")),
+                        ("x：hike 72% --> 81%", ("hike 72% -->", "81%", "")),
+                        ("x：hike 72% ⇒ 81%", ("hike 72% ⇒", "81%", "")),
+                        ("x：hike 72% ➜ 81%", ("hike 72% ➜", "81%", "")),
+                        ("x：hike 72%⟶81%", ("hike 72%⟶", "81%", "")),
+                        # 五轮复验：箭头按区段与拼法认，不再逐个列举
+                        ("x：hike 72% ➡ 81%", ("hike 72% ➡", "81%", "")),
+                        ("x：hike 72% ---> 81%", ("hike 72% --->", "81%", "")),
+                        ("x：hike 72% ⇢ 81%", ("hike 72% ⇢", "81%", "")),
+                        ("x：hike 72% →→ 81%", ("hike 72% →→", "81%", "")),
+                        ("x：hike 72% ~> 81%", ("hike 72% ~>", "81%", "")),
+                        ("x：hike 72% - > 81%", ("hike 72% - >", "81%", "")),
+                        ("x：hike 72% ⮕ 81%", ("hike 72% ⮕", "81%", "")),
+                        ("x：72%➡81%", ("72%➡", "81%", "")),
+                        ("x：hike 72% ⟹ 81%", ("hike 72% ⟹", "81%", "")),
+                        ("x：hike 72% ⤳ 81%", ("hike 72% ⤳", "81%", "")),
+                        ("x：hike 72% → 约 81%", ("hike 72% → 约", "81%", ""))):
+            c = one(t)
+            self.assertEqual(cells(c), [want], t)
+
+    def test_symmetric_slash_pairs_become_one_cell_with_full_units(self):
+        # Doctor 2026-11-14 裁：名目对称（带斜杠、段数相同）才把成对读数合成一格，两边都补齐单位
+        for t, want in (("FOMC：hold/hike 28/72%", ("hold/hike", "28%/72%", "")),
+                        ("x：hold/hike 28 / 72%", ("hold/hike", "28% / 72%", "")),
+                        ("x：hold/hike 28%/72%", ("hold/hike", "28%/72%", "")),
+                        ("x：cut/hold/hike 10/30/60%", ("cut/hold/hike", "10%/30%/60%", "")),
+                        ("x：hold/hike 28/72bp 定价", ("hold/hike", "28bp/72bp", "定价")),
+                        ("x：FOMC 12 月 hold/hike -28/+72% 偏鹰", ("FOMC 12 月 hold/hike", "-28%/+72%", "偏鹰"))):
+            c = one(t)
+            self.assertEqual(cells(c), [want], t)
+            self.assertEqual(mismatch(t.strip(), c), "", t)
+            self.assertEqual(cell_violations(t, c), [], t)
+        self.assertIn('28<span class="ig-fill">%</span>/72%', one("x：hold/hike 28/72%"))
+
+    def test_bare_number_before_spaced_slash_splits_rows(self):
+        # 「tier 4 / 1.0% 仓位」名目不对称：拆成两行，不再挂悬空斜杠
+        c = one("科创50 信号：hold，tier 4 / 1.0% 仓位，无待执行单")
+        self.assertEqual([x for x in cells(c) if "/" in x[0]], [])
+        rows = text_rows(c)
+        self.assertIn("tier 4", rows)
+        self.assertIn("1.0% 仓位", rows)
+
+    def test_only_rightward_arrows_mean_old_to_new(self):
+        # 六轮复验：涨跌标记、左向、双向、斜向箭头不是「旧值 → 新值」
+        for t, want in (("x：CPI 3.2% ↓0.1pp", [("CPI", "3.2%", "↓0.1pp")]),
+                        ("x：铜 yoy +21.9% ↑0.5pp", [("铜 yoy", "+21.9%", "↑0.5pp")]),
+                        ("x：收益 1.2% ↑ 0.3%", [("收益", "1.2%", "↑ 0.3%")]),
+                        ("x：hike 72% ← 81%", [("hike", "72%", "← 81%")]),
+                        ("x：hike 72% ⟵ 81%", [("hike", "72%", "⟵ 81%")]),
+                        ("x：区间 3% ⟷ 5%", [("区间", "3%", "⟷ 5%")]),
+                        ("x：利差 3%↕5%", []),
+                        ("x：hike 72% ↗ 81%", [("hike", "72%", "↗ 81%")]),
+                        ("x：hike 72% ⭐ 81%", [("hike", "72%", "⭐ 81%")])):
+            self.assertEqual(cells(one(t)), want, t)
+        for ch in "←↔⟷↑↓↕⬆⬇⤴⤵↗⇐⬛⭐":
+            self.assertNotIn(ch, NS["_intg_right_arrows"](), ch)
+
+    def test_negated_and_relational_arrows_are_not_old_to_new(self):
+        # 七轮复验：带划线（不→）、穿 X、叠关系符、端点修饰的右箭头不是「旧值 → 新值」
+        for ch in "↛⇏⇸⇻⤀⤁⤃⤔⤕⤗⤘⥇⥱⥲⥴⥵⥸⥹⭃⭇⭈⭌⥅↦⇥↪↬↣⤞":
+            self.assertEqual(cells(one("x：hike 72% " + ch + " 81%")), [("hike", "72%", ch + " 81%")], ch)
+        self.assertEqual(cells(one("x：hike 72% → → 81%")), [("hike 72% → →", "81%", "")])
+        self.assertEqual(NS["_intg_right_arrows"](),
+                         "→↝↠⇉⇒⇛⇝⇢⇨⇶⇾⟶⟹⟿⤍⤏⤐⤳⭢⭬⮆⮕⮚⮞➔➙➛➜➝➞➟➠➡➢➣➤➧➨➩➫➬➭➯➳➵➸➺➻➼➽➾")
+
+    def test_old_value_before_paren_then_arrow_or_move_verb(self):
+        # 七轮复验：旧值后先跟括注再接「→ 新值」；以及「升至/回落至」等文字写法
+        for t, big in (("FOMC：hike 概率 72.8%（非农前）→ 78.0%（非农后）", "78.0%"),
+                       ("FOMC：hike 72.8%（11-06）→ 78.0%（11-09）", "78.0%"),
+                       ("哨兵：碳酸锂 yoy +15.4%（11-06）→ +6.3%（11-09）", "+6.3%"),
+                       ("FOMC：hike 72.8%（CME）-> 78.0%", "78.0%"),
+                       ("FOMC：hike 74.9% 升至 81.2%", "81.2%"),
+                       ("x：利差 120bp 收窄至 95bp", "95bp"),
+                       ("x：PMI 景气 51.2% 回落至 49.8%（荣枯线下）", "49.8%"),
+                       ("x：hike 72.8%（11-06），hold 27.2%", "72.8%")):
+            self.assertEqual(bigs(one(t))[:1], [big], t)
+            self.assertEqual(mismatch(t.strip(), one(t)), "", t)
+
+    def test_fat_arrow_is_neither_arrow_nor_threshold(self):
+        # Doctor 2026-11-14 裁：「=>」「==>」不按箭头读，也不按门槛 ≥ 读——普通符号，其后的数照常参与选要点数
+        self.assertEqual(cells(one("x：hike 72% => 81%")), [("hike", "72%", "=> 81%")])
+        self.assertEqual(cells(one("x：hike 72% ==> 81%")), [("hike", "72%", "==> 81%")])
+        self.assertEqual(cells(one("x：门槛 =>5% 持续")), [("门槛 =>", "5%", "持续")])
+        self.assertEqual(cells(one("x：门槛 ==> 5%")), [("门槛 ==>", "5%", "")])
+        self.assertEqual(cells(one("x：门槛 >=5% 持续")), [])            # 「>=」仍是门槛
+
     def test_odd_dash_characters_are_left_inline(self):
         c = one(SYNTH[16])
         self.assertEqual(cells(c), [("镍 yoy", "-3%", "")])
@@ -379,6 +490,9 @@ class CellRules(unittest.TestCase):
             ("两市 1,", "234.5%", "", "两市 1,234.5%"),
             ("涨幅", "3%", "-5%", "涨幅 3%-5%"),
             ("白银 yoy —", "3%", "", "白银 yoy —3%"),
+            ("误差 1e", "-3%", "", "误差 1e-3%"),
+            ("hold/hike 28/", "72%", "", "hold/hike 28/72%"),
+            ("多空比 55:", "45%", "", "多空比 55:45%"),
         ):
             self.assertNotEqual(cell_violations(raw, fake % (lab, num, note)), [], "通则没逮到：%s｜%s｜%s" % (lab, num, note))
 
