@@ -1669,6 +1669,141 @@ def external_pricing_section(D):
 
 # ── 体系提炼摘录栏目（2026-10-21 Doctor 裁「接提炼过的有价值信息」· 班内摘录形态）──────────
 # 数据 = docs/daily_integration_{data_day}.json（九儿摘录步产出 · 只读）。缺件/空 → 如实「今日无」。
+# 2026-11-14 卡片正文排版优化（Doctor 令）：标题（首个「：」前）大字；正文按顶层「；」拆行；
+# 每行首个数字放大为要点数；括注降为小字；「——」后为口径脚注。
+# 着色只读条目自带标注（不由渲染端判方向 · 转述不改判）：
+#   n["polarity"] ∈ {"bull","bear"} → 整卡左色条+标题着色；
+#   n["marks"] = [{"match": 子串, "pol": "bull|bear"}] → 含该子串的那一行着色+小签。
+#   利好=红金（--bull）/ 利空=青绿（--bear）；无标注 → 中性墨色，不着色。
+_INTG_NUM = re.compile(r'(?<![\w.])([+\-−]?\d+(?:\.\d+)?(?:\s*[~～]\s*[+\-−]?\d+(?:\.\d+)?)?\s*(?:%|bp|pp))')
+_INTG_OPEN, _INTG_CLOSE = "（(〔[", "）)〕]"
+
+
+def _intg_split_top(s, sep):
+    """按 sep 拆分，但不拆括号内（全/半角圆括号、六角括号）"""
+    out, buf, dep, i = [], "", 0, 0
+    while i < len(s):
+        ch = s[i]
+        if ch in _INTG_OPEN:
+            dep += 1
+        elif ch in _INTG_CLOSE:
+            dep = max(0, dep - 1)
+        if dep == 0 and s.startswith(sep, i):
+            out.append(buf)
+            buf = ""
+            i += len(sep)
+            continue
+        buf += ch
+        i += 1
+    out.append(buf)
+    return out
+
+
+def _intg_fmt_seg(seg, pol, why=""):
+    """一行正文：顶层括注降小字；首个数字=要点大数，其余数字加粗"""
+    parts, buf, dep = [], "", 0
+    for ch in seg:
+        if ch in _INTG_OPEN:
+            if dep == 0 and buf:
+                parts.append(("t", buf))
+                buf = ""
+            dep += 1
+            buf += ch
+        elif ch in _INTG_CLOSE and dep > 0:
+            buf += ch
+            dep -= 1
+            if dep == 0:
+                parts.append(("p", buf))
+                buf = ""
+        else:
+            buf += ch
+    if buf:
+        parts.append(("p" if dep else "t", buf))
+    big_done = [False]
+
+    def _num(m):
+        if not big_done[0]:
+            big_done[0] = True
+            return f'<b class="ig-big">{m.group(1)}</b>'
+        return f'<b class="ig-n">{m.group(1)}</b>'
+    html = ""
+    for kind, t in parts:
+        if kind == "t":
+            html += _INTG_NUM.sub(_num, t)
+        else:
+            html += '<span class="ig-par">' + _INTG_NUM.sub(lambda m: f'<b>{m.group(1)}</b>', t) + '</span>'
+    _t = f' title="{why}"' if why else ""
+    tag = {"bull": f'<span class="ig-tag"{_t}>利好</span>', "bear": f'<span class="ig-tag"{_t}>利空</span>'}.get(pol, "")
+    cls = f" ig-{pol}" if pol in ("bull", "bear") else ""
+    return f'<div class="ig-row{cls}">{html}{tag}</div>'
+
+
+def _intg_card(i, n, _esc):
+    raw = (n.get("text") or "").strip()
+    src = _esc(n.get("source") or "—")
+    asof = _esc(n.get("as_of") or "—")
+    pol = n.get("polarity") if n.get("polarity") in ("bull", "bear") else ""
+    marks = [m for m in (n.get("marks") or []) if isinstance(m, dict)
+             and m.get("match") and m.get("pol") in ("bull", "bear")]
+    head_txt, rest = "", raw
+    _c = raw.find("：")
+    if 0 < _c <= 40:
+        head_txt, rest = raw[:_c], raw[_c + 1:]
+    _tail = _intg_split_top(rest, "——")
+    body_txt, foot = _tail[0], "——".join(_tail[1:]).strip()
+    rows = []
+    for seg in _intg_split_top(body_txt, "；"):
+        seg = seg.strip()
+        if not seg:
+            continue
+        _m = next((m for m in marks if m["match"] in seg), None)
+        rows.append(_intg_fmt_seg(_esc(seg), _m["pol"] if _m else "",
+                                  _esc(str(_m.get("why") or "")).replace('"', "&quot;") if _m else ""))
+    cls = f" ig-{pol}" if pol else ""
+    _pw = _esc(str(n.get("polarity_why") or "")).replace('"', "&quot;") if pol else ""
+    return (f'<div class="card ig-card{cls}"' + (f' title="{_pw}"' if _pw else "") + '>'
+            f'<div class="ig-meta"><span class="ig-no">{i:02d}</span><span class="ig-src">{src}</span>'
+            f'<span class="ig-asof">as_of {asof}</span></div>'
+            + (f'<div class="ig-head">{_esc(head_txt)}</div>' if head_txt else "")
+            + f'<div class="ig-body">{"".join(rows)}</div>'
+            + (f'<div class="ig-foot">{_esc(foot)}</div>' if foot else "")
+            + '</div>')
+
+
+_INTG_STYLE = (
+    "<style>"
+    ".ig-wrap{--bull:#b4472c;--bull-g:#9a7432;--bull-bg:#fbefe4;--bear:#2a7a6c;--bear-bg:#e9f3ef}"
+    ".ig-card{margin-top:10px;position:relative;padding:15px 18px 13px 20px;overflow:hidden}"
+    ".ig-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line)}"
+    ".ig-card.ig-bull::before{background:linear-gradient(180deg,var(--bull),var(--bull-g))}"
+    ".ig-card.ig-bear::before{background:var(--bear)}"
+    ".ig-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--sub)}"
+    ".ig-no{font-family:var(--num);font-weight:600;color:var(--gold);letter-spacing:.5px}"
+    ".ig-src{background:#fbf8ef;border:1px solid var(--line);border-radius:999px;padding:1px 8px}"
+    ".ig-asof{margin-left:auto;font-variant-numeric:tabular-nums}"
+    ".ig-head{font-family:var(--zh);font-size:19px;font-weight:700;color:var(--tx);"
+    "margin:8px 0 6px;line-height:1.35;letter-spacing:.3px}"
+    ".ig-card.ig-bull .ig-head{color:var(--bull)}.ig-card.ig-bear .ig-head{color:var(--bear)}"
+    ".ig-body{display:flex;flex-direction:column;gap:5px}"
+    ".ig-row{font-size:14.5px;line-height:1.6;color:var(--tx);padding:3px 0 3px 10px;"
+    "border-left:2px solid var(--line);border-radius:0 6px 6px 0}"
+    ".ig-big{font-family:var(--num);font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;"
+    "letter-spacing:0;margin:0 2px;line-height:1}"
+    ".ig-n{font-family:var(--num);font-weight:600;font-variant-numeric:tabular-nums}"
+    ".ig-par{font-size:12px;color:var(--sub)}"
+    ".ig-row.ig-bull{border-left-color:var(--bull-g);background:var(--bull-bg)}"
+    ".ig-row.ig-bull .ig-big,.ig-row.ig-bull .ig-n{color:var(--bull)}"
+    ".ig-row.ig-bear{border-left-color:var(--bear);background:var(--bear-bg)}"
+    ".ig-row.ig-bear .ig-big,.ig-row.ig-bear .ig-n{color:var(--bear)}"
+    ".ig-tag{font-size:10px;font-weight:600;border-radius:999px;padding:1px 7px;margin-left:8px;"
+    "vertical-align:2px;white-space:nowrap}"
+    ".ig-bull .ig-tag{color:#fff;background:linear-gradient(90deg,var(--bull),var(--bull-g))}"
+    ".ig-bear .ig-tag{color:#fff;background:var(--bear)}"
+    ".ig-foot{font-size:11px;color:var(--sub);margin-top:8px;padding-top:7px;"
+    "border-top:1px dashed var(--line);line-height:1.5}"
+    "</style>")
+
+
 def integration_section(D):
     head = ('<h2 id="sec-intg" style="margin-bottom:4px">隔日关注 '
             '<span class="vintage">体系提炼摘录 ｜ 来源=上游项目提炼结论（非原始数据）｜ 转述不改判 ｜ 无增量如实标注</span></h2>')
@@ -1676,16 +1811,10 @@ def integration_section(D):
     it = D.get("integration")
     notes = (it or {}).get("notes") or []
     rows = []
-    for i, n in enumerate(notes[:8], 1):
-        txt = _esc((n.get("text") or "").strip())
-        if not txt:
+    for n in notes[:8]:
+        if not (n.get("text") or "").strip():
             continue
-        src = _esc(n.get("source") or "—")
-        asof = _esc(n.get("as_of") or "—")
-        rows.append(
-            f'<div class="card" style="margin-top:8px"><div class="k">{i}. {src}'
-            f'<span class="sub" style="float:right;font-weight:400">as_of {asof}</span></div>'
-            f'<div style="margin-top:4px">{txt}</div></div>')
+        rows.append(_intg_card(len(rows) + 1, n, _esc))
     # L3 固定槽位（2026-11-06）：EAL 宏观惊奇 / 星空 NE 恒显两卡，无当日产物显「无」（不编数）
     _slots = D.get("integration_slots") or {}
     _slot_rows = []
@@ -1724,7 +1853,7 @@ def integration_section(D):
                      f'<div class="sub" style="font-size:11px;margin-top:4px">'
                      f'建议复核仓位——本行仅为体系内信号触发的复核提示，动作归您</div></div>')
         body += "".join(_slot_rows)
-    return head + f'<div style="margin:6px 0 16px">{body}</div>'
+    return _INTG_STYLE + head + f'<div class="ig-wrap" style="margin:6px 0 16px">{body}</div>'
 
 
 def _font_face():
