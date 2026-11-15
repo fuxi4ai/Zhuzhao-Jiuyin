@@ -386,6 +386,22 @@ class Regress(unittest.TestCase):
             self.assertEqual(bigs(one(t))[:1], [big], t)
             self.assertEqual(mismatch(t.strip(), one(t)), "", t)
 
+    def test_move_verbs_from_the_list(self):
+        # Doctor 2026-11-14：「至」字动词按词表补齐八轮漏网的 8 个，不改通则（免得卷进「截至」这类词）
+        for v in ("提高至", "降低至", "增至", "放缓至", "上修至", "下修至", "抬升至", "调至", "升到", "降到", "回升至", "下调至"):
+            t = "x：增速 4.8% " + v + " 5.2%"
+            self.assertEqual(bigs(one(t)), ["5.2%"], t)
+            self.assertEqual(mismatch(t.strip(), one(t)), "", t)
+        for t, want in (("x：区间 84.7% 至 87%", []),                         # 区间：至前无动词
+                        ("x：hike 72% 甚至 80%", ["72%"]),
+                        ("x：hike 72% 截至 11-13", ["72%"]),
+                        ("x：hike 72% 升至 11 月以来高位", ["72%"]),           # 后接无单位的数
+                        ("x：hike 72% 升至 80", ["72%"]),
+                        ("x：hike 72% 大幅提升至 80%", ["72%"]),               # 动词前带修饰不认（保守）
+                        ("x：hike 72% 预计至 80%", ["72%"]),                   # 不在词表
+                        ("x：hike 72% 累计至 80%", ["72%"])):
+            self.assertEqual(bigs(one(t)), want, t)
+
     def test_fat_arrow_is_neither_arrow_nor_threshold(self):
         # Doctor 2026-11-14 裁：「=>」「==>」不按箭头读，也不按门槛 ≥ 读——普通符号，其后的数照常参与选要点数
         self.assertEqual(cells(one("x：hike 72% => 81%")), [("hike", "72%", "=> 81%")])
