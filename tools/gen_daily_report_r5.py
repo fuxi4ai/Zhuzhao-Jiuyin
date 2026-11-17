@@ -1,0 +1,4222 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""烛照九阴 · 可视化日报生成器 v2「暖色日报」（真实数据）
+（CC 2026-06-12；范式=Codex 原型 vv-visual-v1，对接文件=cc-handoff-visual-v1.md）
+
+设计定义：以中式纸面和季节意象软化金融数据的冷硬，以严格的信息层级保证判断效率。
+铁律：缺数诚实标注（停更于X日/待回填），禁占位符、禁编数据、禁旧值冒充；每区块 vintage 角标。
+口径铁律（G-07）：渊图信号按产业信号时间（yuantu_buy_signals.date）分组展示，
+  禁用「最新批/前1批/前2批/入库批次」及 created_at/tagged_at。
+模板铁律：.report-hero 的 --hero-lock-* / --hero-art-* / --season-* 为锁定变量，
+  调整画框只改变量值，不散改布局属性（Doctor 已确认构图）。
+  窄屏构图 2026-08-26 Doctor 裁（历经三列→居中→终稿）：≤900px 画入流随宽连续缩小（min(24.5vw,220px)×min(36.7vw,330px)）、
+  季节字沿用桌面绝对居中（50%/50%）、日期右侧竖排——全宽度统一构图，跨断点零跳变；
+  ≤520px 仅留 190px 高度地板防季节块裁切 + 冬字号 76。桌面变量区仍锁定不动。
+
+输出：AI4ME/烛照九阴-outputs/烛照九阴日报_{数据日}.html（根目录最新；旧报自动移 archived/，永不删）
+
+用法：
+    python3 tools/gen_daily_report.py                       # 正式输出（写 AI4ME + 归档旧报）
+    python3 tools/gen_daily_report.py --output /tmp/x       # 测试输出（不碰正式目录）
+    python3 tools/gen_daily_report.py --no-archive          # 不移动旧报
+    python3 tools/gen_daily_report.py --date 20260609       # 指定数据日（≤该日数据）
+"""
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+import argparse, base64, sqlite3, json, re, shutil, datetime, glob
+from pathlib import Path
+from collections import defaultdict
+import statistics as st
+import config
+import fundamentals_lookup as fl
+import risk_function                     # S2 计温 function 单一真源（与 calibrate 共用·G-X73）
+from lib.logger import get_logger
+logger = get_logger(__name__)
+
+_sys.path.insert(0, str(config.PROJECT_ROOT / "scripts"))
+from fetch_theme_etf import THEME_ETF, BENCHMARK
+from fetch_us_anchor import THEME_US, BENCHMARK_US
+
+OUT_DIR = config.OUTPUT_ROOT / "烛照九阴-outputs"
+RECORDS = config.DATABASE_ROOT / "龙鱼-标的分析库" / "records"
+ASSETS = config.PROJECT_ROOT / "assets"
+FONT_SEASONS = ASSETS / "zikutang-shike-seasons.ttf"          # 字酷堂石刻体子集（春夏秋冬）
+# ART_LAIQIN = ASSETS / "guoshu-laiqin-03-guohua-inkwash-edgefit-h1000.webp"  # 旧《果熟来禽图》水墨版（2026-06-29 弃用，保留可回退）
+ART_LAIQIN = ASSETS / "guoshu-laiqin-04-birdberry-h1000.png"  # 鸟果新标题图（2026-06-29 Doctor 换为 PNG 版，旧 .webp 已替换）
+ECHARTS_JS = ASSETS / "echarts.min.js"                        # ECharts 本地副本（Cowork 沙箱须内联，详见 _echarts_inline）
+ARTIFACT_PATH = config.ARTIFACT_ROOT / "zhuzhao-jiuyin-daily" / "index.html"  # 本地 artifact 镜像（非 live 真身；live 走 update_artifact·见 GOTCHAS ERR-20260722-002）
+
+
+def iso(d): return f"{d[:4]}-{d[4:6]}-{d[6:]}" if d and "-" not in d else d
+
+
+# ── 信号条目"稳定超额收益期"注记（回测统计参照·非承诺）2026-07-08 ──
+# 窗口=各机制超额达峰的自然持有期（交易日口径，与 docs/自主回测_20260706 一致）
+# ── 回测注记单一真源（2026-10-17 归整三裁「把 json 安排到总纲」）：＝剑酒青丘量化总纲内嵌 JSON 块；
+#    缺块/坏块即 fallback 回下方硬编码，不 break 10:03 定时链（原 PRD F7 的 config/backtest_stats.json 已归档）──
+_BT_STATS_SUMMARY_REL = Path("剑酒青丘") / "回测报告" / "2026-10-17_综合_量化技术面回测总纲.md"
+
+def _resolve_bt_stats_summary():
+    """总纲路径多基探测：env 覆盖 → 原生父目录（Financial/剑酒青丘）→ 平铺挂载同级（/sessions/x/mnt/剑酒青丘）→ 各上级。
+    班沙箱为平铺挂载时 PROJECT_ROOT.parent 即 mnt/ 层、同级命中；全部不中返回 None → 回落 fallback。"""
+    env = _os.environ.get("ZZJY_BT_SUMMARY")
+    if env:
+        return Path(env)
+    for base in [config.PROJECT_ROOT.parent, config.PROJECT_ROOT, *config.PROJECT_ROOT.parents]:
+        cand = base / _BT_STATS_SUMMARY_REL
+        if cand.exists():
+            return cand
+    return None
+_BT_FALLBACK = {
+    "_meta": {"sample_period": "25.10–26.7"},
+    "mech_window": {"demand_surge": 10, "supply_shock": 10, "event_driven": 10,
+                    "tech_innovation": 3, "capacity_policy": 10,
+                    "trend": 10, "emotion_cycle": 3},
+    "risk_mech": ["persistent_imbalance"],
+    # A2（PRD 2026-07-16）：price_driven 回测无超额(10d −0.34, n=158)——波动源非收益源，移出正向窗口
+    "vol_hint_mech": ["price_driven"],
+    "vol_hint": {"n": 158, "excess10": -0.34, "median10": -0.63,
+                 "text_tpl": "历史无超额（10日 {excess10}%，n={n}，样本期 {sample_period}）· 波动放大提示 · 复核非买点"},
+    "fallback_window": 10,
+    "glow": {
+        "yiduan": {"win_days": 3, "win_rate": 84.5, "n": 181,
+                   "title": "relit.json 一段realized·渊图信号级",
+                   "text_tpl": "确认后 {win_days} 日历史胜率 {win_rate}%（n={n}，样本期 {sample_period} · 过往不代表未来）"},
+        "demand_surge": {"win_days": 10, "excess": 5.23, "n": 188,
+                   "title": "agg_stock.json own_分逻辑 demand_surge",
+                   "text_tpl": "{win_days} 日历史超额 +{excess}%（n={n}，样本期 {sample_period}）· 口径：own 标的池 · 过往不代表未来"},
+        # A1（PRD 2026-07-16）：二段点亮回测期望为负——中性观察注记
+        "relit": {"win_days": 3, "win_rate": 64.0, "n": 25,
+                   "win_rate_10d": 48.0, "avg_10d": -1.19, "median_20d": -6.15,
+                   "title": "relit.json relit点亮·主线级",
+                   "text_tpl": "点亮后 {win_days} 日胜率 {win_rate}%（n={n}）· 10 日后历史转负（胜率 {win_rate_10d}%/均 {avg_10d}%）· 中性观察非买点"},
+    },
+    "bt_logic": [
+        {"key": "supply_shock", "zh": "供给冲击", "n": 35, "win_rate": 65.7, "avg_excess": 11.10, "flag": ""},
+        {"key": "persistent_imbalance", "zh": "持续失衡", "n": 7, "win_rate": 14.3, "avg_excess": -4.11, "flag": "风险"},
+    ],
+}
+def _extract_bt_stats_block(md_text):
+    """从总纲提取注记 JSON fenced 块；判据＝含 mech_window 与 bt_logic 键。"""
+    for m in re.finditer(r"```json\s*\n(.*?)\n```", md_text, re.S):
+        try:
+            data = json.loads(m.group(1))
+        except Exception:
+            continue
+        if isinstance(data, dict) and "mech_window" in data and "bt_logic" in data:
+            return data
+    return None
+
+def _load_bt_stats():
+    try:
+        path = _resolve_bt_stats_summary()
+        if not path:
+            raise FileNotFoundError("总纲文件未找到（各探测基均不中）")
+        with open(path, encoding="utf-8") as f:
+            cfg = _extract_bt_stats_block(f.read())
+        if not cfg:
+            raise ValueError("总纲内未找到注记 JSON 块")
+        for k, v in _BT_FALLBACK.items():          # 缺键逐一回落，容忍部分配置
+            cfg.setdefault(k, v)
+        cfg["_meta"] = {**_BT_FALLBACK["_meta"], **cfg.get("_meta", {})}
+        return cfg
+    except Exception as e:
+        logger.warning("注记真源（剑酒青丘量化总纲 JSON 块）未加载(%s)，回落硬编码 fallback", e)
+        return _BT_FALLBACK
+BT_STATS = _load_bt_stats()
+MECH_WINDOW = BT_STATS["mech_window"]
+RISK_MECH = set(BT_STATS["risk_mech"])   # 逆风类：无稳定超额期
+VOL_HINT_MECH = set(BT_STATS.get("vol_hint_mech", []))   # A2：波动源非收益源（price_driven）
+
+
+# ── 五因风险温度：预警因子单一真源 config/risk_factors.json；缺文件即 fallback 回下方硬编码，不 break 10:03 定时链 ──
+# 源自 2026-07-17 A股年度冰点 case study『催化剂链·五因共振』。Phase-1 仅 F1/F2/F5(汇率) 在线可算，
+# F3两融/F4 IPO/F5油价·美债 为待接源占位（渲灰不计温度）。阈值皆初值·待历史冰点日回测校准。
+_RISK_FALLBACK = {
+    "_meta": {"phase": 1, "phase1_online": ["f1", "f2", "f5"], "calibrated": False,
+              "note": "阈值初值·待回测校准·过往不代表未来·仅风险提示非投资建议"},
+    "f1": {"name": "外盘传导", "semi_codes": ["NASDAQ", "AVGO", "NVDA", "LITE"],
+           "asia_codes": ["JP_FUT", "KR_SAMSUNG", "KR_HYNIX"], "semi_th": -2.0, "asia_th": -2.0,
+           "desc": "隔夜费半系/纳指或亚太科技急跌 → 风险外溢"},
+    "f2": {"name": "拥挤度释放", "crowd_states": ["虹吸", "满载"], "pctrank_th": 80,
+           "desc": "领涨主线容量满/情绪高分位回落 → 高位赛道拥挤度释放"},
+    "f3": {"name": "杠杆被动出清", "status": "pending",
+           "gap": "全库无两融表·待接 tushare margin（Phase-2）", "desc": "两融余额周变化/连续净流出 → 杠杆被动平仓负反馈"},
+    "f4": {"name": "IPO 虹吸", "status": "pending",
+           "gap": "无新股募资数据·待接 tushare new_share（Phase-2）", "desc": "新股募资集中+成交额萎缩 → 存量资金被分流"},
+    "f5": {"name": "外部紧缩", "cnh_daily_th": 0.05, "cnh_7d_th": 0.10,
+           "oil_status": "pending", "oil_gap": "dim1 油价数值列空·待接日线源",
+           "bond_status": "pending", "bond_gap": "无美债收益率·待接 ^TNX（Phase-2）",
+           "desc": "离岸人民币急贬（可算）+ 油价急升/美债破位（待接源）→ 外部流动性紧缩"},
+    "temp_bands": [[0, "🟢", "平静", "#3f9c76"], [1, "🟡", "观察", "#c8962a"],
+                   [2, "🟠", "警戒", "#e8731e"], [3, "🔴", "冰点风险", "#c0392b"]],
+}
+def _load_risk_cfg():
+    try:
+        with open(config.PROJECT_ROOT / "config" / "risk_factors.json", encoding="utf-8") as f:
+            cfg = json.load(f)
+        for k, v in _RISK_FALLBACK.items():        # 缺键逐一回落，容忍部分配置
+            cfg.setdefault(k, v)
+        return cfg
+    except Exception as e:
+        logger.warning("risk_factors.json 未加载(%s)，回落硬编码 fallback", e)
+        return _RISK_FALLBACK
+RISK_CFG = _load_risk_cfg()
+SAMPLE_PERIOD = BT_STATS["_meta"]["sample_period"]
+
+# 信号展示补注（渲染层覆盖·不改上游数据库/图谱，避免被渊图同步冲掉）：按 signal_node 覆盖显示名 + 详情卡补说明
+SIGNAL_OVERRIDE = {
+    "concept_JapanSemiconductorExportControl": {
+        "name": "日本对华半导体出口管制升级",
+        "detail": ("因果时序：中国对稀土 / 稀有金属原料的出口管制断供【在先】，已致日本东曹 / 德山化工库存告急、停产风险；"
+                   "日本 2026/8/1 起对先进封装设备等 20+ 类物项【对华】出口管制（逐案审批≈禁运）为【后续】升级，"
+                   "东京应化 / 信越化学停止接收中国 ArF/EUV 光刻胶新订单并撤技术团队。"
+                   "两侧互掐、定性「中日脱钩断裂」，投资逻辑＝对日 / 国产替代。（据小鲍课件 + 渊图，具体条款以官方公告为准；本补注录于 2026-07 中·含「2026/8/1」等硬日期·过期请复核或下线）"),
+    },
+}
+
+
+# ── R5 日报加强：阈值与纯函数（2026-11-17 · PRD 2026-11-17_烛照九阴自复盘取代课件 R5）──
+# 四处加强：一、锚背离补反向提示；二、「确认走强」候选写明何时移出；
+# 三、事件日历（交割日 + 议息会次读全部年份）；四、盘前读数标角色。
+# 只给方向与日期，不含仓位数字、不含买卖动作。本段函数不连库、不读写文件，tests/test_r5_enhancements.py 直接调用。
+ANCHOR_BREAK_US_EX20 = -10.0   # 同向锚 20 日超额低于此值（百分点）→ 挡在「确认走强」之外；A 股侧同时走强则出红色背离
+ANCHOR_LEAD_US_EX20 = 10.0     # 反向提示：同向锚 20 日超额高于此值（百分点）。Doctor 2026-11-17 裁定
+ANCHOR_LEAD_CN_E20 = -5.0      # 反向提示：A 股主线 20 日超额低于此值（百分点）。Doctor 2026-11-17 裁定（另一候选为 0）
+OPP_MAX_ROWS = 4               # 「确认走强」一栏至多列几条
+DELIVERY_WINDOW_DAYS = 7       # 数据日距交割日不超过几个日历日时显示交割日注记
+
+
+def anchor_lead_risk(theme_short, e20, us):
+    """反向锚背离（锚强而本地未跟）：同向锚 20 日超额高于 ANCHOR_LEAD_US_EX20、且 A 股主线 20 日超额
+    低于 ANCHOR_LEAD_CN_E20 时，返回一条黄色风险条目；否则返回 None。
+    没有美股锚、锚是温度计类（kind 不是 echo）、缺数，一律不出。只作提示，不参与任何入栏判断。"""
+    if not us or us.get("kind") != "echo":
+        return None
+    ex20 = us.get("ex20")
+    if ex20 is None or e20 is None:
+        return None
+    if not (ex20 > ANCHOR_LEAD_US_EX20 and e20 < ANCHOR_LEAD_CN_E20):
+        return None
+    return {"lvl": "黄", "txt": f"锚强而本地未跟：{theme_short} 锚 {us.get('tkr') or '—'} 20日超额 {ex20:+.1f}%，"
+                               f"A股20日超额 {e20:+.1f}%（本地资金未认，观察）"}
+
+
+def opp_exit_text(us=None, budget=None):
+    """「确认走强」候选的移出条件＝入栏条件的反面。只说何时移出本栏，不含买卖动作。
+    us：该主线的美股锚信息（us_info 的返回值）；只有同向锚才写锚那一项。
+    budget：当日容量上限（取整后的条数）；当日算不出上限时为 None。"""
+    if budget is not None:
+        cap = f"排位跌出容量上限（当日上限为前 {budget} 强，本栏至多列 {OPP_MAX_ROWS} 条）"
+    else:
+        cap = f"排位跌出容量上限（当日上限未知，本栏至多列 {OPP_MAX_ROWS} 条）"
+    parts = ["20日或5日超额不再为正", "不再处于兑现早期", cap]
+    if us and us.get("kind") == "echo":
+        parts.append(f"同向锚 {us.get('tkr') or '—'} 的20日超额低于 {ANCHOR_BREAK_US_EX20:.0f}%")
+    return "出现以下任一情况即移出本栏：" + "；".join(parts) + "。"
+
+
+def fomc_meetings(cal):
+    """把日历文件里所有 meetings_ 开头的键合并成一张会次表，按会议首日排序。
+    年份不写死：文件里补了新年份的键（如 meetings_2027）就能读到。缺首日或末日的条目跳过。"""
+    out = []
+    for k, v in (cal or {}).items():
+        if isinstance(k, str) and k.startswith("meetings_") and isinstance(v, list):
+            out.extend(m for m in v if isinstance(m, dict) and m.get("start") and m.get("end"))
+    return sorted(out, key=lambda m: str(m["start"]))
+
+
+def third_friday(year, month):
+    """某年某月的第三个周五。"""
+    first = datetime.date(year, month, 1)
+    return first + datetime.timedelta(days=(4 - first.weekday()) % 7 + 14)
+
+
+def delivery_day(year, month, trade_cal=None):
+    """股指期货交割日：当月第三个周五，遇休市顺延到下一个交易日。
+    trade_cal：{YYYYMMDD: 是否开市}（行情库 trade_cal）。返回 (日期, 是否经交易日历核对)。
+    交易日历查不到第三个周五，或查到休市却逐日找不到其后的开市日 → 返回第三个周五本身、标未核对。"""
+    tf = third_friday(year, month)
+    cal = trade_cal or {}
+    key = tf.strftime("%Y%m%d")
+    if key not in cal:
+        return tf, False
+    if cal[key]:
+        return tf, True
+    d = tf
+    for _ in range(15):                       # 逐日往后找；中间有一天查不到就不猜
+        d += datetime.timedelta(days=1)
+        k = d.strftime("%Y%m%d")
+        if k not in cal:
+            return tf, False
+        if cal[k]:
+            return d, True
+    return tf, False
+
+
+def delivery_note_text(data_day, trade_cal=None):
+    """交割日注记的文字。数据日距下一个交割日不超过 DELIVERY_WINDOW_DAYS 个日历日 →
+    「股指期货交割日前 N 天（YYYY-MM-DD）」；数据日就是交割日 → 「股指期货交割日（YYYY-MM-DD）」；
+    窗口之外或数据日不合法 → 空串。交易日历没能核对时句尾注明「按第三个周五推算」。只提示日期。"""
+    try:
+        s = str(data_day)
+        d0 = datetime.date(int(s[:4]), int(s[4:6]), int(s[6:8]))
+    except (TypeError, ValueError):
+        return ""
+    cands = []
+    y, m = d0.year, d0.month
+    for _ in range(2):                        # 当月与下月
+        cands.append(delivery_day(y, m, trade_cal))
+        y, m = (y + 1, 1) if m == 12 else (y, m + 1)
+    ahead = [c for c in cands if c[0] >= d0]
+    if not ahead:
+        return ""
+    dd, checked = min(ahead)
+    gap = (dd - d0).days
+    if gap > DELIVERY_WINDOW_DAYS:
+        return ""
+    tail = "" if checked else "·按第三个周五推算"
+    if gap == 0:
+        return f"股指期货交割日（{dd.isoformat()}）{tail}"
+    return f"股指期货交割日前 {gap} 天（{dd.isoformat()}）{tail}"
+
+
+def premarket_role(code, risk_cfg):
+    """盘前读数在风险温度带里属于哪一层。照计温代码的现行口径取，不凭名字猜：
+      环境层＝F1 隔夜外盘实际读取的代码（配置 f1.semi_codes 与 f1.asia_codes；
+              risk_radar_section 里 S2 的环境层是 F1/A6/B6）；
+      触发层＝F5 外部紧缩的计温腿：离岸人民币、布伦特原油（_eval_risk_factors 的汇率腿与油价腿）；
+              美债 10 年期只在配置 f5.bond_scoring 为真时算触发层；
+      信息层＝美债 10 年期在 f5.bond_scoring 为假时（读数照显示、不计温）。
+    三层口径只在 S2 计温下成立；其它计温版本、或温度带不读的读数，返回空串（不加标签）。"""
+    cfg = risk_cfg or {}
+    if (cfg.get("_meta") or {}).get("function_version") != "s2":
+        return ""
+    f1 = cfg.get("f1") or {}
+    if code in list(f1.get("semi_codes") or []) + list(f1.get("asia_codes") or []):
+        return "环境层"
+    if code in ("CNH", "BRENT"):             # F5 的汇率腿与油价腿
+        return "触发层"
+    if code == "US10Y":
+        return "触发层" if (cfg.get("f5") or {}).get("bond_scoring", True) else "信息层"
+    return ""
+
+
+def _trading_passed(base, cap, dates):
+    """base 之后、cap（含）之前的交易日个数（用基准指数交易日序列）。"""
+    try:
+        b, c = iso(base), iso(cap)
+        return sum(1 for d in dates if b < iso(d) <= c)
+    except Exception:
+        return None
+
+
+def stable_period_note(stype, base_date, data_day, dates, fixed_win=None):
+    """信号条目的'稳定超额收益期 X 交易日 · 还有 Y 天'注记。回测均值参照，非个体承诺。"""
+    if not base_date:
+        return ""
+    keys = [x.strip() for x in (stype or "").split(",") if x.strip()]
+    pos = [MECH_WINDOW[k] for k in keys if k in MECH_WINDOW]
+    if fixed_win is not None:
+        win = fixed_win
+    elif pos:
+        win = max(pos)                       # 多机制取最长窗口（保守·给足观察期）
+    elif keys and any(k in VOL_HINT_MECH for k in keys) and all(k in (RISK_MECH | VOL_HINT_MECH) for k in keys):
+        # A2（PRD 2026-07-16）：price_driven（含与 persistent 混合）——波动源非收益源
+        vh = BT_STATS.get("vol_hint", {})
+        return vh.get("text_tpl", "历史无超额 · 波动放大提示 · 复核非买点").format(
+            sample_period=SAMPLE_PERIOD, **{k: v for k, v in vh.items() if k != "text_tpl"})
+    elif keys and all(k in RISK_MECH for k in keys):
+        return "按回测为历史逆风类，无稳定超额期，注意风险"
+    else:
+        win = BT_STATS.get("fallback_window", 10)   # 无匹配机制：兜底中线
+    passed = _trading_passed(base_date, data_day, dates)
+    if passed is None:
+        return f"按回测稳定超额收益期约 {win} 交易日（统计参照）"
+    left = win - passed
+    if left > 0:
+        return f"按回测稳定超额收益期约 {win} 交易日，还有 {left} 天"
+    return f'按回测稳定超额收益期约 {win} 交易日，<span class="period-over">已过 {-left} 天</span>'
+
+
+import re as _re
+# 受益公司国别上色（2026-06-30 Doctor）：外企=樱粉，台湾=青绿，中国/香港=蓝。
+# curated 名单；保守——拿不准默认蓝（港/陆未解析均蓝）。
+# 台企名单来源：渊图 .TW/.TWO 自动命中 8 + 渊图 desc 坐实 5（台积电/联发科/乾坤/南亚电路板/金居），非凭记忆。
+TAIWAN_BENE = {
+    "MPI Corporation", "WinWay Technology", "创意电子 GUC", "台光电材", "广达电脑",
+    "景硕科技", "欣兴电子", "纬湾科技", "台积电", "联发科", "乾坤科技",
+    "南亚电路板", "金居开发"}
+TAIWAN_COLOR = "#1f8a7a"   # 深青绿
+FOREIGN_BENE = {
+    "AXT", "Absolics", "Arm Holdings", "Ciena公司", "Coherent", "Disco", "Granopt", "JX先进金属",
+    "LG Innotek", "Lasertec", "Lumentum", "Marvell Technology", "Meta Platforms", "SK海力士", "Wafertech",
+    "三井金属", "三星电子", "三星电机", "东京电子", "丸和电子", "住友电工", "斗山", "日东纺", "村田制作所",
+    "康宁公司", "味之素", "太阳诱电", "奥特斯", "揖斐电", "日本平野", "是德科技", "美光科技", "美光",
+    "英伟达", "英特尔", "荏原制作所", "谷歌", "超微半导体", "博通"}
+FOREIGN_COLOR = "#d76a92"   # 樱粉
+
+
+def _is_foreign(name):
+    return _re.sub(r"（.*?）|\(.*?\)", "", name or "").strip() in FOREIGN_BENE
+
+
+def _is_taiwan(name):
+    return _re.sub(r"（.*?）|\(.*?\)", "", name or "").strip() in TAIWAN_BENE
+
+
+def bene_html(raw, fallback):
+    """受益标的渲染（图谱口径受益度·轻档 2026-06-25；六维分对齐 2026-06-25·走大宗库口径）：每公司带〔直接/间接·强中弱传导〕+ 白泽口径（命中显纯度/弹性 + **周更六维分**，由 fl 从大宗库 business_breakdown.db 按 **ts_code** 与弹性一起取）；未命中回退渊图图谱 fin。无 detail 回退名字串。"""
+    import json as _j
+    try:
+        det = _j.loads(raw) if raw else []
+    except Exception:
+        det = []
+    if not det:
+        return fallback or "—（待标的解析）"
+    parts = []
+    for b in det:
+        tier, tw = b.get("tier", ""), b.get("tier_w", "")
+        # 命中共享基本面库（白泽 owner·慢变P0年报）→ 显白泽口径；未命中 → 回退渊图图谱 fin 标注
+        bz = fl.fmt(b.get("ts", "")) if b.get("ts") else ""
+        if bz:
+            fintxt = "　" + bz
+        else:
+            fin = b.get("fin") or {}
+            fintxt = ("　图谱:" + "·".join(f"{k}{v}" for k, v in fin.items())) if fin else ""
+        _nm = b.get("name", "")
+        _col = (TAIWAN_COLOR if _is_taiwan(_nm)
+                else FOREIGN_COLOR if _is_foreign(_nm)
+                else "var(--acc,#1B365D)")
+        parts.append(f'<span style="color:{_col};font-weight:600">{_nm}</span> '
+                     f'<span style="font-size:.82em;opacity:.7">〔{tier}·{tw}传导〕</span>'
+                     f'<span style="font-size:.82em;color:var(--gold,#caa45a)">{fintxt}</span>')
+    # 悬挂缩进：整串包 inline-block，换行(<br>)的第2+只名字对齐到第1只下方(2026-06-25)
+    return '<span style="display:inline-block;vertical-align:top">' + "<br>".join(parts) + "</span>"
+
+
+def kcap(amount_trillion):
+    """Doctor 经验表线性插值（经验非规律）：1万亿→1.5 / 2→3.5 / 3→5.5"""
+    pts = [(1.0, 1.5), (2.0, 3.5), (3.0, 5.5)]
+    a = amount_trillion
+    if a <= 1:
+        return 1.5 * a
+    for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
+        if a <= x2:
+            return y1 + (y2 - y1) * (a - x1) / (x2 - x1)
+    return 5.5 + 2.0 * (a - 3.0)
+
+
+# ── 状态中文化（文案去内部化：open/closing/no_anchor 不外露）──
+STATUS_ZH = {"open": "观察中", "closing": "兑现中", "closed": "已兑现",
+             "dormant": "暗态", "no_anchor": "无锚点", "failed": "已证伪",
+             "no_data": "待跟踪"}
+
+
+def fulfill_of(status, desc, excess_cum=None):
+    """兑现度卡结构化字段（不硬造百分比：只在有口径时展示数值）。
+    返回 dict(v=主值, d=副文案, w=条宽%, sent=弹窗一句话)"""
+    desc = desc or ""
+    m_days = re.search(r"(\d+)日", desc)
+    days = m_days.group(1) if m_days else None
+    m_cum = re.search(r"累计([+-]?[\d.]+)%", desc)
+    cum = m_cum.group(1) if m_cum else (
+        f"{excess_cum * 100:+.1f}" if isinstance(excess_cum, (int, float)) else None)
+    m_dd = re.search(r"回撤([+-]?[\d.]+)%", desc)
+    if status == "open":
+        d = f"潜伏期 · 出现{days}日" if days else "潜伏期 · 未启动"
+        return dict(v="未启动", d=d, w=12, sent="价格兑现尚未展开，继续观察锚点是否出现。")
+    if status == "no_anchor":
+        return dict(v="未跟踪", d="无锚点 · 暂不计", w=6,
+                    sent="缺少可跟踪锚点，暂不纳入价格兑现判断。")
+    if status == "closing":
+        d = (f"{days}日 · 累计{cum}%" if days and cum else "兑现中 · 口径待补")
+        sent = (f"跟踪 {days} 日，累计 {cum}%，仍需观察持续性。" if days and cum
+                else "已进入价格兑现，数值口径待补。")
+        return dict(v="兑现中", d=d, w=52, sent=sent)
+    if status == "closed":
+        m_dur = re.search(r"历时(\d+)日", desc)
+        days = m_dur.group(1) if m_dur else days
+        d = (f"{days}日 · 累计{cum}%" if days and cum else "已兑现")
+        sent = (f"跟踪 {days} 日，累计 {cum}%，兑现完毕。" if days and cum else "价格兑现已完成。")
+        return dict(v="已兑现", d=d, w=88, sent=sent)
+    if status == "dormant":
+        # 案2：暗态默认不渲染主栏/台账，此分支仅作兜底（如别处误引用）
+        return dict(v="暗态", d="已兑现 · 候二段", w=70,
+                    sent="本波兑现完毕、转暗态候二段；价格再起达门槛将重新点亮。")
+    if status == "failed":
+        dd = m_dd.group(1) if m_dd else None
+        d = (f"{days}日 · 回撤{dd}%" if days and dd else "已证伪")
+        return dict(v="已证伪", d=d, w=24, sent="价格走势未印证信号，逻辑证伪。")
+    return dict(v="待跟踪", d="暂无口径", w=8, sent="兑现口径待补。")
+
+
+def gather(date_cap=None):
+    md = sqlite3.connect(f"file:{config.MARKET_DB}?mode=ro", uri=True)
+    rc = sqlite3.connect(f"file:{config.RECAP_DB}?mode=ro", uri=True)
+    D = {}
+
+    # ── 行情底座：theme ETF 日收益（pct_chg，复权口径） ──
+    px = defaultdict(dict)
+    for d, c, p in md.execute("SELECT trade_date, etf_code, pct_chg FROM theme_etf_daily "
+                              "WHERE pct_chg IS NOT NULL ORDER BY trade_date"):
+        px[c][d] = p / 100
+    dates = sorted(px[BENCHMARK])
+    if date_cap:
+        dates = [d for d in dates if d <= date_cap]
+        if not dates:
+            raise SystemExit(f"--date {date_cap} 早于最早行情日，无法生成")
+    data_day = dates[-1]
+    D["data_day"] = data_day
+    D["gen_time"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    # R5 · 交易日历（交割日遇休市顺延用）：只取数据日及以后；表缺或查不到 → 空，渲染端按第三个周五推算并注明
+    try:
+        D["trade_cal"] = {d: bool(o) for d, o in md.execute(
+            "SELECT cal_date, is_open FROM trade_cal WHERE cal_date>=? AND is_open IS NOT NULL", (data_day,))}
+    except sqlite3.OperationalError:
+        D["trade_cal"] = {}
+
+    def theme_ex(theme):
+        cs = THEME_ETF[theme]
+        out = {}
+        for d in dates:
+            vals = [px[c][d] for c in cs if d in px[c]]
+            if vals and d in px[BENCHMARK]:
+                out[d] = sum(vals) / len(vals) - px[BENCHMARK][d]
+        return out
+
+    # ── 市场快照（画框下方四联条） ──
+    snap = {}
+    # 大盘基准：沪深300指数真身（2026-09-01 Doctor 裁「换指数真身」· 弃 510300 ETF 代理——
+    #   ETF 二级折溢价曾致连续三日与指数偏离 0.2pp+，见 GOTCHAS ERR-20260901-002）。
+    #   表未建/无数据 → None，渲染标「待取数」不冒充（fail-closed）。缺当日则取最新并标 vintage。
+    idx = defaultdict(dict)
+    try:
+        for d, c, p in md.execute("SELECT trade_date, idx_code, pct_chg FROM cn_index_daily "
+                                  "WHERE pct_chg IS NOT NULL"):
+            idx[c][d] = p / 100
+    except sqlite3.OperationalError:
+        pass
+    IDX = idx.get("000300.SH", {})
+    _idxv = sorted(d for d in IDX if d <= data_day)
+    snap["bench_pct"] = round(IDX[_idxv[-1]] * 100, 2) if _idxv else None
+    snap["bench_note"] = ("沪深300指数" + (f" · vintage {iso(_idxv[-1])}"
+                           if _idxv and _idxv[-1] < data_day else "") if _idxv
+                          else "沪深300指数 · 待取数")
+    # 涨跌家数：对齐成交额 vintage 范式——当日缺则回退最新可得交易日(T-1)并记 vintage，如实标注不空显「待回填」
+    _uddd = md.execute("SELECT MAX(trade_date) FROM stock_daily WHERE trade_date<=?",
+                       (data_day,)).fetchone()
+    ud_vint = _uddd[0] if _uddd else None
+    ud = (md.execute("SELECT SUM(pct_chg>0), SUM(pct_chg<0), SUM(pct_chg=0) FROM stock_daily "
+                     "WHERE trade_date=?", (ud_vint,)).fetchone() if ud_vint else None)
+    snap["up_n"], snap["down_n"], snap["flat_n"] = (ud if ud and ud[0] is not None
+                                                    else (None, None, None))
+    snap["ud_vintage"] = ud_vint
+    snap["ud_stale"] = ud_vint is not None and iso(ud_vint) < iso(data_day)
+    # 口径锁定（2026-08-09 Doctor 批·乙案，取代 07-28 甲案）：全系统统一锁 volume_trillion（真·全A加总·2020+ 全段有效）；
+    # market_amount_daily 降为 2010 前长史专用+双源对撞监控，2020+ 用途禁用（详 Market-Data/MANIFEST.md 定源裁定）。
+    amt_row = md.execute("SELECT trade_date, volume_trillion FROM daily_market "
+                         "WHERE trade_date<=? AND volume_trillion>0 ORDER BY trade_date DESC LIMIT 1",
+                         (data_day,)).fetchone()
+    snap["amount"] = amt_row[1] if amt_row and amt_row[0] == data_day else None
+    snap["amount_vintage"] = amt_row[0] if amt_row else None
+    lim = md.execute("SELECT SUM(limit_type='U'), SUM(limit_type='D') FROM limit_list_daily "
+                     "WHERE trade_date=?", (data_day,)).fetchone()
+    snap["limit_up"], snap["limit_down"] = lim if lim else (None, None)
+    D["snap"] = snap
+
+    # ── 两融余额（F3 杠杆被动出清）——market_data.margin_daily，仅完整日(szse非空)，最新+1/5日变(亿元)。
+    #    两融明细 T+1，故取 ≤data_day 的最新完整日（常为 data_day-1）。表未建/无数据→留 None，F3 渲『待接源』。
+    margin = {"cur_rzye": None, "chg1": None, "chg5": None, "date": None, "cur_rzrqye": None}
+    try:
+        mrows = md.execute(
+            "SELECT trade_date,total_rzye,total_rzrqye FROM margin_daily "
+            "WHERE szse_rzrqye IS NOT NULL AND trade_date<=? ORDER BY trade_date DESC LIMIT 6",
+            (data_day,)).fetchall()
+        if mrows:
+            margin["cur_rzye"], margin["cur_rzrqye"], margin["date"] = mrows[0][1], mrows[0][2], mrows[0][0]
+            if len(mrows) >= 2:
+                margin["chg1"] = round(mrows[0][1] - mrows[1][1], 1)
+            if len(mrows) >= 6:
+                margin["chg5"] = round(mrows[0][1] - mrows[5][1], 1)
+    except sqlite3.OperationalError:
+        pass
+    D["margin"] = margin
+
+    # ── IPO 募资（F4 虹吸）——market_data.ipo_daily，近 win_days 日历日募资合计(亿元)。窗口单一真源＝risk_factors.json f4.win_days（2026-07-22 由20→10·申购锚 ipo_date；此前 days=20 硬编码不读 config，已修）。表未建/无数据→None，F4渲『待接源』。
+    _f4cfg = (RISK_CFG.get("f4") or {})
+    _f4wd = int(_f4cfg.get("raise_win_days", _f4cfg.get("_deprecated_win_days", 10)))
+    _f4M = int(_f4cfg.get("turnover_avg_days", 30))
+    ipo = {"funds_win": None, "n_win": None, "win_days": _f4wd, "latest": None,
+           "avg_turnover": None, "ratio": None, "trigger": None,
+           "ratio_th": _f4cfg.get("ratio_th", 0.030), "avg_days": _f4M}
+    try:
+        _cut = (datetime.date.fromisoformat(iso(data_day)) - datetime.timedelta(days=_f4wd)).strftime("%Y%m%d")
+        _d_s = iso(data_day).replace("-", "")
+        _win_start = (datetime.date.fromisoformat(iso(data_day)) - datetime.timedelta(days=_f4wd - 1)).strftime("%Y%m%d")  # 窗口 (D-10,D] 首个包含日
+        md.execute("BEGIN")   # 显式只读事务快照：覆盖/hash/金额/分母同一版本（VV 第四轮验收修）
+        import hashlib as _hl
+        # 覆盖候选：先验后选——区间含窗口 + complete + events_hash 一致，不盲选最新
+        _cov_row = None
+        for _c in md.execute(
+                "SELECT scan_start, scan_end, complete, funds_missing, events_hash FROM ipo_coverage "
+                "WHERE scan_start<=? AND scan_end>=? AND complete=1 AND events_hash IS NOT NULL "
+                "ORDER BY fetched_at DESC", (_win_start, _d_s)).fetchall():
+            _rows_iv = md.execute(
+                "SELECT trade_date,n_ipo,funds_yi,funds_missing FROM ipo_daily WHERE trade_date BETWEEN ? AND ? ORDER BY trade_date",
+                (_c[0], _c[1])).fetchall()
+            if _hl.sha256(repr(_rows_iv).encode("utf-8")).hexdigest()[:16] == _c[4]:
+                _cov_row = _c
+                break
+        ipo["covered"] = _cov_row is not None
+        # 行级金额完整性（窗口内）：计数聚合空集返回 0（真零可评）；旧行无标记/金额 NULL → 缺失数未知（fail-closed）
+        _wm = md.execute(
+            "SELECT COALESCE(SUM(funds_yi),0), COALESCE(SUM(n_ipo),0), MAX(trade_date), "
+            "COALESCE(SUM(funds_missing),0), COUNT(CASE WHEN funds_missing IS NULL THEN 1 END), "
+            "COUNT(CASE WHEN funds_yi IS NULL THEN 1 END) FROM ipo_daily "
+            "WHERE trade_date>? AND trade_date<=?", (_cut, _d_s)).fetchone()
+        ipo["funds_win"], ipo["n_win"], ipo["latest"] = round(_wm[0], 1), _wm[1], _wm[2]
+        ipo["funds_missing"] = _wm[3] if (_wm[4] == 0 and _wm[5] == 0) else None   # None=未知
+        # F4 相对口径分母（2026-07-23 选型B）：近 _f4M 交易日日均全市场成交额（万亿→亿）。
+        # 须真有 _f4M 个交易日样本才算，否则不可评(None·G-X75「无数据≠未触发」)。乙案2026-08-09：分母换 volume_trillion（真全市场·2020+全有效·ERR-20260719-003已收口）。
+        _sub = md.execute(
+            "SELECT volume_trillion FROM daily_market WHERE volume_trillion>0 "
+            "AND trade_date<=? ORDER BY trade_date DESC LIMIT ?", (data_day, _f4M)).fetchall()
+        if len(_sub) >= _f4M:
+            ipo["avg_turnover"] = round(sum(r[0] for r in _sub) / _f4M * 1e4, 1)
+            if ipo["avg_turnover"]:
+                ipo["ratio"] = round(ipo["funds_win"] / ipo["avg_turnover"], 4)
+        # 触发判定：金额/缺失数未知 → 不可评（第三轮验收修）
+        ipo["trigger"] = risk_function.f4_ratio_trigger(ipo["funds_win"], ipo["avg_turnover"], _f4cfg) \
+            if ipo["funds_missing"] is not None else None
+        md.execute("COMMIT")
+    except sqlite3.OperationalError:
+        try:
+            md.execute("ROLLBACK")
+        except Exception:
+            pass
+        pass
+    D["ipo"] = ipo
+
+    # ── 叙事状态（narrative_regime·Doctor 2026-07-17 裁定）：只收「有长期指导意义的逻辑」（如 AI Capex 叙事转向），
+    #    当天的下跌原因过期极快故不收。仅作 F1 放大器的**上下文注释**，不门控温度（叙事事件一年才几次，无法验证）。
+    #    表未建（待 Doctor 终端跑 scan_narrative_regime.py --ddl）→ 静默跳过。
+    narr = []
+    try:
+        for ds, tag, direc, summ in rc.execute(
+                "SELECT date_start,tag,direction,summary FROM narrative_regime "
+                "WHERE status='active' AND date_start<=? ORDER BY date_start DESC",
+                (iso(data_day),)):
+            narr.append({"start": ds, "tag": tag, "dir": direc, "summary": summ})
+    except sqlite3.OperationalError:
+        pass
+    D["narrative"] = narr
+
+    # ── 离岸人民币 USD/CNH（当前 + 近7交易日曲线）──
+    fx = {"cur": None, "date": None, "series": [], "prev": None, "src": None}
+    try:
+        fxr = rc.execute(
+            "SELECT trade_date, close, source FROM fx_cnh_daily "
+            "WHERE close IS NOT NULL AND trade_date<=? ORDER BY trade_date DESC LIMIT 7",
+            (data_day,)).fetchall()[::-1]               # 升序
+        if fxr:
+            fx["series"] = [(r[0], r[1]) for r in fxr]
+            fx["cur"], fx["date"], fx["src"] = fxr[-1][1], fxr[-1][0], fxr[-1][2]
+            if len(fxr) >= 2:
+                fx["prev"] = fxr[-2][1]
+    except sqlite3.OperationalError:
+        pass                                            # 表未建 → 待回填
+    D["fx"] = fx
+
+    # ── 周期与情绪（emotion_cycle v2） ──
+    em_rows = rc.execute("SELECT date, emotion_score, emotion_season, risk_appetite, cycle_no, "
+                         "limit_up, limit_down, jinji, premium, height FROM emotion_cycle "
+                         "WHERE emotion_score IS NOT NULL AND date<=? "
+                         "ORDER BY date DESC LIMIT 60", (iso(data_day),)).fetchall()[::-1]
+    em_last = em_rows[-1]
+    sc_vals = [r[1] for r in em_rows]
+    ma5 = [round(st.fmean(sc_vals[max(0, i - 4):i + 1]), 1) for i in range(len(sc_vals))]
+    last50 = sc_vals[-50:]
+    pct_rank = round(100 * sum(1 for v in last50 if v <= sc_vals[-1]) / len(last50))
+    trend = ("上行" if len(ma5) > 1 and ma5[-1] > ma5[-2]
+             else ("下行" if len(ma5) > 1 and ma5[-1] < ma5[-2] else "走平"))
+    # 季节判定线分段配色：按春/夏/秋/冬拆成 4 条子序列（同 x 轴对齐，非本季日期留空）
+    # 季节切换处把前一日的值补进新季节序列，避免线段在交界处断开
+    seasons_seq = [(r[2] or "")[0] for r in em_rows]
+    season_arr = {s: [None] * len(ma5) for s in SEASON_COLOR}
+    for i, s in enumerate(seasons_seq):
+        if s not in season_arr:
+            continue
+        season_arr[s][i] = ma5[i]
+        if i > 0 and seasons_seq[i - 1] != s:
+            season_arr[s][i - 1] = ma5[i - 1]
+    D["emotion"] = {
+        "series": [[r[0], r[1], ma5[i]] for i, r in enumerate(em_rows)],
+        "season_series": season_arr,
+        "date": em_last[0], "score": em_last[1], "season": em_last[2],
+        "risk": em_last[3], "cycle_no": em_last[4],
+        "limit_up": em_last[5], "limit_down": em_last[6],
+        "jinji": em_last[7], "premium": em_last[8], "height": em_last[9],
+        "ma5": ma5[-1], "pct_rank": pct_rank, "trend": trend,
+    }
+
+    # ── 容量 ──
+    cap_val = kcap(snap["amount"]) if snap["amount"] else None
+
+    def kday_at(d):
+        # 容量宽度口径：主线篮子日内对沪深300超额 > +0.5pp（与"主线资格"同阈值，
+        # 普涨跟涨不计；2026-06-23 Doctor 裁定由裸涨幅>1% 切超额口径）
+        b = px[BENCHMARK].get(d)
+        if b is None:
+            return 0
+        k = 0
+        for t in THEME_ETF:
+            vals = [px[c][d] for c in THEME_ETF[t] if d in px[c]]
+            if vals and (sum(vals) / len(vals) - b) > 0.005:
+                k += 1
+        return k
+    kday_today = kday_at(data_day)
+    kday = int(st.median([kday_at(d) for d in dates[-5:]]))
+    state = None
+    if cap_val:
+        if kday >= cap_val:
+            state = "满载"
+        else:
+            strong = [t for t in THEME_ETF
+                      if sum(theme_ex(t).get(d, 0) for d in dates[-20:]) > 0.05]
+            ai = sum(1 for t in strong if any(k in t for k in ["光模块", "AI算力", "半导体", "消费电子"]))
+            state = "虹吸" if strong and ai / len(strong) >= 0.75 else "有空位"
+    D["capacity"] = {"kday": kday, "kday_today": kday_today,
+                     "kcap": round(cap_val, 1) if cap_val else None,
+                     "state": state, "amount": snap["amount"]}
+
+    # 美股锚（隔日映射 L1）
+    us = defaultdict(dict)
+    try:
+        for d, t, p in md.execute("SELECT trade_date, ticker, pct_chg FROM us_anchor_daily "
+                                  "WHERE pct_chg IS NOT NULL"):
+            us[t][d] = p / 100
+    except sqlite3.OperationalError:
+        pass
+    us_days = sorted(us.get(BENCHMARK_US, {}))
+
+    # 外盘指数（隔夜·期货预期）——每个 code 取自身最新交易日一行（缺则不返回，render 标缺）
+    intl = []
+    try:
+        for code, sym, name, kind, td, close, pct, note in md.execute(
+                "SELECT code, symbol, name, kind, trade_date, close, pct_chg, note "
+                "FROM intl_index_daily i WHERE trade_date=("
+                "  SELECT MAX(trade_date) FROM intl_index_daily j WHERE j.code=i.code)"):
+            intl.append({"code": code, "symbol": sym, "name": name, "kind": kind,
+                         "date": td, "close": close, "pct": pct, "note": note})
+    except sqlite3.OperationalError:
+        pass
+    D["intl"] = {x["code"]: x for x in intl}
+    # QQQ 应急代理 fallback（2026-08-28 Doctor 裁「另立 code」）：主路 ^NDX 缺当日行时用 SA 应急 QQQ 行顶替并标注
+    if "NASDAQ" not in D["intl"] and "NASDAQ_QQQ" in D["intl"]:
+        _qqq = dict(D["intl"]["NASDAQ_QQQ"])
+        _qqq["code"] = "NASDAQ"
+        _qqq["note"] = (_qqq.get("note") or "") + "（主路^NDX缺·应急代理）"
+        D["intl"]["NASDAQ"] = _qqq
+
+    # 美债 FRED 序列（2026-08-27 Doctor 令 · 10Y 实际收益率 DFII10 / 期限溢价 THREEFYTP10 · 二级详情页数据）
+    # 表缺则空 dict → 详情页对应指标标「待回填」（诚实缺·禁编数）
+    fred = {}
+    try:
+        for sd, ts, v in md.execute("SELECT series_id, trade_date, value FROM fred_ust_daily"):
+            if sd not in fred or ts > fred[sd]["date"]:
+                fred[sd] = {"date": ts, "value": v}
+    except sqlite3.OperationalError:
+        pass
+    D["fred"] = fred
+
+    # ── F1 隔夜护栏（Doctor 2026-07-17 裁定 A 档）：外盘取「**严格早于** A 股数据日」的最新场次＝真隔夜。
+    #    定时链 16:00 北京跑时美股当日尚未开盘 → 与 D["intl"] 等价（护栏为 no-op）；
+    #    仅手工/盘中补数时生效，防前视（否则会拿美股 D 日未收盘场次去解释 A 股 D 日）。
+    #    只供 F1 计算，不改外盘展示栏语义（展示栏仍读 D["intl"]）。
+    intl_on = []
+    try:
+        for code, sym, name, kind, td, close, pct, note in md.execute(
+                "SELECT code, symbol, name, kind, trade_date, close, pct_chg, note "
+                "FROM intl_index_daily i WHERE trade_date=("
+                "  SELECT MAX(trade_date) FROM intl_index_daily j "
+                "  WHERE j.code=i.code AND j.trade_date<?)", (data_day,)):
+            intl_on.append({"code": code, "symbol": sym, "name": name, "kind": kind,
+                            "date": td, "close": close, "pct": pct, "note": note})
+    except sqlite3.OperationalError:
+        pass
+    D["intl_on"] = {x["code"]: x for x in intl_on}
+    # QQQ 应急代理 fallback（F1 隔夜护栏同款 · 2026-08-28 Doctor 裁「另立 code」）
+    if "NASDAQ" not in D["intl_on"] and "NASDAQ_QQQ" in D["intl_on"]:
+        _qqq = dict(D["intl_on"]["NASDAQ_QQQ"])
+        _qqq["code"] = "NASDAQ"
+        _qqq["note"] = (_qqq.get("note") or "") + "（主路^NDX缺·应急代理）"
+        D["intl_on"]["NASDAQ"] = _qqq
+
+    def us_info(theme):
+        if theme not in THEME_US or not us_days:
+            return None
+        tkr, kind = THEME_US[theme]
+        if tkr not in us:
+            return None
+        uds = sorted(set(us[tkr]) & set(us_days))
+        if not uds:
+            return None
+        last = uds[-1]
+        ex20 = sum(us[tkr][d] - us[BENCHMARK_US][d] for d in uds[-20:])
+        ov = us[tkr][last] - us[BENCHMARK_US][last]
+        return {"tkr": tkr, "kind": kind, "us_date": last, "overnight": round(ov * 100, 1),
+                "ex20": round(ex20 * 100, 1),
+                "alert": abs(ov) >= (0.04 if tkr == "ALM" else 0.02)}
+
+    def us_abs_series(tkr, win):
+        # 美股锚归一化累计%，隔夜映射对齐到 A 股窗口 win（严格早于每个 A 股日→无未来函数），
+        # rebase 到窗口起点=0；无锚/无数据→None（诚实缺，render 不画蓝线）
+        if not tkr or tkr not in us:
+            return None
+        pairs = sorted((iso(k), v) for k, v in us[tkr].items())
+        if not pairs:
+            return None
+        cumpairs, c = [], 0.0
+        for dt, v in pairs:
+            c += v
+            cumpairs.append((dt, c))
+
+        def cum_lt(dd):
+            val = 0.0
+            for dt, cc in cumpairs:
+                if dt < dd:
+                    val = cc
+                else:
+                    break
+            return val
+        base = cum_lt(iso(win[0]))
+        return [round((cum_lt(iso(d)) - base) * 100, 2) for d in win]
+
+    themes = []
+    for t in THEME_ETF:
+        ex = theme_ex(t)
+        ds = [d for d in dates if d in ex]
+        spark = []
+        cum = 0
+        for d in ds[-20:]:
+            cum += ex[d]
+            spark.append(round(cum * 100, 2))
+        # 绝对走势（归一化累计%）：板块 ETF 篮子 / 大盘 / 美股锚，共用同一 20 个 A 股交易日窗口
+        win = ds[-20:]
+        abs_sp, bench_sp, ca, cb = [], [], 0.0, 0.0
+        for d in win:
+            vv = [px[c][d] for c in THEME_ETF[t] if d in px[c]]
+            ca += (sum(vv) / len(vv)) if vv else 0.0
+            cb += IDX.get(d, 0.0)   # 大盘线=沪深300指数累计（价格指数口径，与快照同源）
+            abs_sp.append(round(ca * 100, 2))
+            bench_sp.append(round(cb * 100, 2))
+        us_sp = us_abs_series(THEME_US[t][0] if t in THEME_US else None, win) if win else None
+        e5 = sum(ex[d] for d in ds[-5:]) * 100
+        e20 = sum(ex[d] for d in ds[-20:]) * 100
+        e60 = sum(ex[d] for d in ds[-60:]) * 100
+        sig = rc.execute("SELECT gap_status, COUNT(*) FROM industry_signals "
+                         "WHERE etf_anchor=? AND date>=? GROUP BY gap_status",
+                         (t, (datetime.date.fromisoformat(iso(dates[-22]))).isoformat())
+                         ).fetchall()
+        sigc = dict(sig)
+        latest_desc = rc.execute("SELECT gap_desc FROM industry_signals WHERE etf_anchor=? "
+                                 "AND gap_status='closing' ORDER BY date DESC LIMIT 1",
+                                 (t,)).fetchone()
+        themes.append({
+            "name": t, "short": t.split("/")[0], "e5": round(e5, 1), "e20": round(e20, 1),
+            "e60": round(e60, 1), "spark": spark, "sig": sigc,
+            "abs_spark": abs_sp, "bench_spark": bench_sp, "us_spark": us_sp,
+            "desc": latest_desc[0] if latest_desc else "",
+            "us": us_info(t),
+        })
+    themes.sort(key=lambda x: -x["e20"])
+    D["themes"] = themes
+
+    # ── 主线板块 · 近3日（资格=对大盘有比较优势；数量≤当日K_cap） ──
+    ratings = {}
+    for f in glob.glob(str(RECORDS / "*.json")):
+        try:
+            j = json.load(open(f))
+            a = j["analyses"][-1]
+            ratings[j["name"]] = {"total": a["total"], "rating": a.get("rating", ""),
+                                  "date": a["analysis_date"]}
+        except Exception:
+            pass
+    D["_ratings"] = ratings
+    amt_all = dict(md.execute("SELECT trade_date, volume_trillion FROM daily_market WHERE volume_trillion>0"))
+    tmap = {t["name"]: t for t in themes}
+    maindays = []
+    for d in dates[-3:][::-1]:          # 当日 / 前1日 / 前2日
+        day_amt = amt_all.get(d)
+        day_cap = round(kcap(day_amt)) if day_amt else None
+        lines = []
+        for name in THEME_ETF:
+            cs = THEME_ETF[name]
+            vals = [px[c][d] for c in cs if d in px[c]]
+            if not vals or d not in px[BENCHMARK]:
+                continue
+            day_pct = sum(vals) / len(vals) * 100
+            excess = day_pct - px[BENCHMARK][d] * 100
+            # 主线资格（Doctor 2026-06-10）：涨幅>+1% 且 对大盘超额>+0.5pp——普涨跟涨不算主线
+            if day_pct > 1.0 and excess > 0.5:
+                t = tmap[name]
+                tg = rc.execute(
+                    "SELECT target FROM industry_signals WHERE etf_anchor=? AND date>=? "
+                    "AND target IS NOT NULL AND target NOT IN ('','(主题)') "
+                    "ORDER BY date DESC LIMIT 4",
+                    (name, (datetime.date.fromisoformat(iso(d))
+                            - datetime.timedelta(days=30)).isoformat())).fetchall()
+                leaders, seen = [], set()
+                for row in tg:
+                    for n in (row[0] or "").replace("、", ",").split(","):
+                        n = n.strip()
+                        if n and n not in seen and len(leaders) < 5:
+                            seen.add(n)
+                            rt = ratings.get(n)
+                            leaders.append(n + (f"({rt['total']})" if rt else ""))
+                logic = rc.execute(
+                    "SELECT keyword, substr(signal_content,1,80) FROM industry_signals "
+                    "WHERE etf_anchor=? AND date<=? ORDER BY date DESC LIMIT 1",
+                    (name, iso(d))).fetchone()
+                lines.append({
+                    "name": name, "short": name.split("/")[0],
+                    "day_pct": round(day_pct, 2), "excess": round(excess, 2),
+                    "etf": " / ".join(cs), "e20": t["e20"], "spark": t["spark"],
+                    "abs_spark": t["abs_spark"], "bench_spark": t["bench_spark"],
+                    "us_spark": t["us_spark"],
+                    "us": t["us"], "desc": t["desc"],
+                    "leaders": leaders,
+                    "logic": (f"{logic[0]}｜{logic[1]}" if logic else "近期无入库产业逻辑信号"),
+                })
+        lines.sort(key=lambda x: -x["excess"])
+        shown = lines[:day_cap] if day_cap else lines
+        maindays.append({"date": d, "amount": day_amt, "kcap": day_cap,
+                         "qualified": len(lines), "lines": shown})
+    D["maindays"] = maindays
+
+    # 信号明细（近14天）——机会/风险模块仍用
+    cutoff = (datetime.date.fromisoformat(iso(data_day)) - datetime.timedelta(days=14)).isoformat()
+    sigs = rc.execute(
+        "SELECT date, etf_anchor, keyword, info_gap_level, gap_status, gap_desc, confidence "
+        "FROM industry_signals WHERE date>=? AND etf_anchor!='' "
+        "AND (info_gap_level>=3 OR gap_status IN ('open','closing')) "
+        "ORDER BY date DESC, info_gap_level DESC, gap_raw DESC", (cutoff,)).fetchall()
+    D["signals"] = [dict(date=r[0], theme=(r[1] or "").split("/")[0], kw=r[2],
+                         lvl=r[3], status=r[4], desc=r[5], conf=r[6]) for r in sigs]
+
+    # ── GAP 信号栏主源：渊图信号 × 行情兑现 ──
+    # 口径铁律（G-07）：按产业信号时间分组（yuantu_buy_signals.date=信号自带时间，
+    # 缺自带时间时上游已回填纪要/研报 data_vintage）；created_at 仅为入库痕迹，禁用。
+    yt_dates = [r[0] for r in rc.execute(
+        "SELECT DISTINCT date FROM yuantu_buy_signals WHERE length(date)=10 "
+        "ORDER BY date DESC LIMIT 3")]
+    ytdays = []
+    for sd in yt_dates:
+        rows = rc.execute(
+            "SELECT industry_chain, signal_node, signal_type, yuantu_confidence, "
+            "beneficiaries, xiaobao_echo, gap_status, gap_desc, etf_anchor, excess_cum, "
+            "beneficiaries_detail "
+            "FROM yuantu_buy_signals WHERE date=? ORDER BY yuantu_confidence DESC", (sd,)).fetchall()
+        sigs_d = []
+        for r in rows:
+            status = r[6] or "no_data"
+            if status == "dormant":
+                continue   # 案2：暗态不渲染主栏，仅计入暗态计数（D["dormant_n"]）
+            desc = (r[7] or "").replace("发现", "出现")   # 文案去内部化
+            sigs_d.append(dict(
+                chain=r[0] or r[1], node=r[1], stype=r[2] or "", conf=r[3],
+                bene=r[4] or "", bene_detail=r[10] or "", echo=bool(r[5]), status=status,
+                desc=desc, theme=(r[8] or "").split("/")[0],
+                period=stable_period_note(r[2] or "", sd, data_day, dates),
+                fulfill=fulfill_of(status, desc, r[9])))
+        ytdays.append({"date": sd, "sigs": sigs_d})
+    D["ytdays"] = ytdays
+    # 审计修复 2026-07-28：渊图源停更「栏级」告警（fail-visible）——第三栏与 P0·GAP 卡整体依赖本源，
+    # 07-18 起源停更 9 天此前无任何整栏警示（单卡"已N日"不够醒目）。算 vintage 落 D，渲染侧挂横幅。
+    try:
+        _ytmax = yt_dates[0] if yt_dates else None
+        import datetime as _dtm
+        D["yt_max_date"] = _ytmax
+        D["yt_stale_days"] = ((_dtm.date.fromisoformat(iso(data_day)) - _dtm.date.fromisoformat(_ytmax)).days
+                              if _ytmax else None)
+    except Exception:
+        D["yt_max_date"] = None; D["yt_stale_days"] = None
+
+    # 2026-09-14 NOTE-20260914-002：KG 健康分诊戳（sync_buy_signals 落库；旧 recap 无此表→None）
+    try:
+        _kgr = rc.execute("SELECT kg_updated, health_overall, health_stamped, checked_at "
+                          "FROM yuantu_kg_health WHERE id=1").fetchone()
+        D["yt_kg_health"] = (dict(kg_updated=_kgr[0], health_overall=_kgr[1],
+                                  health_stamped=_kgr[2], checked_at=_kgr[3])
+                             if _kgr else None)
+    except Exception:
+        D["yt_kg_health"] = None
+
+    # 案2 暗态计数（已兑现·候二段，不渲染主栏/台账，仅留入口）
+    try:
+        D["dormant_n"] = rc.execute(
+            "SELECT COUNT(*) FROM yuantu_buy_signals WHERE gap_status='dormant'").fetchone()[0]
+    except Exception:
+        D["dormant_n"] = 0
+
+    # A1（PRD 2026-07-16）：当前处于二段点亮态的信号 → 中性观察列表（不进强信号栏）
+    try:
+        D["relit_active"] = [
+            dict(chain=r[0] or r[1], node=r[1] or "", relit_date=r[2] or "", relit_count=r[3] or 0)
+            for r in rc.execute(
+                "SELECT industry_chain, signal_node, relit_date, relit_count FROM yuantu_buy_signals "
+                "WHERE gap_status='closing' AND relit_count>0 ORDER BY relit_date DESC").fetchall()]
+    except Exception:
+        D["relit_active"] = []
+
+    # ── 强信号优先条取数（回测落地批·置顶 glow）2026-07-08 ──
+    # 卡A「一段兑现启动」：当日新转 realized 的渊图主线（严格当日增量 date_realized==data_day）
+    #   回测锚 docs/自主回测_20260706/relit.json「一段realized」n=181/182·3d 胜率 84.5%（渊图信号级·口径一致）
+    dd_iso = iso(data_day)
+    realized_today = []
+    try:
+        for r in rc.execute(
+                "SELECT industry_chain, signal_node, signal_type, gap_desc, date_realized, "
+                "beneficiaries, beneficiaries_detail, xiaobao_echo, gap_status, excess_cum "
+                "FROM yuantu_buy_signals WHERE date_realized IS NOT NULL AND date_realized!='' "
+                "ORDER BY yuantu_confidence DESC").fetchall():
+            if iso(r[4]) != dd_iso:
+                continue
+            realized_today.append(dict(
+                chain=r[0] or r[1], node=r[1] or "", stype=r[2] or "",
+                desc=(r[3] or "").replace("发现", "出现"), realized=r[4] or "",
+                bene=r[5] or "", bene_detail=r[6] or "", echo=bool(r[7]),
+                status=r[8] or "no_data", excess_cum=r[9],
+                period=stable_period_note(r[2] or "", r[4], data_day, dates,
+                                          fixed_win=BT_STATS["glow"]["yiduan"]["win_days"])))
+    except Exception:
+        realized_today = []
+    D["realized_today"] = realized_today
+
+    # ERR-20260911-001 ②：胜率引用改滚动窗口——stock_tracking 实时回测列（signal_winrate_backtest 已入日链）
+    # 口径：own 可交易池（resolved · 剔「已无信息差·不做」gap1×price_driven）· 3 日超额命中
+    try:
+        _wr = rc.execute(
+            "SELECT COUNT(*), ROUND(AVG(hit_3d)*100,1), ROUND(AVG(excess_3d),2), MAX(signal_date) "
+            "FROM stock_tracking WHERE target_pool='own' AND resolve_status='resolved' "
+            "AND NOT (logic_type='price_driven' AND info_gap_level=1) AND hit_3d IS NOT NULL").fetchone()
+        D["own_winrate"] = ({"n": _wr[0], "wr": _wr[1], "exc": _wr[2], "max_sig": _wr[3]}
+                            if _wr and _wr[0] else None)
+    except Exception:
+        D["own_winrate"] = None
+
+    # 卡B「需求爆发主线」：在途(open/closing)且 signal_type 含 demand_surge 的渊图信号
+    #   回测锚 docs/自主回测_20260706/agg_stock.json own_分逻辑 demand_surge n=188·10d 超额 +5.23%
+    #   ⚠ 口径：own 标的池（logic_type），非渊图信号级——注记须如实标口径来源（Doctor 2026-07-08）
+    demand_hot, _seen_dh = [], set()
+    try:
+        for r in rc.execute(
+                "SELECT industry_chain, signal_node, signal_type, gap_status, gap_desc, yuantu_confidence, date, "
+                "beneficiaries, beneficiaries_detail, xiaobao_echo, excess_cum "
+                "FROM yuantu_buy_signals WHERE length(date)=10 "
+                "AND gap_status IN ('open','closing') AND signal_type LIKE '%demand_surge%' "
+                "AND (relit_count IS NULL OR relit_count=0) "   # A1：二段点亮不再进强信号栏（点亮后10日历史转负）
+                "ORDER BY yuantu_confidence DESC").fetchall():
+            chain = r[0] or r[1]
+            if chain in _seen_dh:   # 同产业链去重，取最高置信度那条
+                continue
+            _seen_dh.add(chain)
+            demand_hot.append(dict(
+                chain=chain, node=r[1] or "", stype=r[2] or "",
+                status=r[3] or "no_data", desc=(r[4] or "").replace("发现", "出现"), conf=r[5] or 0,
+                bene=r[7] or "", bene_detail=r[8] or "", echo=bool(r[9]), excess_cum=r[10],
+                period=stable_period_note(r[2] or "", r[6], data_day, dates)))
+    except Exception:
+        demand_hot = []
+    D["demand_surge_hot"] = demand_hot
+
+    # 一条产业链→其在途信号涉及的机制集（Doctor 2026-07-08 聚合口径）
+    #   同链多 concept（如 G657A2：供给短缺 concept=持续失衡 + 季节需求 concept=需求爆发）时，
+    #   机制分散在多条记录里，须按【整链机制集】判"纯持续失衡"与"信息差收敛"，而非单条记录 signal_type。
+    chain_mechs = defaultdict(set)
+    try:
+        for r in rc.execute("SELECT DISTINCT industry_chain, signal_type FROM yuantu_buy_signals "
+                            "WHERE length(date)=10 AND gap_status IN ('open','closing')"):
+            for m in (r[1] or "").split(","):
+                m = m.strip()
+                if m:
+                    chain_mechs[r[0]].add(m)
+    except Exception:
+        pass
+    D["chain_mechs"] = {k: v for k, v in chain_mechs.items()}
+    _pure_persist = {ch for ch, ms in chain_mechs.items() if ms == {"persistent_imbalance"}}  # 整链纯持续失衡
+
+    # 各机制当前在途条数——持续失衡=整链纯持续失衡的链数（非单条记录）；其余机制含组合（LIKE）
+    mech_n = {}
+    try:
+        for key in ("supply_shock", "event_driven", "tech_innovation",
+                    "price_driven", "persistent_imbalance"):
+            if key == "persistent_imbalance":
+                mech_n[key] = len(_pure_persist)
+            else:
+                mech_n[key] = len(rc.execute(
+                    "SELECT DISTINCT industry_chain FROM yuantu_buy_signals "
+                    "WHERE length(date)=10 AND gap_status IN ('open','closing') AND signal_type LIKE ?",
+                    (f"%{key}%",)).fetchall())
+    except Exception:
+        mech_n = {}
+    D["mech_inflight_n"] = mech_n
+
+    # 供给冲击/持续失衡 在途信号明细（机制排行横向 chip）——含受益标的字段
+    #   持续失衡组只留「整链纯持续失衡」；供给冲击含组合（LIKE）
+    mech_signals = {}
+    try:
+        for key in ("supply_shock", "persistent_imbalance"):
+            cond, val = (("signal_type=?", "persistent_imbalance")
+                         if key == "persistent_imbalance" else ("signal_type LIKE ?", f"%{key}%"))
+            seen, lst = set(), []
+            for r in rc.execute(
+                    "SELECT industry_chain, signal_node, signal_type, gap_status, gap_desc, yuantu_confidence, "
+                    "beneficiaries, beneficiaries_detail, xiaobao_echo, excess_cum, date "
+                    "FROM yuantu_buy_signals WHERE length(date)=10 AND gap_status IN ('open','closing') "
+                    "AND " + cond + " ORDER BY yuantu_confidence DESC", (val,)).fetchall():
+                chain = r[0] or r[1]
+                if chain in seen:
+                    continue
+                if key == "persistent_imbalance" and chain not in _pure_persist:
+                    continue   # 整链还含正 edge 机制（如 G657A2 含需求爆发）→ 不算纯持续失衡，剔除
+                seen.add(chain)
+                _ov = SIGNAL_OVERRIDE.get(r[1] or "")
+                lst.append(dict(chain=chain, node=r[1] or "", stype=r[2] or "",
+                                disp=(_ov["name"] if _ov else chain), detail=(_ov["detail"] if _ov else ""),
+                                status=r[3] or "no_data", desc=(r[4] or "").replace("发现", "出现"),
+                                bene=r[6] or "", bene_detail=r[7] or "", echo=bool(r[8]), excess_cum=r[9],
+                                conf=r[5] or 0,
+                                period=stable_period_note(r[2] or "", r[10], data_day, dates)))
+            mech_signals[key] = lst
+    except Exception:
+        mech_signals = {}
+    D["mech_signals"] = mech_signals
+
+    # ── 在途未兑现台账：所有 open/closing 渊图信号（不受 top-3 时间窗限制）──
+    # 补全展示：被主栏时间窗吞掉但状态仍在途的信号；同产业链取最近一条去重，
+    # 排除已在主栏 top-3 窗口的信号日，标注"停跟天数"（data_day − 信号日）。
+    yt_dateset = set(yt_dates)
+    seen_chains, inflight = set(), []
+    for r in rc.execute(
+            "SELECT date, industry_chain, signal_node, signal_type, yuantu_confidence, "
+            "beneficiaries, xiaobao_echo, gap_status, gap_desc, etf_anchor, excess_cum, "
+            "date_realized, direction, direction_flip_date, beneficiaries_detail, "
+            "source_plevel, relit_count "
+            "FROM yuantu_buy_signals WHERE length(date)=10 "
+            "AND gap_status IN ('open','closing') ORDER BY date DESC"):
+        chain = r[1] or r[2]
+        if chain in seen_chains:
+            continue
+        seen_chains.add(chain)
+        if r[0] in yt_dateset:          # 已在主栏 top-3 窗口展示，不重复
+            continue
+        status = r[7] or "no_data"
+        desc = (r[8] or "").replace("发现", "出现")
+        try:
+            lag = (datetime.date.fromisoformat(iso(data_day))
+                   - datetime.date.fromisoformat(r[0])).days
+        except Exception:
+            lag = None
+        # 进入趋势天数 = data_day − date_realized（价格触发/streak首日）；open 无则 None
+        try:
+            trend_lag = (datetime.date.fromisoformat(iso(data_day))
+                         - datetime.date.fromisoformat(iso(r[11]))).days if r[11] else None
+        except Exception:
+            trend_lag = None
+        inflight.append(dict(
+            date=r[0], chain=chain, node=r[2], stype=r[3] or "", conf=r[4] or 0,
+            bene=r[5] or "", echo=bool(r[6]), status=status, desc=desc,
+            theme=(r[9] or "").split("/")[0], lag=lag, trend_lag=trend_lag,
+            date_realized=r[11] or "", direction=r[12] or "多", flip_date=r[13] or "",
+            bene_detail=r[14] or "",
+            plv=r[15] or "—", relit=r[16] or 0,
+            fulfill=fulfill_of(status, desc, r[10])))
+    inflight.sort(key=lambda x: (x["lag"] if x["lag"] is not None else -1), reverse=True)
+    # 方向分治（2026-06-25）：多头进正向台账；空头(卖出/买入转卖出)入风险提示、不正向追踪
+    D["inflight"] = [g for g in inflight if g.get("direction") != "空"]
+    D["inflight_risk"] = [g for g in inflight if g.get("direction") == "空"]
+
+    # 课件信号（第二印证源，页面弱化为「课件信号」）：仅最新一批
+    sd = rc.execute("SELECT MAX(date) FROM industry_signals WHERE etf_anchor!='' "
+                    "AND (info_gap_level>=3 OR gap_status IN ('open','closing'))").fetchone()[0]
+    rows = rc.execute(
+        "SELECT etf_anchor, keyword, info_gap_level, gap_status, gap_desc, "
+        "signal_content, confidence FROM industry_signals "
+        "WHERE date=? AND etf_anchor!='' "
+        "AND (info_gap_level>=3 OR gap_status IN ('open','closing')) "
+        "ORDER BY info_gap_level DESC, gap_raw DESC", (sd,)).fetchall() if sd else []
+    D["sigdays"] = [{"date": (sd or ""), "sigs": [dict(
+        theme=(r[0] or "").split("/")[0], theme_full=r[0], kw=r[1], lvl=r[2],
+        status=r[3], desc=(r[4] or "").replace("发现", "出现"), content=r[5] or "", conf=r[6] or "")
+        for r in rows]}]
+
+    # ── 机会 + 标的 + 三口径仓位 ──
+    # 容量闸·强度排位制（2026-07-10 Doctor 裁定，取代原全局 state 闸）：
+    #   确认走强的候选按 e20（20日累计超额=强弱）排序，市场只供养最强 round(K_cap) 条。
+    #   前 K_cap 名「容量允许」入栏、余者排位靠后（容量不允许）不列 → 强新线自然挤掉弱旧线＝轮动。
+    #   「新线 vs 在场旧线」（e20>5 已入强线篮 line ~367 口径）只作标签，不决定放行。
+    #   缺成交额（K_cap=None）→ 无法判容量，如实标「容量未知」并照列（数据真实性铁律：缺数标注不臆断）。
+    ratings = D["_ratings"]
+    _kcap = D["capacity"]["kcap"]
+    budget = round(_kcap) if isinstance(_kcap, (int, float)) else None
+    # themes 已按 -e20 排好序（line ~439），故遍历顺序即强弱降序
+    opps = []
+    rank = 0
+    for t in themes:
+        # 价格信号叠加（2026-06-30 Doctor·分层）：产业逻辑买入已在上游独立成栏，本栏在其上叠价格确认。
+        # 两层——中期趋势确认 e20>0（月度正超额，与锚侧 ex20 同 20 日窗）+ 短期正在启动 e5>0（新鲜点火）。
+        early = ((t["sig"].get("open", 0) > 0 or "兑现初期" in (t["desc"] or ""))
+                 and t["e20"] > 0 and t["e5"] > 0)
+        anchor_ok = not (t["us"] and t["us"]["kind"] == "echo" and t["us"]["ex20"] < ANCHOR_BREAK_US_EX20)
+        if not (early and anchor_ok):
+            continue
+        rank += 1  # 在确认走强候选内的强度排位（themes 已降序 → rank 即排位）
+        # 容量闸：排位在 round(K_cap) 内才「容量允许」；超出＝市场供养不下，排位靠后，停列。
+        if budget is not None and rank > budget:
+            break  # 后续候选 e20 只会更弱，直接停
+        role = "在场强线" if t["e20"] > 5 else "新线"
+        rank_label = f"排位 {rank}/{budget}" if budget is not None else "容量未知"
+        cap_note = f"{rank_label} · {role}" if budget is not None else f"{rank_label}（缺成交额）· {role}"
+        tg = rc.execute("SELECT DISTINCT target FROM industry_signals WHERE etf_anchor=? "
+                        "AND date>=? AND target IS NOT NULL AND target NOT IN ('','(主题)') "
+                        "ORDER BY date DESC LIMIT 3", (t["name"], cutoff)).fetchall()
+        names = []
+        for row in tg:
+            for n in (row[0] or "").replace("、", ",").split(","):
+                n = n.strip()
+                if n and len(names) < 6:
+                    names.append({"name": n, **ratings.get(n, {})})
+        opps.append({"theme": t["short"], "e20": t["e20"], "e5": t["e5"], "desc": t["desc"],
+                     "targets": names,
+                     "note": cap_note, "rank_label": rank_label, "role": role,
+                     "exit": opp_exit_text(t["us"], budget)})   # R5 · 何时移出本栏
+    D["opps"] = opps[:OPP_MAX_ROWS]
+
+    xb_pos = rc.execute("SELECT date, position_band, position_risk_pref FROM dim4_trade_plan "
+                        "WHERE position_band IS NOT NULL ORDER BY date DESC LIMIT 1").fetchone()
+    D["positions"] = {
+        "xiaobao": {"band": xb_pos[1], "pref": xb_pos[2], "date": xb_pos[0]} if xb_pos else None,
+        "capacity": D["capacity"]["state"],
+        "note": "三口径并列（Doctor 裁定，不合成）：小鲍=总仓位 ｜ 容量=能否开新线 ｜ 龙鱼=个股配置资格",
+    }
+
+    # ── 风险 ──
+    risks = []
+    risk_themes = []
+    for t in themes:
+        u = t["us"]
+        if u and u["kind"] == "echo" and u["ex20"] < ANCHOR_BREAK_US_EX20 and t["e20"] > 5:
+            risk_themes.append(t["short"])
+            risks.append({"lvl": "红", "txt": f"美股锚背离：{t['short']} A股20日超额 {t['e20']:+.1f}% "
+                          f"但锚 {u['tkr']} 20日超额 {u['ex20']:+.1f}%（全球定价撤退，A股独舞）"})
+    # R5 · 反向背离（锚强而本地未跟）：黄色提示。不进 risk_themes，不改任何入栏逻辑
+    for t in themes:
+        _lead = anchor_lead_risk(t["short"], t["e20"], t["us"])
+        if _lead:
+            risks.append(_lead)
+    # 2026-08-20 ERR-20260820-001（Doctor 裁 C 案）：条目级「逾期未启动」是单条信号锚失效判定，
+    # 不得升维成板块名单（15 板块兑现率 82-99% 却曾整版列进「等轮动」）。
+    # A 文案精确化 + B 聚合过滤（只列该锚逾期未兑现条目占比 ≥30% 的锚，阈值 Doctor 2026-08-20 裁）。
+    od = rc.execute("SELECT COUNT(*), GROUP_CONCAT(DISTINCT etf_anchor) FROM industry_signals "
+                    "WHERE gap_desc LIKE '%逾期%' AND COALESCE(status, '') != 'retired'").fetchone()
+    odf = rc.execute("""
+        SELECT GROUP_CONCAT(anchor) FROM (
+          SELECT etf_anchor AS anchor
+          FROM industry_signals
+          WHERE COALESCE(status, '') != 'retired'
+          GROUP BY etf_anchor
+          HAVING SUM(CASE WHEN gap_desc LIKE '%逾期%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) >= 0.30
+        )""").fetchone()
+    if od and od[0]:
+        od_themes = (odf[0] if odf and odf[0] else "").replace('创新药/医药/CRO', '创新药')
+        if od_themes:
+            risks.append({"lvl": "黄", "txt": f"逾期未兑现锚点信号 {od[0]} 条（高占比板块：{od_themes}）"
+                          "——单条信号锚存疑，板块整体启动状态见兑现状态区"})
+        else:
+            risks.append({"lvl": "黄", "txt": f"逾期未兑现锚点信号 {od[0]} 条——单条信号锚存疑，"
+                          "分散于各板块（无板块占比超 30%，板块整体启动状态见兑现状态区）"})
+    if D["capacity"]["state"] == "满载":
+        risks.append({"lvl": "黄", "txt": f"容量满载：K(5日中位) {kday} ≥ K_cap {D['capacity']['kcap']}"
+                      "（新线启动需旧线让位，注意轮动）"})
+    if "源杰科技" in ratings:
+        risks.append({"lvl": "黄", "txt": "估值极限标的在主线内：源杰科技（龙鱼估值维 2/15，PB 历史97.9%分位）"
+                      "、奥比中光（PB 99.5%分位）——追高赔率差（分位为 2026-07 中旬快照·非逐日更新·核龙鱼库现值）"})
+    em = D["emotion"]
+    if "秋" in (em["season"] or "") or "冬" in (em["season"] or ""):
+        risks.append({"lvl": "黄", "txt": f"情绪周期处下行期（{em['season']}，评分 {em['score']}）"
+                      "——风险偏好收缩中，机会提示需折扣"})
+    D["risks"] = risks
+    D["risk_themes"] = risk_themes
+    # ── 体系提炼摘录（2026-10-21 · PRD 2026-10-21_烛照日报整合上游提炼 · 班内摘录写 docs/）──
+    # 只读 docs/daily_integration_{data_day}.json（九儿摘录步产出）；缺件/格式坏 → None，渲染「今日无」。
+    _intg = None
+    try:
+        _ip = Path(__file__).resolve().parent.parent / "docs" / f"daily_integration_{iso(data_day)}.json"
+        # L3 文件名格式断言（2026-11-06）：契约＝横杠日期 daily_integration_YYYY-MM-DD.json；
+        # 紧凑格式（daily_integration_20261028.json）会在此读漏而渲染「今日无」（2026-10-28 实例）→ fail-visible 警告。
+        _ip_compact = _ip.with_name(f"daily_integration_{iso(data_day).replace('-', '')}.json")
+        if not _ip.exists() and _ip_compact.exists():
+            logger.warning(f"⚠ 隔日关注文件名不合契约：{_ip_compact.name}（应为 {_ip.name}）——本期按缺件渲染「今日无」，请改名")
+        if _ip.exists():
+            _intg = json.loads(_ip.read_text(encoding="utf-8"))
+            if not isinstance(_intg, dict) or not isinstance(_intg.get("notes"), list):
+                _intg = None
+    except Exception:
+        _intg = None
+    # L3 固定槽位（2026-11-06）：EAL 宏观惊奇 / 星空 NE 两键，由 scripts/integration_slots.py 只读上游算出；
+    # 文件在场则写回 docs/ 当日 json（两键），缺件则只随 D 渲染、不代建文件；没有当日产物 text="无"，不编数。
+    try:
+        import integration_slots as _islots
+        _intg2, _slots, _sinfo = _islots.ensure_slots(iso(data_day), write_back=True)
+        if _intg is not None:
+            for _k in _islots.SLOT_KEYS:
+                _intg[_k] = _slots[_k]
+        if _sinfo.get("written"):
+            logger.info(f"🧩 隔日关注固定槽位已写回 {_sinfo.get('path')}")
+        if _sinfo.get("filename_warning"):   # 横杠名与紧凑名并存时也告警（独立复核 2026-11-06 建议）
+            logger.warning(f"⚠ {_sinfo['filename_warning']}")
+        D["integration_slots"] = _slots
+    except Exception as _e:
+        logger.warning(f"⚠ 隔日关注固定槽位计算失败（不阻断）：{type(_e).__name__}: {_e}")
+        D["integration_slots"] = None
+    D["integration"] = _intg
+    # ── 持仓清单（复核提示用 · 2026-10-21 Doctor 批「3、轻量修复」· 只读龙鱼 holdings.json）──
+    # 挂载探测降级安全：读不到 → 空清单 → 提示不显示（不编）。只取持仓中 holdings[] 的 name/ts_code。
+    _holds = []
+    try:
+        _hold_paths = [Path.home() / "Documents" / "Database" / "龙鱼-标的分析库" / "holdings.json"]
+        if Path("/sessions").is_dir():
+            _hold_paths = [p / "Database" / "龙鱼-标的分析库" / "holdings.json"
+                           for p in sorted(Path("/sessions").glob("*/mnt/Documents"))] + _hold_paths
+        for _hp in _hold_paths:
+            if _hp.is_file():
+                _hd = json.loads(_hp.read_text(encoding="utf-8"))
+                _holds = [{"name": h.get("name") or "", "code": h.get("ts_code") or ""}
+                          for h in (_hd.get("holdings") or [])]
+                break
+    except Exception:
+        _holds = []
+    D["holdings"] = _holds
+    return D
+
+
+# ───────────────────────── HTML 渲染 ─────────────────────────
+THEME_COLOR = {  # 星云色（按资金族近似）
+    "光模块": "#4fc3f7", "AI算力": "#5b8cff", "半导体": "#7c6cff", "消费电子": "#9b7bff",
+    "AI软件": "#6fd3e7", "机器人": "#ff8a5b", "商业航天": "#c06cff", "军工": "#b35bff",
+    "新能源电池": "#3ddc97", "光伏": "#69d88a", "电力": "#5bd0c0",
+    "创新药": "#ff6b9d", "白酒": "#e89b6b", "券商": "#d4a25c",
+    "黄金": "#e8c46b", "稀土": "#e8a05b", "钨": "#caa86b", "有色金属": "#d8b05b",
+}
+
+SEASON_COLOR = {"春": "#3f9c76", "夏": "#a94e3f", "秋": "#bd9a43", "冬": "#1B365D"}  # 秋 2026-06-30 暗青铜#8b6f32→提亮金黄#bd9a43（Doctor·金黄靠+低饱和）
+SEASON_GLOW = {"春": "47,125,99", "夏": "214,126,52", "秋": "189,154,67", "冬": "27,54,93"}  # 季节晕染 rgb（夏=橘色，与红字成双色；其余各保本季色，永不回绿）
+
+_CND = "〇一二三四五六七八九"
+
+
+def _cn_num(n):
+    if n < 10:
+        return _CND[n]
+    if n == 10:
+        return "十"
+    if n < 20:
+        return "十" + _CND[n % 10]
+    return _CND[n // 10] + "十" + (_CND[n % 10] if n % 10 else "")
+
+
+def cn_date(iso_str):
+    """2026-06-12 → 二〇二六年六月十二日　星期五"""
+    dt = datetime.date.fromisoformat(iso_str)
+    y = "".join(_CND[int(c)] for c in str(dt.year))
+    wd = "一二三四五六日"[dt.weekday()]
+    return f"{y}年{_cn_num(dt.month)}月{_cn_num(dt.day)}日　星期{wd}"
+
+
+def gen_stars(seed=42, n=(26, 16, 7)):
+    """三层互质 tile 随机星场（低对比纹理，借鉴龙鱼标的库星空卡）"""
+    import random
+    rnd = random.Random(seed)
+    tiles = [(173, 127), (233, 181), (311, 263)]
+    grads, sizes = [], []
+    for layer, cnt in enumerate(n):
+        lo, hi = [(0.5, 0.9), (0.7, 1.3), (1.4, 1.9)][layer]
+        for _ in range(cnt):
+            s = rnd.uniform(lo, hi)
+            grads.append(f"radial-gradient({s:.2f}px {s:.2f}px at {rnd.uniform(0,100):.1f}% "
+                         f"{rnd.uniform(0,100):.1f}%, rgba(255,255,255,{rnd.uniform(.5,.95):.2f}), transparent)")
+            sizes.append(f"{tiles[layer][0]}px {tiles[layer][1]}px")
+    return ",\n    ".join(grads), ", ".join(sizes)
+
+
+def spark_svg(vals, w=120, h=28):
+    if not vals or len(vals) < 2:
+        return ""
+    mn, mx = min(vals), max(vals)
+    rng = (mx - mn) or 1
+    pts = " ".join(f"{i*w/(len(vals)-1):.1f},{h-2-(v-mn)/rng*(h-4):.1f}"
+                   for i, v in enumerate(vals))
+    color = "#ff5d5d" if vals[-1] >= 0 else "#3ddc97"
+    zero_y = h - 2 - (0 - mn) / rng * (h - 4) if mn < 0 < mx else None
+    zl = (f'<line x1="0" y1="{zero_y:.1f}" x2="{w}" y2="{zero_y:.1f}" '
+          f'stroke="#2a3354" stroke-dasharray="2,3"/>') if zero_y else ""
+    return (f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}">{zl}'
+            f'<polyline points="{pts}" fill="none" stroke="{color}" stroke-width="1.6"/></svg>')
+
+
+def spark_abs_svg(abs_vals, bench_vals, us_vals, w=200, h=36):
+    # 绝对走势（归一化累计%）三线共轴：板块 ETF 篮子(红涨绿跌·实线) + 大盘(白虚线) + 美股锚(蓝虚线)
+    # y 轴按三序列合并 min/max 归一；us_vals 为 None（无美股锚）时不画蓝线，诚实缺
+    if not abs_vals or len(abs_vals) < 2:
+        return ""
+    series = [abs_vals, bench_vals] + ([us_vals] if us_vals else [])
+    allv = [v for s in series for v in s]
+    mn, mx = min(allv), max(allv)
+    rng = (mx - mn) or 1
+
+    def pts_of(vals):
+        n = len(vals)
+        return " ".join(f"{i*w/(n-1):.1f},{h-2-(v-mn)/rng*(h-4):.1f}"
+                        for i, v in enumerate(vals))
+    ac = "#ff5d5d" if abs_vals[-1] >= 0 else "#3ddc97"      # 板块自身涨跌·红涨绿跌（Doctor 定）
+    poly = (f'<polyline points="{pts_of(bench_vals)}" fill="none" stroke="#2a3354" '
+            f'stroke-width="1.1" stroke-dasharray="3,2" opacity="0.85"/>')
+    if us_vals:
+        poly += (f'<polyline points="{pts_of(us_vals)}" fill="none" stroke="#4da3ff" '
+                 f'stroke-width="1.1" stroke-dasharray="3,2" opacity="0.9"/>')
+    poly += (f'<polyline points="{pts_of(abs_vals)}" fill="none" stroke="{ac}" '
+             f'stroke-width="1.6"/>')                        # 板块线最后画=置顶
+    return f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}">{poly}</svg>'
+
+
+def pct_span(v, suffix="%"):
+    if v is None:
+        return '<span class="na">—</span>'
+    cls = "up" if v > 0 else ("dn" if v < 0 else "")
+    return f'<span class="{cls}">{v:+.2f}{suffix}</span>'
+
+
+# ── 汇率栏目：美元兑（离岸）人民币 USD/CNH（当前 + 近7交易日曲线）──────────
+def fx_section(D):
+    """汇率栏 HTML——沿用页面暖色范式（.card/.k/.v）。下行=人民币走强。缺数→诚实「待回填」，绝不冒充。"""
+    fx = D.get("fx") or {}
+    head = ('<h2 style="margin-bottom:4px">美元兑（离岸）人民币汇率 '
+            '<span class="vintage">离岸 CNH ｜ 当前 + 近7交易日 ｜ 汇率下行=人民币走强</span></h2>')
+    cur = fx.get("cur")
+    if cur is None:
+        body = ('<div class="card"><div class="k">美元兑离岸人民币 · USD/CNH</div>'
+                '<div class="v na" style="font-size:26px;margin-top:3px">待回填</div>'
+                '<div class="sub" style="font-size:11px;margin-top:4px">'
+                'fx_cnh_daily 暂无数据（Tushare fx_daily 未回填）</div></div>')
+        return head + f'<div style="margin:6px 0 16px">{body}</div>'
+    series = fx.get("series") or []
+    vals = [v for _, v in series]
+    prev = fx.get("prev")
+    chg = (cur - prev) if prev is not None else None          # USD/CNH 下行=人民币走强
+    if chg is None:
+        chg_html = '<span class="sub">日变动 —</span>'
+    elif chg < 0:
+        chg_html = f'<span style="color:#198a67">▼ {abs(chg):.4f}（人民币走强）</span>'
+    elif chg > 0:
+        chg_html = f'<span style="color:var(--red)">▲ {chg:.4f}（人民币走弱）</span>'
+    else:
+        chg_html = '<span class="sub">持平</span>'
+    spark = ""
+    if len(vals) >= 2:
+        mn, mx = min(vals), max(vals)
+        rng = (mx - mn) or 1
+        w, h = 168, 36
+        pts = " ".join(f"{i*w/(len(vals)-1):.1f},{h-3-(v-mn)/rng*(h-6):.1f}"
+                       for i, v in enumerate(vals))
+        col = "#198a67" if vals[-1] <= vals[0] else "#a94e3f"   # 区间走强=绿 / 走弱=红
+        spark = (f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" style="margin-top:6px">'
+                 f'<polyline points="{pts}" fill="none" stroke="{col}" stroke-width="1.8"/></svg>')
+    span = f'{series[0][0]}→{series[-1][0]}' if len(series) >= 2 else (series[-1][0] if series else "")
+    note = f'{iso(fx.get("date"))} · {len(vals)} 点 · 源 {fx.get("src") or "—"}'
+    body = (f'<div class="card"><div class="k">美元兑离岸人民币 · USD/CNH</div>'
+            f'<div class="v" style="font-size:26px;margin-top:3px">{cur:.4f}</div>'
+            f'<div style="margin-top:4px">{chg_html}</div>'
+            f'<div style="margin-top:4px">{spark}'
+            f'<div class="sub" style="font-size:10px;margin-top:2px">近7交易日 · {span}</div></div>'
+            f'<div class="sub" style="font-size:11px;margin-top:4px">{note}</div></div>')
+    return head + f'<div style="margin:6px 0 16px">{body}</div>'
+
+
+# ── 外盘栏目（隔夜·期货预期）：A股开盘前的外部定价背景 ──────────────────
+# 两栏：美股(隔夜回望)在左、亚洲(期货预期)在右。code/symbol 与 fetch_intl_index.INDICES 同步。
+INTL_US_INDEX = ("NASDAQ", "纳斯达克 · 隔夜", "美股隔夜 · Nasdaq-100 指数（^NDX）")
+INTL_US_STOCKS = [   # 美股栏代表股（AI/科技硬件链）
+    ("NVDA", "英伟达",     "AI 算力"),
+    ("AVGO", "博通",       "AI 网络 / ASIC"),
+    ("LITE", "Lumentum",  "光模块 / CPO"),
+    ("SPCX", "SpaceX",    "商业航天 · 新上市"),
+]
+INTL_ASIA = [        # 亚洲栏（期货预期 · 开盘前远期）
+    ("JP_FUT",   "日本 · 股指期货",    "CME日经225 · 含半导体设备权重"),
+    ("KR_PROXY", "韩国 · 股指期货预期", "MSCI韩国(EWY) · 三星/SK海力士存储芯"),
+]
+INTL_KR = [          # 韩国存储双雄（2026-06-30 改：直追两只票，替代滞后的 EWY 代理 · Yahoo 源）
+    ("KR_SAMSUNG", "三星电子", "存储/半导体"),
+    ("KR_HYNIX",   "SK海力士", "HBM/存储"),
+]
+_INTL_KIND_BADGE = {"overnight": "隔夜回望", "us_stock": "隔夜",
+                    "futures": "期货预期", "etf_proxy": "期货预期 · ETF代理"}
+
+
+def _dir_cls(pct):
+    return "up" if (pct or 0) > 0 else ("dn" if (pct or 0) < 0 else "flat")
+
+
+def _intl_card(label, note, it):
+    """大卡（纳指 / 日本 / 韩国）——沿用页面 .card 暖色范式。缺数→诚实「待回填」，绝不冒充。"""
+    badge = _INTL_KIND_BADGE.get(it["kind"], it["kind"]) if it else ""
+    if not it or it.get("pct") is None:
+        return (f'<div class="card intl-card"><div class="k">{label}'
+                f'<span class="intl-badge">待回填</span></div>'
+                f'<div class="v"><span class="na">—</span></div>'
+                f'<div class="sub">{note}</div></div>')
+    pct = it["pct"]
+    close = f'{it["close"]:,.2f}' if it.get("close") is not None else "—"
+    shown_note = it.get("note") or note   # DB 内随源记的 note 优先（生产 QQQ/EWJ 时如实显示）
+    return (
+        f'<div class="card intl-card"><div class="k">{label}'
+        f'<span class="intl-badge">{badge}</span></div>'
+        f'<div class="v">{pct_span(pct)}</div>'
+        f'<div class="mt">收 {close} ｜ {iso(it["date"])} ｜ {it["symbol"]}</div>'
+        f'<div class="sub">{shown_note}</div></div>')
+
+
+def _intl_stk(name, note, it):
+    """美股代表股小卡——暖色 token 瓦片，与 .card 同语言。缺数→待回填。"""
+    if not it or it.get("pct") is None:
+        return (f'<div class="intl-stk"><div class="nm">{name}</div>'
+                f'<div class="pc"><span class="na">—</span></div>'
+                f'<div class="mt">待回填 · {note}</div></div>')
+    pct = it["pct"]
+    close = f'{it["close"]:,.2f}' if it.get("close") is not None else "—"
+    shown_note = it.get("note") or note
+    return (f'<div class="intl-stk"><div class="nm">{name}'
+            f'<span class="sy">{it["symbol"]}</span></div>'
+            f'<div class="pc">{pct_span(pct)}</div>'
+            f'<div class="mt">{close} · {shown_note}</div></div>')
+
+
+def intl_section(D):
+    """外盘栏目 HTML（两栏：美股左 / 亚洲右）——全沿用页面暖色范式（.card/.chip 体系、token 配色、宋体数字）。"""
+    intl = D.get("intl") or {}
+    expected = [INTL_US_INDEX[0]] + [s[0] for s in INTL_US_STOCKS] + [a[0] for a in INTL_ASIA]
+    have = sum(1 for c in expected if intl.get(c))
+    vint = (f'{have}/{len(expected)} 已取' if have else '待回填')
+
+    nasdaq = _intl_card(INTL_US_INDEX[1], INTL_US_INDEX[2], intl.get(INTL_US_INDEX[0]))
+    stks = "".join(_intl_stk(nm, note, intl.get(code)) for code, nm, note in INTL_US_STOCKS)
+    asia = "".join(_intl_card(label, note, intl.get(code)) for code, label, note in INTL_ASIA)
+
+    style = (
+        "<style>"
+        ".intl-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;margin-top:6px}"
+        "@media(max-width:760px){.intl-cols{grid-template-columns:1fr}}"
+        ".intl-colhd{color:var(--sub);font-size:11.5px;letter-spacing:1px;font-weight:600;margin:2px 0 9px}"
+        ".intl-card{margin-bottom:10px}"
+        ".intl-card .k{display:flex;align-items:baseline;gap:7px}"
+        ".intl-card .v{font-size:25px;margin-top:3px}"
+        ".intl-card .mt{color:var(--sub);font-size:11px;margin-top:4px;"
+        "font-family:var(--num);font-variant-numeric:tabular-nums}"
+        ".intl-badge{font-size:10px;font-weight:400;color:#6b6a64;background:#fbf8ef;"
+        "border:1px solid var(--line);border-radius:999px;padding:2px 8px;letter-spacing:0;white-space:nowrap}"
+        ".intl-stocks{display:grid;grid-template-columns:1fr 1fr;gap:8px}"
+        ".intl-stk{background:var(--card);border:1px solid var(--line);border-radius:12px;"
+        "padding:8px 10px;box-shadow:var(--whisper)}"
+        ".intl-stk .nm{font-size:12px;color:var(--tx);font-weight:600;display:flex;"
+        "justify-content:space-between;align-items:baseline;gap:5px}"
+        ".intl-stk .sy{font-size:9px;color:var(--sub);font-weight:400}"
+        ".intl-stk .pc{font-size:17px;font-weight:600;font-family:var(--num);"
+        "font-variant-numeric:tabular-nums;margin:2px 0 1px}"
+        ".intl-stk .mt{font-size:10px;color:var(--sub);line-height:1.4}"
+        "</style>")
+    return (
+        f'{style}'
+        f'<h2 style="margin-bottom:4px">外盘 · 隔夜与期货预期 '
+        f'<span class="vintage">A股开盘前的外部定价背景（AI/科技硬件链）· 各市场按自身最新交易日 · {vint}</span></h2>'
+        f'<div class="intl-cols">'
+        f'<div><div class="intl-colhd">美股 · 隔夜回望</div>{nasdaq}'
+        f'<div class="intl-stocks">{stks}</div></div>'
+        f'<div><div class="intl-colhd">亚洲 · 期货预期</div>{asia}</div>'
+        f'</div>')
+
+
+# ── 整合栏目：盘前·外部定价背景（一张大卡内分三区：汇率/隔夜/期货）2026-06-30 ──
+def _ep_pct(v):
+    if v is None:
+        return '<span class="na">—</span>'
+    c = "var(--red)" if v > 0 else ("var(--grn)" if v < 0 else "var(--sub)")
+    return f'<span style="color:{c}">{v:+.2f}%</span>'
+
+
+def _ep_idx(label, note, it):
+    """区内指数块：标签 + 大涨跌幅 + 收/日期/note。缺数→待回填、绝不冒充。"""
+    if not it or it.get("pct") is None:
+        return (f'<div class="ext-idx"><span class="ext-lbl">{label}</span>'
+                f'<div class="ext-idxv"><span class="na">—</span> '
+                f'<span style="font-size:11px;color:var(--sub)">待回填</span></div>'
+                f'<div class="ext-mt">{note}</div></div>')
+    close = f'{it["close"]:,.2f}' if it.get("close") is not None else "—"
+    shown = it.get("note") or note
+    return (f'<div class="ext-idx"><span class="ext-lbl">{label}</span>'
+            f'<div class="ext-idxv">{_ep_pct(it["pct"])} '
+            f'<span style="font-size:11px;color:var(--sub)">收 {close} · {iso(it["date"])[5:]}</span></div>'
+            f'<div class="ext-mt">{shown}</div></div>')
+
+
+def _role_tag(code):
+    """R5 · 盘前读数的角色小标签（风险温度带里的层归属）；温度带不读的读数返回空串。"""
+    r = premarket_role(code, RISK_CFG)
+    return f'<span class="thermo" title="在风险温度带里属于{r}">{r}</span>' if r else ""
+
+
+def _ep_row(name, note, it, sym_override=None, role=""):
+    """区内行的三个网格单元（名｜涨跌幅｜收盘·日期）——由外层 .ext-rows inline-grid 统一对齐+整体居中。缺数→待回填。
+    role：R5 角色小标签（_role_tag 的返回），跟在名称后。"""
+    if not it or it.get("pct") is None:
+        return (f'<span class="ext-rn">{name}{role}</span>'
+                f'<span class="ext-rp na">—</span><span class="ext-rc">待回填</span>')
+    cv = it.get("close")
+    close = "—" if cv is None else (f'{cv:,.0f}' if cv >= 1000 else f'{cv:,.2f}')
+    sym = sym_override or it.get("symbol", "")
+    return (f'<span class="ext-rn">{name}<span class="ext-rsy">{sym}</span>{role}</span>'
+            f'<span class="ext-rp">{_ep_pct(it["pct"])}</span>'
+            f'<span class="ext-rc">{close}·{iso(it["date"])[5:]}</span>')
+
+
+def _ep_lead(it, note):
+    """区主读数（无标签·标签已上移区头）：大涨跌幅 + 收/日期 + note。缺数→待回填。"""
+    if not it or it.get("pct") is None:
+        return ('<div class="ext-idxv"><span class="na">—</span> '
+                '<span style="font-size:11px;color:var(--sub)">待回填</span></div>'
+                f'<div class="ext-mt">{note}</div>')
+    close = f'{it["close"]:,.2f}' if it.get("close") is not None else "—"
+    shown = it.get("note") or note
+    return (f'<div class="ext-idxv">{_ep_pct(it["pct"])} '
+            f'<span style="font-size:11px;color:var(--sub)">收 {close} · {iso(it["date"])[5:]}</span></div>'
+            f'<div class="ext-mt">{shown}</div>')
+
+
+# 区头英文简称（各市场实际跟踪标的代码；缺数时的回退）
+_EP_SYM = {"NASDAQ": "NQ100", "JP_FUT": "NKD", "KR_PROXY": "EWY"}
+
+
+def external_pricing_section(D):
+    """盘前·外部定价背景——一张大卡内分四区（汇率/隔夜美股/期指日本/期指韩国），全用报告暖色 token。"""
+    intl = D.get("intl") or {}
+    fx = D.get("fx") or {}
+    fred = D.get("fred") or {}
+    expected = ([INTL_US_INDEX[0]] + [s[0] for s in INTL_US_STOCKS]
+                + [INTL_ASIA[0][0]] + [s[0] for s in INTL_KR] + ["US30Y"])
+    have = sum(1 for c in expected if intl.get(c)) + (1 if fx.get("cur") is not None else 0)
+    vint = f'{have}/{len(expected) + 1} 已取' if have else '待回填'
+
+    # 汇率区
+    cur = fx.get("cur")
+    if cur is None:
+        fx_body = ('<div class="ext-big"><span class="na">待回填</span></div>'
+                   '<div class="ext-mt">fx_cnh_daily 暂无数据</div>')
+    else:
+        series = fx.get("series") or []
+        vals = [v for _, v in series]
+        prev = fx.get("prev")
+        chg = (cur - prev) if prev is not None else None
+        if chg is None:
+            chg_html = '<span>日变动 —</span>'
+        elif chg < 0:
+            chg_html = f'<span style="color:var(--red)">▼ {abs(chg):.4f} · 人民币走强</span>'
+        elif chg > 0:
+            chg_html = f'<span style="color:var(--grn)">▲ {chg:.4f} · 人民币走弱</span>'
+        else:
+            chg_html = '<span>≈持平</span>'
+        spark = ""
+        if len(vals) >= 2:
+            mn, mx = min(vals), max(vals)
+            rng = (mx - mn) or 1
+            w, h = 190, 40
+            pts = " ".join(f"{i*w/(len(vals)-1):.1f},{h-3-(v-mn)/rng*(h-6):.1f}"
+                           for i, v in enumerate(vals))
+            col = "var(--red)" if vals[-1] > vals[0] else "var(--grn)"
+            spark = (f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" style="margin-top:8px">'
+                     f'<polyline points="{pts}" fill="none" stroke="{col}" stroke-width="1.8"/></svg>')
+        span = (f'{series[0][0]}→{series[-1][0]}' if len(series) >= 2
+                else (series[-1][0] if series else ""))
+        fx_body = (f'<div class="ext-big">{cur:.4f}</div>'
+                   f'<div class="ext-chg">{chg_html}</div>{spark}'
+                   f'<div class="ext-mt">近7交易日 · {span} · 源 {fx.get("src") or "—"}</div>')
+
+    def _sym(code):
+        it = intl.get(code)
+        return ((it.get("symbol") if it else None) or _EP_SYM.get(code, "")).replace("=F", "")
+    nasdaq_row = _ep_row("纳斯达克", INTL_US_INDEX[2], intl.get(INTL_US_INDEX[0]),
+                         sym_override=_EP_SYM.get(INTL_US_INDEX[0], ""), role=_role_tag(INTL_US_INDEX[0]))
+    stk_rows = "".join(_ep_row(nm, note, intl.get(code), role=_role_tag(code)) for code, nm, note in INTL_US_STOCKS)
+    # 日本期指区改三格行范式（2026-08-25 Doctor 令：与韩国存储双雄同款「名称代码+涨跌幅+价·日期」；源注（CME/读数语义腿）移出展示，
+    # 真身保留在 fetch_intl_index.INDICES note 与 GOTCHAS G033。name 取 DB 行——SA 应急代理时如实显示「日本(EWJ代理)」）
+    _jpf = intl.get(INTL_ASIA[0][0])
+    jp_row = _ep_row((_jpf.get("name") if _jpf else "日经225期货"), INTL_ASIA[0][2], _jpf,
+                     sym_override=_sym("JP_FUT"), role=_role_tag(INTL_ASIA[0][0]))
+    kr_rows = "".join(_ep_row(nm, note, intl.get(code), role=_role_tag(code)) for code, nm, note in INTL_KR)
+
+    # 10 年期美债行（汇率栏底部 · 2026-08-27 Doctor 令：30Y 换 10Y + 点击开二级详情；bp 由 pct 反推，口径同 F5 美债腿；
+    # 染色=语义向（2026-08-25 Doctor 令沿用）：收益率下行(利好)=红 / 上行(利空)=绿，与人民币行走弱=绿同口径）
+    _b10 = intl.get("US10Y") or {}
+    _b30 = intl.get("US30Y") or {}
+    if _b10.get("close") is None or _b10.get("pct") is None:
+        bond10_row = ('<div class="ext-rows" style="margin-top:12px">'
+                      f'<span class="ext-rn">美国10年国债<span class="ext-rsy">^TNX</span>{_role_tag("US10Y")}</span>'
+                      '<span class="ext-rp na">—</span><span class="ext-rc">待回填</span></div>')
+        us10y_tmpl = ""
+    else:
+        try:
+            _pv = _b10["close"] / (1 + _b10["pct"] / 100.0)
+            _bp = (_b10["close"] - _pv) * 100.0
+        except ZeroDivisionError:
+            _bp = None
+        if _bp is None:
+            _bp_html = "—"
+        elif _bp > 0:
+            _bp_html = f'<span style="color:var(--grn)">+{_bp:.1f}bp</span>'
+        elif _bp < 0:
+            _bp_html = f'<span style="color:var(--red)">−{abs(_bp):.1f}bp</span>'
+        else:
+            _bp_html = "≈0bp"
+        bond10_row = (f'<div class="ext-rows" style="margin-top:12px;cursor:pointer" role="button" tabindex="0" '
+                      f'onclick="openModal(\'us10y\')" '
+                      f'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){{event.preventDefault();this.click();}}" '
+                      f'aria-label="打开美债10年期收益率详情" title="点击查看四维拆解">'
+                      f'<span class="ext-rn">美国10年国债<span class="ext-rsy">^TNX ▸</span>{_role_tag("US10Y")}</span>'
+                      f'<span class="ext-rp">{_bp_html}</span>'
+                      f'<span class="ext-rc">{_b10["close"]:.2f}%·{iso(_b10["date"])[5:]}</span></div>')
+
+        # ── 美债10Y 二级详情页（2026-08-27 Doctor 令 · 统一 modal 范式 · 四指标各带核心问题+性质+来源）──
+        def _ust_item(k, tag, v_html, q, src):
+            return (f'<div class="ust-item"><div class="ust-k">{k}'
+                    f'<span class="ust-tag">{tag}</span></div>'
+                    f'<div class="ust-v">{v_html}</div>'
+                    f'<div class="ust-q">{q}</div>'
+                    f'<div class="ust-s">{src}</div></div>')
+
+        _d2 = fred.get("DFII10")
+        _d3 = fred.get("THREEFYTP10")
+        r1 = _ust_item("10年名义收益率", "总结果",
+                       f'{_b10["close"]:.2f}%<span class="ust-vd">日变 {_bp_html}</span>',
+                       "长期美元资金的「总价格」是多少？",
+                       f'^TNX 盘中读数 · {iso(_b10["date"])} · ↑=外部紧缩')
+        r2 = _ust_item("10年实际收益率", "实际利率维度",
+                       f'{_d2["value"]:.2f}%' if _d2 else '—',
+                       "扣除通胀补偿后，真实资金成本是多少？",
+                       f'FRED DFII10（TIPS 口径） · as_of {iso(_d2["date"])}' if _d2 else 'FRED 未取 · 待九儿班回填')
+        r3 = _ust_item("10年期限溢价", "模型分解维度",
+                       f'{_d3["value"]:.2f}%' if _d3 else '—',
+                       "除了美联储路径，投资者还要求多少持有长期债券的风险补偿？",
+                       f'NY Fed ACM 模型 · 周更 · as_of {iso(_d3["date"])}' if _d3 else 'FRED 未取 · 待九儿班回填')
+        if (_b30.get("close") is not None and _b30.get("pct") is not None
+                and _b30.get("date") == _b10.get("date")):
+            _sp = _b30["close"] - _b10["close"]
+            try:
+                _bp30 = (_b30["close"] - _b30["close"] / (1 + _b30["pct"] / 100.0)) * 100.0
+                _spd = _bp30 - _bp if _bp is not None else None
+            except ZeroDivisionError:
+                _spd = None
+            if _spd is None:
+                _spd_html = "—"
+            elif _spd > 0:
+                _spd_html = f'<span style="color:var(--grn)">+{_spd:.1f}bp</span>'
+            elif _spd < 0:
+                _spd_html = f'<span style="color:var(--red)">−{abs(_spd):.1f}bp</span>'
+            else:
+                _spd_html = "≈0bp"
+            r4 = _ust_item("30Y−10Y 利差", "超长端相对维度",
+                           f'+{_sp * 100:.0f}bp<span class="ust-vd">日变 {_spd_html}</span>',
+                           "超长期债券是否在相对 10 年期独立走弱？",
+                           f'^TYX−^TNX 同日现算 · {iso(_b10["date"])}')
+        else:
+            r4 = _ust_item("30Y−10Y 利差", "超长端相对维度", "—",
+                           "超长期债券是否在相对 10 年期独立走弱？",
+                           "30Y/10Y 非同一交易日 · 暂不可算")
+        us10y_tmpl = ('<template id="us10y">'
+                      '<div class="modal-title" style="--sc:#1B365D">美债10年期收益率'
+                      '<span class="sub">长期美元资金成本 · 四维拆解</span></div>'
+                      f'<div class="ust-grid">{r1}{r2}{r3}{r4}</div>'
+                      '<div class="ust-foot">名义=^TNX 盘中读数（非收盘）；实际/期限溢价=FRED 官方序列，'
+                      '更新滞后 1-2 天属正常；利差=两腿同日现算。数据口径与卡片一致（单一真源）。</div>'
+                      '</template>')
+
+    style = ("<style>"
+             ".ext-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;"
+             "box-shadow:var(--whisper);display:grid;grid-template-columns:repeat(3,1fr);"
+             "overflow:hidden;margin:6px 0 16px}"
+             "@media(max-width:760px){.ext-panel{grid-template-columns:1fr}"
+             ".ext-zone+.ext-zone{border-left:none;border-top:1px solid var(--line)}}"
+             ".ext-zone{padding:18px 21px;text-align:center}"
+             ".ext-inner{display:inline-block;text-align:left;vertical-align:top;max-width:100%}"
+             ".ext-zone+.ext-zone{border-left:1px solid var(--line)}"
+             ".ext-zhd{color:var(--sub);font-size:11px;letter-spacing:1.5px;font-weight:600;"
+             "margin:0 0 13px;display:flex;align-items:center;gap:6px}"
+             ".ext-zhd .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);display:inline-block}"
+             ".ext-zhd .bdg{font-size:9.5px;font-weight:400;color:var(--sub);background:#fbf8ef;"
+             "border:1px solid var(--line);border-radius:999px;padding:2px 7px;margin-left:auto;letter-spacing:0}"
+             ".ext-lbl{font-size:12px;color:var(--tx);font-weight:600;letter-spacing:.3px}"
+             ".ext-big{font-size:29px;font-family:var(--num);font-variant-numeric:tabular-nums;"
+             "font-weight:600;margin:16px 0 1px;line-height:1;letter-spacing:0}"
+             ".ext-chg{font-size:12px;color:var(--sub)}"
+             ".ext-mt{color:var(--sub);font-size:10.5px;margin-top:6px;"
+             "font-variant-numeric:tabular-nums;line-height:1.45}"
+             ".ext-idx{margin-bottom:11px}"
+             ".ext-idxv{font-size:20px;font-family:var(--num);font-variant-numeric:tabular-nums;"
+             "font-weight:600;margin-top:2px}"
+             ".ext-rows{display:inline-grid;grid-template-columns:auto auto auto;align-items:baseline;"
+             "column-gap:14px;row-gap:9px;text-align:left;margin-top:6px}"
+             ".ext-rn{font-size:12px;font-weight:600;text-align:left}"
+             ".ext-rsy{font-size:9px;color:var(--sub);margin-left:5px;font-weight:400}"
+             ".ext-rp{font-size:13px;font-weight:600;font-family:var(--num);"
+             "font-variant-numeric:tabular-nums;text-align:right}"
+             ".ext-rc{font-size:10px;color:var(--sub);text-align:right;font-variant-numeric:tabular-nums}"
+             # ── 美债10Y 二级详情页（2026-08-27 Doctor 令 · modal 内 2×2 指标卡）──
+             ".ust-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}"
+             "@media(max-width:520px){.ust-grid{grid-template-columns:1fr}}"
+             ".ust-item{background:#fbf8ef;border:1px solid var(--line);border-radius:12px;padding:12px 14px}"
+             ".ust-k{font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:7px}"
+             ".ust-tag{font-size:9px;font-weight:400;color:var(--sub);background:#fdfcf7;"
+             "border:1px solid var(--line);border-radius:999px;padding:1px 7px;letter-spacing:0}"
+             ".ust-v{font-size:22px;font-family:var(--num);font-variant-numeric:tabular-nums;"
+             "font-weight:600;margin:7px 0 4px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}"
+             ".ust-vd{font-size:11px;font-weight:400;font-family:var(--num);color:var(--sub)}"
+             ".ust-q{font-size:11px;color:var(--tx);opacity:.82;line-height:1.5}"
+             ".ust-s{font-size:10px;color:var(--sub);margin-top:4px;font-variant-numeric:tabular-nums}"
+             ".ust-foot{font-size:10px;color:var(--sub);margin-top:10px;line-height:1.55;"
+             "border-top:1px dashed var(--line);padding-top:9px}"
+             "</style>")
+
+    return (style +
+            '<h2 style="margin-bottom:4px">盘前 · 外部定价背景 '
+            '<span class="vintage">汇率 / 隔夜 / 期货预期 · A股开盘前的外部定价（AI/科技硬件链）· '
+            f'各市场按自身最新交易日 · {vint}</span></h2>'
+            '<div class="ext-panel">'
+            '<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>汇率 · 美元兑离岸人民币(USD/CNH)'
+            f'{_role_tag("CNH")}</div>'
+            f'{fx_body}{bond10_row}</div></div>'
+            f'<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>隔夜 · 美股</div>'
+            f'<div class="ext-rows">{nasdaq_row}{stk_rows}</div></div></div>'
+            f'<div class="ext-zone"><div class="ext-inner">'
+            f'<div class="ext-zhd"><span class="dot"></span>期指 · 日本</div><div class="ext-rows">{jp_row}</div>'
+            f'<div class="ext-zhd" style="margin-top:18px"><span class="dot"></span>韩国 · 存储双雄</div>'
+            f'<div class="ext-rows">{kr_rows}</div>'
+            f'</div></div>'
+            '</div>' + us10y_tmpl)
+
+
+# ── 体系提炼摘录栏目（2026-10-21 Doctor 裁「接提炼过的有价值信息」· 班内摘录形态）──────────
+# 数据 = docs/daily_integration_{data_day}.json（九儿摘录步产出 · 只读）。缺件/空 → 如实「今日无」。
+# 2026-11-14 卡片正文排版优化（Doctor 令）：标题（首个「：」前）大字；正文按顶层「；」拆行；
+# 每行首个数字放大为要点数；括注降为小字；「——」后为口径脚注。
+# 着色只读条目自带标注（不由渲染端判方向 · 转述不改判）：
+#   n["polarity"] ∈ {"bull","bear"} → 整条顶边色线+标题着色+小签；
+#   n["marks"] = [{"match": 子串, "pol": "bull|bear"}] → 含该子串的那一行着色+小签。
+#   利好=红金（--bull）/ 利空=青绿（--bear）；无标注 → 中性墨色，不着色。
+# 2026-11-14 栏目美化（Doctor 令）：整栏收成一张「札记页」——
+#   条目并列成栏、界行分隔；来源项目名刻成印（如「风险日报」2×2）；
+#   正文排成账目行（名目｜要点数｜附注，三列对齐）；顶层「 / 」并列项、句尾括注里的「；」清单各自成行；
+#   拿不准的一律不排表、整行照原文（见 _intg_nums / _intg_kv / _intg_rows_of 的说明）；
+#   固定槽位（EAL / 星空）收到页脚一条；持仓命中提示改页内红条（位置不变：条目之后、槽位之前）。
+#   只重排不改字：除分隔符（；/，——：）与被拆开的那层括号外，原文逐字保留
+#   （tests/test_integration_section.py 对账）。
+# 带单位数字（%/bp/pp）的识别。原则：认得准才单独成格（名目｜要点数｜附注），认不准就整行照原文排。
+# 做法是白名单：先把「号、数字、单位、区间号」连成的一整串取出来（_INTG_RUN），再判这一串是不是下列认得准的形态：
+#   单个数：可带正负号——「+20.1%」「纳指-1.38%」「yoy+42.4%」「黄金 yoy －7.5%」「±0.5%」；
+#   波浪号区间：两端可各自带号、带单位——「84.7~87%」「-5~-3%」「+3%~+5%」；
+#   横杠区间：两端都不带号、前小后大——「3-5%」「3%-5%」；
+#   名字尾数＋横杠＋小数：「沪深300-1.40%」＝沪深300 跌 1.40%（横杠当负号，名字留在名目里）；
+#   名字尾数＋明确的正负号：「中证1000+0.5%」。
+# 其余一律算认不准（三段以上、前大后小的横杠串、号后带空格「- 3.8%」、少见横线字符「—3%」、
+# 后面还接着「至/—/~ + 数字」没取全的串……），所在行不排表。
+_INTG_SGC = "+\\-−－＋±–"
+_INTG_N = r'(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?'
+_INTG_U = r'(?:%|(?:bp|pp)(?![A-Za-z]))'
+_INTG_RUN = re.compile(
+    r'(?:[' + _INTG_SGC + r'](?=\d))?(?<![A-Za-z0-9_.,])'
+    r'(?:' + _INTG_N + r'(?:\s*' + _INTG_U + r')?(?:\s*[~～]\s*|[\-–])[' + _INTG_SGC + r']?)*'
+    + _INTG_N + r'\s*' + _INTG_U)
+_INTG_EL0 = re.compile(r'([' + _INTG_SGC + r']?)(' + _INTG_N + r')(\s*' + _INTG_U + r')?')
+_INTG_EL = re.compile(r'(\s*[~～]\s*|[\-–])([' + _INTG_SGC + r']?)(' + _INTG_N + r')(\s*' + _INTG_U + r')?')
+_INTG_SIGNS = "+-−－＋±–"
+_INTG_ODD = "—―‐‑‒﹣﹘"                       # 可能是负号也可能是破折的横线字符
+_INTG_ARROW_STYLE = frozenset(
+    "RIGHTWARDS ARROW ARROWS ARROWHEAD POINTING DIRECTLY RIGHT "            # 方向与本体
+    "LONG DOUBLE TRIPLE TWO THREE HEADED PAIRED WAVE SQUIGGLE DASHED DASH "  # 线形
+    "WHITE BLACK HEAVY OPEN TRIANGLE WIDE ROUND TIPPED DRAFTING POINT SQUAT CONCAVE POINTED "
+    "SHADED SHADOWED TILTED BACK FRONT LOWER NOTCHED FEATHERED TEARDROP BARBED SHANKED "
+    "WEDGE TAILED OUTLINED EQUILATERAL D TOP BOTTOM LIGHTED".split())         # 字重与装饰
+
+
+def _intg_right_arrows():
+    """「旧值 → 新值」只认**纯右向箭头**：Unicode 箭头区段（Arrows / Supplemental Arrows-A/B / Misc Symbols and Arrows /
+    Dingbat 箭头）里，字符名指向右边、且名中每个词都只是线形与装饰（_INTG_ARROW_STYLE）的字符。
+    名中出现任何别的词即不认——左/上/下/斜向（LEFT、UP、NORTH…）、带否定或关系含义（STROKE「不→」、THROUGH X、
+    EQUALS/TILDE/GREATER-THAN/SUBSET ABOVE、PLUS BELOW）、带端点修饰（FROM BAR、TO BAR、WITH HOOK/LOOP/TAIL）。
+    按词表正向筛，不按黑名单逐个排除；结果 51 个，测试里钉死。"""
+    import unicodedata
+    out = []
+    for lo, hi in ((0x2190, 0x21FF), (0x27F0, 0x27FF), (0x2900, 0x297F), (0x2B00, 0x2BFF), (0x2794, 0x27BF)):
+        for cp in range(lo, hi + 1):
+            n = unicodedata.name(chr(cp), "")
+            if n and ("RIGHTWARDS" in n or "POINTING DIRECTLY RIGHT" in n) and set(re.split(r"[ \-]", n)) <= _INTG_ARROW_STYLE:
+                out.append(chr(cp))
+    return "".join(out)
+
+
+_INTG_ARROW_CH = re.escape(_intg_right_arrows())
+_INTG_ARROW1 = re.compile('[' + _INTG_ARROW_CH + ']')
+_INTG_LEFT_OK = " \u3000\t（(〔[「『《\"'“‘=＝:：，、;；/|·→⇒➜➔⟶↑↓≥≤＞＜"    # 数字左邻允许的标点（转义后的 &gt; 以「;」结尾）
+_INTG_GLUE = re.compile(r'[^\s\u3000\u4e00-\u9fff（(〔[「『《"\'“‘，、；;。：＝=|·' + _INTG_ARROW_CH + r']*$')   # 数字左侧紧贴的非汉字词（遇空白/汉字/开括号/逗顿分号，以及名目分隔「：＝=|·」、箭头「→」即断；「/」「:」不断——「28/72%」「55:45%」是成对读数）
+_INTG_ARROWS = r'(?:[' + _INTG_ARROW_CH + r']|[\-–—~]+\s?&gt;)(?:\s?(?:[' + _INTG_ARROW_CH + r']|[\-–—~]+\s?&gt;))*'   # 箭头＝Unicode 箭头字符，或 ASCII 拼法「横/波浪若干＋(空格)＋>」（转义后为 &gt;），可重复。「=>」「==>」不是箭头（Doctor 2026-11-14 裁），也不是门槛 ≥——当普通符号，不赋予含义
+_INTG_ARROW_NEXT = re.compile(r'\s*' + _INTG_ARROWS + r'\s*(?:约|≈)?\s*[' + _INTG_SGC + r']?\d')
+# 数字后接「变动动词＋至/到＋带单位的数」：前一个是旧值（「hike 74.9% 升至 81.2%」取 81.2%）。
+# 动词按词表认、不用「任意汉字＋至」的通则（Doctor 2026-11-14 裁：通则会把「截至」这类词也卷进来）；
+# 动词前可带至多两个副词（「一度升至」「进一步升至」「大幅提升至」「预计进一步升至」）——只认副词词表，
+# 不认任意汉字：「+21% 而创业板跌至 -14%」「同比 3.2% 环比升至 0.5%」中间夹的是另一项，前一项不是旧值。
+_INTG_MOVE_ADV = r'(?:一度|进一步|大幅|小幅|再度|再次|明显|显著|继续|持续|逐步|快速|迅速|一举|预计|随后|盘中|略微|稍|略|已|又)'
+_INTG_MOVE_NEXT = re.compile(r'\s*' + _INTG_MOVE_ADV + r'{0,2}(?:[升降涨跌增减调]|回[落升调]|上[升行调涨修]|下[降行跌调修]|提升|提高|降低|扩大|收窄|放大|缩小|放缓|抬升)'
+                             r'[至到]\s*(?:约|≈)?\s*[' + _INTG_SGC + r']?' + _INTG_N + r'\s*' + _INTG_U)
+# 对称名目的成对读数：名目本身带斜杠且段数与数字段数相同（「hold/hike 28/72%」「cut/hold/hike 10 / 30 / 60%」）→ 整组成一格，
+# 缺单位的段补上末段单位（补的字包在 ig-fill 里，对账时剔除）。名目段不含数字（「+25bp/+50bp 88.5/11.5%」不认）。
+_INTG_PAIRL = re.compile(r'(?:^|(?<=[\s\u3000（(，、；;：:]))([^\s\u3000/（()）\d]+(?:/[^\s\u3000/（()）\d]+)+)\s+'
+                         r'((?:[' + _INTG_SGC + r']?' + _INTG_N + r'(?:\s*' + _INTG_U + r')?\s*/\s*)+)$')
+_INTG_LEADNUM = re.compile(r'[' + _INTG_SGC + r']?' + _INTG_N + r'\s*' + _INTG_U)
+_INTG_BARE_END = re.compile(r'(?<![\d.,])' + _INTG_N + r'$')
+_INTG_TAIL = re.compile(r'\s*[~～\-–—―‐‑‒﹣﹘至到]\s*[' + _INTG_SGC + r']?\d')
+_INTG_OPEN, _INTG_CLOSE = "（(〔[", "）)〕]"
+_INTG_CJK = re.compile(r'^[一-鿿]{2,6}$')
+_INTG_LATIN = re.compile(r'^(?=.{2,8}$)[A-Za-z0-9]+(?: [A-Za-z0-9]+)?$')
+# 不当要点数的：门槛（比较号后「连续22周>20%」）、旧值（「由 72.8% 升至 78.0%」「前值 +22.8%」「较 11-09 的 +37.0%」「较前日 81.5%」）
+_INTG_NOTKEY = re.compile(r'(?:(?:(?<![\-–—=~])(?<![\-–—=~]\s)&gt;|&lt;|[≥≤＞＜])=?|[由从自]|前值|较前[日周月值]|较[^，；。、/]{1,12}的)\s*$')
+
+
+def _intg_val(x):
+    return float(x.replace(",", ""))
+
+
+def _intg_nums(t):
+    """一段顶层文字里的带单位数字 → [(起, 止, 能否单独成格)]"""
+    out = []
+    for m in _INTG_RUN.finditer(t):
+        s, e = m.span()
+        run = m.group(0)
+        m0 = _INTG_EL0.match(run)
+        els, pos = [("",) + m0.groups()], m0.end()      # 每段＝(区间号, 正负号, 数, 单位)
+        while pos < len(run):
+            mk = _INTG_EL.match(run, pos)
+            els.append(mk.groups())
+            pos = mk.end()
+        left = t[:s]
+        lc, ls = left[-1:], left.rstrip(" 　")
+        ok = not _INTG_TAIL.match(t[e:])                # 后面还接着区间号/破折再跟数字 → 没取全
+        if ls != left and ls[-1:] and ls[-1] in _INTG_SIGNS + _INTG_ODD + "~～":
+            ok = False                                  # 号、破折或区间号后带空格：「- 3.8%」「…~ 9%」
+        elif not lc or lc.isalpha() or lc in _INTG_LEFT_OK or _INTG_ARROW1.match(lc):
+            pass                                        # 左邻是空、空白、文字或普通标点
+        elif els[0][1] and lc.isdigit():
+            k = len(left)                               # 号前是数字：只认「名字尾数 + 明确的正负号」（中证1000+0.5%）
+            while k > 0 and (left[k - 1].isdigit() or left[k - 1] in ".,"):
+                k -= 1
+            if not (els[0][1] in "+＋−－" and left[k - 1:k].isalpha()):
+                ok = False
+        else:
+            ok = False                                  # 其余左邻（横线、区间号、百分号、小数点……）一律认不准
+        lg = left.rstrip(" \u3000\t")
+        lg = lg if lg[-1:] in "/:" else left                  # 「28/ 72%」：斜杠/冒号后带空格也算紧贴（「tier 4 / 1.0%」号前有空格，不算）
+        pm = _INTG_PAIRL.search(left) if len(els) == 1 else None
+        if ok and pm and pm.group(1).count("/") == pm.group(2).count("/"):
+            s = pm.start(2)                             # 对称名目的成对读数：整组成一格
+            while out and out[-1][0] >= s:
+                out.pop()                               # 组内前几段若已单独认出，并入本格
+        elif ok and lc and not lc.isdigit() and re.search(r'\d', _INTG_GLUE.search(lg).group(0)):
+            ok = False                                  # 紧贴的左侧词里有数字：「1e-3%」「28/72%」「55:45%」
+        if len(els) == 2:
+            (_, sg_a, a, u_a), (sep, sg_b, b, u_b) = els
+            sep = sep.strip()
+            if sep in ("~", "～"):
+                pass                                    # 波浪号区间，两端带不带号都算一个数
+            elif lc and lc.isalpha() and not sg_a:      # 首数是名字的尾巴
+                if sep == "-" and not u_a and not sg_b and _intg_val(a) > _intg_val(b):
+                    s += len(a)                         # 「沪深300-1.40%」：横杠当负号，从横杠起算
+                else:
+                    ok = False
+            elif not (not sg_a and not sg_b and _intg_val(a) < _intg_val(b)
+                      and (not u_a or u_a.strip() == u_b.strip())):
+                ok = False                              # 横杠串：只认两端不带号、前小后大
+        elif len(els) > 2:
+            ok = False
+        out.append((s, e, ok))
+    return out
+
+
+def _intg_split_top(s, sep):
+    """按 sep 拆分，但不拆括号内（全/半角圆括号、六角括号）"""
+    out, buf, dep, i = [], "", 0, 0
+    while i < len(s):
+        ch = s[i]
+        if ch in _INTG_OPEN:
+            dep += 1
+        elif ch in _INTG_CLOSE:
+            dep = max(0, dep - 1)
+        if dep == 0 and s.startswith(sep, i):
+            out.append(buf)
+            buf = ""
+            i += len(sep)
+            continue
+        buf += ch
+        i += 1
+    out.append(buf)
+    return out
+
+
+def _intg_split_slash(s):
+    """按顶层「/」拆并列项：只认后接空白、且前接空白或右括号的斜杠（12/8、A/B 这类不拆）"""
+    out, buf, dep = [], "", 0
+    for i, ch in enumerate(s):
+        if ch in _INTG_OPEN:
+            dep += 1
+        elif ch in _INTG_CLOSE:
+            dep = max(0, dep - 1)
+        if (ch == "/" and dep == 0 and 0 < i < len(s) - 1 and s[i + 1].isspace()
+                and (s[i - 1].isspace() or s[i - 1] in _INTG_CLOSE)):
+            out.append(buf)
+            buf = ""
+            continue
+        buf += ch
+    out.append(buf)
+    return [x.strip() for x in out]
+
+
+def _intg_parts(seg):
+    """一行拆成 [("t", 顶层文字) | ("p", 含括号的括注)]"""
+    parts, buf, dep = [], "", 0
+    for ch in seg:
+        if ch in _INTG_OPEN:
+            if dep == 0 and buf:
+                parts.append(("t", buf))
+                buf = ""
+            dep += 1
+            buf += ch
+        elif ch in _INTG_CLOSE and dep > 0:
+            buf += ch
+            dep -= 1
+            if dep == 0:
+                parts.append(("p", buf))
+                buf = ""
+        else:
+            buf += ch
+    if buf:
+        parts.append(("p" if dep else "t", buf))
+    return parts
+
+
+def _intg_bold(t, cls=""):
+    """把一段文字里的带单位数字加粗"""
+    out, pos = "", 0
+    for s, e, _ in _intg_nums(t):
+        out += t[pos:s] + (f'<b class="{cls}">' if cls else "<b>") + t[s:e] + "</b>"
+        pos = e
+    return out + t[pos:]
+
+
+def _intg_inline(parts):
+    """行内排版：顶层数字加粗，括注降小字"""
+    return "".join(_intg_bold(t, "ig-n") if kind == "t"
+                   else '<span class="ig-par">' + _intg_bold(t) + '</span>' for kind, t in parts)
+
+
+def _intg_is_old(parts, idx, e):
+    """parts[idx] 里止于 e 的数字是不是旧值：后面紧跟「箭头＋数」或「升至/回落至…＋数」；
+    中间隔一个括注也算（「72.8%（非农前）→ 78.0%（非农后）」）"""
+    tail = parts[idx][1][e:]
+    nxt = lambda x: bool(_INTG_ARROW_NEXT.match(x) or _INTG_MOVE_NEXT.match(x))
+    if nxt(tail):
+        return True
+    return (not tail.strip() and idx + 2 < len(parts) and parts[idx + 1][0] == "p"
+            and parts[idx + 2][0] == "t" and nxt(parts[idx + 2][1]))
+
+
+def _intg_kv(parts):
+    """能排成「名目｜要点数｜附注」→ (名目段, 要点数, 附注段)；否则 None。parts 为已转义文字。
+    要点数＝顶层文字里第一个百分数，没有百分数则第一个 bp/pp 数（「12 月会累计 +25bp 76.1%」取 76.1%）；
+    门槛与旧值不当要点数。以下情形不排、整行照原文：顶层有拿不准的数字；名目为空；
+    数字后面紧接「、」（并列清单的第一项，单拎出来会误导）。"""
+    toks = [(idx, s, e, ok) for idx, (kind, t) in enumerate(parts) if kind == "t"
+            for s, e, ok in _intg_nums(t)]
+    if any(not ok for _, _, _, ok in toks):
+        return None
+    cand = [(idx, s, e) for idx, s, e, _ in toks if not _INTG_NOTKEY.search(parts[idx][1][:s])
+            and not _intg_is_old(parts, idx, e)]       # 箭头/「升至」前的是旧值：「72%→81%」取 81%
+    pick = next((c for c in cand if parts[c[0]][1][c[1]:c[2]].endswith("%")), cand[0] if cand else None)
+    if not pick:
+        return None
+    idx, s, e = pick
+    t = parts[idx][1]
+    pre = parts[:idx] + [("t", t[:s])]
+    post = [("t", t[e:])] + parts[idx + 1:]
+    if not "".join(x for _, x in pre).strip():
+        return None
+    if "".join(x for _, x in post).lstrip().startswith("、"):
+        return None
+    return pre, _intg_fill(t[s:e]), post
+
+
+def _intg_fill(num):
+    """成对读数「28/72%」→ 缺单位的段补末段单位「28%/72%」（补的字包 ig-fill）；非成对原样返回"""
+    m = re.search(r'(%|bp|pp)\s*$', num)
+    if "/" not in num or not m:
+        return num
+    out = []
+    for piece in re.split(r'(\s*/\s*)', num):
+        if "/" in piece or re.search(r'(%|bp|pp)\s*$', piece):
+            out.append(piece)
+        else:
+            out.append(piece + f'<span class="ig-fill">{m.group(1)}</span>')
+    return "".join(out)
+
+
+def _intg_is_kv(seg):
+    """「名目 + 带单位数字」形态"""
+    return _intg_kv(_intg_parts(seg)) is not None
+
+
+def _intg_slash_rows(clause):
+    """顶层「 / 」并列、且每项都是「名目+数字」→ 各自成行；末项句尾的括注多半管整组，单列一行跟在组后。否则 []"""
+    sl = _intg_split_slash(clause)
+    if len(sl) < 2:
+        return []
+    if not all(_intg_is_kv(x) for x in sl):
+        # 「tier 4 / 1.0% 仓位」：前项以裸数结尾、后项以带单位数开头 → 各自成行，免得名目挂悬空斜杠；
+        # 对称名目的成对读数（「hold/hike 28 / 72%」）不拆
+        kv = _intg_kv(_intg_parts(clause))
+        if kv and "/" in kv[1]:
+            return []
+        if any(_INTG_LEADNUM.match(sl[i]) and _INTG_BARE_END.search(sl[i - 1]) for i in range(1, len(sl))):
+            return [(x, "") for x in sl]
+        return []
+    rows = [(x, "") for x in sl]
+    lp = _intg_parts(sl[-1])
+    if len(lp) >= 2 and lp[-1][0] == "p" and lp[-1][1][-1] in _INTG_CLOSE:
+        body = "".join(t for _, t in lp[:-1]).strip()
+        if _intg_is_kv(body):
+            rows[-1:] = [(body, ""), (lp[-1][1], "after")]
+    return rows
+
+
+def _intg_rows_of(seg):
+    """一段正文（已转义）→ [(文字, 行类型)]，行类型 ∈ ""/"lead"/"after"。
+    ① 句尾括注自身是「；」清单、且括号前只是名目不带数字 → 括号前为提要行，括注内按「；」「，」逐项成行；
+    ② 按顶层「，」分句后，某一句是「 / 」并列的「名目+数字」→ 该句各项成行，其余分句各自一行；
+    ③ 否则原样一行。"""
+    parts = _intg_parts(seg)
+    last = parts[-1][1] if parts else ""
+    if (len(parts) >= 2 and parts[-1][0] == "p" and last[0] in "（(" and last[-1] in "）)"
+            and "；" in last):
+        lead = "".join(t for _, t in parts[:-1]).strip()
+        items = [y.strip() for x in _intg_split_top(last[1:-1], "；") for y in _intg_split_top(x, "，")]
+        items = [x for x in items if x]
+        if lead and items and not any(_intg_nums(t) for k, t in parts[:-1] if k == "t"):
+            return [(lead, "lead")] + [(x, "") for x in items]
+    clauses = [c.strip() for c in _intg_split_top(seg, "，")]
+    clauses = [c for c in clauses if c]
+    split = [_intg_slash_rows(c) for c in clauses]
+    if any(split):
+        rows = []
+        for c, sp in zip(clauses, split):
+            rows += sp or [(c, "")]
+        return rows
+    return [(seg, "")]
+
+
+def _intg_tag(pol, why=""):
+    if pol not in ("bull", "bear"):
+        return ""
+    _t = f' title="{why}"' if why else ""
+    return f'<span class="ig-tag ig-tag-{pol}"{_t}>{"利好" if pol == "bull" else "利空"}</span>'
+
+
+def _intg_row(seg, pol="", why="", kind="", gap=False):
+    """一行正文（seg 已转义）：名目｜要点数｜附注；排不成 → 通栏文字行（数字加粗）"""
+    parts = _intg_parts(seg)
+    cls = (" ig-gap" if gap else "") + (f" ig-{pol}" if pol in ("bull", "bear") else "")
+    tag = _intg_tag(pol, why)
+    kv = None if kind else _intg_kv(parts)
+    if kv:
+        pre, num, post = kv
+        return (f'<div class="ig-row ig-kv{cls}"><span class="ig-l">{_intg_inline(pre).strip()}{tag}</span>'
+                f'<b class="ig-big">{num}</b>'
+                f'<span class="ig-r">{_intg_inline(post).strip()}</span></div>')
+    k = {"lead": "ig-lead", "after": "ig-tx ig-after"}.get(kind, "ig-tx")
+    return f'<div class="ig-row {k}{cls}"><span>{_intg_inline(parts)}{tag}</span></div>'
+
+
+def _intg_seal(source):
+    """来源「项目·子项」（或「项目 子项」）→ (印章 HTML, 子项)。
+    项目名是 2~6 个汉字、或 8 字符内的拉丁名（如 EAL、X Board）才刻印；否则不刻，来源整串留在页脚。"""
+    source = (source or "").strip()
+    proj, _, sub = source.partition("·")
+    proj, sub = proj.strip(), sub.strip()
+    if not _ and not (_INTG_CJK.match(proj) or _INTG_LATIN.match(proj)):
+        _h, _sp, _t = source.partition(" ")
+        if _sp and _INTG_CJK.match(_h):
+            proj, sub = _h, _t.strip()
+    if _INTG_CJK.match(proj):
+        cols = {2: 1, 3: 1, 4: 2, 5: 3, 6: 3}[len(proj)]
+        cells = "".join(f"<i>{c}</i>" for c in proj)
+        return f'<span class="ig-seal c{cols}" title="来源：{source}">{cells}</span>', sub
+    if _INTG_LATIN.match(proj):
+        return f'<span class="ig-seal la" title="来源：{source}">{proj}</span>', sub
+    return "", source or "—"
+
+
+def _intg_card(i, n, _esc):
+    raw = str(n.get("text") or "").strip()
+    src = _esc(str(n.get("source") or "—")).replace('"', "&quot;")
+    asof = _esc(str(n.get("as_of") or "—"))
+    pol = n.get("polarity") if n.get("polarity") in ("bull", "bear") else ""
+    marks = [m for m in (n.get("marks") or []) if isinstance(m, dict)
+             and isinstance(m.get("match"), str) and m["match"] and m.get("pol") in ("bull", "bear")]
+    # 标题＝括号外第一个「：」之前（≤40 字）；冒号在括号里的不算（「（口径：…）」）
+    head_txt, rest = "", raw
+    _hs = _intg_split_top(raw, "：")
+    if len(_hs) >= 2 and 0 < len(_hs[0]) <= 40:
+        head_txt, rest = _hs[0], "：".join(_hs[1:])
+    _tail = _intg_split_top(rest, "——")
+    body_txt, foot = _tail[0], "——".join(_tail[1:]).strip()
+    rows, _prev_n = [], 0
+    for seg in _intg_split_top(body_txt, "；"):
+        seg = seg.strip()
+        if not seg:
+            continue
+        subs = _intg_rows_of(_esc(seg))
+        # 标注逐行找：含该子串的行着色（一行命中多条取先写的那条）；
+        # 子串跨行（这一段里哪一行都不完整包含）→ 这一段里还没着色的行全部着色
+        _row_m = [None] * len(subs)
+        for m in marks:
+            if m["match"] not in seg:
+                continue
+            _on = [_esc(m["match"]) in t for t, _ in subs]
+            if not any(_on):
+                _on = [True] * len(subs)
+            for k in range(len(subs)):
+                if _on[k] and _row_m[k] is None:
+                    _row_m[k] = m
+        # 原文用「；」分开的两组，其中一组拆成了多行 → 组间留一道实线，免得压平成同级
+        _gap = bool(rows) and (len(subs) > 1 or _prev_n > 1)
+        for k, (t, kind) in enumerate(subs):
+            _m = _row_m[k]
+            _why = _esc(str(_m.get("why") or "")).replace('"', "&quot;") if _m else ""
+            rows.append(_intg_row(t, _m["pol"] if _m else "", _why, kind=kind, gap=_gap and k == 0))
+        _prev_n = len(subs)
+    # 标题：句尾的全角括注（如「（12/8-9 会次）」）降为副题；半角括号多是名字的一部分（P(hike)），不动
+    hmain, hsub = _esc(head_txt), ""
+    hp = _intg_parts(hmain)
+    if (len(hp) >= 2 and hp[-1][0] == "p" and sum(1 for k, _ in hp if k == "p") == 1
+            and hp[-1][1][0] == "（" and hp[-1][1][-1] == "）" and "".join(t for _, t in hp[:-1]).strip()):
+        hmain, hsub = "".join(t for _, t in hp[:-1]).strip(), hp[-1][1][1:-1].strip()
+    seal, sub = _intg_seal(src)
+    cls = f" ig-{pol}" if pol else ""
+    _pw = _esc(str(n.get("polarity_why") or "")).replace('"', "&quot;") if pol else ""
+    top = ""
+    if seal or hmain or pol:      # 没标题也要让整条的利好/利空看得见
+        top = ('<div class="ig-top">' + seal
+               + (f'<div class="ig-head">{hmain}'
+                  + (f' <span class="ig-hsub">{hsub}</span>' if hsub else "")
+                  + f'{_intg_tag(pol, _pw)}</div>' if hmain else _intg_tag(pol, _pw))
+               + '</div>')
+    return (f'<div class="ig-note{cls}"' + (f' title="{_pw}"' if _pw else "") + '>'
+            + top
+            + f'<div class="ig-body">{"".join(rows)}</div>'
+            + (f'<div class="ig-foot">{_esc(foot)}</div>' if foot else "")
+            + f'<div class="ig-meta"><span class="ig-src">{sub}</span>'
+              f'<span class="ig-asof">as_of {asof}</span></div>'
+            + '</div>')
+
+
+_INTG_STYLE = (
+    "<style>"
+    ".ig-wrap{--bull:#b4472c;--bull-g:#9a7432;--bull-bg:#fbefe4;--bear:#2a7a6c;--bear-bg:#e9f3ef;"
+    "--seal:#a8442f;--rule:#e2decf;--ink2:#45443f;--faint:#9a9386}"
+    ".card.ig-sheet{padding:0}.ig-sheet>*{position:relative;z-index:1}"
+    # 栏：界行用每格右/下各 1px 外影画，容器裁掉最外一圈；换行后行间有线、末行空格上沿也有线
+    ".ig-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));overflow:hidden}"
+    ".ig-note{container-type:inline-size;position:relative;display:flex;flex-direction:column;min-width:0;padding:22px 24px 14px;"
+    "box-shadow:1px 0 0 var(--rule),0 1px 0 var(--rule)}"
+    ".ig-note.ig-bull{box-shadow:1px 0 0 var(--rule),0 1px 0 var(--rule),inset 0 3px 0 var(--bull)}"
+    ".ig-note.ig-bear{box-shadow:1px 0 0 var(--rule),0 1px 0 var(--rule),inset 0 3px 0 var(--bear)}"
+    ".ig-top{display:flex;align-items:center;gap:13px;min-height:42px}"
+    # 印：来源项目名，朱文方印
+    ".ig-seal{flex:none;display:grid;grid-template-columns:repeat(2,1em);gap:1px;padding:4px;"
+    "font:700 12px/1.1 var(--zh);letter-spacing:0;color:var(--seal);"
+    "border:1.5px solid var(--seal);border-radius:3px;transform:rotate(-2deg);cursor:default}"
+    ".ig-seal i{font-style:normal;text-align:center}"
+    ".ig-note:nth-child(3n+2) .ig-seal{transform:rotate(1.4deg)}.ig-note:nth-child(3n) .ig-seal{transform:rotate(-.7deg)}"
+    ".ig-seal.c1{grid-template-columns:1em}.ig-seal.c3{grid-template-columns:repeat(3,1em)}"
+    ".ig-seal.la{display:block;font-size:11px;letter-spacing:.6px;padding:6px 5px}"
+    ".ig-head{min-width:0;font-family:var(--zh);font-size:19px;font-weight:700;color:var(--tx);"
+    "line-height:1.3;letter-spacing:.3px}"
+    ".ig-note.ig-bull .ig-head{color:var(--bull)}.ig-note.ig-bear .ig-head{color:var(--bear)}"
+    ".ig-hsub{font-size:12px;font-weight:400;color:var(--sub);letter-spacing:0;white-space:nowrap}"
+    # 账目行：名目｜要点数｜附注
+    ".ig-body{display:grid;grid-template-columns:fit-content(46%) max-content minmax(0,1fr);"
+    "column-gap:12px;margin-top:14px}"
+    ".ig-row{grid-column:1/-1;display:grid;grid-template-columns:subgrid;align-items:baseline;"
+    "padding:7px 0;border-top:1px dotted var(--rule);font-size:14px;line-height:1.5;color:var(--tx)}"
+    "@supports not (grid-template-columns:subgrid){.ig-row{grid-template-columns:fit-content(46%) max-content minmax(0,1fr);column-gap:12px}}"
+    ".ig-row:first-child{border-top:0}"
+    ".ig-row>span:only-child{grid-column:1/-1}"
+    # 窄栏：附注落到名目下一行，要点数贴右
+    "@container (max-width:400px){.ig-body{grid-template-columns:minmax(0,1fr) max-content}"
+    ".ig-r{grid-column:1/-1;margin-top:1px}.ig-r:empty{display:none}}"
+    ".ig-lead{font-size:15px;font-weight:600;letter-spacing:.2px}"
+    ".ig-lead+.ig-row{border-top-style:solid}"
+    ".ig-row.ig-gap{border-top:1px solid var(--rule);margin-top:8px;padding-top:11px}"
+    ".ig-row.ig-after{border-top:0;padding-top:0;margin-top:-4px}"
+    ".ig-big{font-family:var(--num);font-size:20px;font-weight:700;line-height:1.15;text-align:right;"
+    "font-variant-numeric:tabular-nums lining-nums;letter-spacing:0}"
+    ".ig-r{font-size:13px;color:var(--ink2)}"
+    ".ig-n{font-family:var(--num);font-weight:600;font-variant-numeric:tabular-nums}"
+    ".ig-par{font-size:12px;color:var(--sub)}"
+    ".ig-row.ig-bull,.ig-row.ig-bear{border-radius:6px;border-top-color:transparent;padding:7px 9px;margin:0 -9px}"
+    ".ig-row.ig-bull+.ig-row,.ig-row.ig-bear+.ig-row{border-top-color:transparent}"
+    ".ig-row.ig-bull{background:var(--bull-bg)}.ig-row.ig-bear{background:var(--bear-bg)}"
+    ".ig-row.ig-gap.ig-bull,.ig-row.ig-gap.ig-bear{margin-top:12px}"
+    ".ig-row.ig-bull .ig-big,.ig-row.ig-bull .ig-n{color:var(--bull)}"
+    ".ig-row.ig-bear .ig-big,.ig-row.ig-bear .ig-n{color:var(--bear)}"
+    ".ig-tag{display:inline-block;font:600 10px/1.5 var(--zh);letter-spacing:.5px;border-radius:999px;"
+    "padding:0 7px;margin-left:8px;vertical-align:2px;white-space:nowrap;color:#fff}"
+    ".ig-tag-bull{background:linear-gradient(90deg,var(--bull),var(--bull-g))}"
+    ".ig-tag-bear{background:var(--bear)}"
+    ".ig-top>.ig-tag{margin-left:0}"
+    ".ig-foot{margin-top:12px;padding-left:10px;border-left:2px solid var(--rule);"
+    "font-size:11.5px;line-height:1.6;color:var(--sub)}"
+    ".ig-meta{margin-top:auto;padding-top:14px;display:flex;justify-content:space-between;gap:12px;"
+    "font-size:10.5px;color:var(--faint);font-variant-numeric:tabular-nums}"
+    ".ig-src{min-width:0;overflow-wrap:anywhere}.ig-asof{flex:none}"
+    # 持仓命中红条
+    ".ig-hit{padding:11px 24px;border-top:1px solid rgba(192,57,43,.35);background:#fbeeea;"
+    "color:#c0392b;font-size:13.5px;font-weight:600}"
+    ".ig-hit span{display:block;font-size:11px;font-weight:400;margin-top:2px;color:#a2463b}"
+    # 今日无
+    ".ig-empty{padding:26px 24px 22px}"
+    ".ig-empty b{display:block;font:600 22px/1.3 var(--zh);color:var(--faint);letter-spacing:2px}"
+    ".ig-empty span{display:block;font-size:11.5px;color:var(--sub);margin-top:6px}"
+    # 页脚：固定槽位
+    ".ig-slots{display:grid;grid-template-columns:auto minmax(0,1fr);border-top:1px solid var(--rule);"
+    "background:rgba(238,230,214,.32)}"
+    ".ig-slots-k{writing-mode:vertical-rl;padding:12px 9px;font-size:11px;letter-spacing:4px;"
+    "color:var(--faint);border-right:1px solid var(--rule);text-align:center}"
+    ".ig-slot-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));overflow:hidden}"
+    ".ig-slot{min-width:0;padding:12px 20px;box-shadow:1px 0 0 var(--rule),0 1px 0 var(--rule)}"
+    ".ig-slot-h{display:flex;justify-content:space-between;gap:12px;align-items:baseline;"
+    "font-size:12.5px;font-weight:600;color:var(--ink2);letter-spacing:.3px}"
+    ".ig-slot-h span{flex:none;font-size:10.5px;font-weight:400;color:var(--faint);letter-spacing:0;"
+    "font-variant-numeric:tabular-nums}"
+    ".ig-slot-v{margin-top:3px;font-size:14px;line-height:1.55;color:var(--tx)}"
+    ".ig-slot-v.na{color:var(--faint)}"
+    ".ig-slot-s{margin-top:4px;font-size:10.5px;line-height:1.5;color:var(--faint);overflow-wrap:anywhere}"
+    "@media (max-width:640px){.ig-note{padding:18px 16px 12px}.ig-hit,.ig-empty{padding-left:16px;padding-right:16px}"
+    ".ig-slot{padding:11px 14px}}"
+    "</style>")
+
+
+def integration_section(D):
+    head = ('<h2 id="sec-intg" style="margin-bottom:4px">隔日关注 '
+            '<span class="vintage">体系提炼摘录 ｜ 来源=上游项目提炼结论（非原始数据）｜ 转述不改判 ｜ 无增量如实标注</span></h2>')
+    _esc = lambda s: (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    it = D.get("integration")
+    notes = it.get("notes") if isinstance(it, dict) else None
+    notes = notes if isinstance(notes, list) else []
+    rows = []
+    for n in notes[:8]:
+        if not isinstance(n, dict) or not str(n.get("text") or "").strip():
+            continue
+        rows.append(_intg_card(len(rows) + 1, n, _esc))
+    # L3 固定槽位（2026-11-06）：EAL 宏观惊奇 / 星空 NE 恒显两格，无当日产物显「无」（不编数）
+    _slots = D.get("integration_slots") or {}
+    _slot_rows = []
+    for _key, _label in (("eal", "EAL · 宏观惊奇"), ("starry_ne", "星空 · Newly Emerged 新出现信号")):
+        _sv = _slots.get(_key) if isinstance(_slots, dict) else None
+        if not isinstance(_sv, dict) or not _sv:
+            _sv = {"text": "无（槽位未计算）", "source": "—", "as_of": "—"}
+        _st = _esc(str(_sv.get("text") or "").strip() or "无")
+        _na = _st.startswith("无")
+        _slot_rows.append(
+            f'<div class="ig-slot"><div class="ig-slot-h">{_label}'
+            f'<span>as_of {_esc(str(_sv.get("as_of") or "—"))}</span></div>'
+            f'<div class="ig-slot-v{" na" if _na else ""}">{_st}</div>'
+            f'<div class="ig-slot-s">来源：{_esc(str(_sv.get("source") or "—"))}'
+            + (f' · {_esc(str(_sv.get("note")))}' if _sv.get("note") else "") + '</div></div>')
+    slots_html = ('<div class="ig-slots"><div class="ig-slots-k">固定槽位</div>'
+                  f'<div class="ig-slot-list">{"".join(_slot_rows)}</div></div>')
+    if not rows:
+        body = ('<div class="ig-empty"><b>今日无</b>'
+                '<span>上游提炼产物无新增量（或摘录步未跑/上游缺失）——不空栏不编造</span></div>')
+    else:
+        body = f'<div class="ig-cols">{"".join(rows)}</div>'
+        # 持仓命中复核提示（2026-10-21 Doctor 批「3、轻量修复」：摘录条目文本命中龙鱼持仓清单 →
+        # 条目后红条提示复核仓位；读不到 holdings → 静默不显示；动作归 Doctor，本行只是触发）
+        _hit = []
+        for n in notes[:8]:
+            _txt = str(n.get("text") or "") if isinstance(n, dict) else ""
+            for h in (D.get("holdings") or []):
+                if not isinstance(h, dict):
+                    continue
+                _nm, _cd = str(h.get("name") or ""), str(h.get("code") or "")
+                if (_nm and _nm in _txt) or (_cd and _cd.split(".")[0] and _cd.split(".")[0] in _txt):
+                    _hit.append(_nm or _cd)
+                    break
+        if _hit:
+            _hit = sorted(set(_hit))
+            body += (f'<div class="ig-hit">⚠ 摘录命中持仓标的（{"、".join(_esc(x) for x in _hit)}）'
+                     f'<span>建议复核仓位——本行仅为体系内信号触发的复核提示，动作归您</span></div>')
+    return (_INTG_STYLE + head
+            + f'<div class="ig-wrap" style="margin:6px 0 16px"><div class="card ig-sheet">{body}{slots_html}</div></div>')
+
+
+def _font_face():
+    """字酷堂石刻体子集（春夏秋冬）内嵌；缺文件则回退本机字体栈（视觉降级，不报错）"""
+    if not FONT_SEASONS.exists():
+        logger.warning(f"⚠️ 石刻体子集缺失：{FONT_SEASONS}（『春』将回退本机字体）")
+        return ""
+    b64 = base64.b64encode(FONT_SEASONS.read_bytes()).decode()
+    return ('@font-face{font-family:"ZZJY-ZKTSKT-Embedded";'
+            f'src:url("data:font/ttf;base64,{b64}") format("truetype");'
+            'font-weight:400;font-style:normal;font-display:block;'
+            'unicode-range:U+6625,U+590F,U+79CB,U+51AC;}')
+
+
+def _laiqin_art():
+    if not ART_LAIQIN.exists():
+        logger.warning(f"⚠️ 《果熟来禽图》素材缺失：{ART_LAIQIN}（画框左侧将留白）")
+        return "none"
+    mime = "image/webp" if ART_LAIQIN.suffix.lower() == ".webp" else "image/png"
+    b64 = base64.b64encode(ART_LAIQIN.read_bytes()).decode()
+    return f'url("data:{mime};base64,{b64}")'
+
+
+def _echarts_inline():
+    """ECharts 内联 <script>。
+
+    Cowork artifact 沙箱只允许 Chart.js / Grid.js / Mermaid 走 CDN，其余库（含 ECharts）
+    必须内联，否则 echarts 未定义 → emChart/capGauge 空白（GOTCHA：2026-06-25 CDN 退化致图表全空）。
+    缺本地副本则回退 CDN 并告警（沙箱仍可能拦截，但不静默）。
+    """
+    if not ECHARTS_JS.exists():
+        logger.warning(f"⚠️ echarts 本地副本缺失：{ECHARTS_JS}（回退 CDN，Cowork 沙箱可能拦截致图表空白）")
+        return '<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>'
+    return "<script>" + ECHARTS_JS.read_text(encoding="utf-8") + "</script>"
+
+
+def _rotate_backups(dir_path, glob_pat, keep_days=5):
+    """备份跨日轮换（挂载盘友好）：按文件名里的 YYYYMMDD 日键分组，只保最近 keep_days 天，删更旧。
+    同日去重靠调用方『日键命名 + 覆盖写』实现，本函数只管跨日。
+    删除在 Cowork 挂载盘沙箱被拦（Operation not permitted）→ try/except 静默跳过、不阻断日报生成；
+    Mac 原生 / 手动跑时才真正清理（G-X45 族·挂载盘禁删）。解析不出日期的文件一律保留不删。"""
+    import re
+    days = {}
+    for f in dir_path.glob(glob_pat):
+        # 取文件名里最后一个 8 位日期组作日键——index.bak.<日> 取唯一；
+        # 日报_<数据日>.pre-<快照日> 有两个日期，末组＝快照日才是轮换该依据的（避免全归数据日一天·失效）。
+        ms = re.findall(r"\d{8}", f.name)
+        if ms:
+            days.setdefault(ms[-1], []).append(f)
+    old_days = sorted(days)[:-keep_days] if keep_days > 0 else []
+    for day in old_days:
+        for f in days[day]:
+            try:
+                f.unlink()
+            except OSError:
+                pass  # 挂载盘禁删 → 留待 Mac 侧清理，不阻断
+
+
+def _deploy_to_artifact(html, dd):
+    """写本地 artifact 镜像（非 live 真身）：给日报 HTML 套上 cowork-artifact-meta 头，写入
+    ARTIFACT_ROOT/zhuzhao-jiuyin-daily/index.html。此目录（<Documents>/Claude/Artifacts）是
+    AI4ME 侧本地镜像，**不是** Cowork 读的 live 真身（真身在 ~/Claude's workspace/Artifacts，
+    自 06-30 gateway 切换后脱钩 · 参 GOTCHAS ERR-20260722-002 / permanent/artifact存储机制）。
+
+    ⚠️ live 卡片的更新只认 update_artifact——每日走定时链 SKILL step 6.5，手动改后须自己补一发。
+    本函数只刷本地镜像、不触 live；故日志用「🪞 已写本地镜像」而非「已部署」，别再误判。
+
+    - Artifacts 目录不存在（异机/无 Cowork 环境）→ 跳过 + 告警，不报错、不阻塞生成。
+    - 写前备份现有 index.html 到 index.bak.<ts>.html（可逆，永不直接覆盖无备份）。
+    """
+    art_dir = ARTIFACT_PATH.parent
+    if not art_dir.exists():
+        logger.warning(f"⚠️ Cowork artifact 目录不存在：{art_dir}（跳过部署，仅写 AI4ME）")
+        return
+    meta = {
+        "name": "烛照九阴复盘日报",
+        "schemaVersion": 1,
+        "description": (f"最后更新：{datetime.datetime.now():%Y-%m-%d %H:%M}（{dd} 期）。\n"
+                        "Update at：周一至周五 10:03（定时链 step 6.5 经 update_artifact 推送）。\n\n"
+                        "盘后复盘看板，ECharts 与字体内联、画框《果熟来禽图》内嵌，完全自包含；数据为当期快照。"),
+    }
+    meta_block = ('<script type="application/json" id="cowork-artifact-meta">\n'
+                  + json.dumps(meta, ensure_ascii=False, indent=2)
+                  + '\n</script>\n')
+    artifact_html = html.replace("<!DOCTYPE html>\n", "<!DOCTYPE html>\n" + meta_block, 1)
+    if "color-scheme" not in artifact_html:   # Cowork artifact 渲染须显式亮色，否则随系统转暗（2026-06-30）
+        artifact_html = artifact_html.replace(":root{", ":root{color-scheme:light;", 1)
+    if ARTIFACT_PATH.exists():
+        day = datetime.datetime.now().strftime("%Y%m%d")
+        bak = ARTIFACT_PATH.with_name(f"index.bak.{day}.html")  # 日键命名：同日覆盖去重（挂载盘可覆盖写·免删）
+        shutil.copy2(ARTIFACT_PATH, bak)
+        _rotate_backups(bak.parent, "index.bak.*.html", keep_days=5)  # 跨日保 5 天（Mac 清·沙箱静默跳）
+        logger.info(f"📦 artifact 旧版备份 → {bak.name}")
+    ARTIFACT_PATH.write_text(artifact_html, encoding="utf-8")
+    logger.info(f"🪞 已写本地 artifact 镜像（非 live·真身走 update_artifact）→ {ARTIFACT_PATH}（{len(artifact_html)/1048576:.2f} MB）")
+
+
+# 暖色日报 CSS（普通字符串 + 占位符，规避 f-string 花括号转义——G-04）
+# 注意：.report-hero 的 --hero-lock-* / --hero-art-* / --season-* 为 Doctor 锁定变量（桌面构图；窄屏媒体块 2026-08-26 Doctor 裁统一构图：画缩宽入流/季节字绝对居中/日期右竖）。
+CSS_WARM = """
+__FONT_FACE__
+:root{--bg:#f5f4ed;--card:#faf9f5;--panel:#f1eee4;--line:#e8e6dc;--tx:#141413;--sub:#6b6a64;
+--red:#a94e3f;--grn:#2f7d63;--gold:#8b6f32;--acc:#1B365D;--spring:#2f7d63;
+--brand-tint:#eef2f7;--sand:#eee6d6;--border-soft:#eeeade;--whisper:0 4px 24px rgba(20,20,19,.05);
+--laiqin-art:__LAIQIN_ART__;
+--stone:"ZZJY-ZKTSKT-Embedded","zktskt","字酷堂石刻体","ZiKuTangShiKeTi","Zikutang Shiketi","STKaiti","Kaiti SC",serif;
+--zh:"Source Han Serif SC","思源宋体 SC","思源宋体","Songti SC","STSong",serif;
+--num:var(--zh)}
+*{box-sizing:border-box;margin:0}
+body{background:
+radial-gradient(900px 520px at 50% -8%,rgba(47,125,99,.14),transparent 62%),
+radial-gradient(900px 560px at 86% -8%,rgba(27,54,93,.10),transparent 58%),
+linear-gradient(180deg,#f8f4ea 0%,var(--bg) 42%,#eee7d8 100%);
+color:var(--tx);font:15px/1.65 var(--zh);font-weight:400;padding:22px;max-width:1280px;margin:auto;
+-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1{font-size:22px;font-weight:700;letter-spacing:3px}
+h2{font-size:15px;font-weight:600;color:var(--acc);margin:30px 0 12px;letter-spacing:1.5px}
+.vintage{color:var(--sub);font-size:12px;font-weight:400;letter-spacing:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin-top:14px}
+/* 非重点面板：轻装饰，给 P0 模块让位 */
+.card,.opp,.risk{position:relative;overflow:hidden;
+ background:var(--card);
+ border:1px solid var(--line);
+ box-shadow:var(--whisper)}
+.card::after,.opp::after,.risk::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+ background:linear-gradient(180deg,rgba(255,255,255,.45),transparent 42%)}
+.card{border-radius:16px;padding:14px 16px}
+.card .k{color:var(--sub);font-size:12px;letter-spacing:.5px}
+.card .v{font-size:27px;font-weight:600;font-family:var(--num);font-variant-numeric:tabular-nums;margin-top:3px;letter-spacing:0}
+.card .sub{color:var(--sub);font-size:11px;margin-top:3px}
+.card .v,.snapshot-number,.p0-v,.liquidity-grid b,.mday-h b,.mday-h .sub,.mc-pct,.mcard .sub,.sc-h .lvl,.tag,.thermo,.chip em,.opp-h .sub,.opp-d,.risk,.score-vars span,.score-formula,.dk,.fulfill-v,.fulfill-d,td,#modal .sub,#modal .desc,#modal .tag{font-family:var(--num);font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1,"lnum" 1;letter-spacing:0}
+.liquidity-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 6px}
+.liquidity-grid div{padding:8px 10px;border-radius:10px;background:#f4efe5;border:1px solid var(--border-soft)}
+.liquidity-grid b{display:block;font-family:var(--zh);font-size:17px;line-height:1.12;color:var(--tx)}
+.liquidity-grid span{display:block;color:var(--sub);font-size:10.5px;margin-top:3px}
+.score-basis{margin-top:8px;padding:10px 11px;border-radius:12px;background:rgba(244,239,229,.62);border:1px solid var(--border-soft)}
+.score-formula{font-size:11.5px;line-height:1.55;color:var(--sub)}
+.score-formula b{color:var(--tx);font-weight:600}
+.score-vars{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.score-vars span{font-size:10.5px;line-height:1;padding:6px 7px;border-radius:999px;background:#fbf8ef;border:1px solid rgba(27,54,93,.10);color:#4f5b70}
+.up{color:var(--red)} .dn{color:var(--grn)} .na{color:#9a9386}
+.udbar{display:flex;height:11px;border-radius:999px;overflow:hidden;margin-top:10px;background:#eadfcb;
+ border:1px solid var(--line);box-shadow:inset 0 1px 4px rgba(20,20,19,.10);position:relative}
+.udbar::after{content:"";position:absolute;inset:1px;border-radius:inherit;
+ background:linear-gradient(180deg,rgba(255,255,255,.50),transparent 54%);pointer-events:none}
+.udbar i{background:linear-gradient(90deg,#b87364,var(--red));box-shadow:0 0 14px rgba(169,78,63,.18)}
+.udbar b{background:linear-gradient(90deg,var(--grn),#198a67);box-shadow:0 0 18px rgba(61,220,151,.26)}
+.row2{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(300px,.92fr);gap:12px;margin-top:14px}
+@media(max-width:900px){.row2{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}}
+.season{font-size:34px} .gauge,#emChart{height:170px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--whisper)}
+th{color:var(--sub);font-weight:600;font-size:11px;text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);letter-spacing:1px}
+td{padding:8px 11px;border-bottom:1px solid var(--border-soft);font-family:var(--num);font-variant-numeric:tabular-nums;vertical-align:middle;font-size:13.5px}
+td.tname,td.desc,td.kw{font-family:var(--zh)}
+.tname{font-weight:600;font-size:14px} .desc{color:var(--sub);font-size:12px;max-width:300px;line-height:1.5}
+.tag{font-size:11px;padding:1px 7px;border-radius:9px;background:#ebe6db;color:var(--sub)}
+.t-closing{background:#f0e6cf;color:var(--gold)} .t-open{background:var(--brand-tint);color:var(--acc)} .t-closed{background:#ebe6db} .t-dormant{background:#e7e2d6;color:var(--sub)}
+.dormant-note{margin:2px 0 16px;padding:9px 13px;border-radius:12px;background:var(--panel);border:1px dashed var(--line);color:var(--sub);font-size:12px}
+.led-grid{display:grid;gap:8px;margin:10px 0 16px;align-items:stretch}
+.led-colh{align-self:end;text-align:center;font-size:10.5px;color:var(--sub);letter-spacing:.08em;padding-bottom:3px}
+.led-rowh{align-self:center;font-size:12px;font-weight:600;color:var(--tx);padding-right:6px;white-space:nowrap}
+.led-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:52px;border-radius:12px;background:rgba(251,248,239,.72);border:1px solid rgba(27,54,93,.08);cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
+.led-tile:hover{transform:translateY(-3px);border-color:rgba(27,54,93,.28);box-shadow:0 6px 16px rgba(27,54,93,.08)}
+.led-tile b{font-size:20px;font-weight:700;color:var(--acc);line-height:1;font-variant-numeric:tabular-nums}
+.led-tile span{font-size:9.5px;color:var(--sub)}
+.led-tile.empty{background:transparent;border:1px dashed var(--line);cursor:default;transform:none;box-shadow:none}
+.led-tile.empty b{color:var(--line);font-size:14px}
+.led-tile.sum{background:var(--panel);cursor:default;transform:none;box-shadow:none;border-color:transparent}
+.led-tile.sum b{color:var(--tx)}
+.led-tile.sum.total b{color:var(--acc)}
+.lm-item{margin:9px 0}
+.lm-r1{display:grid;grid-template-columns:minmax(0,1fr) 104px 74px;gap:8px;align-items:center;font-size:12.5px}
+.lm-chain{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--tx)}
+.lm-st{justify-self:end;display:flex;gap:5px;align-items:center}
+.lm-conf{justify-self:end;color:var(--sub);font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lm-r2{font-size:11px;color:var(--sub);margin-top:2px;line-height:1.4}
+.lm-item{cursor:pointer;border-radius:9px;padding:5px 7px;margin:6px -7px;transition:background .15s}
+.lm-item:hover{background:rgba(27,54,93,.05)}
+.lm-conf{color:var(--sub)}
+.lm-back{display:inline-block;margin:0 0 12px;font-size:11.5px;color:var(--acc);cursor:pointer;font-weight:600}
+.lm-back:hover{text-decoration:underline}
+.ledger-wrap{margin:8px 0 14px}
+.ledger-h{font-size:14px;font-weight:600;color:var(--tx);margin:12px 0 8px}
+.ledger-h .sub{font-weight:400}
+.ledger-row{display:flex;align-items:center;gap:10px;padding:8px 12px;margin:5px 0;border-radius:11px;
+ border:1px solid var(--line);background:var(--card);cursor:pointer;
+ transition:transform .15s,box-shadow .15s,border-color .15s}
+.ledger-row:hover{transform:translateX(2px);box-shadow:var(--whisper);border-color:var(--sc)}
+.lg-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:var(--sc)}
+.lg-chain{font-size:13px;font-weight:500;color:var(--tx);flex:0 1 auto;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:46%}
+.lg-meta{font-size:11px;color:var(--sub);margin-left:auto;text-align:right;flex:0 0 auto}
+@media(max-width:900px){.lg-chain{max-width:38%}.lg-meta{font-size:10px}}
+.thermo{font-size:10px;color:var(--sub);border:1px solid var(--line);border-radius:6px;padding:0 4px;margin-left:4px}
+.chip{display:inline-block;background:#f4efe5;border:1px solid var(--line);border-radius:8px;padding:3px 10px;margin:3px 6px 0 0}
+.chip em{font-style:normal;color:var(--gold);font-size:11px;margin-left:6px}
+.opp{border:1px solid #d7deea;border-radius:14px;padding:12px 14px;margin-bottom:10px;
+ background:linear-gradient(135deg,var(--brand-tint),var(--card))}
+.opp-h{font-weight:600} .opp-d{color:var(--sub);font-size:12px;margin:4px 0}
+.risk{border-radius:14px;padding:10px 14px;margin-bottom:8px;font-size:13px;display:flex;align-items:flex-start;gap:10px}
+.rk-led{flex-shrink:0;padding-top:2px}
+.rk-txt{flex:1 1 auto;min-width:0}
+.ledbar{display:inline-flex;gap:2.5px;align-items:center}
+.led{width:5px;height:15px;border-radius:2px}
+.r-红{border-color:#e3c4bb;background:linear-gradient(135deg,#f4e5df,var(--card))}
+.r-黄{border-color:#dfd0aa;background:linear-gradient(135deg,#f3ead6,var(--card))}
+.foot{color:#9a9386;font-size:11px;margin:30px 0 10px;border-top:1px solid var(--line);padding-top:10px}
+.mday{margin-bottom:18px}
+.mday-h{font-size:14px;margin-bottom:10px;color:var(--tx)} .mday-h b{font-family:var(--num)}
+.mrow{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 10px}
+.mrow::-webkit-scrollbar{height:6px} .mrow::-webkit-scrollbar-thumb{background:#d7cdb9;border-radius:3px}
+.mrow .mcard,.mrow .scard,.mrow .fulfill-card{flex:0 0 236px}
+/* 强信号优先条（回测最有力量两类·置顶外发光）2026-07-08 */
+.prio-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin:2px 2px 20px}
+.prio-card{position:relative;border-radius:16px;padding:16px 18px 14px;
+ background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(251,248,239,.5));
+ border:1px solid color-mix(in srgb,var(--sc) 42%,transparent);
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--sc) 20%,transparent),0 0 22px color-mix(in srgb,var(--sc) 34%,transparent),0 6px 18px rgba(20,20,19,.10)}
+.prio-glow{animation:prio-breathe 3.6s ease-in-out infinite}
+@keyframes prio-breathe{
+ 0%,100%{box-shadow:0 0 0 1px color-mix(in srgb,var(--sc) 20%,transparent),0 0 18px color-mix(in srgb,var(--sc) 28%,transparent),0 6px 18px rgba(20,20,19,.10)}
+ 50%{box-shadow:0 0 0 1px color-mix(in srgb,var(--sc) 32%,transparent),0 0 36px color-mix(in srgb,var(--sc) 54%,transparent),0 6px 18px rgba(20,20,19,.12)}}
+@media (prefers-reduced-motion:reduce){.prio-glow{animation:none}}
+.prio-h{font-weight:700;font-size:15px;color:var(--tx);display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.prio-badge{font-size:11px;font-weight:700;letter-spacing:.04em;color:#fff;background:var(--sc);padding:2px 8px;border-radius:999px;box-shadow:0 0 10px color-mix(in srgb,var(--sc) 60%,transparent)}
+.prio-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;max-height:260px;overflow-y:auto;scrollbar-width:thin}
+.prio-list::-webkit-scrollbar{width:5px}
+.prio-list::-webkit-scrollbar-thumb{background:#d7cdb9;border-radius:3px}
+.prio-list li{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px;row-gap:2px;font-size:13.5px;color:var(--tx)}
+.prio-list li b{flex:0 0 100%;font-weight:600}
+.prio-meta{font-size:11.5px;color:var(--sub)}
+.prio-period{font-size:11px;color:var(--sub);margin-left:auto;text-align:right;white-space:nowrap;opacity:.92}
+.prio-list li.prio-clk{cursor:pointer;padding:5px 7px 5px 9px;border-radius:8px;transition:background .15s}
+.prio-list li.prio-clk:hover{background:color-mix(in srgb,var(--sc) 14%,rgba(255,255,255,.5))}
+.prio-list li.prio-clk:focus-visible{outline:2px solid color-mix(in srgb,var(--sc) 55%,transparent);outline-offset:1px}
+.prio-hint{font-size:11px;color:var(--sub);opacity:.65;margin-left:8px;white-space:nowrap}
+.period-note{font-size:11px;color:var(--sub);margin-top:6px;line-height:1.4;opacity:.92}
+.period-over{color:#2f7d63;font-weight:600}
+.sig-expired{color:#2f7d63}
+.sig-converge{color:#bd9a43}
+.prio-more{font-size:11.5px;color:var(--sub);margin-top:7px}
+.prio-empty{font-size:13px;color:var(--sub);padding:6px 0 2px}
+.prio-card .bt-note{font-size:11px;color:var(--sub);margin-top:11px;padding-top:9px;border-top:1px dashed rgba(120,110,95,.28);line-height:1.45}
+/* 其他机制·按10日胜率排行（无外发光·安静层）*/
+.prio-rank{margin:2px 2px 20px;padding:13px 15px 11px;border-radius:14px;background:rgba(251,248,239,.55);border:1px solid rgba(120,110,95,.20)}
+.rank-h{font-weight:600;font-size:13.5px;color:var(--tx);margin-bottom:9px}
+.rank-sub{display:block;font-weight:400;font-size:11px;color:var(--sub);margin-top:3px;line-height:1.4}
+.rank-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.rank-list .mech-row{display:flex;flex-direction:column;gap:6px;padding:6px 8px;border-radius:8px}
+.rank-list .mech-row:nth-child(odd){background:rgba(255,255,255,.42)}
+.rank-line{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--tx)}
+.rank-win{flex:0 0 auto;min-width:74px;font-weight:700;font-variant-numeric:tabular-nums}
+.rank-win i{font-style:normal;font-size:10px;font-weight:500;color:var(--sub);margin-left:3px}
+.rank-name{flex:1 1 auto;font-weight:600;display:flex;align-items:center}
+.rank-flag{font-size:10.5px;font-weight:600;color:#b5563f;border:1px solid rgba(181,86,63,.42);border-radius:6px;padding:0 5px;margin-left:7px}
+.rank-exc{flex:0 0 auto;font-size:11.5px;color:var(--sub)}
+.rank-cur{flex:0 0 auto;font-size:11px;color:var(--sub);min-width:86px;text-align:right}
+/* 机制在途信号·横向 chip（点击弹二级）*/
+.mech-chips{display:flex;flex-wrap:nowrap;gap:14px;padding:0 0 4px 2px;overflow-x:auto;scrollbar-width:thin}
+.mech-chips::-webkit-scrollbar{height:5px}
+.mech-chips::-webkit-scrollbar-thumb{background:#d7cdb9;border-radius:3px}
+.mchip{cursor:pointer;font-size:12px;color:var(--tx);background:transparent;border:none;border-radius:0;padding:0;white-space:nowrap;transition:color .15s}
+.mchip:hover{color:var(--sc);text-decoration:underline;text-underline-offset:2px}
+.mchip:focus-visible{outline:2px solid color-mix(in srgb,var(--sc) 55%,transparent);outline-offset:2px}
+.mchip-more{font-size:11px;color:var(--sub);align-self:center;margin-left:2px}
+.chip-contra{font-size:9.5px;font-weight:400;color:#b5563f;border:1px solid rgba(181,86,63,.4);border-radius:5px;padding:0 3px;margin-left:4px;vertical-align:middle}
+.chip-nogap{color:#8a8578;border-color:rgba(120,110,95,.42)}
+.chip-wnd{font-size:10.5px;color:var(--sub);font-variant-numeric:tabular-nums;margin-left:1px}
+.mchip-converge{color:#bd9a43}
+.mchip-converge:hover{color:#d0ac52}
+.mchip-nogap{color:#2f7d63}
+.mchip-nogap:hover{color:#3a9678}
+.mchip-expired{color:#2f7d63}
+.mchip-expired:hover{color:#3a9678}
+.xb-band{font-size:11.5px;color:var(--sub);margin-top:6px;line-height:1.45;padding-top:6px;border-top:1px dashed rgba(120,110,95,.28)}
+.cap-newline{margin-top:8px;font-weight:700;font-size:13px;text-align:center;padding:5px 0;border-radius:8px}
+.cap-can{color:#2f7d63;background:rgba(47,125,99,.10)}
+.cap-cannot{color:#c0392b;background:rgba(192,57,43,.09)}
+/* 逆风机制·只保留红底白字"风险"徽标（行本身不加边框/背景/发光）*/
+.rank-risk .rank-flag{color:#fff;background:#c0392b;border-color:#c0392b}
+@media(max-width:560px){.rank-line{flex-wrap:wrap}.rank-cur{text-align:left}}
+/* 二·主线板块 → 安静竖排行(仿 rank-list·保留点击弹二级)2026-07-08 */
+.mline-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.mline{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;cursor:pointer;position:relative;font-size:13.5px;color:var(--tx);transition:background .15s,box-shadow .15s}
+.mline:nth-child(odd){background:rgba(255,255,255,.42)}
+.mline:hover{background:color-mix(in srgb,var(--sc) 12%,rgba(255,255,255,.55));box-shadow:inset 3px 0 0 var(--sc)}
+.mline:focus-visible{outline:2px solid color-mix(in srgb,var(--sc) 60%,transparent);outline-offset:1px}
+.mline-pct{flex:0 0 auto;min-width:60px;font-weight:700;font-variant-numeric:tabular-nums}
+.mline-name{flex:1 1 auto;border-left:2px solid color-mix(in srgb,var(--sc) 55%,transparent);padding-left:9px}
+.mline-name b{font-weight:600}
+.mline-ex{flex:0 0 auto;font-size:11.5px;color:var(--sub)}
+.mline-hint{flex:0 0 auto;font-size:11px;color:var(--sub);opacity:.7}
+@media(max-width:560px){.mline{flex-wrap:wrap}.mline-ex{order:3}}
+/* 二·主线板块 → 三日一表(2026-07-18 · 长表定版+美化) */
+.mtab{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
+.mtab th{font-size:10.5px;font-weight:600;color:var(--sub);letter-spacing:.08em;text-align:center;
+  padding:5px 6px;border-bottom:1.5px solid var(--line)}
+.mtab td{padding:7px 6px;border-bottom:1px solid #f0ede3;vertical-align:middle;text-align:center}
+.mtab tbody tr:hover td{background:color-mix(in srgb,#8aa0c8 8%,rgba(255,255,255,.5))}
+.mtab tr.mt-first td{border-top:1.5px solid #e8e2d0}
+.mtab .mt-num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.mt-w-d{width:15%}
+.mt-w-s{width:11%}
+.mt-sec{cursor:pointer;white-space:nowrap;border-left:2px solid color-mix(in srgb,var(--sc) 55%,transparent)}
+.mt-sec b{font-weight:600;color:var(--tx)}
+.mt-sec:hover{box-shadow:inset 3px 0 0 var(--sc)}
+.mt-sec .mt-hint{font-size:11px;color:var(--sub);opacity:.7;margin-left:4px}
+.mt-date{white-space:nowrap;vertical-align:middle;background:rgba(255,255,255,.35);
+  border-right:1px dashed #e8e2d0}
+.mt-date .mt-d{font-weight:700;font-size:12px;color:#3f3a30}
+.mt-date .mt-dt{font-size:11px;color:var(--sub)}
+.mt-vol{white-space:nowrap;vertical-align:middle;border-right:1px dashed #e8e2d0;
+  font-variant-numeric:tabular-nums;color:#43413b}
+.mt-vol .mt-unit{font-size:9.5px;color:var(--sub);margin-left:1px}
+.mt-vol .mt-sub{font-size:9.5px;color:var(--sub);opacity:.8}
+.mt-na{color:#b3a489}
+.mt-e20{color:#43413b}
+@media(max-width:560px){.mtab{font-size:11.5px}}
+.report-title{margin:2px 0 14px;padding:0 4px;display:inline-block;text-align:center}
+.report-name{display:block;font-size:24px;font-weight:700;letter-spacing:1.8px;line-height:1.18;color:var(--tx);white-space:nowrap;text-align:left}
+.report-meta{display:block;color:var(--sub);font-size:12px;line-height:1.35;text-align:center;white-space:nowrap;margin-top:6px}
+.report-hero{
+ --hero-lock-min-height:296px;--hero-lock-padding:26px 32px 26px;--hero-lock-grid:minmax(285px,.88fr) minmax(420px,1.12fr);--hero-lock-gap:34px;
+ --hero-art-left:0;--hero-art-top:0;--hero-art-width:min(58%,660px);--hero-art-height:100%;
+ --season-left:50%;--season-top:50%;--season-width:min(320px,34vw);--season-glow-width:260px;--season-glow-height:190px;
+ position:relative;margin:4px 0 18px;min-height:var(--hero-lock-min-height);padding:var(--hero-lock-padding);border:1px solid rgba(27,54,93,.16);
+ border-radius:22px;display:grid;grid-template-columns:var(--hero-lock-grid);gap:var(--hero-lock-gap);align-items:stretch;
+ background:
+ radial-gradient(480px 210px at 50% 42%,rgba(47,125,99,.16),transparent 70%),
+ radial-gradient(520px 250px at 76% 8%,rgba(27,54,93,.10),transparent 72%),
+ linear-gradient(135deg,#fbf8ef,#f1eadc);
+ box-shadow:var(--whisper),inset 0 0 0 1px rgba(255,255,255,.48);overflow:hidden}
+.report-hero::before{content:"";position:absolute;inset:-20%;background:
+ radial-gradient(1px 1px at 12% 24%,rgba(27,54,93,.22),transparent),
+ radial-gradient(1px 1px at 28% 70%,rgba(80,78,73,.16),transparent),
+ radial-gradient(1.4px 1.4px at 74% 32%,rgba(47,125,99,.18),transparent),
+ radial-gradient(1px 1px at 88% 78%,rgba(27,54,93,.14),transparent);
+ background-size:180px 130px;opacity:.84;animation:twinkle 4.8s ease-in-out infinite alternate;z-index:0;pointer-events:none}
+.report-hero::after{content:none}
+.hero-art{position:absolute;left:var(--hero-art-left);top:var(--hero-art-top);width:var(--hero-art-width);height:var(--hero-art-height);
+ background:var(--laiqin-art) left top/auto 100% no-repeat;filter:blur(.25px) saturate(1.02);
+ z-index:1;pointer-events:none}
+.season-core{position:absolute;left:var(--season-left);top:var(--season-top);transform:translate(-50%,-50%);z-index:4;width:var(--season-width);text-align:center;padding:0;pointer-events:none}
+.season-core::before{content:"";position:absolute;left:50%;top:50%;width:var(--season-glow-width);height:var(--season-glow-height);transform:translate(-50%,-50%);
+ background:
+  radial-gradient(62% 46% at 44% 48%,rgba(__SEASON_GLOW__,.15) 0%,rgba(__SEASON_GLOW__,.09) 34%,rgba(__SEASON_GLOW__,.035) 58%,transparent 78%),
+  radial-gradient(44% 36% at 60% 36%,rgba(__SEASON_GLOW__,.10) 0%,rgba(__SEASON_GLOW__,.045) 42%,transparent 72%),
+  radial-gradient(46% 40% at 36% 64%,rgba(__SEASON_GLOW__,.08) 0%,rgba(__SEASON_GLOW__,.035) 38%,transparent 74%);
+ filter:blur(10px) contrast(1.08);opacity:.92;z-index:-1;pointer-events:none}
+.season-label{font-size:12px;color:var(--sub);letter-spacing:.24em;text-transform:uppercase;margin-bottom:18px}
+.season-glyph{font-family:var(--stone) !important;font-weight:400;font-style:normal;font-synthesis:none;font-size:118px;line-height:.92;color:__SEASON_COLOR__;
+ text-shadow:0 0 22px rgba(__SEASON_GLOW__,.24),0 0 46px rgba(__SEASON_GLOW__,.10),0 1px 0 rgba(255,255,255,.42),0 9px 22px rgba(20,20,19,.12);
+ letter-spacing:0;margin:0 auto}
+.season-sub{font-family:var(--zh);font-size:13px;color:var(--sub);margin-top:20px}
+.hero-date-vertical{position:absolute;right:28px;top:34px;bottom:34px;z-index:3;writing-mode:vertical-rl;text-orientation:mixed;
+ font-family:var(--zh);font-size:13px;line-height:1.8;letter-spacing:.16em;color:rgba(27,54,93,.54);
+ display:flex;align-items:center;justify-content:center;pointer-events:none}
+.snapshot-band{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:-4px 0 16px;padding:0 4px}
+.snapshot-item{position:relative;padding:12px 14px 11px;background:linear-gradient(180deg,rgba(255,250,241,.42),rgba(255,250,241,0));min-height:70px}
+.snapshot-label{font-size:11px;line-height:1.35;color:var(--sub);letter-spacing:.08em}
+.snapshot-number{font-family:var(--zh);font-size:21px;line-height:1.12;font-weight:600;font-variant-numeric:tabular-nums;margin-top:7px;color:var(--tx)}
+.snapshot-note{font-size:11px;line-height:1.35;color:var(--sub);margin-top:5px}
+.snapshot-bar{display:flex;height:7px;border-radius:999px;overflow:hidden;background:#eadfcb;margin-top:8px;border:1px solid var(--line)}
+.snapshot-bar .gain{display:block;background:linear-gradient(90deg,#b87364,var(--red));box-shadow:0 0 12px rgba(169,78,63,.16)}
+.snapshot-bar .loss{display:block;background:linear-gradient(90deg,#3ddc97,#198a67);box-shadow:0 0 12px rgba(61,220,151,.20)}
+.snapshot-bar .flat{display:block;background:linear-gradient(90deg,#9ab6d8,#5f88b7);box-shadow:0 0 10px rgba(95,136,183,.16)}
+.p0-strip{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0 10px}
+.p0-card{position:relative;padding:14px 16px;border-radius:18px;border:1px solid var(--line);
+ background:linear-gradient(145deg,var(--card),#f2ebdd);overflow:hidden;
+ box-shadow:var(--whisper)}
+.p0-card::before{content:"";position:absolute;inset:0;background:radial-gradient(260px 100px at 12% 0,color-mix(in srgb,var(--sc,#1B365D) 18%,transparent),transparent 68%);opacity:.72}
+.p0-card>*{position:relative}
+.p0-k{font-size:11px;color:var(--sub);letter-spacing:.14em;text-transform:uppercase}
+.p0-v{font-size:22px;font-weight:700;margin-top:4px}
+.p0-gap-clk{cursor:pointer;transition:background .15s}
+.p0-gap-clk:hover{background:color-mix(in srgb,var(--sc) 14%,transparent)}
+.p0-d{font-size:12px;color:var(--sub)}
+.gap-chain{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0 18px}
+.gap-step{position:relative;padding:12px 13px;border-radius:15px;background:var(--card);border:1px solid var(--line);
+ box-shadow:var(--whisper)}
+.gap-step::after{content:"";position:absolute;top:50%;right:-10px;width:10px;height:1px;background:linear-gradient(90deg,var(--acc),transparent)}
+.gap-step:last-child::after{display:none}
+.gap-step b{display:block;font-size:13px}
+.gap-step span{display:block;color:var(--sub);font-size:11px;margin-top:2px}
+.gap-step.jump{cursor:pointer;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
+.gap-step.jump:hover,.gap-step.jump:focus-visible{transform:translateY(-1px);border-color:var(--acc);box-shadow:0 5px 16px rgba(0,0,0,.07);outline:none}
+.gap-step .jhint{position:absolute;right:11px;bottom:7px;margin:0;font-size:10px;color:var(--acc);opacity:.55}
+@media(max-width:900px){.report-title{max-width:100%}.report-meta{white-space:normal}
+.report-hero{min-height:0;padding:18px 16px;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center}
+.hero-art{position:static;left:auto;top:auto;width:min(24.5vw,220px);height:min(36.7vw,330px);grid-column:1;grid-row:1;background:var(--laiqin-art) left top/auto 100% no-repeat;filter:blur(.25px) saturate(1.02)}
+.hero-date-vertical{right:16px;top:22px;font-size:12px;opacity:.78}
+.season-glyph{font-size:92px}
+.snapshot-band,.p0-strip,.gap-chain{grid-template-columns:1fr}.snapshot-band{margin:0 0 14px;padding:0}.snapshot-item{min-height:auto}}
+@media(max-width:520px){.report-hero{min-height:190px}.season-core{width:min(320px,42vw)}.season-glyph{font-size:76px}}
+/* ── 星空卡（低对比纹理，重点模块专用）── */
+.glass{position:relative;
+ background:linear-gradient(150deg,#fbf8ef,#f0eadc 46%,#f7f3ea);
+ backdrop-filter:none;-webkit-backdrop-filter:none;
+ border:1px solid var(--line);border-radius:18px;
+ box-shadow:var(--whisper),inset 0 0 0 1px rgba(255,255,255,.42)}
+.glass>*{position:relative;z-index:1}
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+ background:linear-gradient(180deg,rgba(255,255,255,.44),transparent 32%);mix-blend-mode:normal}
+.mcard{padding:16px 18px;min-height:90px;cursor:pointer;overflow:hidden;transition:transform .18s,box-shadow .18s,border-color .18s}
+.mcard:hover{transform:translateY(-3px);border-color:rgba(27,54,93,.34);
+ box-shadow:0 0 0 1px rgba(27,54,93,.10),0 8px 28px rgba(20,20,19,.08),inset 0 0 0 1px rgba(255,255,255,.55);
+ background:linear-gradient(150deg,#fffaf1,#f0eadc 42%,#f7f3ea)}
+.mcard .aurora{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;border-radius:inherit}
+.mcard .neb{position:absolute;inset:0;filter:blur(10px);opacity:.9;will-change:transform;
+ animation:nebDrift 22s ease-in-out infinite alternate;
+ background:radial-gradient(50% 60% at 10% 0%,color-mix(in srgb,var(--sc,#888) 60%,transparent),transparent 66%),
+  radial-gradient(55% 65% at 35% 25%,color-mix(in srgb,var(--sc,#888) 38%,transparent),transparent 70%),
+  radial-gradient(70% 80% at 62% 48%,color-mix(in srgb,var(--sc,#888) 22%,transparent),transparent 76%)}
+.mcard .stars{position:absolute;inset:0;opacity:.9;animation:twinkle 4.5s ease-in-out infinite alternate;
+ background-image:__STARS_BG__;
+ background-repeat:repeat;background-size:__STARS_SIZE__}
+@keyframes nebDrift{from{transform:translate(-2%,-1%) scale(1)}to{transform:translate(2%,2%) scale(1.06)}}
+@keyframes twinkle{0%{opacity:.62}100%{opacity:.95}}
+.mc-h{display:flex;justify-content:space-between;align-items:baseline;font-size:13px}
+.mc-h b{font-size:18px;font-weight:700;letter-spacing:.5px;color:var(--acc)}
+.mc-pct{font-family:var(--num);font-size:18px;font-weight:600}
+.mcard .sub{font-size:13.5px;margin-top:6px;line-height:1.45}
+.mcard .stars{display:none}
+.mcard .neb{animation:none;opacity:.45;filter:blur(14px)}
+.dk{display:inline-block;min-width:66px;color:var(--sub);font-size:11px}
+/* 信号小卡 + 兑现度卡 */
+.scard{min-height:88px;padding:12px 14px;cursor:pointer;overflow:hidden;transition:transform .18s,box-shadow .18s,border-color .18s}
+.scard:hover{transform:translateY(-3px);border-color:rgba(27,54,93,.34);
+ box-shadow:0 0 0 1px rgba(27,54,93,.10),0 8px 28px rgba(20,20,19,.08)}
+.scard .neb{opacity:.5} .scard .stars{opacity:.6}
+.scard.xb{opacity:.72;border-style:dashed} .scard.xb:hover{opacity:1}
+.fulfill-card{min-height:88px;padding:12px 14px;cursor:pointer;overflow:hidden;border-radius:10px;background:rgba(251,248,239,.72);
+ border:1px solid rgba(27,54,93,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.58);
+ display:flex;flex-direction:column;justify-content:center;gap:6px;transition:transform .18s,box-shadow .18s,border-color .18s}
+.fulfill-card:hover{transform:translateY(-3px);border-color:rgba(27,54,93,.34);
+ box-shadow:0 0 0 1px rgba(27,54,93,.10),0 8px 28px rgba(20,20,19,.08)}
+.fulfill-k{font-size:10.5px;line-height:1;color:var(--sub);letter-spacing:.08em}
+.fulfill-v{font-size:18px;font-weight:700;line-height:1;color:var(--acc)}
+.fulfill-bar{height:6px;border-radius:999px;overflow:hidden;background:#eadfcb;border:1px solid rgba(27,54,93,.10)}
+.fulfill-bar span{display:block;width:var(--fulfill,12%);height:100%;border-radius:inherit;background:linear-gradient(90deg,#8aa0c8,#4fc3f7)}
+.fulfill-d{font-size:10.5px;line-height:1.3;color:var(--sub)}
+.sc-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.sc-h .lvl{font-family:var(--num);color:var(--gold);font-weight:600;font-size:13px}
+.sc-kw{font-size:13.5px;font-weight:600;line-height:1.4;margin-bottom:3px}
+/* 中心浮层 */
+#overlay{display:none;position:fixed;inset:0;z-index:90;background:rgba(80,78,73,.22);
+ backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#overlay.show{display:block;animation:fadeIn .16s ease}
+#modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:99;
+ width:min(580px,92vw);max-height:82vh;overflow-y:auto;padding:20px 22px;
+ display:none;animation:popIn .2s cubic-bezier(.2,.9,.3,1.2)}
+#modal.show{display:block}
+#modal .modal-title{font-size:19px;font-weight:700;margin-bottom:12px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+ padding-bottom:10px;border-bottom:1px solid var(--line)}
+#modal>div:not(.modal-title):not(.aurora){margin-bottom:7px;position:relative;z-index:1;font-size:13px}
+#modalX{position:absolute;right:14px;top:12px;z-index:2;cursor:pointer;color:var(--sub);font-size:18px;
+ width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all .15s}
+#modalX:hover{color:var(--tx);background:#f0eadc;transform:rotate(90deg)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:translate(-50%,-46%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+"""
+
+# 图表 JS（普通字符串 + 占位符；ECharts 用 SVG renderer 保证字体）
+JS_TPL = """
+const em = echarts.init(document.getElementById('emChart'), null, {renderer:'svg'});
+const es = __EM_SERIES__;
+const emSeason = __EM_SEASON_SERIES__;
+const SEASON_STYLE = {
+ '春':{c:'#3f9c76',g:'47,125,99'},
+ '夏':{c:'#a94e3f',g:'214,126,52'},
+ '秋':{c:'#bd9a43',g:'189,154,67'},
+ '冬':{c:'#1B365D',g:'27,54,93'}};
+const seasonSeries = Object.keys(SEASON_STYLE).filter(s=>emSeason[s]).map((s,idx)=>{
+ const st = SEASON_STYLE[s];
+ const ser = {type:'line',name:'MA5 · '+s,data:emSeason[s],smooth:true,symbol:'circle',symbolSize:3,connectNulls:false,
+  itemStyle:{color:st.c},lineStyle:{color:st.c,width:3,shadowBlur:8,shadowColor:'rgba('+st.g+',.18)'},z:3,
+  areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba('+st.g+',.16)'},{offset:1,color:'rgba('+st.g+',0)'}]}}};
+ if(idx===0){ser.markLine={silent:true,symbol:'none',label:{color:'#6b6a64',fontSize:10},lineStyle:{color:'rgba(139,111,50,.38)',type:'dashed'},data:[{yAxis:50,name:'中线'}]};}
+ return ser;
+});
+em.setOption({grid:{left:34,right:12,top:18,bottom:24},
+ xAxis:{type:'category',data:es.map(x=>x[0].slice(5)),axisLabel:{color:'#6b6a64',fontSize:9,interval:14},axisLine:{lineStyle:{color:'#e8e6dc'}},axisTick:{show:false}},
+ yAxis:{min:0,max:100,axisLabel:{color:'#6b6a64',fontSize:9},splitLine:{lineStyle:{color:'rgba(80,78,73,.14)'}},splitArea:{show:true,areaStyle:{color:['rgba(47,125,99,.035)','rgba(27,54,93,.025)']}}},
+ series:[
+  {type:'line',name:'当日原始',data:es.map(x=>x[1]),smooth:false,symbol:'none',lineStyle:{color:'rgba(27,54,93,.30)',width:1},z:1},
+  ...seasonSeries],
+ tooltip:{trigger:'axis',backgroundColor:'rgba(250,249,245,.98)',borderColor:'#d7deea',textStyle:{color:'#141413',fontSize:11}}});
+const g = echarts.init(document.getElementById('capGauge'), null, {renderer:'svg'});
+g.setOption({series:[{type:'gauge',min:0,max:__GMAX__,startAngle:205,endAngle:-25,
+ progress:{show:true,width:12,roundCap:true,itemStyle:{color:'#2f7d63',shadowBlur:8,shadowColor:'rgba(47,125,99,.18)'}},
+ axisLine:{roundCap:true,lineStyle:{width:12,color:[[0.34,'rgba(47,125,99,.24)'],[0.62,'rgba(139,111,50,.28)'],[1,'rgba(169,78,63,.24)']]}},
+ pointer:{show:false},axisTick:{distance:2,length:5,lineStyle:{color:'rgba(80,78,73,.26)',width:1}},splitLine:{distance:2,length:10,lineStyle:{color:'rgba(80,78,73,.32)',width:1}},
+ axisLabel:{show:false},
+ detail:{valueAnimation:true,fontSize:30,color:'#141413',fontFamily:'Source Han Serif SC',offsetCenter:[0,'12%'],formatter:'K {value}'},
+ data:[{value:__KDAY__}],title:{show:false},
+ markLine:{}},
+ {type:'gauge',min:0,max:__GMAX__,startAngle:205,endAngle:-25,
+  pointer:{show:true,length:'68%',width:4,itemStyle:{color:'#a94e3f',shadowBlur:8,shadowColor:'rgba(169,78,63,.22)'}},
+  anchor:{show:true,size:7,itemStyle:{color:'#faf9f5',borderColor:'#a94e3f',borderWidth:2}},
+  axisLine:{show:false},axisTick:{show:false},splitLine:{show:false},axisLabel:{show:false},detail:{show:false},
+  data:[{value:__KCAP__}]}]});
+let modalStack=[];
+function showTpl(id){
+ const tpl=document.getElementById(id);
+ const body=document.getElementById('modalBody');
+ body.innerHTML='';
+ body.appendChild(tpl.content.cloneNode(true));
+ const t=body.querySelector('.modal-title');
+ if(t&&t.style.getPropertyValue('--sc'))
+  document.getElementById('modal').style.setProperty('--sc',t.style.getPropertyValue('--sc'));
+ document.getElementById('overlay').classList.add('show');
+ document.getElementById('modal').classList.add('show');
+ document.body.style.overflow='hidden';}
+function openModal(id){modalStack.push(id);showTpl(id);}
+function backModal(){
+ modalStack.pop();
+ if(modalStack.length){showTpl(modalStack[modalStack.length-1]);}
+ else{closeModal();}}
+function closeModal(){
+ modalStack=[];
+ document.getElementById('overlay').classList.remove('show');
+ document.getElementById('modal').classList.remove('show');
+ document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+window.addEventListener('resize',()=>{em.resize();g.resize();});
+function toggleSpark(el){
+ const wrap=el.closest('.sparkwrap'); if(!wrap) return;
+ const ex=wrap.querySelector('.spark-ex'), ab=wrap.querySelector('.spark-abs');
+ const showAbs=el.getAttribute('data-view')==='ex';
+ if(ex) ex.style.display=showAbs?'none':'';
+ if(ab) ab.style.display=showAbs?'':'none';
+ el.setAttribute('data-view',showAbs?'abs':'ex');
+ el.textContent=showAbs?'绝对':'超额';
+ el.style.color=showAbs?'var(--acc,#a94e3f)':'var(--sub,#8aa0c8)';}
+"""
+
+
+def _eval_risk_factors(D):
+    """五因风险温度评估。返回 (factors:list, triggered_n:int, band:tuple)。
+    Phase-1 在线可算：F1 外盘(D['intl'])/F2 拥挤度(D['capacity']+D['emotion'])/F5 外部(D['fx'])；
+    F3 两融 / F4 IPO / F5 油价·美债 = 待接源占位（status='pending'，不计温度）。诚实缺、禁编数。"""
+    cfg = RISK_CFG
+    intl = D.get("intl") or {}
+    cap = D.get("capacity") or {}
+    em = D.get("emotion") or {}
+    fx = D.get("fx") or {}
+    F = []
+
+    # ── F1 外盘传导（走隔夜护栏视图 intl_on＝严格早于 A 股数据日的最新场次；缺则回落 intl） ──
+    c1 = cfg["f1"]
+    intl_f1 = D.get("intl_on") or intl
+    semis = [(c, intl_f1[c]["pct"]) for c in c1["semi_codes"]
+             if intl_f1.get(c) and intl_f1[c].get("pct") is not None]
+    asia = [(c, intl_f1[c]["pct"]) for c in c1["asia_codes"]
+            if intl_f1.get(c) and intl_f1[c].get("pct") is not None]
+    ws = min((p for _, p in semis), default=None)
+    wa = min((p for _, p in asia), default=None)
+    # 2026-07-17 裁定：F1＝**条件放大器**（交互效应非主效应）——不参与「够不够格报警」，
+    # 只在计温因子已达警戒时把温度升为「警戒·外盘共振」。平静日 F1 无信息（实证 3.2% vs 3.2%）。
+    _hit1 = False
+    if not semis and not asia:
+        st1, ev1 = "na", "外盘数据缺（intl_index 无当日行情）"
+    else:
+        st1 = "amp"
+        _hit1 = bool((ws is not None and ws <= c1["semi_th"])
+                     or (wa is not None and wa <= c1["asia_th"]))
+        ev1 = (f"隔夜费半系最深 {ws:+.1f}%" if ws is not None else "费半系缺") + \
+              (f" · 亚太科技最深 {wa:+.1f}%" if wa is not None else "")
+    # 场次日期只取 F1 实际用到的码（semi+asia），避免被久未更新的无关码带偏
+    _d1 = max((intl_f1[c]["date"] for c in (c1["semi_codes"] + c1["asia_codes"])
+               if intl_f1.get(c) and intl_f1[c].get("date")), default=None)
+    if _d1:
+        ev1 += f"（隔夜场次 {iso(_d1)}）"
+    # B4 后半句（PRD 2026-07-19·20260719 复核补丁）：场次距数据日 >F1_MAX_AGE_DAYS 日历日
+    # → 不可评（断更时 F1 不得继续参与共振判定；status=na 自动退出 S2 env 分母）。
+    # 仅 s2 生效——v1 回滚态保持旧行为逐位不变（A1 可逆纪律）。
+    if (st1 == "amp" and _d1
+            and (cfg.get("_meta") or {}).get("function_version") == "s2"):
+        _age1 = risk_function.calendar_gap(D.get("data_day"), _d1)
+        if _age1 is not None and _age1 > risk_function.F1_MAX_AGE_DAYS:
+            st1, _hit1 = "na", False
+            ev1 += f"　⚠ 场次距数据日 {_age1} 日历日·陈旧→不可评"
+    # 共振时挂叙事背景——回答「这次外盘下跌背后有没有逻辑性看空因素」（Doctor 2026-07-17）
+    _nb = [n for n in (D.get("narrative") or []) if n.get("dir") == "bearish"]
+    if _hit1 and _nb:
+        ev1 += f"　▸ 叙事背景：{_nb[0]['summary'][:34]}（自 {_nb[0]['start']}）"
+    F.append({"id": "F1", "name": c1["name"], "status": st1, "hit": _hit1, "ev": ev1,
+              "th": f"放大器·仅在已达警戒时升级（阈值 ≤{c1['semi_th']}%/亚太 ≤{c1['asia_th']}%；"
+                    f"主效应 lift 1.06＝无，调节效应 lift 2.68＝有）",
+              "src": "intl_index · 隔夜护栏(<A股数据日)"})
+
+    # ── F2 拥挤度释放 ──
+    c2 = cfg["f2"]
+    state = cap.get("state")
+    pr = em.get("pct_rank")
+    tr = em.get("trend")
+    crowd = state in c2["crowd_states"]
+    overheat_roll = (pr is not None and pr >= c2["pctrank_th"] and tr == "下行")
+    if state is None and pr is None:
+        st2, ev2 = "na", "容量/情绪数据缺"
+    else:
+        # 2026-07-17：情绪腿 lift 0、容量腿未能按时点重建 → 未经校验暂降『信息层』不计温
+        st2 = "info"
+        ev2 = f"容量态 {state or '—'} · 情绪分位 {pr if pr is not None else '—'}% · {tr or '—'}"
+    F.append({"id": "F2", "name": c2["name"], "status": st2, "ev": ev2,
+              "th": "信息层·暂不计温（情绪腿 lift 0；容量腿未回测）",
+              "src": "theme容量 / emotion_cycle"})
+
+    # ── F3 杠杆被动出清（已接 tushare margin → market_data.margin_daily） ──
+    c3 = cfg["f3"]
+    mg = D.get("margin") or {}
+    cur3, chg5, chg1 = mg.get("cur_rzye"), mg.get("chg5"), mg.get("chg1")
+    if cur3 is None:
+        st3, ev3 = "pending", c3.get("gap", "两融数据待接源")
+        th3s = "两市周净减 / 连续净流出（待接源）"
+    else:
+        # 2026-07-17 回测裁定：两融 T+1＝滞后/同期量，lift 0.87 无预测力 → 降『信息层』只列明、不计温度
+        st3 = "info"
+        ev3 = (f"融资余额 {cur3:.0f}亿"
+               + (f" · 5日 {chg5:+.0f}亿" if chg5 is not None else "")
+               + (f" · 日 {chg1:+.0f}亿" if chg1 is not None else "")
+               + (f"（截至{iso(mg['date'])}·T+1）" if mg.get("date") else ""))
+        th3s = "信息层·不计温度（回测 lift 0.87＝无预测力，两融为滞后量）"
+    F.append({"id": "F3", "name": c3["name"], "status": st3, "ev": ev3,
+              "th": th3s, "src": "market_data.margin_daily（tushare·现成）"})
+
+    # ── F4 IPO 虹吸（已接 tushare new_share → market_data.ipo_daily） ──
+    c4 = cfg["f4"]
+    ip = D.get("ipo") or {}
+    fw = ip.get("funds_win")
+    if fw is None:
+        st4, ev4 = "pending", c4.get("gap", "IPO 数据待接源")
+        th4s = "近N日募资集中（待接源）"
+    elif not ip.get("covered"):
+        # ERR-20260911-002（2026-09-11 修）：事件表窗口内无覆盖=不可判，非「0 募资=平静」
+        st4, ev4 = "pending", f"◌不可判 · 事件表覆盖不足（数据至 {iso(ip['latest'])}）——「无新股」与「采集未覆盖」无法区分"
+        th4s = "覆盖判断：事件表无新行≠无事件（fail-visible）"
+    else:
+        wd = ip.get("win_days", 10)
+        _rth = c4.get("ratio_th", 0.030)
+        _ratio = ip.get("ratio")
+        _trig = ip.get("trigger")   # True/False/None(不可评·成交额窗不足)
+        _fmiss = ip.get("funds_missing")   # 金额缺失条数（>0=合计为下限·不可评 quiet）
+        st4 = "pending" if (_fmiss or _trig is None) else ("triggered" if _trig else "quiet")
+        _ratio_txt = (f" · 抽血比 {_ratio:.3f}（≈抽 {_ratio:.2f} 天成交额）" if _ratio is not None else " · 抽血比待评")
+        ev4 = f"近{wd}日新股 {ip.get('n_win', 0)}只 · 募资 {fw:.0f}亿" + _ratio_txt + \
+              (f"（截至{iso(ip['latest'])}）" if ip.get("latest") else "")
+        if ip.get("funds_missing"):
+            ev4 += f" · 金额缺失 {ip['funds_missing']} 条·合计为已知下限"
+        elif ip.get("funds_missing") is None and ip.get("funds_win") is not None:
+            ev4 += " · 金额缺失数未知（旧行无标记）"
+        th4s = f"募资/近{ip.get('avg_days', 30)}日均成交额 ≥{_rth}（相对口径·p95·2020+校准 lift2.63/14事件）"
+    F.append({"id": "F4", "name": c4["name"], "status": st4, "ev": ev4,
+              "th": th4s, "src": "market_data.ipo_daily（tushare·现成）"})
+
+    # ── F5 外部紧缩：汇率(fx_cnh) + 油价(BRENT) + 美债(US10Y)，任一触发即亮；缺者标『待回填』不阻断 ──
+    c5 = cfg["f5"]
+    cur, prev = fx.get("cur"), fx.get("prev")
+    series = fx.get("series") or []
+    chg = (cur - prev) if (cur is not None and prev is not None) else None
+    net7 = (series[-1][1] - series[0][1]) if len(series) >= 2 else None
+    parts5, trigs5 = [], []
+    # 审计修复 2026-07-28：汇率腿加年龄护栏（对齐 F1_MAX_AGE_DAYS 待遇）——fx_cnh 15 处 >4 天缺口，
+    # 此前静默用 T-N 陈值计温且证据串不带日期；超龄→该腿转不可评（读数照显+日期+超龄标）。
+    _fx_age = None
+    try:
+        _fx_age = risk_function.calendar_gap(D.get("data_day"), fx.get("date"))
+    except Exception:
+        _fx_age = None
+    _FX_MAX_AGE = getattr(risk_function, "F1_MAX_AGE_DAYS", 5)
+    # 汇率：USD/CNH ↑ = 人民币贬
+    if cur is not None and (_fx_age is None or _fx_age <= _FX_MAX_AGE):
+        parts5.append(f"CNH {cur:.4f}" + (f"({chg:+.4f})" if chg is not None else "")
+                      + (f"·{fx.get('date')}" if fx.get("date") else ""))
+        trigs5.append((chg is not None and chg >= c5["cnh_daily_th"])
+                      or (net7 is not None and net7 >= c5["cnh_7d_th"]))
+    elif cur is not None:
+        parts5.append(f"CNH {cur:.4f}（{fx.get('date')}·陈旧{_fx_age}d>阈{_FX_MAX_AGE}·不可评）")
+    else:
+        parts5.append("CNH 缺数")
+    # 油价：布伦特单日涨幅
+    _br = intl.get("BRENT") or {}
+    if _br.get("pct") is not None:
+        parts5.append(f"布伦特 {_br['pct']:+.1f}%")
+        trigs5.append(_br["pct"] >= c5.get("oil_daily_th", 3.0))
+    else:
+        parts5.append("油价待回填")
+    # 美债：10Y 收益率日变（bp）——由 close 与 pct 反推前值
+    _tn = intl.get("US10Y") or {}
+    _bp = None
+    if _tn.get("close") is not None and _tn.get("pct") is not None:
+        try:
+            _pv = _tn["close"] / (1 + _tn["pct"] / 100.0)
+            _bp = (_tn["close"] - _pv) * 100.0
+        except ZeroDivisionError:
+            _bp = None
+    # 2026-07-19 Doctor 批：债腿降信息层——读数照显示，不再参与 F5 触发判定。
+    # 依据 0718 敏感性扫描（≥8bp lift 0.69<1、×F1 共振 19 次零冰点，在稀释 F5）。
+    # 回滚＝config f5.bond_scoring 翻回 true。沿用 F3 两融「只列明不指导」先例。
+    _bond_scoring = bool(c5.get("bond_scoring", True))
+    if _tn.get("close") is not None:
+        parts5.append(f"美债10Y {_tn['close']:.2f}%" + (f"({_bp:+.0f}bp)" if _bp is not None else "")
+                      + ("" if _bond_scoring else "·信息层"))
+        if _bond_scoring:
+            trigs5.append(_bp is not None and _bp >= c5.get("bond_bp_th", 8.0))
+    else:
+        parts5.append("美债待回填")
+    if not trigs5:
+        st5, ev5 = "na", " · ".join(parts5) + ("（三项均缺）" if _bond_scoring else "（计温腿均缺）")
+    else:
+        st5 = "triggered" if any(trigs5) else "quiet"
+        ev5 = " · ".join(parts5) + "（↑=贬/涨/紧缩）"
+    _th5 = f"CNH日贬≥{c5['cnh_daily_th']} 或 布伦特≥{c5.get('oil_daily_th', 3.0)}%"
+    _th5 += (f" 或 美债≥{c5.get('bond_bp_th', 8.0)}bp" if _bond_scoring else "（美债为信息层·不计温）")
+    F.append({"id": "F5", "name": c5["name"], "status": st5, "ev": ev5,
+              "th": _th5,
+              "src": "fx_cnh + intl_index(BRENT/US10Y)"})
+
+    # ── A6 量能脆弱态 / B6 浮盈集中度（S2 环境层·2026-07-19 PRD）──
+    # 纪律：缺数=「不可评」如实显示，绝不按未触发/灭灯处理（ERR-20260719-002 同族，PRD B3）；
+    # A6 数据源=index_research（grade_section 先行 --update 维护）；B6 锁 729 固定宇宙（ERR-20260719-001）。
+    data_day = D.get("data_day")
+    ca6 = cfg.get("a6")
+    if ca6:
+        _idb = config.PROJECT_ROOT.parent / "剑酒青丘" / "回调级别判别" / "index_research.db"
+        _pa_all, _pa_last = risk_function.a6_percentiles(
+            str(_idb), window=int(ca6.get("window", 252)),
+            min_periods=int(ca6.get("min_periods", 200)))
+        _pa = _pa_all.get(data_day) if data_day else None
+        if _pa is None:
+            _ref = f"（数据截至 {iso(_pa_last)}·当日缺→不可评）" if _pa_last else "（index_research 不可读）"
+            _pa_stale = _pa_all.get(_pa_last) if _pa_last else None
+            sta, hita = "na", False
+            eva = (f"最新分位 p{_pa_stale*100:.0f}" if _pa_stale is not None else "分位不可得") + _ref
+        else:
+            sta, hita = "env", bool(_pa >= float(ca6.get("pctile_th", 0.99)))
+            _info_a = (not hita) and _pa >= float(ca6.get("info_th", 0.95))
+            eva = f"创业板量能 252 日分位 p{_pa*100:.0f}" + \
+                  ("·脆弱态" if hita else ("·偏高(信息)" if _info_a else ""))
+        F.append({"id": "A6", "name": ca6["name"], "status": sta, "hit": hita, "ev": eva,
+                  "th": f"环境层·分位≥p{float(ca6.get('pctile_th', .99))*100:.0f} 共振（双尾放大器·禁看空计温；区制条款见 config）",
+                  "src": "index_research.index_daily 399006 amount"})
+    cb6 = cfg.get("b6")
+    if cb6:
+        # 2026-10-21 迁址剑酒青丘（Doctor 裁「AI4ME 属可删目录」）——universe_fixed.json 归剑酒青丘仓
+        _uni = config.PROJECT_ROOT.parent / "剑酒青丘" / "回调级别判别" / "outputs" / "universe_fixed.json"
+        _pb_all, _pb_last, _shb = risk_function.b6_percentiles(
+            config.MARKET_DB, str(_uni), top_frac=float(cb6.get("top_frac", .05)),
+            window=int(cb6.get("window", 252)), min_periods=int(cb6.get("min_periods", 200)))
+        _pb = _pb_all.get(data_day) if data_day else None
+        if _pb is None:
+            _ref = f"（数据截至 {iso(_pb_last)}·当日缺→不可评）" if _pb_last else "（stock_daily/宇宙不可读）"
+            _pb_stale = _pb_all.get(_pb_last) if _pb_last else None
+            stb, hitb = "na", False
+            evb = (f"最新分位 p{_pb_stale*100:.0f}" if _pb_stale is not None else "分位不可得") + _ref
+        else:
+            stb, hitb = "env", bool(_pb >= float(cb6.get("pctile_th", 0.95)))
+            evb = (f"top5% 个股成交占比 {_shb*100:.1f}%" if _shb is not None else "top5% 占比") + \
+                  f" · 分位 p{_pb*100:.0f}" + ("·拥挤" if hitb else "")
+        F.append({"id": "B6", "name": cb6["name"], "status": stb, "hit": hitb, "ev": evb,
+                  "th": f"环境层·分位≥p{float(cb6.get('pctile_th', .95))*100:.0f} 共振（729 固定宇宙·锁池防 20260603 扩容坑）",
+                  "src": "stock_daily × universe_fixed(729)"})
+
+    online = cfg["_meta"].get("phase1_online", ["f1", "f2", "f5"])
+    online_ids = {o.upper() for o in online}  # {'F1','F2','F5'}
+    triggered_n = sum(1 for f in F if f["status"] == "triggered")
+    bands = cfg["temp_bands"]
+    band = bands[0]
+    for b in bands:
+        if triggered_n >= b[0]:
+            band = b
+    return F, triggered_n, band, online_ids
+
+
+def risk_radar_section(D, grade_chunk="", fomc_chunk=""):
+    """顶部『五因风险温度』预警带 + 可展开逐因子风险提示。承暖色 token，scoped 样式。
+    grade_chunk: 回调级别读数(同期层)内嵌块,由 grade_section() 生成(2026-07-18 Doctor 定版:并入本卡)。"""
+    F, tn, band, online_ids = _eval_risk_factors(D)
+    # 计温因子＝参与定级者（env 环境层 / info 信息层 / pending 待接源 均不定级）
+    scored_n = sum(1 for f in F if f["status"] in ("triggered", "quiet", "na")
+                   and f["id"] not in ("A6", "B6"))
+    amp_hit = any(f.get("hit") for f in F if f["status"] == "amp")
+    _S = RISK_CFG.get("temp_states") or {}
+    _fv = (RISK_CFG.get("_meta") or {}).get("function_version", "v1")
+    _S2C = RISK_CFG.get("s2") or {}
+    _ENV_IDS = ("F1", "A6", "B6")
+    # 显示状态仅从 F4/F5 派生（VV 第四轮验收修：pending/na 均属未知；F3 等信息层缺失只在明细提示）
+    _f45 = [f for f in F if f.get("id") in ("F4", "F5")]
+    _f45_unk = any(f.get("status") in ("pending", "na", None) for f in _f45)
+    env_eval = sum(1 for f in F if f["id"] in _ENV_IDS and f["status"] in ("amp", "env"))
+    env_hits = sum(1 for f in F
+                   if f["id"] in _ENV_IDS and f["status"] in ("amp", "env") and f.get("hit"))
+    if _fv == "s2":
+        # S2（2026-07-19 PRD）：触发层(F4/F5)定"有没有警"，环境层(F1/A6/B6)定"警多重"。
+        # 实证（三环境块·20260719 复核订正误引）：触发×环境0盏=0/24 未现冰点(fwd3 +1.64%)；
+        # 触发×环境≥1盏=3/20（关键格2盏 3/10=30%）。渲染数字以 config s2 块（校准实算）为准。
+        _key, _s2label = risk_function.resolve_temp(tn, env_hits, env_eval, "s2")
+        emoji, blabel, bcol = _S.get(_key, {"calm": ["🟢", "平静", "#3f9c76"],
+                                            "alert": ["🟠", "警戒", "#e8731e"],
+                                            "resonance": ["🔴", "警戒", "#c0392b"]}[_key])
+        blabel = _s2label
+        if tn == 0 and _f45_unk:
+            emoji, blabel, bcol = "◌", "部分不可评", "#9a9386"   # 徽标与正文共用同一显示状态
+        is_reso = _key == "resonance"
+    else:
+        # v1（保留可回滚）：F1 只升级不定级——平静日 F1 无信息（实证 3.2% vs 3.2%）
+        if tn == 0 and _f45_unk:
+            emoji, blabel, bcol = "◌", "部分不可评", "#9a9386"
+        elif tn == 0:
+            emoji, blabel, bcol = _S.get("calm", ["🟢", "平静", "#3f9c76"])
+        elif amp_hit:
+            emoji, blabel, bcol = _S.get("resonance", ["🔴", "警戒·外盘共振", "#c0392b"])
+        else:
+            emoji, blabel, bcol = _S.get("alert", ["🟠", "警戒", "#e8731e"])
+        is_reso = tn > 0 and amp_hit
+    pend = [f'{f["id"]}{f["name"]}' for f in F if f["status"] == "pending"]
+    info = [f'{f["id"]}{f["name"]}' for f in F if f["status"] == "info"]
+    amp = [f'{f["id"]}{f["name"]}' for f in F if f["status"] == "amp"]
+    _bits = []
+    if _fv == "s2":
+        _bits.append(f"环境层 {env_hits}/{env_eval} 亮")
+    elif amp:
+        _bits.append("、".join(amp) + ("放大器·共振中" if amp_hit else "放大器"))
+    if info:
+        _bits.append("、".join(info) + " 信息层")
+    if pend:
+        _bits.append("、".join(pend) + " 待接源")
+    pend_txt = " · ".join(_bits) if _bits else "全部计温"
+    DOT = {"triggered": "#c0392b", "quiet": "#3f9c76", "pending": "#b3a489",
+           "na": "#b3a489", "info": "#7b8aa0", "amp": "#7b8aa0", "env": "#7b8aa0"}
+    ZH = {"triggered": "触发", "quiet": "平静", "pending": "待接源",
+          "na": "缺数", "info": "信息层", "amp": "放大器", "env": "环境层"}
+
+    # 精简标题(2026-07-18 Doctor 定版):触发因子名直书。S2(2026-07-19):温度语义=触发×共振
+    _trig_names = "、".join(f["name"] for f in F if f["status"] == "triggered")
+    _any_pend = _f45_unk   # 部分不可评（仅 F4/F5 未知·与徽标共用同一状态·VV 第四轮验收修）
+    if _fv == "s2":
+        if tn > 0 and is_reso:
+            _temp_txt = (_trig_names + "，" if _trig_names else "") + blabel
+        elif tn > 0:
+            _temp_txt = ((_trig_names + "，" if _trig_names else "") + blabel
+                         + f"（历史该态 {_S2C.get('evidence_alert', '0/23')} 未现冰点）")
+        else:
+            _temp_txt = (("已知项未触发·部分不可评" if _any_pend else "触发层平静")
+                         + '<span class="rr-sub">触发层＝F4 IPO虹吸／F5 外部紧缩，事件型扳机</span>')
+    elif tn > 0 and amp_hit:
+        _temp_txt = (_trig_names + "，" if _trig_names else "") + "外盘共振"
+    elif tn > 0:
+        _temp_txt = _trig_names or blabel
+    else:
+        _temp_txt = "已知项未触发·部分不可评" if _any_pend else "五因平静"
+
+    def _dot(f):        # 环境/放大器命中时着警示色（但它不定级，只升级）
+        return "#c0392b" if (f["status"] in ("amp", "env") and f.get("hit")) else DOT[f["status"]]
+
+    def _zh(f):
+        if f["status"] == "amp":
+            return "放大器·共振" if f.get("hit") else "放大器·静"
+        if f["status"] == "env":
+            return "环境·共振" if f.get("hit") else "环境·静"
+        return ZH[f["status"]]
+
+    def _lamp(f, sq=False):
+        return (f'<span class="rr-lamp{" sq" if sq else ""}" style="--d:{_dot(f)}" '
+                f'title="{f["id"]} {f["name"]}·{_zh(f)}"><i></i><b>{f["id"]}</b></span>')
+    if _fv == "s2":
+        # S2 灯排分组：扳机(方灯 F4/F5) ｜ 环境(圆灯 F1/A6/B6) ｜ 信息(F2/F3)——承设计参考
+        _by = {f["id"]: f for f in F}
+        _sep = '<span class="rr-lgap"></span>'
+        lamps = ("".join(_lamp(_by[i], sq=True) for i in ("F4", "F5") if i in _by) + _sep
+                 + "".join(_lamp(_by[i]) for i in ("F1", "A6", "B6") if i in _by) + _sep
+                 + "".join(_lamp(_by[i]) for i in ("F2", "F3") if i in _by))
+    else:
+        lamps = "".join(_lamp(f) for f in F)
+    # 展开逐因子
+    rows = ""
+    for f in F:
+        pend = f["status"] in ("pending", "na")
+        rows += (
+            f'<div class="rr-row{" rr-dim" if pend else ""}">'
+            f'<span class="rr-dot" style="--d:{_dot(f)}"></span>'
+            f'<span class="rr-nm">{f["id"]} · {f["name"]}</span>'
+            f'<span class="rr-st" style="color:{_dot(f)}">{_zh(f)}</span>'
+            f'<span class="rr-ev">{f["ev"]}</span>'
+            f'<span class="rr-meta">{f["th"]} ｜ {f["src"]}</span>'
+            f'</div>')
+    return f"""
+<style>
+.rr-band{{display:flex;align-items:center;gap:14px;margin:14px 0 4px;padding:11px 16px;
+  border:1px solid var(--line);border-radius:14px;background:linear-gradient(150deg,#fbf8ef,#f2ecdd);
+  box-shadow:0 4px 20px rgba(20,20,19,.05)}}
+.rr-left{{display:flex;flex-direction:column;gap:7px;min-width:0;flex:1 1 auto}}
+.rr-line1{{display:flex;align-items:center;gap:12px;flex-wrap:wrap}}
+.rr-line2{{display:flex;align-items:baseline}}
+.rr-temp{{display:flex;align-items:center;gap:8px;font-weight:700;font-size:12px;color:{bcol}}}
+.rr-temp .rr-emoji{{font-size:18px}}
+.rr-temp .rr-sub,.rr-grade .rr-sub{{font-weight:400;font-size:11px;color:var(--sub);margin-left:2px}}
+.rr-lamps{{display:flex;gap:12px;align-items:center;margin-left:auto;flex-shrink:0}}
+.rr-lamp{{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--sub)}}
+.rr-lamp i{{width:11px;height:11px;border-radius:50%;background:var(--d);
+  box-shadow:0 0 7px -1px var(--d)}}
+.rr-lamp.sq i{{border-radius:3px}}
+.rr-lgap{{width:1px;height:20px;background:#e3dcc9;margin:0 2px;align-self:center}}
+.rr-lamp b{{font-weight:700;letter-spacing:.02em}}
+.rr-flagico{{font-size:10.5px;font-weight:600;color:#fff;background:#c0392b;border:1px solid #c0392b;
+  border-radius:6px;padding:0 5px;vertical-align:1px}}
+.rr-pill{{font-size:10.5px;font-weight:600;color:#fff;background:#3f9c76;border:1px solid #3f9c76;
+  border-radius:6px;padding:0 5px;vertical-align:1px}}
+.rr-grade{{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12px;color:#43413b}}
+.rr-grade b{{font-size:10.5px;font-weight:600;color:#fff;background:var(--gc);
+  border:1px solid var(--gc);border-radius:6px;padding:0 5px;vertical-align:1px}}
+.rr-gname{{font-weight:700;font-size:12px;color:var(--gc)}}
+.rr-grade .rr-gest{{color:#43413b}}
+.rr-fomc{{font-size:10.5px;color:#8b6f32;background:#f4ead0;border:1px solid #e5d9b8;border-radius:8px;padding:1px 8px}}
+.rr-more{{margin:0 0 8px}}
+.rr-more>summary{{cursor:pointer;font-size:12px;color:var(--acc);padding:6px 16px;list-style:none;user-select:none}}
+.rr-more>summary::-webkit-details-marker{{display:none}}
+.rr-more>summary::before{{content:"▸ ";color:var(--gold)}}
+.rr-more[open]>summary::before{{content:"▾ "}}
+.rr-panel{{padding:4px 16px 12px}}
+.rr-row{{display:grid;grid-template-columns:14px 108px 48px 1fr;gap:8px 10px;align-items:baseline;
+  padding:7px 0;border-top:1px solid #efece2;font-size:12px}}
+.rr-row:first-child{{border-top:none}}
+.rr-dot{{width:9px;height:9px;border-radius:50%;background:var(--d);align-self:center}}
+.rr-nm{{font-weight:700;color:#3f3a30}}
+.rr-st{{font-weight:700;font-size:11px}}
+.rr-ev{{color:#43413b}}
+.rr-meta{{grid-column:2 / -1;color:var(--sub);font-size:10.5px}}
+.rr-dim{{opacity:.62}}
+.rr-foot{{grid-column:1 / -1;color:var(--sub);font-size:10.5px;padding-top:6px;border-top:1px dashed #e3dcc9;margin-top:2px}}
+</style>
+<section class="rr-band" aria-label="五因风险温度">
+  <div class="rr-left">
+    <div class="rr-line1">
+      <div class="rr-temp">{('<span class="rr-flagico">风险</span>' if is_reso else (f'<span class="rr-pill">{blabel}</span>' if (_fv == "s2" and _key == "calm") else f'<span class="rr-emoji">{emoji}</span>'))}{_temp_txt}</div>
+      {fomc_chunk}
+    </div>
+    <div class="rr-line2">{grade_chunk}</div>
+  </div>
+  <div class="rr-lamps">{lamps}</div>
+</section>
+<details class="rr-more">
+  <summary>展开风险因子提示（{(f"触发 {tn}/2 · " + pend_txt) if _fv == "s2" else f"{scored_n}/5 计温 · {pend_txt}"}）</summary>
+  <div class="rr-panel">
+    {rows}
+    <div class="rr-row"><div class="rr-foot">{(f"S2 口径（触发层F4/F5×环境层F1/A6/B6）自 {iso(_S2C.get('effective_from', '20260720'))} 生效·此前序列为 v1 口径·档位证据基础样本薄（触发无共振 {_S2C.get('evidence_alert', '0/23')}·共振 {_S2C.get('evidence_resonance', '3/21')}，研究快照）·预注册中。" if _fv == "s2" else "")}因子源自 2026-07-17 A股年度冰点『五因共振』· 阈值经回测校准滚动复核 · 过往不代表未来 · 仅风险提示非投资建议。信号级锚风险见下方「五 · 风险提示」。</div></div>
+  </div>
+</details>"""
+
+
+def grade_section(D):
+    """「回调级别读数」一行（同期层，姊妹于五因先行层。PRD 2026-07-18 日报接入回调级别读数）。
+    subprocess 调剑酒青丘 adjustment_grade.py --json；先 --update（增量补指数,幂等），
+    失败退無 --update（用既有数据,可能滞后一日），再失败→降级占位。绝不阻断日报；不参与温度计温。"""
+    import subprocess
+    # ERR-20260721-001:zhuzhao /tmp 副本域下 DATABASE_ROOT 被覆盖,.parent 拼第三方路径必失效;
+    # 改 PROJECT_ROOT(脚本真实位置)锚——与 OUTPUT_ROOT 同款,穿透任务沙箱域。
+    tool = (config.PROJECT_ROOT.parent / "剑酒青丘"
+            / "infrastructure" / "取数工具" / "adjustment_grade.py")
+    g = None
+    _errs = []
+    for args in (["--update", "--json"], ["--json"]):
+        try:
+            r = subprocess.run([_sys.executable, str(tool)] + args,
+                               capture_output=True, text=True, timeout=150)
+            if r.returncode == 0 and r.stdout.strip():
+                g = json.loads(r.stdout.strip().splitlines()[-1])
+                break
+            _errs.append(f"{args[0]} rc={r.returncode} {(r.stderr or '').strip()[-160:]}")
+        except Exception as e:
+            _errs.append(f"{args[0]} {type(e).__name__}: {e}")
+            continue
+    if not g:
+        # ERR-20260721-001 显式化(0714 静默失败根治同族):两分支全败必须发声——
+        # 任务 run 日志一行 + 日报灰字占位,绝不无声消失;仍不阻断日报。
+        print("[grade_section] 级别读数降级(两分支均败): " + " | ".join(_errs), file=_sys.stderr)
+        return '<span class="rr-grade"><b style="--gc:#6b6a64">级别读数不可用</b></span>'
+    v = g.get("verdict", "—")
+    col = "#c0392b" if v.startswith("L3") else ("#e8731e" if v.startswith("L2") else "#3f9c76")
+    h = g.get("hist") or {}
+    if h and g.get("ep_day"):
+        est = ("跌幅中位约 {md:.0f}%(现 {dd:+.1f})· 历时约 {du} 交易日(现第 {ed} 天)"
+               .format(md=h["median_maxdd"], dd=g.get("dd244", 0),
+                       du=h["median_dur"], ed=g["ep_day"]))
+    elif g.get("ep_day"):
+        est = "创业板距年高 %+.1f%%" % g.get("dd244", 0)
+    else:
+        est = ""
+    gloss = "中级调整偏强档" if v == "L2+" else ""  # 2026-08-11 Doctor 定：代码做胶囊，译名后置彩色文字（同触发层平静）
+    return (f'<span class="rr-grade"><b style="--gc:{col}">{v}</b>'
+            + (f'<span class="rr-gname" style="--gc:{col}">{gloss}</span>' if gloss else "")
+            + (f'<span class="rr-sub">{est}</span>' if est else "") + "</span>")
+
+
+def fomc_note(D):
+    """FOMC 会前窗日历注记(叙事层·不计温。2026-07-18 Doctor 批:债腿扫描否决六因,
+    加息预期仅以日历形式提示)。数据日距会议首日 ≤7 个日历日 → 会前窗;会议两日 → 决议窗。
+    任何异常静默返回空,不阻断日报。"""
+    try:
+        import datetime as _dt
+        cal = json.load(open(config.PROJECT_ROOT / "config" / "fomc_calendar.json", encoding="utf-8"))
+        dd = str(D.get("data_day", ""))
+        d0 = _dt.date(int(dd[:4]), int(dd[4:6]), int(dd[6:8]))
+        for m in fomc_meetings(cal):         # R5：读全部 meetings_ 开头的键，不写死年份
+            s = _dt.date(int(m["start"][:4]), int(m["start"][4:6]), int(m["start"][6:8]))
+            e = _dt.date(int(m["end"][:4]), int(m["end"][4:6]), int(m["end"][6:8]))
+            gap = (s - d0).days
+            lab = f'{s.month}/{s.day}-{e.day}' + ("·含点阵图" if m.get("sep") else "")
+            if 0 < gap <= 7:
+                return (f'<span class="rr-fomc" title="叙事层日历注记·不计温">'
+                        f'📅 FOMC {lab} · 会前 {gap} 天</span>')
+            if s <= d0 <= e:
+                return f'<span class="rr-fomc" title="叙事层日历注记·不计温">📅 FOMC {lab} · 决议窗</span>'
+    except Exception:
+        pass
+    return ""
+
+
+def delivery_note(D):
+    """R5 · 股指期货交割日注记（日历注记·只提示日期·不计温）。数据日距交割日不超过 7 个日历日才显示。
+    任何异常静默返回空，不阻断日报。"""
+    try:
+        txt = delivery_note_text(D.get("data_day"), D.get("trade_cal"))
+    except Exception:
+        txt = ""
+    return f'<span class="rr-fomc" title="日历注记·只提示日期·不计温">📅 {txt}</span>' if txt else ""
+
+
+def _sev_led(lvl):
+    """暖色·警示页杀伤灯范式（实抽自 build_risk_daily.py killLed · 2026-08-21 Doctor 令替换圆标）：
+    5 段圆角竖条·灯位固定色[绿绿黄橙红]·亮数=档（0全灰/1-2亮2绿/3+黄/4+橙/5+红）。
+    风险提示数据仅黄/红两档 → 黄=3档（金）·红=5档（红），固定色阶梯自身定义映射、无自由裁量。"""
+    COL = ("#2f7d63", "#2f7d63", "#c8962a", "#e0791e", "#c0392b")
+    GREY = "#d3cdbe"
+    sev = 5 if lvl == "红" else 3
+    segs = "".join(
+        f'<span class="led" style="background:{COL[i]};box-shadow:0 0 3px {COL[i]}99"></span>' if i < sev
+        else f'<span class="led" style="background:{GREY}"></span>'
+        for i in range(5))
+    return f'<span class="ledbar" title="风险档 {sev}/5">{segs}</span>'
+
+
+def render(D):
+    STARS_BG, STARS_SIZE = gen_stars()
+    grade_chunk = grade_section(D)              # 回调级别读数（同期层,降级安全,并入温度卡）
+    fomc_chunk = fomc_note(D) + delivery_note(D)   # FOMC 会前窗日历注记（叙事层,不计温）+ R5 交割日注记
+    risk_radar = risk_radar_section(D, grade_chunk, fomc_chunk)   # 五因风险温度（顶部带+可展开）
+    s, cap, em = D["snap"], D["capacity"], D["emotion"]
+    dd = iso(D["data_day"])
+    season = (em["season"] or "—")[0]
+    # 审计修复 2026-07-28：渊图停更 >3 日历日 → 第三栏挂栏级告警横幅（fail-visible）
+    # 2026-09-14 NOTE-20260914-002 分诊改：>7 天红冷冻（真停更级）；4-7 天黄提示（信号层低频·
+    # 若 KG 图谱健康则明说非链路断，不再误导排查方向）
+    _yts = D.get("yt_stale_days"); _ytm = D.get("yt_max_date") or "—"
+    _kgh = D.get("yt_kg_health") or {}
+    _kgu = _kgh.get("kg_updated") or "—"
+    if _yts is None or _yts <= 3:
+        yt_stale_banner = ""
+    elif _yts > 7:
+        yt_stale_banner = (
+            f'<div style="margin:8px 0 14px;padding:10px 14px;border:1.5px solid #c0392b;border-radius:10px;'
+            f'background:rgba(192,57,43,.07);color:#c0392b;font-weight:700">'
+            f'⚠ 渊图信号源已停更 {_yts} 天（最新信号日 {_ytm}）——本栏及 P0·GAP 卡为冷冻快照、非当日情报；请核渊图采集链路（KG _health 戳）。</div>')
+    else:
+        _kg_note = (f"KG 图谱链路健康（最新图 {_kgu}）——信号层为事件驱动低频，本栏为最近信号快照。"
+                    if _kgh.get("health_overall") == "ok" and _kgu != "—"
+                    else f"KG 健康戳未确认（图谱 {_kgu}）——请留意信号层与 KG 链路两侧。")
+        yt_stale_banner = (
+            f'<div style="margin:8px 0 14px;padding:10px 14px;border:1.5px solid #e0a53a;border-radius:10px;'
+            f'background:rgba(224,165,58,.08);color:#8a6d1f;font-weight:700">'
+            f'⚠ 渊图市场信号 {_yts} 天无新标注（最新信号日 {_ytm}）——{_kg_note}</div>')
+
+    css = (CSS_WARM
+           .replace("__FONT_FACE__", _font_face())
+           .replace("__LAIQIN_ART__", _laiqin_art())
+           .replace("__SEASON_COLOR__", SEASON_COLOR.get(season, "#3f9c76"))
+           .replace("__SEASON_GLOW__", SEASON_GLOW.get(season, "47,125,99"))
+           .replace("__STARS_BG__", STARS_BG)
+           .replace("__STARS_SIZE__", STARS_SIZE))
+
+    # ── 首屏画框（Doctor 锁定构图：框外标题 → 画框 → 四联条）──
+    hero = f"""
+<header class="report-title" aria-label="日报标题">
+<div class="report-name">烛照九阴 · 复盘日报</div>
+<div class="report-meta">数据日 {dd} ｜ 生成 {D["gen_time"]}</div>
+</header>
+
+<section class="report-hero" aria-label="今日情绪周期">
+<div class="hero-art" aria-hidden="true"></div>
+<div class="hero-date-vertical" aria-label="{cn_date(dd)}">{cn_date(dd)}</div>
+<div class="season-core" aria-label="情绪周期：{season}">
+ <div class="season-label">情绪周期</div>
+ <div class="season-glyph">{season}</div>
+ <div class="season-sub">评分 {em["score"]} ｜ 风险偏好 {em["risk"]} ｜ MA5 {em["ma5"]}</div>
+</div>
+</section>"""
+
+    # ── 市场快照四联条 ──
+    amount_str = f"{s['amount']:.2f}" if s["amount"] else None
+    amount_html = (f'<div class="snapshot-number">{amount_str} 万亿</div>'
+                   f'<div class="snapshot-note">容量 K_cap≈{cap["kcap"]}</div>'
+                   if amount_str else
+                   '<div class="snapshot-number na">待回填</div>'
+                   f'<div class="snapshot-note">daily_market 停更于 {iso(s["amount_vintage"]) if s["amount_vintage"] else "—"}</div>')
+    vin = s.get("ud_vintage")
+    stale = s.get("ud_stale")
+    vin_note = f'<div class="snapshot-note">T-1·昨日宽度（截至 {iso(vin)}，当日待收盘）</div>' if stale else ''
+    if s["up_n"] is not None:
+        tot = s["up_n"] + s["down_n"] + (s["flat_n"] or 0)
+        gw, lw = 100 * s["up_n"] / tot, 100 * s["down_n"] / tot
+        fw = max(0.0, 100 - gw - lw)
+        # 涨在前（红）/ 跌在后（绿）/ 平最后（蓝）——Doctor 2026-06-12 裁定，A股红涨绿跌口径
+        breadth_html = (f'<div class="snapshot-number"><span class="up">{s["up_n"]}</span> / '
+                        f'<span class="dn">{s["down_n"]}</span></div>'
+                        f'<div class="snapshot-bar" aria-label="涨跌平盘家数占比（涨红/跌绿/平蓝）">'
+                        f'<span class="gain" style="width:{gw:.0f}%"></span>'
+                        f'<span class="loss" style="width:{lw:.0f}%"></span>'
+                        f'<span class="flat" style="width:{fw:.0f}%"></span></div>{vin_note}')
+        if s["flat_n"] is None:
+            breadth_html = (f'<div class="snapshot-number"><span class="up">{s["up_n"]}</span> / '
+                            f'<span class="dn">{s["down_n"]}</span></div>'
+                            f'<div class="snapshot-note">平盘家数缺数，仅展示涨跌</div>{vin_note}')
+    else:
+        breadth_html = '<div class="snapshot-number na">待回填</div><div class="snapshot-note">stock_daily 无可用数据</div>'
+    snapshot = f"""
+<div class="snapshot-band" aria-label="画框下方市场快照">
+ <div class="snapshot-item">
+  <div class="snapshot-label">大盘涨跌幅</div>
+  <div class="snapshot-number">{pct_span(s["bench_pct"])}</div>
+  <div class="snapshot-note">{s["bench_note"]}</div>
+ </div>
+ <div class="snapshot-item">
+  <div class="snapshot-label">全市场成交额</div>
+  {amount_html}
+ </div>
+ <div class="snapshot-item">
+  <div class="snapshot-label">涨跌家数比</div>
+  {breadth_html}
+ </div>
+ <div class="snapshot-item">
+  <div class="snapshot-label">涨跌停家数比</div>
+  <div class="snapshot-number"><span class="up">{s["limit_up"] if s["limit_up"] is not None else "—"}</span> / <span class="dn">{s["limit_down"] if s["limit_down"] is not None else "—"}</span></div>
+  <div class="snapshot-note">全市场统一口径</div>
+ </div>
+</div>"""
+
+    # ── P0 双卡 ──
+    md0 = D["maindays"][0] if D["maindays"] else None
+    if md0 and md0["lines"]:
+        p0_main_v = " / ".join(L["short"] for L in md0["lines"][:3])
+        p0_main_d = f'当日达标 {md0["qualified"]} 条，按容量展示前 {len(md0["lines"])} 条'
+        p0_main_sc = THEME_COLOR.get(md0["lines"][0]["short"], "#4fc3f7")
+    else:
+        p0_main_v, p0_main_d, p0_main_sc = "今日无达标主线", "无板块对大盘有比较优势", "#8aa0c8"
+    yt0day = D["ytdays"][0] if D["ytdays"] else None
+    yt0 = yt0day["sigs"][0] if yt0day and yt0day["sigs"] else None
+    if yt0:
+        chain_short = yt0["chain"].split("（")[0]
+        _sigd = yt0day["date"]
+        try:
+            _lag = (datetime.date.fromisoformat(iso(D["data_day"])) - datetime.date.fromisoformat(iso(_sigd))).days
+        except Exception:
+            _lag = None
+        _TZ = {"supply_shock": "供给冲击", "demand_surge": "需求爆发", "persistent_imbalance": "持续失衡"}
+        _styz = "·".join(_TZ.get(x.strip(), x.strip()) for x in (yt0["stype"] or "").split(",") if x.strip())
+        _zh0 = STATUS_ZH.get(yt0["status"], yt0["status"])
+        _fresh = (f"已 {_lag} 日" if _lag else "当日新入") if _lag is not None else ""
+        # 「最新」≠「新鲜」：带信号日 + 入图谱天数 + 状态，避免误读为当天新增
+        p0_gap_v = f"最新线索：{chain_short}"
+        p0_gap_d = f'{iso(_sigd)} 入图谱 · {_fresh} · {_zh0}'
+        _fl0 = yt0["fulfill"]
+        _echo0 = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if yt0["echo"]
+                  else '<span class="tag">小鲍未提及</span>')
+        _bene0 = "、".join(b.strip() for b in (yt0.get("bene", "") or "").split("/") if b.strip()) or "—（待标的解析）"
+        _sc0 = THEME_COLOR.get(yt0["theme"], "#8aa0c8")
+        p0_tmpl = (f'<template id="p0lead"><div class="modal-title" style="--sc:{_sc0}">{yt0["chain"]}'
+                   f'<span class="sub">信号时间 {iso(_sigd)} ｜ {_styz} ｜ 渊图置信度 {yt0["conf"]:.2f}</span></div>'
+                   f'<div><span class="dk">兑现状态</span><span class="tag t-{yt0["status"]}">{_zh0}</span><span class="desc">{yt0["desc"] or ""}</span></div>'
+                   f'<div><span class="dk">兑现度</span><span class="tag">{_fl0["v"]}</span><span class="desc">{_fl0["sent"]}</span></div>'
+                   f'<div style="margin:13px 0"><span class="dk">受益标的</span><span class="desc">{bene_html(yt0.get("bene_detail", ""), _bene0)}</span></div>'
+                   f'<div><span class="dk">小鲍印证</span>{_echo0}<span class="sub">（第二源回声）</span></div>'
+                   f'<div><span class="dk">图谱节点</span><span class="sub">{yt0["node"]}</span></div></template>')
+        p0_gap_attr = ' p0-gap-clk" role="button" tabindex="0" onclick="openModal(\'p0lead\')'
+    else:
+        p0_gap_v, p0_gap_d = "近期无新渊图信号", "等待研报/纪要入图谱"
+        p0_tmpl = ""
+        p0_gap_attr = ""
+    p0 = f"""
+<div class="p0-strip" aria-label="核心判断">
+ <div class="p0-card" style="--sc:{p0_main_sc}">
+  <div class="p0-k">P0 · 主线板块</div>
+  <div class="p0-v">{p0_main_v}</div>
+  <div class="p0-d">{p0_main_d}</div>
+ </div>
+ <div class="p0-card{p0_gap_attr}" style="--sc:#e8c46b">
+  <div class="p0-k">P0 · GAP</div>
+  <div class="p0-v">{p0_gap_v}</div>
+  <div class="p0-d">{p0_gap_d}</div>
+  {p0_tmpl}
+ </div>
+</div>"""
+
+    # ── 情绪评分卡（含判分依据）+ 容量仪表 ──
+    chips = [
+        (f"晋级率 {em['jinji']:.0f}%" if em.get("jinji") is not None else "晋级率"),
+        (f"涨停 {em['limit_up']}" if em.get("limit_up") is not None else "涨停数"),
+        (f"跌停 {em['limit_down']}" if em.get("limit_down") is not None else "跌停数"),
+        "涨跌比", "主线宽度 K_day", "成交额 5 日变化",
+        (f"涨停次日溢价 {em['premium']:+.1f}%" if em.get("premium") is not None else "涨停次日溢价"),
+        (f"连板高度 {em['height']}" if em.get("height") is not None else "连板高度"),
+    ]
+    chips_html = "".join(f"<span>{c}</span>" for c in chips)
+    em_series = json.dumps(em["series"], ensure_ascii=False)
+    em_season_series = json.dumps(em["season_series"], ensure_ascii=False)
+    kt_note = f"；当日 {cap['kday_today']} 为普涨尖峰" if cap["kday_today"] > cap["kday"] + 3 else ""
+    state_str = cap["state"] or "—"
+    _kd, _kc = cap.get("kday"), cap.get("kcap")
+    can_new = (isinstance(_kd, (int, float)) and isinstance(_kc, (int, float)) and _kd < _kc)
+    newline_txt, newline_cls = ("可开新线", "cap-can") if can_new else ("不可开新线", "cap-cannot")
+    row2 = f"""
+<h2>一 · 情绪周期与市场快照 <span class="vintage">emotion_v2 · {em["date"]} ｜ 市场读数环绕情绪周期</span></h2>
+<div class="row2">
+ <div class="card"><div class="k">情绪评分 60 日 <span class="vintage">粗线=MA5（季节判定口径），细线=当日原始</span></div><div id="emChart"></div>
+  <div class="score-basis" aria-label="情绪评分判分依据">
+   <div class="score-formula"><b>判分依据</b>：8 个市场情绪变量取 50 日滚动分位后加权平均；跌停数反向计分，连板高度降权。</div>
+   <div class="score-vars">{chips_html}</div>
+   <div class="score-formula">当日读数：原始 {em["score"]}，水平分位 {em["pct_rank"]}，趋势{em["trend"]}。</div>
+  </div></div>
+ <div class="card"><div class="k">成交额 × 容量仪表 <span class="vintage">经验非规律</span></div>
+  <div class="liquidity-grid">
+   <div><b>{amount_str + " 万亿" if amount_str else "待回填"}</b><span>全市场成交额</span></div>
+   <div><b>{state_str}</b><span>K {cap["kday"]} / K_cap {cap["kcap"]}</span></div>
+  </div>
+  <div id="capGauge" class="gauge"></div>
+  <div class="sub">K=主线超额>0.5pp 宽度·5日中位{kt_note}；成交额决定容量上限，需结合主线与 GAP 判断持续性。</div>
+  <div class="cap-newline {newline_cls}">{newline_txt}</div></div>
+</div>"""
+
+    def us_html_of(u):
+        if not u:
+            return '<span class="na">无美股锚</span>'
+        arrow = "▲" if u["overnight"] > 0 else "▼"
+        ucls = "up" if u["overnight"] > 0 else "dn"
+        alert = "⚡" if u["alert"] else ""
+        kind = "" if u["kind"] == "echo" else '<span class="thermo">温度计</span>'
+        return (f'{u["tkr"]} <span class="{ucls}">{arrow}{abs(u["overnight"]):.1f}%</span>{alert} '
+                f'<span class="sub">20日超额 {u["ex20"]:+.1f}%</span>{kind}')
+
+    # ── 主线板块 · 近3日(2026-07-18 Doctor 定版三稿:长表——时间纵轴,「板块」作列头、具体板块作表内项点弹二级卡) ──
+    day_names = ["当日", "前1日", "前2日"]
+    days3 = D["maindays"]
+    body, tpls, nrows = "", "", 0
+    for di, day in enumerate(days3):
+        amt = f"{day['amount']:.2f}" if day["amount"] else "—"
+        rs = max(1, len(day["lines"]))
+        date_td = (f'<td class="mt-date" rowspan="{rs}">'
+                   f'<span class="mt-d">{day_names[di]}</span> '
+                   f'<span class="mt-dt">{iso(day["date"])[5:]}</span></td>')
+        vol_td = (f'<td class="mt-vol" rowspan="{rs}" title="全市场成交额">'
+                  f'{amt}<span class="mt-unit">万亿</span></td>')
+        cap_td = (f'<td class="mt-vol" rowspan="{rs}" '
+                  f'title="容量 K_cap {day["kcap"] or "—"} · 达标 {day["qualified"]} 条">'
+                  f'K{day["kcap"] or "—"}<span class="mt-sub">·达{day["qualified"]}</span></td>')
+        if not day["lines"]:
+            body += f'<tr>{date_td}{vol_td}{cap_td}<td class="mt-na" colspan="4">当日无达标主线（无板块对大盘有比较优势）</td></tr>'
+            continue
+        for li, L in enumerate(day["lines"]):
+            nrows += 1
+            cid = f"d{di}l{li}"
+            sc = THEME_COLOR.get(L["short"], "#8aa0c8")
+            leaders = "、".join(L["leaders"]) or "—（近月信号无标的字段）"
+            tpls += f"""
+<template id="{cid}"><div class="modal-title" style="--sc:{sc}">{L["short"]}
+   <span class="mc-pct">{pct_span(L["day_pct"])}</span>
+   <span class="sub">{iso(day["date"])} ｜ 超额 {pct_span(L["excess"], "pp")}</span></div>
+  <div><span class="dk">ETF</span>{L["etf"]}</div>
+  <div><span class="dk">美股映射</span>{us_html_of(L["us"])}</div>
+  <div><span class="dk">龙头公司</span>{leaders} <span class="sub">（近月信号标的，括号=龙鱼分）</span></div>
+  <div><span class="dk">产业逻辑</span><span class="desc">{L["logic"]}</span></div>
+  <div><span class="dk">兑现定性</span><span class="desc">{L["desc"] or "—"}</span></div>
+  <div><span class="dk">20日走势</span><span class="sparkwrap">
+    <span class="sparktoggle" role="button" tabindex="0" data-view="ex" onclick="toggleSpark(this)" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}" style="display:inline-block;font-size:10px;padding:1px 6px;margin-right:6px;border:1px solid var(--line,#2a3354);border-radius:8px;color:var(--sub,#8aa0c8);cursor:pointer;vertical-align:middle;user-select:none">超额</span>
+    <span class="spark-ex" style="vertical-align:middle">{spark_svg(L["spark"], 200, 36)}</span>
+    <span class="spark-abs" style="display:none;vertical-align:middle">{spark_abs_svg(L["abs_spark"], L["bench_spark"], L["us_spark"], 200, 36)}<span class="spark-legend" style="display:block;font-size:9px;color:var(--sub,#8aa0c8);margin-top:1px">板块 · <span style="color:#2a3354">┄</span>大盘 · <span style="color:#4da3ff">┄</span>美股 · 绝对·自身涨跌</span></span>
+  </span></div>
+ </template>"""
+            sec_td = (f'<td class="mt-sec" style="--sc:{sc}" role="button" tabindex="0" '
+                      f"onclick=\"openModal('{cid}')\" "
+                      f'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){{event.preventDefault();this.click();}}">'
+                      f'<b>{L["short"]}</b><span class="mt-hint">›</span></td>')
+            first_cls = ' class="mt-first"' if li == 0 else ''
+            body += (f'<tr{first_cls}>{(date_td + vol_td + cap_td) if li == 0 else ""}{sec_td}'
+                     f'<td class="mt-num">{pct_span(L["day_pct"])}</td>'
+                     f'<td class="mt-num">{pct_span(L["excess"], "pp")}</td>'
+                     f'<td class="mt-num mt-e20">{L["e20"]:+.1f}%</td></tr>')
+    if nrows or body:
+        main_html = f"""
+<table class="mtab">
+ <thead><tr><th class="mt-w-d">日期</th><th class="mt-w-s">量能</th><th class="mt-w-s">容量</th><th style="width:24%">板块</th><th style="width:12%">涨跌</th><th style="width:14%">超额</th><th style="width:13%">20日</th></tr></thead>
+ <tbody>{body}</tbody>
+</table>{tpls}"""
+    else:
+        main_html = '<div class="na" style="padding:8px 0">近 3 日无达标主线（无板块对大盘有比较优势）</div>'
+
+    # ── GAP 判断链（面向使用者的文案，内部口径不外露）──
+    yt_all = [g for day in D["ytdays"] for g in day["sigs"]]
+    closing_sig = next((g for g in yt_all if g["status"] == "closing"), None)
+    closed_sig = next((g for g in yt_all if g["status"] == "closed"), None)
+    n_rt = len(D.get("realized_today", []))
+    n_dh = len(D.get("demand_surge_hot", []))
+    n_ss = D.get("mech_inflight_n", {}).get("supply_shock", 0)
+    step1 = (f'今日 {n_rt} 条兑现启动 · 需求爆发 {n_dh} 条在途'
+             if n_rt else f'需求爆发 {n_dh} 条 · 供给冲击 {n_ss} 条在途')
+    if closing_sig:
+        step2 = f'{closing_sig["chain"].split("（")[0]} 兑现中，继续看行情是否跟随'
+    elif closed_sig:
+        step2 = f'{closed_sig["chain"].split("（")[0]} 已兑现，关注轮动去向'
+    else:
+        step2 = "暂无信号进入价格兑现阶段"
+    n_kj = len(D["sigdays"][0]["sigs"]) if D["sigdays"] else 0
+    step3 = f"{n_kj} 条四维度课件信号参与对照，分层看强弱" if n_kj else "今日无四维度课件信号对照"
+    opp_part = "、".join(o["theme"] for o in D["opps"][:2])
+    risk_part = "与".join(D["risk_themes"][:2])
+    step4 = ((f"{opp_part}偏机会" if opp_part else "暂无机会提示") +
+             (f"；{risk_part}需看锚点背离" if risk_part else ""))
+    gap_chain = f"""
+<div class="gap-chain" aria-label="GAP 判断链">
+ <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到强信号优先条" onclick="document.getElementById('sec-gap').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>强信号</b><span>{step1}</span><span class="jhint">↘</span></div>
+ <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到主线板块" onclick="document.getElementById('sec-main').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>主线确认</b><span>{step3}</span><span class="jhint">↘</span></div>
+ <div class="gap-step jump" role="button" tabindex="0" aria-label="跳到机会/风险提示" onclick="document.getElementById('sec-opp').scrollIntoView({{behavior:'smooth',block:'start'}})" onkeydown="if(event.key==='Enter'||event.key===' '){{event.preventDefault();this.click();}}"><b>机会 / 风险</b><span>{step4}</span><span class="jhint">↘</span></div>
+</div>"""
+
+    # ── 强信号优先条（回测最有力量的两类·置顶外发光）2026-07-08 ──
+    _TYPE_ZH = {"supply_shock": "供给冲击", "demand_surge": "需求爆发",
+                "persistent_imbalance": "持续失衡"}
+    def _stype_zh(s):
+        return "·".join(_TYPE_ZH.get(x.strip(), x.strip())
+                        for x in (s or "").split(",") if x.strip())
+    def _period_span(g):
+        return f'<span class="prio-period">{g["period"]}</span>' if g.get("period") else ""
+
+    def _sig_modal(g, gid, sc, meta_tail):
+        # 渊图信号二级卡模板（兑现状态/兑现度/受益标的/小鲍印证/图谱节点）·多处复用
+        zh = STATUS_ZH.get(g.get("status", ""), g.get("status", ""))
+        fl = fulfill_of(g.get("status", "no_data"), g.get("desc", ""), g.get("excess_cum"))
+        echo = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if g.get("echo")
+                else '<span class="tag">小鲍未提及</span>')
+        bene = "、".join(b.strip() for b in (g.get("bene", "") or "").split("/") if b.strip()) or "—（待标的解析）"
+        return f"""<template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g.get("disp") or g["chain"]}
+ <span class="sub">{_stype_zh(g["stype"])}{meta_tail}</span></div>
+ {f'<div><span class="dk">信号说明</span><span class="desc">{g["detail"]}</span></div>' if g.get("detail") else ""}
+ <div><span class="dk">兑现状态</span><span class="tag t-{g.get("status","no_data")}">{zh}</span><span class="desc">{g.get("desc","") or ""}</span></div>
+ <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span><span class="desc">{fl["sent"]}</span></div>
+ <div style="margin:13px 0"><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
+ {f'<div><span class="dk">稳定超额期</span><span class="desc">{g.get("period","")}</span></div>' if g.get("period") and "无稳定超额期" not in g.get("period","") else ""}
+ <div><span class="dk">小鲍印证</span>{echo}<span class="sub">（第二源回声）</span></div>
+ <div><span class="dk">图谱节点</span><span class="sub">{g.get("node","")}</span></div>
+</template>"""
+
+    def _prio_item(g, gid, sc, meta_tail):
+        # 可点击信号条目（优先条）→ 弹二级卡；整条产业链机制集含持续失衡则挂"信息差收敛"标（聚合口径）
+        _is_contra = "persistent_imbalance" in D.get("chain_mechs", {}).get(g["chain"], set())
+        contra_s = '<span class="chip-contra">信息差收敛</span>' if _is_contra else ""
+        if "已过" in (g.get("period") or ""):
+            _bcls = ' class="sig-expired"'       # 过期 → 绿
+        elif _is_contra:
+            _bcls = ' class="sig-converge"'      # 未过期+信息差收敛 → 金
+        else:
+            _bcls = ""
+        return f"""<li class="prio-clk" role="button" tabindex="0" onclick="openModal('{gid}')">
+<b{_bcls}>{g["chain"]}{contra_s}</b><span class="prio-meta">{_stype_zh(g["stype"])}{meta_tail}</span>{_period_span(g)}<span class="prio-hint">详情 ›</span>
+{_sig_modal(g, gid, sc, meta_tail)}</li>"""
+
+    def _sig_chip(g, gid, sc, contra=False, nogap=False):
+        # chip 标注 + 文字色：nogap=纯持续失衡「无信息差」绿字；contra=叠加持续失衡「信息差收敛」金字
+        cls = "mchip"
+        if nogap:
+            tag = '<span class="chip-contra chip-nogap">无信息差</span>'; cls += " mchip-nogap"
+        elif contra:
+            tag = '<span class="chip-contra">信息差收敛</span>'
+        else:
+            tag = ""
+        # 文字色对齐需求爆发卡：过期→绿(优先)、未过期+信息差收敛→金；持续失衡组保持无信息差绿
+        if not nogap:
+            if "已过" in (g.get("period") or ""):
+                cls += " mchip-expired"
+            elif contra:
+                cls += " mchip-converge"
+        # 一级信号后加窗口计数（还有天/窗口天，如"（7/10）"），仅有超额窗口的机制；持续失衡无窗口不加
+        _p = g.get("period", "")
+        _wnd = ""
+        if _p and "无稳定超额期" not in _p:
+            _mw = re.search(r"约 (\d+) 交易日", _p)
+            if _mw:
+                _win = int(_mw.group(1))
+                _ml = re.search(r"还有 (\d+) 天", _p)
+                _mo = re.search(r"已过 (\d+) 天", _p)
+                _left = int(_ml.group(1)) if _ml else (-int(_mo.group(1)) if _mo else _win)
+                _wnd = f'<span class="chip-wnd">（{_left}/{_win}）</span>'
+        return (f'<span class="{cls}" role="button" tabindex="0" style="--sc:{sc}" '
+                f'onclick="openModal(\'{gid}\')">{g.get("disp") or g["chain"]}{_wnd}{tag}{_sig_modal(g, gid, sc, "")}</span>')
+    rt = D.get("realized_today", [])
+    if rt:
+        items_a = ""
+        for i, g in enumerate(rt):
+            meta_tail = ("｜确认 " + iso(g["realized"])) if g.get("realized") else ""
+            items_a += _prio_item(g, f"pa{i}", "#e0a53a", meta_tail)
+        body_a = f'<ul class="prio-list">{items_a}</ul>'
+    else:
+        body_a = '<div class="prio-empty">今日无兑现启动</div>'
+    dh = D.get("demand_surge_hot", [])
+    # 排序：①过期(稳定超额期已过·窗口关闭)最往下 ②信息差收敛(含持续失衡·胜率低)往下 ③同层按渊图置信度降序
+    dh = sorted(dh, key=lambda g: ("已过" in (g.get("period") or ""),
+                                   "persistent_imbalance" in D.get("chain_mechs", {}).get(g["chain"], set()),
+                                   -(g.get("conf") or 0)))
+    if dh:
+        items_b = ""
+        for i, g in enumerate(dh):
+            meta_tail = "｜" + STATUS_ZH.get(g["status"], g["status"])
+            items_b += _prio_item(g, f"pb{i}", "#17a2b8", meta_tail)
+        body_b = f'<ul class="prio-list">{items_b}</ul>'
+    else:
+        body_b = '<div class="prio-empty">当前无在途需求爆发信号</div>'
+    _gy = dict(BT_STATS["glow"]["yiduan"]); _gd = BT_STATS["glow"]["demand_surge"]
+    # ERR-20260911-001 ②：滚动样本≥30 时用 stock_tracking 实时回测替代静态锚（口径如实标注）
+    _ow = D.get("own_winrate")
+    if _ow and _ow.get("n", 0) >= 30:
+        _gy.update({"win_rate": _ow["wr"], "n": _ow["n"], "max_sig": _ow["max_sig"],
+                    "title": "stock_tracking 滚动回测 · own 可交易池（实时）",
+                    "text_tpl": "确认后 {win_days} 日滚动胜率 {win_rate}%（n={n} · 样本至 {max_sig} · 过往不代表未来）"})
+    prio_html = f"""
+<div class="prio-strip" aria-label="优先提示 · 一段兑现启动 + 需求爆发主题观察">
+ <div class="prio-card prio-glow" style="--sc:#e0a53a">
+  <div class="prio-h"><span class="prio-badge">⚡ 强信号</span>一段兑现启动</div>
+  {body_a}
+  <div class="bt-note" title="{_gy['title']}">{_gy['text_tpl'].format(sample_period=SAMPLE_PERIOD, **_gy)}</div>
+ </div>
+ <div class="prio-card prio-glow" style="--sc:#17a2b8">
+  <div class="prio-h"><span class="prio-badge">主题观察</span>需求爆发在途</div>
+  {body_b}
+  <div class="bt-note" title="{_gd['title']}">{_gd['text_tpl'].format(sample_period=SAMPLE_PERIOD, **_gd)}</div>
+ </div>
+</div>"""
+
+    # ── 其他机制 · 按各自窗口回测胜率排行（无 glow）2026-07-08 ──
+    #   数据=docs/自主回测_20260706/agg_stock.json own_分逻辑（离线快照·own 标的池口径）
+    #   窗口口径（Doctor 2026-07-08）：每个机制取其"超额达峰"窗口作自然持有期——3 日兑现的不套 10 日；
+    #   win/exc=该代表窗口的胜率/超额；按胜率降序、并列按超额；demand_surge 已置顶不重列。
+    #   ⚠ 只列渊图信号 signal_type 实际使用的机制（Doctor 2026-07-08）：event_driven/price_driven/
+    #     tech_innovation 渊图无此标签、在途恒 0，去掉防误读为"没信号"；小样本高噪机制亦略去。
+    #   兑现口径（excess_cum·Doctor 2026-07-08 两行统一）；供给冲击=含组合、持续失衡=纯持续失衡。
+    #   BT_LOGIC:(key, 中文, n可算, 胜率, 均超额, 风险标记)
+    BT_LOGIC = [(d["key"], d["zh"], d["n"], d["win_rate"], d["avg_excess"], d["flag"])
+                for d in BT_STATS["bt_logic"]]
+    SC_MECH = {"supply_shock": "#5b8cff", "persistent_imbalance": "#c0392b"}
+    rank_rows = ""
+    for key, zh, n, wr, aexc, flag in BT_LOGIC:
+        cur = D.get("mech_inflight_n", {}).get(key, 0)
+        line_cls = " rank-risk" if flag else ""
+        flag_s = f'<span class="rank-flag">{flag}</span>' if flag else ""
+        line = (f'<div class="rank-line{line_cls}"><span class="rank-win">{wr:.1f}%</span>'
+                f'<span class="rank-name">{zh}{flag_s}</span>'
+                f'<span class="rank-exc">均超额 {aexc:+.2f}%</span>'
+                f'<span class="rank-cur">在途 {cur} · n={n}</span></div>')
+        sc = SC_MECH.get(key, "#8aa0c8")
+        sigs = D.get("mech_signals", {}).get(key, [])
+        if key != "persistent_imbalance":
+            # 过期→最右(最下沉)、信息差收敛→其次、纯供给冲击→最左；同层按渊图置信度降序（对齐需求爆发卡）
+            sigs = sorted(sigs, key=lambda g: ("已过" in (g.get("period") or ""),
+                                               "persistent_imbalance" in D.get("chain_mechs", {}).get(g["chain"], set()),
+                                               -(g.get("conf") or 0)))
+        chips = "".join(
+            _sig_chip(g, f"ms{key[:2]}{j}", sc,
+                      contra=(key != "persistent_imbalance" and "persistent_imbalance" in D.get("chain_mechs", {}).get(g["chain"], set())),
+                      nogap=(key == "persistent_imbalance"))
+            for j, g in enumerate(sigs))
+        chips_html = f'<div class="mech-chips">{chips}</div>' if sigs else ""
+        rank_rows += f'<li class="mech-row">{line}{chips_html}</li>'
+    prio_rank = f"""
+<div class="prio-rank" aria-label="其他机制·按各自窗口回测胜率">
+ <div class="rank-h">其他机制 · 兑现口径胜率 / 均超额
+  <span class="rank-sub">仅列渊图信号实有机制 · 胜率/均超额=渊图兑现口径(excess_cum 累计超额) · 供给冲击含组合、持续失衡=纯持续失衡 · 样本极小仅方向性参考 · 过往不代表未来 · 产业逻辑信号=主题观察参考、非择时依据（BT-22）</span></div>
+ <ul class="rank-list">{rank_rows}</ul>
+</div>"""
+    prio_html += prio_rank
+
+    # ── 渊图信号卡 / 兑现度卡 配对（按产业信号时间分组）──
+    sig_names = ["最新信号日", "上一信号日", "再前信号日"]
+    TYPE_ZH = {"supply_shock": "供给冲击", "demand_surge": "需求爆发",
+               "persistent_imbalance": "持续失衡"}
+    sig_html = ""
+    for di, day in enumerate(D["ytdays"]):
+        cards = ""
+        for si, g in enumerate(day["sigs"]):
+            gid = f"y{di}x{si}"
+            sc = THEME_COLOR.get(g["theme"], "#8aa0c8")
+            stype = "·".join(TYPE_ZH.get(x.strip(), x.strip()) for x in g["stype"].split(","))
+            bene = "、".join(b.strip() for b in g["bene"].split("/") if b.strip()) or "—（待标的解析）"
+            echo = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if g["echo"]
+                    else '<span class="tag">小鲍未提及</span>')
+            zh = STATUS_ZH.get(g["status"], g["status"])
+            fl = g["fulfill"]
+            cards += f"""
+<div class="scard glass" style="--sc:{sc}" onclick="openModal('{gid}')">
+ <div class="aurora" aria-hidden="true"><div class="neb"></div><div class="stars"></div></div>
+ <div class="sc-h"><span class="tag t-{g["status"]}">{zh}</span>
+  <span class="lvl" title="渊图置信度">置信度 {g["conf"]:.2f}</span></div>
+ <div class="sc-kw">{g["chain"]}</div>
+ <div class="sub">{stype}{("｜" + g["theme"]) if g["theme"] else ""}</div>
+ {f'<div class="period-note">{g["period"]}</div>' if g.get("period") else ""}
+ <template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["chain"]}
+   <span class="sub">信号时间 {iso(day["date"])} ｜ {stype} ｜ 渊图置信度 {g["conf"]:.2f}</span></div>
+  <div><span class="dk">兑现状态</span><span class="tag t-{g["status"]}">{zh}</span>
+    <span class="desc">{g["desc"] or ""}</span></div>
+  <div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span>
+    <span class="desc">{fl["sent"]}</span></div>
+  <div style="margin:13px 0"><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail",""), bene)}</span></div>
+  <div><span class="dk">小鲍印证</span>{echo}<span class="sub">（第二源回声）</span></div>
+  <div><span class="dk">图谱节点</span><span class="sub">{g["node"]}</span></div>
+ </template></div>
+<div class="fulfill-card glass" style="--sc:{sc};--fulfill:{fl["w"]}%" onclick="openModal('{gid}')" aria-label="兑现度：{fl["v"]}">
+ <div class="fulfill-k">兑现度</div>
+ <div class="fulfill-v">{fl["v"]}</div>
+ <div class="fulfill-bar" aria-hidden="true"><span></span></div>
+ <div class="fulfill-d">{fl["d"]}</div>
+</div>"""
+        empty = '<div class="na" style="padding:8px 0">该信号日无渊图信号</div>'
+        label = sig_names[di] if di < len(sig_names) else "信号日"
+        sig_html += f"""
+<div class="mday">
+ <div class="mday-h">{label} <b>{iso(day["date"])}</b>
+  <span class="sub">渊图信号 {len(day["sigs"])} 条（按产业信号时间；优先信号自带时间，其次纪要/研报日期）</span></div>
+ <div class="mrow">{cards or empty}</div>
+</div>"""
+
+    # ── 在途未兑现台账 · 机制 × 信源 矩阵卡（点格弹二级页列该格信号）2026-06-29 ──
+    def _mech(stype):
+        parts = [x.strip() for x in (stype or "").split(",") if x.strip()]
+        if len(set(parts)) == 1:
+            return TYPE_ZH.get(parts[0], parts[0])
+        return "多机制叠加" if len(parts) >= 2 else "未标注"
+    MECHS = ["多机制叠加", "需求爆发", "供给冲击", "持续失衡", "未标注"]
+    cells = defaultdict(list)
+    for li, g in enumerate(D["inflight"]):
+        cells[(_mech(g["stype"]), g.get("plv") or "—")].append((li, g))
+    plvs = [p for p in ["P1", "P2", "—"] if any((m, p) in cells for m in MECHS)]
+    mechs = [m for m in MECHS if any((m, p) in cells for p in plvs)]
+    n_inflight = len(D["inflight"])
+
+    def cid(m, p):
+        return "led_" + str(MECHS.index(m)) + "_" + {"P1": "a", "P2": "b", "—": "c"}[p]
+    tmpls = ""
+    dtmpls = ""   # 三级深详情卡（受益标的等）
+    for m in mechs:
+        for p in plvs:
+            lst = cells.get((m, p), [])
+            if not lst:
+                continue
+            items = ""
+            for li, g in lst:
+                fl = g["fulfill"]
+                zh = STATUS_ZH.get(g["status"], g["status"])
+                relit_tag = '<span class="tag" style="color:var(--gold)">二段</span>' if g.get("relit") else ''
+                lag = f'{g["lag"]}天' if g["lag"] is not None else '—'
+                items += (f'<div class="lm-item" onclick="openModal(\'lmdet_{li}\')"><div class="lm-r1">'
+                          f'<span class="lm-chain">{g["chain"]}</span>'
+                          f'<span class="lm-st">{relit_tag}<span class="tag t-{g["status"]}">{zh}</span></span>'
+                          f'<span class="lm-conf">置信 {g["conf"]:.2f} ›</span></div>'
+                          f'<div class="lm-r2">买入 {lag} · {fl["sent"]}</div></div>')
+                sc = THEME_COLOR.get(g["theme"], "#8aa0c8")
+                stype_zh = "·".join(TYPE_ZH.get(x.strip(), x.strip())
+                                    for x in g["stype"].split(",")) if g["stype"] else ""
+                bene = "、".join(b.strip() for b in g["bene"].split("/") if b.strip()) or "—（待标的解析）"
+                echo_html = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if g["echo"]
+                             else '<span class="tag">小鲍未提及</span>')
+                buy_lag = f'产业信号买入：{g["lag"]} 天' if g["lag"] is not None else '产业信号买入：—'
+                trend_lag = (f'进入趋势：{g["trend_lag"]} 天' if g.get("trend_lag") is not None
+                             else '进入趋势：未触发')
+                dtmpls += (f'<template id="lmdet_{li}"><div class="modal-title" style="--sc:{sc}">{g["chain"]}'
+                           f'<span class="sub">信号时间 {g["date"]} ｜ {stype_zh} ｜ 渊图置信度 {g["conf"]:.2f}</span></div>'
+                           f'<div class="lm-back" onclick="backModal()">← 返回</div>'
+                           f'<div><span class="dk">兑现节奏</span><span class="tag">{buy_lag}</span> <span class="tag">{trend_lag}</span></div>'
+                           f'<div><span class="dk">兑现状态</span><span class="tag t-{g["status"]}">{zh}</span><span class="desc">{g["desc"] or ""}</span></div>'
+                           f'<div><span class="dk">兑现度</span><span class="tag">{fl["v"]}</span><span class="desc">{fl["sent"]}</span></div>'
+                           f'<div style="margin:13px 0"><span class="dk">受益标的</span><span class="desc">{bene_html(g.get("bene_detail", ""), bene)}</span></div>'
+                           f'<div><span class="dk">小鲍印证</span>{echo_html}<span class="sub">（第二源回声）</span></div>'
+                           f'<div><span class="dk">图谱节点</span><span class="sub">{g["node"]}</span></div></template>')
+            tmpls += (f'<template id="{cid(m, p)}"><div class="modal-title">{m} × {p}'
+                      f'<span class="sub">{len(lst)} 条在途</span></div>{items}</template>')
+
+    def colsum(p):
+        return sum(len(cells.get((m, p), [])) for m in mechs)
+    # 软卡网格（无表格边框，沿用页面暖色卡片语言）
+    gi = ['<div class="led-corner"></div>']
+    gi += [f'<div class="led-colh">{p}</div>' for p in plvs] + ['<div class="led-colh">合计</div>']
+    for m in mechs:
+        gi.append(f'<div class="led-rowh">{m}</div>')
+        rsum = 0
+        for p in plvs:
+            n = len(cells.get((m, p), []))
+            rsum += n
+            gi.append(f'<div class="led-tile" onclick="openModal(\'{cid(m, p)}\')"><b>{n}</b><span>条</span></div>'
+                      if n else '<div class="led-tile empty"><b>·</b></div>')
+        gi.append(f'<div class="led-tile sum"><b>{rsum}</b></div>')
+    gi.append('<div class="led-rowh">合计</div>')
+    gi += [f'<div class="led-tile sum"><b>{colsum(p)}</b></div>' for p in plvs]
+    gi.append(f'<div class="led-tile sum total"><b>{n_inflight}</b></div>')
+    grid = (f'<div class="led-grid" style="grid-template-columns:auto repeat({len(plvs) + 1},minmax(58px,1fr))">'
+            + "".join(gi) + '</div>')
+    ledger_html = (f"""
+<div class="ledger-wrap" id="sec-ledger">
+ <div class="ledger-h">在途未兑现台账 · 机制 × 信源 <span class="sub">{n_inflight} 条 open/closing 信号（同链取最近；点格看该格信号；<span style="color:var(--gold)">二段</span>=点亮中）</span></div>
+ {grid}
+ {tmpls}{dtmpls}
+</div>""" if n_inflight else """
+<div class="ledger-wrap" id="sec-ledger"><div class="ledger-h">在途未兑现台账 <span class="sub">当前无窗外在途信号</span></div></div>""")
+
+    # ── 空头风险提示（direction=空 · 卖出/买入转卖出 · 利空逻辑 · 不正向追踪、不计进入趋势）──
+    risk = D.get("inflight_risk", [])
+    if risk:
+        rrows = ""
+        for g in risk:
+            sc = THEME_COLOR.get(g["theme"], "#d9534f")
+            stopped = "已停跟" in (g["desc"] or "")
+            badge = "🛑 已停跟(绝对回撤≥5pp)" if stopped else "⚠️ 空头风险·观察中"
+            flip = f" ｜ 转卖出日 {iso(g['flip_date'])}" if g.get("flip_date") else ""
+            rstype = "·".join(TYPE_ZH.get(x.strip(), x.strip())
+                              for x in g["stype"].split(",")) if g.get("stype") else ""
+            rstype_seg = f"{rstype} ｜ " if rstype else ""
+            rrows += f"""
+<div class="ledger-row glass" style="--sc:{sc}">
+ <span class="lg-dot" style="background:#d9534f"></span>
+ <span class="lg-chain">{g["chain"]}</span>
+ <span class="lg-meta">{g["theme"] or "—"} ｜ {rstype_seg}<b style="color:#ff6b6b">产业信号：卖出</b> ｜ {badge} ｜ 信号日 {g["date"]}{flip}</span>
+</div>"""
+        ledger_html += f"""
+<div class="ledger-wrap" id="sec-risk" style="margin-top:14px">
+ <div class="ledger-h" style="color:#ff8080">⚠️ 空头风险提示 <span class="sub">{len(risk)} 条 direction=空（卖出/买入转卖出 · 利空逻辑 · 不正向追踪、不计进入趋势）</span></div>
+ {rrows}
+</div>"""
+
+    # A1（PRD 2026-07-16）：二段点亮·中性观察行（从强信号栏移出，点亮≠行动）
+    _ra = D.get("relit_active", [])
+    _rl = BT_STATS.get("glow", {}).get("relit", {})
+    _rl_note = _rl.get("text_tpl", "点亮后10日历史转负·中性观察非买点").format(
+        sample_period=SAMPLE_PERIOD, **{k: v for k, v in _rl.items() if k not in ("text_tpl", "title")})
+    relit_html = (
+        '<div class="dormant-note">🔆 二段点亮 ' + str(len(_ra)) + ' 条（中性观察·不进强信号栏）：'
+        + '、'.join(x["chain"] for x in _ra[:6]) + ('…' if len(_ra) > 6 else '')
+        + f'<br><span style="opacity:.8">{_rl_note}</span></div>'
+        if _ra else "")
+
+    # 案2 暗态计数入口（不渲染暗态线本身，仅给一个可感知的入口）
+    _dn = D.get("dormant_n", 0)
+    dormant_html = (
+        f'<div class="dormant-note">🌙 暗态 {_dn} 条（已兑现·候二段 · 不在主栏/台账展示；价格再起达门槛 Y′=4日/回升5pp 自动点亮回二段。'
+        f'注意：点亮≠行动——{_rl_note}）</div>'
+        if _dn else "")
+    dormant_html = relit_html + dormant_html
+
+    # ── 四维度课件信号（第二印证·机制排行范式·并入机制之下）──
+    xb_html = ""  # 已并入 prio_html（机制排行范式），底部不再单独渲染
+    _xbp = D.get("positions", {}).get("xiaobao")
+    if _xbp:
+        _pref = f'（偏好 {_xbp["pref"]}/5）' if _xbp.get("pref") is not None else ""
+        band_str = f'<div class="xb-band">小鲍总仓位：{_xbp["band"]}{_pref}</div>'
+    else:
+        band_str = ""
+    xb_rank = ""
+    for day in D["sigdays"]:
+        if not day["sigs"]:
+            continue
+        chips = ""
+        for si, g in enumerate(day["sigs"]):
+            gid = f"xb{si}"
+            sc = THEME_COLOR.get(g["theme"], "#8aa0c8")
+            zh = STATUS_ZH.get(g["status"], g["status"])
+            lvl_sub = f' ｜ 信息差等级 {g["lvl"]}/5（未校准·入选门槛）' if g["lvl"] else ""
+            tmpl = (f'<template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["kw"]}'
+                    f'<span class="sub">{iso(day["date"])} ｜ {g["theme_full"]}{lvl_sub} ｜ 置信度 {g["conf"]}</span></div>'
+                    f'<div><span class="dk">状态</span><span class="tag t-{g["status"]}">{zh}</span></div>'
+                    f'<div><span class="dk">兑现定性</span><span class="desc">{g["desc"] or "—"}</span></div>'
+                    f'<div><span class="dk">信号内容</span><span class="desc">{g["content"][:600]}</span></div>'
+                    f'</template>')
+            chips += (f'<span class="mchip" role="button" tabindex="0" style="--sc:{sc}" '
+                      f'onclick="openModal(\'{gid}\')">{g["kw"]}{tmpl}</span>')
+        xb_rank += f"""
+<div class="prio-rank" aria-label="四维度课件信号">
+ <div class="rank-h">四维度课件信号 · {iso(day["date"])}
+  <span class="rank-sub">小鲍复盘课件的行业信号（第二印证源）· {len(day["sigs"])} 条 · 点击看信号内容/兑现定性</span></div>
+ <div class="mech-chips">{chips}</div>
+ {band_str}
+</div>"""
+    prio_html += xb_rank
+
+    # ── 机会 + 仓位（第四栏 · 「四维度课件信号」视觉范式：prio-rank 头 + 一排可点 mchip，明细进 modal）──
+    _kc = D.get("capacity", {}).get("kcap")
+    _budget = round(_kc) if isinstance(_kc, (int, float)) else None
+    opp_chips = ""
+    for oi, o in enumerate(D["opps"]):
+        gid = f"opp{oi}"
+        sc = THEME_COLOR.get(o["theme"], "#8aa0c8")
+        role = o.get("role", "")
+        _rc = "#b8860b" if role == "新线" else "#8a8170"   # 新线金 / 在场强线灰
+        role_line = f'<span class="tag" style="color:{_rc}">{role}</span>' if role else '<span class="desc">—</span>'
+        tg = "".join(
+            f'<span class="chip">{x["name"]}'
+            + (f'<em>{x["total"]}·{x["rating"]}</em>' if x.get("total") else "<em>未评分</em>")
+            + "</span>" for x in o["targets"]) or '<span class="na">信号无标的字段</span>'
+        tmpl = (f'<template id="{gid}"><div class="modal-title" style="--sc:{sc}">{o["theme"]}'
+                f'<span class="sub">{o.get("rank_label", "")} · {role} ｜ 20日 {o["e20"]:+.1f}% · 5日 {o.get("e5", 0):+.1f}%</span></div>'
+                f'<div><span class="dk">角色</span>{role_line}</div>'
+                f'<div><span class="dk">强度</span><span class="desc">20日超额 {o["e20"]:+.1f}% · 5日 {o.get("e5", 0):+.1f}% · {o.get("rank_label", "")}</span></div>'
+                f'<div><span class="dk">定性</span><span class="desc">{o["desc"] or "—"}</span></div>'
+                f'<div style="margin-top:6px"><span class="dk">标的</span><span class="desc">{tg}</span></div>'
+                f'<div style="margin-top:6px"><span class="dk">何时移出本栏</span>'
+                f'<span class="desc">{o.get("exit") or "—"}</span></div>'
+                f'</template>')
+        opp_chips += (f'<span class="mchip" role="button" tabindex="0" style="--sc:{sc}" '
+                      f'onclick="openModal(\'{gid}\')">{o["theme"]}{tmpl}</span>')
+    if not opp_chips:
+        opp_html = '<div class="na">当日无满足条件（兑现早期×价格启动〔20日为正+5日转正〕×容量×锚不背离）的机会——诚实空仓提示</div>'
+    else:
+        _capn = f"前 {_budget} 强" if _budget is not None else "容量未知"
+        opp_html = (f'<div class="prio-rank" aria-label="确认走强·容量排位制">'
+                    f'<div class="rank-h">确认走强 · 容量排位（{_capn}）'
+                    f'<span class="rank-sub">按 e20 强度排位取前 round(K_cap) 条 · {len(D["opps"])} 条 · 强新线挤弱旧线＝轮动 · 点击看排位/超额/标的 · 非投资建议</span></div>'
+                    f'<div class="mech-chips">{opp_chips}</div></div>')
+
+    risk_html = "".join(
+        f'<div class="risk r-{r["lvl"]}"><span class="rk-led">{_sev_led(r["lvl"])}</span>'
+        f'<span class="rk-txt">{r["txt"]}</span></div>'
+        for r in D["risks"]) or '<div class="na">无自动风险命中</div>'
+
+    pos = D["positions"]
+    xbp = (f'{pos["xiaobao"]["band"]}（{pos["xiaobao"]["pref"]}/5）'
+           f'<div class="sub">⚠️ 数据 {pos["xiaobao"]["date"]}（课件口径，停更则如实显示）</div>'
+           if pos["xiaobao"] else '<span class="na">无数据</span>')
+    pos_card = f"""
+<div class="card" style="margin-top:10px"><div class="k">仓位 · 三口径并列（不合成）</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px">
+  <div><div class="k">小鲍 band（总仓位）</div><div>{xbp}</div></div>
+  <div><div class="k">容量状态（能否开新线）</div><div>{state_str}（K {cap["kday"]}/{cap["kcap"]}）</div></div>
+  <div><div class="k">龙鱼评级（个股资格）</div><div class="sub">见机会卡片标的 chips 内分数</div></div>
+ </div><div class="sub" style="margin-top:6px">{pos["note"]}</div></div>"""
+
+    ext_html = external_pricing_section(D)
+    intg_html = integration_section(D)   # 隔日关注 · 体系提炼摘录（2026-10-21 加）
+
+    js = (JS_TPL
+          .replace("__EM_SERIES__", em_series)
+          .replace("__EM_SEASON_SERIES__", em_season_series)
+          .replace("__GMAX__", f"{max(8, (cap['kcap'] or 6) + 2):.0f}")
+          .replace("__KDAY__", str(cap["kday"]))
+          .replace("__KCAP__", str(cap["kcap"] or 0)))
+
+    return f"""<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>烛照九阴日报 · {dd}</title>
+{_echarts_inline()}
+<style>{css}</style></head><body>
+{hero}
+{snapshot}
+{risk_radar}
+{p0}
+{row2}
+
+{ext_html}
+{intg_html}
+
+<h2 id="sec-main">二 · 主线板块 · 近3日 <span class="vintage">资格=涨幅>1%且对大盘超额>0.5pp（跟涨不算主线）｜ 数量≤当日成交额对应K_cap ｜ 点主线行看详情</span></h2>
+{main_html}
+
+<h2 id="sec-gap">三 · GAP 信号栏 <span class="vintage">强信号 / 主线确认 / 机会风险 ｜ 点脊跳到对应区，点卡片看详情</span></h2>
+{yt_stale_banner}{prio_html}
+{dormant_html}
+
+<h2 id="sec-opp">四 · 确认走强（e20/e5 > 0），且容量允许 <span class="vintage">候选观察方向 · 按 e20 强度排位取前 K_cap 条（强新线挤弱旧线＝轮动）· 非投资建议</span></h2>
+{opp_html}
+
+<h2>五 · 风险提示 <span class="vintage">{len([r for r in D["risks"] if r["lvl"]=="红"])} 红 / {len([r for r in D["risks"] if r["lvl"]=="黄"])} 黄 ｜ 展开看具体锚与标的</span></h2>
+{risk_html}
+
+<div class="foot">烛照九阴 · 数据：recap.db / market_data.db / 龙鱼-标的分析库 ｜ 缺数=诚实标注，禁占位禁编数 ｜ 仓位与标的为体系内信号聚合，非投资建议</div>
+
+<div id="overlay" onclick="backModal()"></div>
+<div id="modal" class="glass"><div class="aurora" aria-hidden="true"><div class="neb"></div><div class="stars"></div></div>
+ <div id="modalX" onclick="closeModal()">✕</div><div id="modalBody"></div></div>
+
+<script>{js}</script>
+</body></html>"""
+
+
+def main():
+    ap = argparse.ArgumentParser(description="烛照九阴 · 暖色日报生成器 v2")
+    ap.add_argument("--output", help="输出目录覆盖（测试用；不写正式 AI4ME 目录）")
+    ap.add_argument("--no-archive", action="store_true", help="不移动旧报到 archived/")
+    ap.add_argument("--no-deploy", action="store_true", help="不部署到 Cowork artifact（仅写 AI4ME 产物）")
+    ap.add_argument("--date", help="数据日上限 YYYYMMDD（默认取最新行情日）")
+    args = ap.parse_args()
+
+    out_dir = Path(args.output) if args.output else OUT_DIR
+    is_official = (out_dir.resolve() == OUT_DIR.resolve()) if OUT_DIR.exists() else not args.output
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    D = gather(date_cap=args.date)
+    html = render(D)
+    fname = f"烛照九阴日报_{D['data_day']}.html"
+
+    if is_official and not args.no_archive:
+        (out_dir / "archived").mkdir(exist_ok=True)
+        # 旧报移 archived/（永不删，删除权归 Doctor）
+        for old in out_dir.glob("烛照九阴日报_*.html"):
+            if old.name != fname:
+                shutil.move(str(old), str(out_dir / "archived" / old.name))
+                logger.info(f"📦 旧报归档 → archived/{old.name}")
+    out = out_dir / fname
+    if is_official and out.exists():
+        # 同名旧报先快照再覆盖（永不删，删除权归 Doctor）。改 copy2（避挂载盘 rename 覆盖不稳）+ 日键去重 + 子目录归拢。
+        snap_dir = out_dir / "archived" / "_pre-snapshots"
+        snap_dir.mkdir(parents=True, exist_ok=True)
+        day = datetime.datetime.now().strftime("%Y%m%d")
+        keep = snap_dir / f"{out.stem}.pre-{day}{out.suffix}"  # 日键：同日覆盖去重
+        shutil.copy2(str(out), str(keep))
+        _rotate_backups(snap_dir, "*.pre-*.html", keep_days=5)  # 跨日保 5 天（Mac 清·沙箱静默跳）
+        logger.info(f"📦 同名旧报快照 → archived/_pre-snapshots/{keep.name}")
+    out.write_text(html, encoding="utf-8")  # 覆盖写正档（挂载盘允许覆盖）
+    mode = "正式" if is_official else "测试"
+    logger.info(f"✅ 日报生成（{mode}·暖色范式 v2）→ {out}（{out.stat().st_size/1048576:.2f} MB）")
+    logger.info(f"   主线 {len(D['themes'])} 条 | 渊图信号日 {len(D['ytdays'])} | 机会 {len(D['opps'])} | 风险 {len(D['risks'])}")
+
+    # 重渲即部署：正式产物自动同步到 Cowork artifact（测试 --output 或 --no-deploy 跳过）
+    if is_official and not args.no_deploy:
+        _deploy_to_artifact(html, D['data_day'])
+
+
+if __name__ == "__main__":
+    main()

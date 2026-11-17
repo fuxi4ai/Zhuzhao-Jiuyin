@@ -10,5 +10,16 @@
     {"start": "20260915", "end": "20260916", "sep": true},
     {"start": "20261027", "end": "20261028", "sep": false},
     {"start": "20261208", "end": "20261209", "sep": true}
+  ],
+  "_source_2027": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm · 取数 2026-11-17（页面 Last Update: November 12, 2026）· 官网 2027 年段列 8 行、未标点阵图，故 sep 记 null（未知，不是「无」）· 10 月 26-27 一行官网附注 Monetary Policy Strategy Meeting · 官网 2027 年段没有 12 月会次 · 官网注明各会期在前一次会议确认前均为暂定",
+  "meetings_2027": [
+    {"start": "20270126", "end": "20270127", "sep": null},
+    {"start": "20270316", "end": "20270317", "sep": null},
+    {"start": "20270427", "end": "20270428", "sep": null},
+    {"start": "20270608", "end": "20270609", "sep": null},
+    {"start": "20270727", "end": "20270728", "sep": null},
+    {"start": "20270914", "end": "20270915", "sep": null},
+    {"start": "20271026", "end": "20271027", "sep": null},
+    {"start": "20271116", "end": "20271117", "sep": null}
   ]
 }
