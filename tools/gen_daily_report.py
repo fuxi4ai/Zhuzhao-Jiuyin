@@ -176,6 +176,149 @@ SIGNAL_OVERRIDE = {
 }
 
 
+# ── R5 日报加强：阈值与纯函数（2026-11-17 · PRD 2026-11-17_烛照九阴自复盘取代课件 R5）──
+# 四处加强：一、锚背离补反向提示；二、「确认走强」候选写明何时移出；
+# 三、事件日历（交割日 + 议息会次读全部年份）；四、盘前读数标角色。
+# 只给方向与日期，不含仓位数字、不含买卖动作。本段函数不读写文件；只有 load_trade_cal 用传入的连接查库，其余不连库。tests/test_r5_enhancements.py 直接调用。
+ANCHOR_BREAK_US_EX20 = -10.0   # 同向锚 20 日超额低于此值（百分点）→ 挡在「确认走强」之外；A 股侧同时走强则出红色背离
+ANCHOR_LEAD_US_EX20 = 10.0     # 反向提示：同向锚 20 日超额高于此值（百分点）。Doctor 2026-11-17 裁定
+ANCHOR_LEAD_CN_E20 = -5.0      # 反向提示：A 股主线 20 日超额低于此值（百分点）。Doctor 2026-11-17 裁定（另一候选为 0）
+OPP_MAX_ROWS = 4               # 「确认走强」一栏至多列几条
+DELIVERY_WINDOW_DAYS = 7       # 数据日距交割日不超过几个日历日时显示交割日注记
+DELIVERY_UNCHECKED_TAIL = "·按第三个周五推算，遇休市顺延未核"   # 交易日历查不到第三个周五时的句尾
+
+
+def anchor_lead_risk(theme_short, e20, us):
+    """反向锚背离（锚强而本地未跟）：同向锚 20 日超额高于 ANCHOR_LEAD_US_EX20、且 A 股主线 20 日超额
+    低于 ANCHOR_LEAD_CN_E20 时，返回一条黄色风险条目；否则返回 None。
+    没有美股锚、锚是温度计类（kind 不是 echo）、缺数，一律不出。只作提示，不参与任何入栏判断。"""
+    if not us or us.get("kind") != "echo":
+        return None
+    ex20 = us.get("ex20")
+    if ex20 is None or e20 is None:
+        return None
+    if not (ex20 > ANCHOR_LEAD_US_EX20 and e20 < ANCHOR_LEAD_CN_E20):
+        return None
+    return {"lvl": "黄", "txt": f"锚强而本地未跟：{theme_short} 锚 {us.get('tkr') or '—'} 20日超额 {ex20:+.1f}%，"
+                               f"A股20日超额 {e20:+.1f}%（本地资金未认，观察）"}
+
+
+def opp_exit_text(us=None, budget=None):
+    """「确认走强」候选的移出条件＝入栏条件的反面。只说何时移出本栏，不含买卖动作。
+    us：该主线的美股锚信息（us_info 的返回值）；只有同向锚才写锚那一项。
+    budget：当日容量上限（取整后的条数）；当日算不出上限时为 None。"""
+    if budget is not None:
+        cap = f"排位跌出容量上限（当日上限为前 {budget} 强，本栏至多列 {OPP_MAX_ROWS} 条）"
+    else:
+        cap = f"排位跌出容量上限（当日上限未知，本栏至多列 {OPP_MAX_ROWS} 条）"
+    parts = ["20日或5日超额不再为正", "不再处于兑现早期", cap]
+    if us and us.get("kind") == "echo":
+        parts.append(f"同向锚 {us.get('tkr') or '—'} 的20日超额低于 {ANCHOR_BREAK_US_EX20:.0f}%")
+    return "出现以下任一情况即移出本栏：" + "；".join(parts) + "。"
+
+
+def fomc_meetings(cal):
+    """把日历文件里所有 meetings_ 开头的键合并成一张会次表，按会议首日排序。
+    年份不写死：文件里补了新年份的键（如 meetings_2027）就能读到。缺首日或末日的条目跳过。"""
+    out = []
+    for k, v in (cal or {}).items():
+        if isinstance(k, str) and k.startswith("meetings_") and isinstance(v, list):
+            out.extend(m for m in v if isinstance(m, dict) and m.get("start") and m.get("end"))
+    return sorted(out, key=lambda m: str(m["start"]))
+
+
+def third_friday(year, month):
+    """某年某月的第三个周五。"""
+    first = datetime.date(year, month, 1)
+    return first + datetime.timedelta(days=(4 - first.weekday()) % 7 + 14)
+
+
+def delivery_day(year, month, trade_cal=None):
+    """股指期货交割日：当月第三个周五，遇休市顺延到下一个交易日。
+    trade_cal：{YYYYMMDD: 是否开市}（行情库 trade_cal）。返回 (日期, 是否经交易日历核对)。
+    交易日历查不到第三个周五，或查到休市却逐日找不到其后的开市日 → 返回第三个周五本身、标未核对。"""
+    tf = third_friday(year, month)
+    cal = trade_cal or {}
+    key = tf.strftime("%Y%m%d")
+    if key not in cal:
+        return tf, False
+    if cal[key]:
+        return tf, True
+    d = tf
+    for _ in range(15):                       # 逐日往后找；中间有一天查不到就不猜
+        d += datetime.timedelta(days=1)
+        k = d.strftime("%Y%m%d")
+        if k not in cal:
+            return tf, False
+        if cal[k]:
+            return d, True
+    return tf, False
+
+
+def delivery_note_text(data_day, trade_cal=None):
+    """交割日注记的文字。数据日距下一个交割日不超过 DELIVERY_WINDOW_DAYS 个日历日 →
+    「股指期货交割日前 N 天（YYYY-MM-DD）」；数据日就是交割日 → 「股指期货交割日（YYYY-MM-DD）」；
+    窗口之外或数据日不合法 → 空串。交易日历没能核对时句尾注明「按第三个周五推算，遇休市顺延未核」
+    （行情库日历没有未来日期，交割日之前的每一天都走这一支）。只提示日期。"""
+    try:
+        s = str(data_day)
+        d0 = datetime.date(int(s[:4]), int(s[4:6]), int(s[6:8]))
+    except (TypeError, ValueError):
+        return ""
+    cands = []
+    y, m = d0.year, d0.month
+    for _ in range(2):                        # 当月与下月
+        cands.append(delivery_day(y, m, trade_cal))
+        y, m = (y + 1, 1) if m == 12 else (y, m + 1)
+    ahead = [c for c in cands if c[0] >= d0]
+    if not ahead:
+        return ""
+    dd, checked = min(ahead)
+    gap = (dd - d0).days
+    if gap > DELIVERY_WINDOW_DAYS:
+        return ""
+    tail = "" if checked else DELIVERY_UNCHECKED_TAIL
+    if gap == 0:
+        return f"股指期货交割日（{dd.isoformat()}）{tail}"
+    return f"股指期货交割日前 {gap} 天（{dd.isoformat()}）{tail}"
+
+
+def load_trade_cal(md, data_day):
+    """读行情库的交易日历，返回 {YYYYMMDD: 是否开市}。起点是数据日所在月的 1 日：当月第三个周五
+    若已过去（休市顺延到数据日当天的情形），也要查得到它。表缺、查询失败或数据日不合法 → 空字典，
+    渲染端按第三个周五推算并注明。行情库的日历只落到入库当日，没有未来日期。"""
+    s = str(data_day or "")
+    if len(s) < 6 or not s[:6].isdigit():
+        return {}
+    try:
+        return {str(d): bool(o) for d, o in md.execute(
+            "SELECT cal_date, is_open FROM trade_cal WHERE cal_date>=? AND is_open IS NOT NULL",
+            (s[:6] + "01",))}
+    except sqlite3.Error:
+        return {}
+
+
+def premarket_role(code, risk_cfg):
+    """盘前读数在风险温度带里属于哪一层。照计温代码的现行口径取，不凭名字猜：
+      环境层＝F1 隔夜外盘实际读取的代码（配置 f1.semi_codes 与 f1.asia_codes；
+              risk_radar_section 里 S2 的环境层是 F1/A6/B6）；
+      触发层＝F5 外部紧缩的计温腿：离岸人民币、布伦特原油（_eval_risk_factors 的汇率腿与油价腿）；
+              美债 10 年期只在配置 f5.bond_scoring 为真时算触发层；
+      信息层＝美债 10 年期在 f5.bond_scoring 为假时（读数照显示、不计温）。
+    三层口径只在 S2 计温下成立；其它计温版本、或温度带不读的读数，返回空串（不加标签）。"""
+    cfg = risk_cfg or {}
+    if (cfg.get("_meta") or {}).get("function_version") != "s2":
+        return ""
+    f1 = cfg.get("f1") or {}
+    if code in list(f1.get("semi_codes") or []) + list(f1.get("asia_codes") or []):
+        return "环境层"
+    if code in ("CNH", "BRENT"):             # F5 的汇率腿与油价腿
+        return "触发层"
+    if code == "US10Y":
+        return "触发层" if (cfg.get("f5") or {}).get("bond_scoring", True) else "信息层"
+    return ""
+
+
 def _trading_passed(base, cap, dates):
     """base 之后、cap（含）之前的交易日个数（用基准指数交易日序列）。"""
     try:
@@ -343,6 +486,8 @@ def gather(date_cap=None):
     data_day = dates[-1]
     D["data_day"] = data_day
     D["gen_time"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    # R5 · 交易日历（交割日遇休市顺延用）：自数据日所在月 1 日起；表缺或查不到 → 空，渲染端按第三个周五推算并注明
+    D["trade_cal"] = load_trade_cal(md, data_day)
 
     def theme_ex(theme):
         cs = THEME_ETF[theme]
@@ -1037,7 +1182,7 @@ def gather(date_cap=None):
         # 两层——中期趋势确认 e20>0（月度正超额，与锚侧 ex20 同 20 日窗）+ 短期正在启动 e5>0（新鲜点火）。
         early = ((t["sig"].get("open", 0) > 0 or "兑现初期" in (t["desc"] or ""))
                  and t["e20"] > 0 and t["e5"] > 0)
-        anchor_ok = not (t["us"] and t["us"]["kind"] == "echo" and t["us"]["ex20"] < -10)
+        anchor_ok = not (t["us"] and t["us"]["kind"] == "echo" and t["us"]["ex20"] < ANCHOR_BREAK_US_EX20)
         if not (early and anchor_ok):
             continue
         rank += 1  # 在确认走强候选内的强度排位（themes 已降序 → rank 即排位）
@@ -1058,8 +1203,9 @@ def gather(date_cap=None):
                     names.append({"name": n, **ratings.get(n, {})})
         opps.append({"theme": t["short"], "e20": t["e20"], "e5": t["e5"], "desc": t["desc"],
                      "targets": names,
-                     "note": cap_note, "rank_label": rank_label, "role": role})
-    D["opps"] = opps[:4]
+                     "note": cap_note, "rank_label": rank_label, "role": role,
+                     "exit": opp_exit_text(t["us"], budget)})   # R5 · 何时移出本栏
+    D["opps"] = opps[:OPP_MAX_ROWS]
 
     xb_pos = rc.execute("SELECT date, position_band, position_risk_pref FROM dim4_trade_plan "
                         "WHERE position_band IS NOT NULL ORDER BY date DESC LIMIT 1").fetchone()
@@ -1074,10 +1220,15 @@ def gather(date_cap=None):
     risk_themes = []
     for t in themes:
         u = t["us"]
-        if u and u["kind"] == "echo" and u["ex20"] < -10 and t["e20"] > 5:
+        if u and u["kind"] == "echo" and u["ex20"] < ANCHOR_BREAK_US_EX20 and t["e20"] > 5:
             risk_themes.append(t["short"])
             risks.append({"lvl": "红", "txt": f"美股锚背离：{t['short']} A股20日超额 {t['e20']:+.1f}% "
                           f"但锚 {u['tkr']} 20日超额 {u['ex20']:+.1f}%（全球定价撤退，A股独舞）"})
+    # R5 · 反向背离（锚强而本地未跟）：黄色提示。不进 risk_themes，不改任何入栏逻辑
+    for t in themes:
+        _lead = anchor_lead_risk(t["short"], t["e20"], t["us"])
+        if _lead:
+            risks.append(_lead)
     # 2026-08-20 ERR-20260820-001（Doctor 裁 C 案）：条目级「逾期未启动」是单条信号锚失效判定，
     # 不得升维成板块名单（15 板块兑现率 82-99% 却曾整版列进「等轮动」）。
     # A 文案精确化 + B 聚合过滤（只列该锚逾期未兑现条目占比 ≥30% 的锚，阈值 Doctor 2026-08-20 裁）。
@@ -1432,15 +1583,22 @@ def _ep_idx(label, note, it):
             f'<div class="ext-mt">{shown}</div></div>')
 
 
-def _ep_row(name, note, it, sym_override=None):
-    """区内行的三个网格单元（名｜涨跌幅｜收盘·日期）——由外层 .ext-rows inline-grid 统一对齐+整体居中。缺数→待回填。"""
+def _role_tag(code):
+    """R5 · 盘前读数的角色小标签（风险温度带里的层归属）；温度带不读的读数返回空串。"""
+    r = premarket_role(code, RISK_CFG)
+    return f'<span class="thermo" title="在风险温度带里属于{r}">{r}</span>' if r else ""
+
+
+def _ep_row(name, note, it, sym_override=None, role=""):
+    """区内行的三个网格单元（名｜涨跌幅｜收盘·日期）——由外层 .ext-rows inline-grid 统一对齐+整体居中。缺数→待回填。
+    role：R5 角色小标签（_role_tag 的返回），跟在名称后。"""
     if not it or it.get("pct") is None:
-        return (f'<span class="ext-rn">{name}</span>'
+        return (f'<span class="ext-rn">{name}{role}</span>'
                 f'<span class="ext-rp na">—</span><span class="ext-rc">待回填</span>')
     cv = it.get("close")
     close = "—" if cv is None else (f'{cv:,.0f}' if cv >= 1000 else f'{cv:,.2f}')
     sym = sym_override or it.get("symbol", "")
-    return (f'<span class="ext-rn">{name}<span class="ext-rsy">{sym}</span></span>'
+    return (f'<span class="ext-rn">{name}<span class="ext-rsy">{sym}</span>{role}</span>'
             f'<span class="ext-rp">{_ep_pct(it["pct"])}</span>'
             f'<span class="ext-rc">{close}·{iso(it["date"])[5:]}</span>')
 
@@ -1510,14 +1668,14 @@ def external_pricing_section(D):
         it = intl.get(code)
         return ((it.get("symbol") if it else None) or _EP_SYM.get(code, "")).replace("=F", "")
     nasdaq_row = _ep_row("纳斯达克", INTL_US_INDEX[2], intl.get(INTL_US_INDEX[0]),
-                         sym_override=_EP_SYM.get(INTL_US_INDEX[0], ""))
-    stk_rows = "".join(_ep_row(nm, note, intl.get(code)) for code, nm, note in INTL_US_STOCKS)
+                         sym_override=_EP_SYM.get(INTL_US_INDEX[0], ""), role=_role_tag(INTL_US_INDEX[0]))
+    stk_rows = "".join(_ep_row(nm, note, intl.get(code), role=_role_tag(code)) for code, nm, note in INTL_US_STOCKS)
     # 日本期指区改三格行范式（2026-08-25 Doctor 令：与韩国存储双雄同款「名称代码+涨跌幅+价·日期」；源注（CME/读数语义腿）移出展示，
     # 真身保留在 fetch_intl_index.INDICES note 与 GOTCHAS G033。name 取 DB 行——SA 应急代理时如实显示「日本(EWJ代理)」）
     _jpf = intl.get(INTL_ASIA[0][0])
     jp_row = _ep_row((_jpf.get("name") if _jpf else "日经225期货"), INTL_ASIA[0][2], _jpf,
-                     sym_override=_sym("JP_FUT"))
-    kr_rows = "".join(_ep_row(nm, note, intl.get(code)) for code, nm, note in INTL_KR)
+                     sym_override=_sym("JP_FUT"), role=_role_tag(INTL_ASIA[0][0]))
+    kr_rows = "".join(_ep_row(nm, note, intl.get(code), role=_role_tag(code)) for code, nm, note in INTL_KR)
 
     # 10 年期美债行（汇率栏底部 · 2026-08-27 Doctor 令：30Y 换 10Y + 点击开二级详情；bp 由 pct 反推，口径同 F5 美债腿；
     # 染色=语义向（2026-08-25 Doctor 令沿用）：收益率下行(利好)=红 / 上行(利空)=绿，与人民币行走弱=绿同口径）
@@ -1525,7 +1683,7 @@ def external_pricing_section(D):
     _b30 = intl.get("US30Y") or {}
     if _b10.get("close") is None or _b10.get("pct") is None:
         bond10_row = ('<div class="ext-rows" style="margin-top:12px">'
-                      '<span class="ext-rn">美国10年国债<span class="ext-rsy">^TNX</span></span>'
+                      f'<span class="ext-rn">美国10年国债<span class="ext-rsy">^TNX</span>{_role_tag("US10Y")}</span>'
                       '<span class="ext-rp na">—</span><span class="ext-rc">待回填</span></div>')
         us10y_tmpl = ""
     else:
@@ -1546,7 +1704,7 @@ def external_pricing_section(D):
                       f'onclick="openModal(\'us10y\')" '
                       f'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){{event.preventDefault();this.click();}}" '
                       f'aria-label="打开美债10年期收益率详情" title="点击查看四维拆解">'
-                      f'<span class="ext-rn">美国10年国债<span class="ext-rsy">^TNX ▸</span></span>'
+                      f'<span class="ext-rn">美国10年国债<span class="ext-rsy">^TNX ▸</span>{_role_tag("US10Y")}</span>'
                       f'<span class="ext-rp">{_bp_html}</span>'
                       f'<span class="ext-rc">{_b10["close"]:.2f}%·{iso(_b10["date"])[5:]}</span></div>')
 
@@ -1655,7 +1813,8 @@ def external_pricing_section(D):
             '<span class="vintage">汇率 / 隔夜 / 期货预期 · A股开盘前的外部定价（AI/科技硬件链）· '
             f'各市场按自身最新交易日 · {vint}</span></h2>'
             '<div class="ext-panel">'
-            '<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>汇率 · 美元兑离岸人民币(USD/CNH)</div>'
+            '<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>汇率 · 美元兑离岸人民币(USD/CNH)'
+            f'{_role_tag("CNH")}</div>'
             f'{fx_body}{bond10_row}</div></div>'
             f'<div class="ext-zone"><div class="ext-inner"><div class="ext-zhd"><span class="dot"></span>隔夜 · 美股</div>'
             f'<div class="ext-rows">{nasdaq_row}{stk_rows}</div></div></div>'
@@ -3238,7 +3397,7 @@ def fomc_note(D):
         cal = json.load(open(config.PROJECT_ROOT / "config" / "fomc_calendar.json", encoding="utf-8"))
         dd = str(D.get("data_day", ""))
         d0 = _dt.date(int(dd[:4]), int(dd[4:6]), int(dd[6:8]))
-        for m in cal.get("meetings_2026", []):
+        for m in fomc_meetings(cal):         # R5：读全部 meetings_ 开头的键，不写死年份
             s = _dt.date(int(m["start"][:4]), int(m["start"][4:6]), int(m["start"][6:8]))
             e = _dt.date(int(m["end"][:4]), int(m["end"][4:6]), int(m["end"][6:8]))
             gap = (s - d0).days
@@ -3251,6 +3410,16 @@ def fomc_note(D):
     except Exception:
         pass
     return ""
+
+
+def delivery_note(D):
+    """R5 · 股指期货交割日注记（日历注记·只提示日期·不计温）。数据日距交割日不超过 7 个日历日才显示。
+    任何异常静默返回空，不阻断日报。"""
+    try:
+        txt = delivery_note_text(D.get("data_day"), D.get("trade_cal"))
+    except Exception:
+        txt = ""
+    return f'<span class="rr-fomc" title="日历注记·只提示日期·不计温">📅 {txt}</span>' if txt else ""
 
 
 def _sev_led(lvl):
@@ -3270,7 +3439,7 @@ def _sev_led(lvl):
 def render(D):
     STARS_BG, STARS_SIZE = gen_stars()
     grade_chunk = grade_section(D)              # 回调级别读数（同期层,降级安全,并入温度卡）
-    fomc_chunk = fomc_note(D)                   # FOMC 会前窗日历注记（叙事层,不计温）
+    fomc_chunk = fomc_note(D) + delivery_note(D)   # FOMC 会前窗日历注记（叙事层,不计温）+ R5 交割日注记
     risk_radar = risk_radar_section(D, grade_chunk, fomc_chunk)   # 五因风险温度（顶部带+可展开）
     s, cap, em = D["snap"], D["capacity"], D["emotion"]
     dd = iso(D["data_day"])
@@ -3940,6 +4109,8 @@ def render(D):
                 f'<div><span class="dk">强度</span><span class="desc">20日超额 {o["e20"]:+.1f}% · 5日 {o.get("e5", 0):+.1f}% · {o.get("rank_label", "")}</span></div>'
                 f'<div><span class="dk">定性</span><span class="desc">{o["desc"] or "—"}</span></div>'
                 f'<div style="margin-top:6px"><span class="dk">标的</span><span class="desc">{tg}</span></div>'
+                f'<div style="margin-top:6px"><span class="dk">何时移出本栏</span>'
+                f'<span class="desc">{o.get("exit") or "—"}</span></div>'
                 f'</template>')
         opp_chips += (f'<span class="mchip" role="button" tabindex="0" style="--sc:{sc}" '
                       f'onclick="openModal(\'{gid}\')">{o["theme"]}{tmpl}</span>')

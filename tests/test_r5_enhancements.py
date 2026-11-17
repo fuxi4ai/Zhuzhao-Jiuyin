@@ -1,4 +1,4 @@
-"""日报 R5 四处加强（tools/gen_daily_report_r5.py · 生成器副本）。
+"""日报 R5 四处加强（tools/gen_daily_report.py · 2026-11-17 已由副本合入生成器）。
 
 PRD：brain/logs/checkpoints/2026-11-17_烛照九阴自复盘取代课件_PRD.md 的 R5 与 X1。
 守四件事：
@@ -6,18 +6,19 @@ PRD：brain/logs/checkpoints/2026-11-17_烛照九阴自复盘取代课件_PRD.md
   二、「确认走强」候选写明何时移出本栏——只有同向锚的主线才写锚那一项，不含买卖动作；
   三、事件日历——议息会次读日历文件里全部年份的键；交割日按第三个周五推算、遇休市顺延、窗口之外不显示；
   四、盘前读数的角色标签——归属照风险温度带的现行配置取，温度带不读的读数不加标签。
-另守 X1：副本相对原件新增的行里不出现已裁定舍弃的词。
-从副本模块导入；只调用不连库的函数，不生成日报、不写任何文件（议息日历用临时目录里的构造文件）。
+另守 X1：R5 新增的行里不出现已裁定舍弃的词。
+从生成器模块导入；只调用纯函数与用内存库的取数函数，不生成日报、不写任何文件（议息日历用临时目录里的构造文件）。
 """
-import datetime, difflib, importlib, json, os, re, sys, tempfile, types, unittest, warnings
+import datetime, difflib, importlib, json, os, re, sqlite3, sys, tempfile, types, unittest, warnings
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, "tools")
-SRC = os.path.join(TOOLS, "gen_daily_report_r5.py")
-ORIG = os.path.join(TOOLS, "gen_daily_report.py")
+SRC = os.path.join(TOOLS, "gen_daily_report.py")
+# 合入前的生成器。备份不入版本库，只在本机；不在时相关比对跳过
+ORIG = os.path.join(TOOLS, "_bak", "gen_daily_report.py.bak_2026-11-17_R5合入前")
 if TOOLS not in sys.path:
     sys.path.insert(0, TOOLS)
-G = importlib.import_module("gen_daily_report_r5")
+G = importlib.import_module("gen_daily_report")
 
 ECHO = {"tkr": "LITE", "kind": "echo", "ex20": 12.3}
 THERMO = {"tkr": "TSM", "kind": "thermo", "ex20": 12.3}
@@ -168,8 +169,14 @@ class FomcCalendar(unittest.TestCase):
             ("20260428", "20260429", False), ("20260616", "20260617", True),
             ("20260728", "20260729", False), ("20260915", "20260916", True),
             ("20261027", "20261028", False), ("20261208", "20261209", True)])
+        # 2027 年会次（美联储官网 2026-11-12 更新页；没有 12 月会次，点阵图未公布故为 None）
+        self.assertEqual([(m["start"], m["end"], m["sep"]) for m in cal["meetings_2027"]], [
+            ("20270126", "20270127", None), ("20270316", "20270317", None),
+            ("20270427", "20270428", None), ("20270608", "20270609", None),
+            ("20270727", "20270728", None), ("20270914", "20270915", None),
+            ("20271026", "20271027", None), ("20271116", "20271117", None)])
         ms = G.fomc_meetings(cal)
-        self.assertGreaterEqual(len(ms), 8)
+        self.assertEqual(len(ms), 16)
         for m in ms:
             s = datetime.datetime.strptime(m["start"], "%Y%m%d").date()
             e = datetime.datetime.strptime(m["end"], "%Y%m%d").date()
@@ -212,9 +219,9 @@ class Delivery(unittest.TestCase):
         self.assertEqual(G.delivery_note_text("20261116", {"20261120": True}),
                          "股指期货交割日前 4 天（2026-11-20）")
         self.assertEqual(G.delivery_note_text("20261116", {}),
-                         "股指期货交割日前 4 天（2026-11-20）·按第三个周五推算")
+                         "股指期货交割日前 4 天（2026-11-20）" + G.DELIVERY_UNCHECKED_TAIL)
         self.assertEqual(G.delivery_note_text("20261113", {}),
-                         "股指期货交割日前 7 天（2026-11-20）·按第三个周五推算")
+                         "股指期货交割日前 7 天（2026-11-20）" + G.DELIVERY_UNCHECKED_TAIL)
 
     def test_text_on_the_day(self):
         self.assertEqual(G.delivery_note_text("20261120", {"20261120": True}), "股指期货交割日（2026-11-20）")
@@ -226,14 +233,78 @@ class Delivery(unittest.TestCase):
         self.assertEqual(G.delivery_note_text(None, {}), "")
         self.assertEqual(G.delivery_note_text("2026-11", {}), "")
 
+    # 行情库 2026 年 6 月的真实日历片段：第三个周五 06-19 休市，06-22 开市
+    JUNE = {"20260617": 1, "20260618": 1, "20260619": 0, "20260620": 0, "20260621": 0,
+            "20260622": 1, "20260623": 1}
+
+    def _md(self, upto):
+        """按生产的样子造一个行情库：日历只落到 upto 当日，没有未来日期。"""
+        md = sqlite3.connect(":memory:")
+        self.addCleanup(md.close)
+        md.execute("CREATE TABLE trade_cal (cal_date TEXT, is_open INTEGER)")
+        md.executemany("INSERT INTO trade_cal VALUES (?,?)",
+                       [("20260529", 1), ("20260601", 1), ("20260613", None)]
+                       + [(d, o) for d, o in sorted(self.JUNE.items()) if d <= upto])
+        return md
+
     def test_text_follows_rolled_date(self):
+        # 日历覆盖到顺延日（假设性的全量日历）：提前几天就能给出顺延后的日期
         cal = {"20261119": True, "20261120": False, "20261121": False, "20261122": False, "20261123": True}
         self.assertEqual(G.delivery_note_text("20261119", cal), "股指期货交割日前 4 天（2026-11-23）")
         self.assertEqual(G.delivery_note_text("20261123", cal), "股指期货交割日（2026-11-23）")
 
+    def test_load_trade_cal_starts_at_month_first(self):
+        cal = G.load_trade_cal(self._md("20260622"), "20260622")
+        self.assertNotIn("20260529", cal)                 # 上月的不取
+        self.assertNotIn("20260613", cal)                 # 开市标记为空的不取
+        self.assertEqual(cal["20260601"], True)
+        self.assertEqual(cal["20260619"], False)          # 已过去的第三个周五必须查得到
+        self.assertEqual(max(cal), "20260622")
+
+    def test_gather_reads_calendar_through_load_trade_cal(self):
+        s = _src()
+        self.assertIn('D["trade_cal"] = load_trade_cal(md, data_day)', s)
+        self.assertNotIn("FROM trade_cal WHERE cal_date>=? AND is_open IS NOT NULL\", (data_day,)", s)   # 旧口径不得回来
+        self.assertEqual(G.DELIVERY_UNCHECKED_TAIL, "·按第三个周五推算，遇休市顺延未核")
+
+    def test_load_trade_cal_failures_give_empty(self):
+        empty = sqlite3.connect(":memory:")
+        self.addCleanup(empty.close)
+        self.assertEqual(G.load_trade_cal(empty, "20260622"), {})                         # 表缺
+        md = self._md("20260622")
+        for bad in (None, "", "2026", "abcdef22"):
+            self.assertEqual(G.load_trade_cal(md, bad), {})
+
+    def test_rolled_day_shows_on_the_day_with_production_calendar(self):
+        # 独立复核查出的实错：顺延日当天，日历只有到当日的行，原先查不到已过去的第三个周五，注记为空
+        cal = G.load_trade_cal(self._md("20260622"), "20260622")
+        self.assertEqual(G.delivery_note_text("20260622", cal), "股指期货交割日（2026-06-22）")
+        only_from_today = {d: o for d, o in cal.items() if d >= "20260622"}       # 旧查询口径
+        self.assertEqual(G.delivery_note_text("20260622", only_from_today), "")   # 记下旧口径为什么错
+
+    def test_day_after_rolled_day_is_empty(self):
+        cal = G.load_trade_cal(self._md("20260623"), "20260623")
+        self.assertEqual(G.delivery_note_text("20260623", cal), "")
+
+    def test_before_closed_third_friday_is_marked_unchecked(self):
+        # 日历没有未来日期：06-18 看不到 06-19 休市，只能给第三个周五并明说顺延未核，不得冒充已核对
+        cal = G.load_trade_cal(self._md("20260618"), "20260618")
+        self.assertNotIn("20260619", cal)
+        self.assertEqual(G.delivery_note_text("20260618", cal),
+                         "股指期货交割日前 1 天（2026-06-19）" + G.DELIVERY_UNCHECKED_TAIL)
+        self.assertIn("未核", G.DELIVERY_UNCHECKED_TAIL)
+
+    def test_delivery_note_survives_bad_calendar(self):
+        # 日历不是字典也不得让日报出不来：能当容器查的按「查不到」处理，不能查的吞掉异常返回空
+        self.assertIn(G.DELIVERY_UNCHECKED_TAIL,
+                      G.delivery_note({"data_day": "20261116", "trade_cal": ["不是字典"]}))
+        self.assertEqual(G.delivery_note({"data_day": "20261116", "trade_cal": 5}), "")
+        with self.assertRaises(TypeError):                # 异常确实发生过，是外层吞掉的
+            G.delivery_note_text("20261116", 5)
+
     def test_text_crosses_year(self):
         self.assertEqual(G.delivery_note_text("20270111", {}),
-                         "股指期货交割日前 4 天（2027-01-15）·按第三个周五推算")
+                         "股指期货交割日前 4 天（2027-01-15）" + G.DELIVERY_UNCHECKED_TAIL)
         self.assertEqual(G.delivery_note_text("20261228", {}), "")        # 12 月的已过，1 月的还远
 
     def test_text_gives_date_only(self):
@@ -245,7 +316,7 @@ class Delivery(unittest.TestCase):
     def test_html_wrapper(self):
         h = G.delivery_note({"data_day": "20261116", "trade_cal": {}})
         self.assertIn('class="rr-fomc"', h)
-        self.assertIn("股指期货交割日前 4 天（2026-11-20）·按第三个周五推算", h)
+        self.assertIn("股指期货交割日前 4 天（2026-11-20）" + G.DELIVERY_UNCHECKED_TAIL, h)
         self.assertEqual(G.delivery_note({"data_day": "20261112", "trade_cal": {}}), "")
         self.assertEqual(G.delivery_note({}), "")
 
@@ -314,7 +385,8 @@ class PremarketRole(unittest.TestCase):
 
 
 class X1Words(unittest.TestCase):
-    """X1：副本相对原件新增的行里，不出现已裁定舍弃的内容。原件不在（副本已转正）时跳过。"""
+    """X1：R5 新增的行里，不出现已裁定舍弃的内容。
+    两道：与合入前的备份比对新增行（备份只在本机，不在则跳过）；生成器里的 R5 段逐行检查（总是执行）。"""
 
     BANNED = ("MA60", "60日均线", "60 日均线", "成仓", "成交额", "止损", "掉期", "情绪周期", "涨停", "连板")
     TENTHS = re.compile(r"[一二两三四五六七八九十半\d]\s*成(?!交|立|为|功|本|员|分|熟|果|长|一)")
@@ -326,11 +398,22 @@ class X1Words(unittest.TestCase):
         return [l[1:] for l in difflib.unified_diff(a, b, n=0, lineterm="")
                 if l.startswith("+") and not l.startswith("+++")]
 
-    @unittest.skipUnless(os.path.exists(ORIG), "原件不在，无从比对新增行")
+    @unittest.skipUnless(os.path.exists(ORIG), "合入前的备份不在，无从比对新增行")
     def test_added_lines_are_clean(self):
         added = self._added()
         self.assertGreater(len(added), 50)
         for line in added:
+            for w in self.BANNED:
+                self.assertNotIn(w, line)
+            self.assertIsNone(self.TENTHS.search(line), line)
+
+    def test_r5_block_is_clean(self):
+        lines = _src().split("\n")
+        start = next(i for i, l in enumerate(lines) if l.startswith("# ── R5 日报加强"))
+        end = next(i for i, l in enumerate(lines) if l.startswith("def _trading_passed("))
+        block = lines[start:end]
+        self.assertGreater(len(block), 100)
+        for line in block:
             for w in self.BANNED:
                 self.assertNotIn(w, line)
             self.assertIsNone(self.TENTHS.search(line), line)

@@ -179,12 +179,13 @@ SIGNAL_OVERRIDE = {
 # ── R5 日报加强：阈值与纯函数（2026-11-17 · PRD 2026-11-17_烛照九阴自复盘取代课件 R5）──
 # 四处加强：一、锚背离补反向提示；二、「确认走强」候选写明何时移出；
 # 三、事件日历（交割日 + 议息会次读全部年份）；四、盘前读数标角色。
-# 只给方向与日期，不含仓位数字、不含买卖动作。本段函数不连库、不读写文件，tests/test_r5_enhancements.py 直接调用。
+# 只给方向与日期，不含仓位数字、不含买卖动作。本段函数不读写文件；只有 load_trade_cal 用传入的连接查库，其余不连库。tests/test_r5_enhancements.py 直接调用。
 ANCHOR_BREAK_US_EX20 = -10.0   # 同向锚 20 日超额低于此值（百分点）→ 挡在「确认走强」之外；A 股侧同时走强则出红色背离
 ANCHOR_LEAD_US_EX20 = 10.0     # 反向提示：同向锚 20 日超额高于此值（百分点）。Doctor 2026-11-17 裁定
 ANCHOR_LEAD_CN_E20 = -5.0      # 反向提示：A 股主线 20 日超额低于此值（百分点）。Doctor 2026-11-17 裁定（另一候选为 0）
 OPP_MAX_ROWS = 4               # 「确认走强」一栏至多列几条
 DELIVERY_WINDOW_DAYS = 7       # 数据日距交割日不超过几个日历日时显示交割日注记
+DELIVERY_UNCHECKED_TAIL = "·按第三个周五推算，遇休市顺延未核"   # 交易日历查不到第三个周五时的句尾
 
 
 def anchor_lead_risk(theme_short, e20, us):
@@ -257,7 +258,8 @@ def delivery_day(year, month, trade_cal=None):
 def delivery_note_text(data_day, trade_cal=None):
     """交割日注记的文字。数据日距下一个交割日不超过 DELIVERY_WINDOW_DAYS 个日历日 →
     「股指期货交割日前 N 天（YYYY-MM-DD）」；数据日就是交割日 → 「股指期货交割日（YYYY-MM-DD）」；
-    窗口之外或数据日不合法 → 空串。交易日历没能核对时句尾注明「按第三个周五推算」。只提示日期。"""
+    窗口之外或数据日不合法 → 空串。交易日历没能核对时句尾注明「按第三个周五推算，遇休市顺延未核」
+    （行情库日历没有未来日期，交割日之前的每一天都走这一支）。只提示日期。"""
     try:
         s = str(data_day)
         d0 = datetime.date(int(s[:4]), int(s[4:6]), int(s[6:8]))
@@ -275,10 +277,25 @@ def delivery_note_text(data_day, trade_cal=None):
     gap = (dd - d0).days
     if gap > DELIVERY_WINDOW_DAYS:
         return ""
-    tail = "" if checked else "·按第三个周五推算"
+    tail = "" if checked else DELIVERY_UNCHECKED_TAIL
     if gap == 0:
         return f"股指期货交割日（{dd.isoformat()}）{tail}"
     return f"股指期货交割日前 {gap} 天（{dd.isoformat()}）{tail}"
+
+
+def load_trade_cal(md, data_day):
+    """读行情库的交易日历，返回 {YYYYMMDD: 是否开市}。起点是数据日所在月的 1 日：当月第三个周五
+    若已过去（休市顺延到数据日当天的情形），也要查得到它。表缺、查询失败或数据日不合法 → 空字典，
+    渲染端按第三个周五推算并注明。行情库的日历只落到入库当日，没有未来日期。"""
+    s = str(data_day or "")
+    if len(s) < 6 or not s[:6].isdigit():
+        return {}
+    try:
+        return {str(d): bool(o) for d, o in md.execute(
+            "SELECT cal_date, is_open FROM trade_cal WHERE cal_date>=? AND is_open IS NOT NULL",
+            (s[:6] + "01",))}
+    except sqlite3.Error:
+        return {}
 
 
 def premarket_role(code, risk_cfg):
@@ -469,12 +486,8 @@ def gather(date_cap=None):
     data_day = dates[-1]
     D["data_day"] = data_day
     D["gen_time"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    # R5 · 交易日历（交割日遇休市顺延用）：只取数据日及以后；表缺或查不到 → 空，渲染端按第三个周五推算并注明
-    try:
-        D["trade_cal"] = {d: bool(o) for d, o in md.execute(
-            "SELECT cal_date, is_open FROM trade_cal WHERE cal_date>=? AND is_open IS NOT NULL", (data_day,))}
-    except sqlite3.OperationalError:
-        D["trade_cal"] = {}
+    # R5 · 交易日历（交割日遇休市顺延用）：自数据日所在月 1 日起；表缺或查不到 → 空，渲染端按第三个周五推算并注明
+    D["trade_cal"] = load_trade_cal(md, data_day)
 
     def theme_ex(theme):
         cs = THEME_ETF[theme]
