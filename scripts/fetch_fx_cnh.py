@@ -10,6 +10,13 @@
     （课件驱动、稀疏）灌进表，source='dim1'，让曲线在 Tushare 接通前先有真数据。
 铁律（数据真实性）：拉不到 → 跳过、不写、不编；上层日报按缺数诚实标「待回填」。
 
+日期口径（2026-11-16 起 · 风险日报 GOTCHAS NOTE-20261116-001）：表内 tushare 行的 trade_date ＝ 北京日。
+  Tushare/FXCM 日线的 trade_date 是 K 线起点（纽约 17:00），标 D 的那根对应北京 D+1；周五、周六标的残根丢弃；
+  北京 T+1 07:00 之前没走完的那根不写（所以北京凌晨跑，最新一行是前一个北京日）；买价、卖价缺一不写；
+  日期不是严格 YYYYMMDD 即报错、整批不写。口径同 剑酒青丘 fetch_cn_liquidity.redate_fxcm
+  （market_data.cn_liquidity_daily.usdcnh_spot）。2026-11-16 之前写入的 tushare 行是起点日口径，
+  已于同日删除并按新口径重灌（--from 20260610）；dim1 种子行未动。
+
 写库：走 config.connect_write（沙箱须设 ZZJY_DATABASE_ROOT=/tmp/dbroot 走 /tmp 副本，禁直写挂载盘真盘）。
 
 用法：
@@ -23,6 +30,7 @@ _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)
 import argparse
 import datetime
 import json
+import re
 import sqlite3
 import urllib.request
 from pathlib import Path
@@ -35,6 +43,8 @@ logger = get_logger(__name__)
 API = "https://api.tushare.pro"
 FX_TS_CODE = "USDCNH.FXCM"   # 离岸人民币（复盘世界 Tushare 若用别码，改这里）
 DOTENV = Path(config.ENV_FILE)
+BJ = datetime.timezone(datetime.timedelta(hours=8))
+BAR_DONE_AT = datetime.time(7, 0)   # 北京日 T 那根到北京 T+1 07:00 之后才算走完（纽约 17:00 收线＝北京 05:00/06:00，留余量）
 
 
 def load_token() -> str:
@@ -128,27 +138,62 @@ def backfill_dim1(conn, dry):
     return len(rows)
 
 
-def fetch_tushare(conn, token, start, end, dry):
+_YMD = re.compile(r"[0-9]{8}")
+
+
+def parse_ymd(td):
+    """严格 YYYYMMDD：必须是 8 位 ASCII 数字、是真实日历日、且格式化回去与原串相同；否则 ValueError。
+    （strptime 本身宽松，'202611' 会被读成 2026-01-01。）"""
+    if not isinstance(td, str) or not _YMD.fullmatch(td):
+        raise ValueError(f"日期不是严格 YYYYMMDD：{td!r}")
+    d = datetime.datetime.strptime(td, "%Y%m%d").date()
+    if d.strftime("%Y%m%d") != td:
+        raise ValueError(f"日期不是严格 YYYYMMDD：{td!r}")
+    return d
+
+
+def redate_fxcm(rows, now_bj):
+    """FXCM 日线的 trade_date 是 K 线起点（纽约 17:00）：标 D 的那根覆盖到 D+1 纽约 17:00，对应北京 D+1。
+    周日标的那根＝周一；周五、周六标的是只有零星报价的残根，丢弃。
+    北京日 T 的那根要到北京 T+1 07:00 之后才算走完，没走完的不写（写了就是盘中快照）。
+    买价、卖价缺一不写（单边价与中间价差半个价差，2024 起中位 36 点）。
+    trade_date 不是严格 YYYYMMDD → ValueError，整批不写（宁停不写错日期）。
+    口径同 剑酒青丘 fetch_cn_liquidity.redate_fxcm（cn_liquidity_daily.usdcnh_spot）。2026-11-16 · 风险日报 GOTCHAS NOTE-20261116-001。
+    rows: [{'trade_date','bid_close','ask_close'}]；now_bj: 带时区的当前时刻 → [(北京日 YYYYMMDD, 中间价)] 按日期升序。"""
+    if now_bj.tzinfo is None:
+        raise ValueError("now_bj 必须带时区")
+    out = {}
+    for r in rows:
+        d = parse_ymd(r.get("trade_date"))
+        b, a = r.get("bid_close"), r.get("ask_close")
+        if b is None or a is None:
+            continue
+        if d.weekday() in (4, 5):
+            continue
+        t = d + datetime.timedelta(days=1)
+        done_at = datetime.datetime.combine(t + datetime.timedelta(days=1), BAR_DONE_AT, BJ)
+        if now_bj < done_at:
+            continue
+        out[t.strftime("%Y%m%d")] = (float(b) + float(a)) / 2
+    return sorted(out.items())
+
+
+def fetch_tushare(conn, token, start, end, dry, now_bj=None):
     if not token:
         logger.info("[tushare] 待配 TUSHARE_TOKEN，跳过取数（留缺，绝不编）。")
         return 0
+    parse_ymd(start)
+    parse_ymd(end)
+    # 重标后北京日＝起点日+1，起点往前多取 3 天，才能盖到 start 当日（周一要靠上周日标的那根）
+    q_start = (parse_ymd(start) - datetime.timedelta(days=3)).strftime("%Y%m%d")
     recs = tushare_call(token, "fx_daily",
-                        {"ts_code": FX_TS_CODE, "start_date": start, "end_date": end},
+                        {"ts_code": FX_TS_CODE, "start_date": q_start, "end_date": end},
                         "trade_date,bid_close,ask_close")
-    rows = []
-    for r in recs:
-        td = r.get("trade_date")
-        b, a = r.get("bid_close"), r.get("ask_close")
-        mid = None
-        if b is not None and a is not None:
-            mid = (float(b) + float(a)) / 2
-        elif b is not None:
-            mid = float(b)
-        elif a is not None:
-            mid = float(a)
-        if td and mid is not None:
-            rows.append((td, round(mid, 4), "tushare"))
-    logger.info(f"[tushare] fx_daily({FX_TS_CODE}) {start}~{end} 取回 {len(rows)} 条")
+    now_bj = now_bj or datetime.datetime.now(BJ)
+    rows = [(td, round(mid, 4), "tushare") for td, mid in redate_fxcm(recs, now_bj) if td >= start]
+    logger.info(f"[tushare] fx_daily({FX_TS_CODE}) 起点日 {q_start}~{end} 取回 {len(recs)} 根 → "
+                f"北京日 ≥{start} 已走完且双边报价 {len(rows)} 条"
+                + (f"（{rows[0][0]}~{rows[-1][0]}）" if rows else ""))
     return upsert(conn, rows, dry)
 
 
