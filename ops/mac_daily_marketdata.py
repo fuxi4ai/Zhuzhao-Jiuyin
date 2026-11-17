@@ -144,7 +144,7 @@ def main():
     # 2026-08-01 补：此前该表**没有任何主人**——日更步骤只写在一份从未生效的 SKILL 里（落在
     #   ~/Documents/Claude/Scheduled/ 那棵调度器不读的树上，见 [[通用教训]] G-X118），
     #   现有数据全部来自 2026-07-28 06:10 的一次手动回填（3355 行·stat_date 止于 20260727），此后零写入。
-    #   消费方＝风险日报「杠杆踩踏」爆仓点位法（Projects/风险日报/build_risk_daily.py L103）。
+    #   消费方＝风险日报「杠杆踩踏」爆仓点位法（Projects/Financial/风险日报/build_risk_daily.py L103）。
     # ⚠ 刻意不并入 ok：东财全量拉 3300+ 行**已知易 ChunkedEncodingError**（脚本自带 3 次指数退避），
     #   而下游 build_risk_daily.py 已有 R 陈旧护栏（>3 交易日页面标 ⚠、>10 交易日 buffer 降参考）。
     #   并进 ok 会让一条已知偶发的网络腿把整个 launchd job 标 FAIL，造成告警疲劳、反而掩盖真问题。

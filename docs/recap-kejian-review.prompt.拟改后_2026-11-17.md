@@ -28,7 +28,7 @@
    `export ZZJY_VV_TOOL="$HOME/Documents/Codex/Project Mirror/烛照九阴日报/skills/anchor-follow/scripts/build_inputs.py"`
    `cd ~/Documents/Claude/Projects/Financial/烛照九阴`
 1. 出输入包：`python3 tools/self_recap_inputs.py`。它只读行情库和资讯看板的冻结快照，不读 recap.db。返回 `"status": "failed"` 就停下本节，把原因原样记进审核日志的「自复盘」一段，接着做后面的审查；不重试，不用别的数据顶替。返回里的 `trade_date` 就是本节的交易日；若 `data/self_recap/<交易日>/records.json` 已经存在，说明这一天做过了，本节到此为止，在日志里记一句。
-2. 写记录：读 `docs/自复盘-记录写法.md`，按其中的格式写 `data/self_recap/<交易日>/records.json`。分析步骤照 `~/Documents/Codex/Project Mirror/烛照九阴日报/skills/anchor-follow/SKILL.md`，每类锚的读法照 `~/Documents/Claude/Projects/Financial/宏观研究体系/EAL/研究材料/锚定-跟随流派/锚的大类逻辑卡.md`。只用输入包里的数据和你当场能核到的原始来源；取不到的写缺口，不补值。资讯只读了标题没读正文的，在证据的 note 里写明。
+2. 写记录：读 `docs/自复盘-记录写法.md`，按其中的格式写 `data/self_recap/<交易日>/records.json`。分析步骤照 `~/Documents/Codex/Project Mirror/烛照九阴日报/skills/anchor-follow/SKILL.md`，每类锚的读法照 `~/Documents/Claude/Projects/Financial/Event-Attribution-Ledger/研究材料/锚定-跟随流派/锚的大类逻辑卡.md`。只用输入包里的数据和你当场能核到的原始来源；取不到的写缺口，不补值。资讯只读了标题没读正文的，在证据的 note 里写明。
 3. 校验：`python3 tools/self_recap_validate.py data/self_recap/<交易日>/records.json`。不通过就按报错改，改到通过为止；改不了的在审核日志里写明哪一条、为什么。
 4. 做完后面的「一、六项审查」之后，回来跑对照：`python3 tools/self_recap_compare.py --date <交易日>`。再读课件当日的行业信号和你自己的记录，把两边方向相反的主线数填进 `data/self_recap/compare.csv` 该日一行的 `opposite`，理由写进 `opposite_note`；没有就填 0。
 5. 审核日志加一段「自复盘」：输入包是否成功、记录几条、校验是否通过、对照的三个数（重合、课件独有、自复盘独有）、方向相反几条、是否盲写。
