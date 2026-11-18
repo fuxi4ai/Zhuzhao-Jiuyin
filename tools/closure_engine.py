@@ -41,7 +41,7 @@ DD_ABS = 0.05       # closing→closed：绝对回撤 5pp
 # 值由回测扫参定（docs/兑现回测_案二点亮扫参_20260624.md，Y′=4 拐点压伪点亮、Z 影响小取中性 5pp）。
 RELIGHT_STREAK = 4      # 点亮 Y′：暗态期连续超额为正天数
 RELIGHT_REBOUND = 0.05  # 点亮 Z：自暗态低点累计回升 ≥ 5pp
-WINDOW = 120        # 信号后观察窗口（交易日）
+WINDOW = 120        # 信号后观察窗口（交易日）；走完后状态与数值停在窗口末日，文字标「观察期满」
 
 # ── 个股篮子锚（2026-06-30 Doctor 批）──────────────────────────────
 # 光芯片无纯 ETF（最近的光模块 ETF 由模组厂主导、对芯片厂逻辑甚至反号），故锚到 A 股纯标的。
@@ -211,7 +211,9 @@ def run_machine(ex, dates, disc):
     closing（二段），可多轮。（2026-06-29 起 closing→dormant 去掉 leg_peak>=X_PEAK 幅度门槛，
     仅凭绝对回撤 5pp 转 dormant：低幅信号不再被困死在 closing；回测证其点亮质量≈高幅，无需特殊处置。）
     返回 gap_status ∈ {open, closing, dormant}；dormant 取代旧 closed 终态（暗态候二段，含低幅）。"""
-    ds = [d for d in dates if d > disc and d in ex][:WINDOW]
+    avail = [d for d in dates if d > disc and d in ex]
+    ds = avail[:WINDOW]
+    window_full = len(avail) >= WINDOW    # 观察窗口已走完：此后每天重算结果都相同
     cum = peak = 0.0          # cum=全程累计超额；peak=全程峰值（headline excess_peak）
     streak = 0
     streak_start = None
@@ -263,11 +265,37 @@ def run_machine(ex, dates, disc):
                 leg_peak = cum    # 新腿峰值从点亮点起，避免瞬间再 close
     status = state
     days_run = sum(1 for d in ds[:seen] if realized and d >= realized)
+    desc = describe(status, len(ds), seen, days_run, cum, peak, relit_count)
+    window_end = ds[-1] if window_full else None
+    if window_full:
+        desc = mark_window_full(desc, window_end)
     return dict(gap_status=status, date_realized=realized,
                 excess_cum=round(cum, 4), excess_peak=round(peak, 4),
                 closed_date=closed_date, dormant_since=dormant_since,
                 relit_date=relit_date, relit_count=relit_count, n_days=len(ds),
-                gap_desc=describe(status, len(ds), seen, days_run, cum, peak, relit_count))
+                gap_desc=desc, window_full=window_full, window_end=window_end)
+
+
+WINDOW_FULL_TAG = "观察期满"   # 日报生成器按这个开头识别（gen_daily_report.WINDOW_FULL_TAG，两处要一致）
+
+
+def mark_window_full(desc, last_day):
+    """观察窗口（WINDOW 个交易日）已走完的信号：状态与数值停在窗口末日，不再随行情更新。
+    文字前面标明「观察期满」和截止日，把「现」改成「期末」。原有的阶段用词（逾期、兑现初期、暗态等）
+    原样保留——日报生成器按这些字眼做的判断不变（2026-11-17 · GOTCHAS ERR-20261117-006）。"""
+    d = str(last_day)
+    iso = f"{d[:4]}-{d[4:6]}-{d[6:8]}"
+    return f"{WINDOW_FULL_TAG}（截至 {iso}）·" + desc.replace("→现", "→期末")
+
+
+def window_full_counts(rows):
+    """各状态下带「观察期满」标记的条数，按每行最终的 gap_desc 数（与写进库的文字一致）。
+    返回 {gap_status: 条数}；没有则为空字典。"""
+    wf = defaultdict(int)
+    for r in rows:
+        if str(r.get("gap_desc") or "").startswith(WINDOW_FULL_TAG):
+            wf[r.get("gap_status")] += 1
+    return dict(wf)
 
 
 def describe(status, n_days, seen, days_run, cum, peak, relit_count=0):
@@ -449,6 +477,14 @@ def main():
     if dir_map:
         logger.info(f"🧭 方向感知：买入转卖出={n_short_flip}（记flip+判停跟） 纯卖出={n_short_pure}（清进入趋势）")
 
+    # 观察期满的条数单列（ERR-20261117-006）。放在方向后处理之后、按最终文字数：
+    # 空头信号的文字已被上面改写，不带期满标记，不计入
+    wf = window_full_counts(out)
+    wf_line = (f"观察期满 {sum(wf.values())} 条（" + " / ".join(f"{k}={v}" for k, v in sorted(wf.items()))
+               + f"）——窗口 {WINDOW} 个交易日已走完，数值停在窗口末日；已含在上面各状态的条数里") if wf else ""
+    if wf_line:
+        logger.info("⏳ " + wf_line)
+
     if args.apply:
         for table in {"industry_signals", "yuantu_buy_signals"}:
             ensure_cols(rc, table)
@@ -501,6 +537,8 @@ def main():
         _L = [f"# 兑现变更 {datetime.date.today():%Y-%m-%d} {_stamp}（closure_engine --apply 留痕审计）", "",
               f"- 信号总数：{n}（predaily 锚 {n}）",
               f"- gap_status 变更 **{_total}** 条（状态变更 {len(changed)} 条 + 首评 {len(firsts)} 条）"]
+        if wf_line:
+            _L.append(f"- {wf_line}")
         if changed:
             _L += ["", "| signal | 旧状态 | 新状态 |", "|---|---|---|"]
             for _id, _o, _n2 in changed:

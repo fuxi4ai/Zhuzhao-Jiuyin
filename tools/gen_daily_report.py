@@ -430,6 +430,22 @@ STATUS_ZH = {"open": "观察中", "closing": "兑现中", "closed": "已兑现",
              "no_data": "待跟踪"}
 
 
+WINDOW_FULL_TAG = "观察期满"   # 兑现引擎给观察窗口已走完的信号加的开头（closure_engine.WINDOW_FULL_TAG，两处要一致）
+
+
+def window_full(desc):
+    """兑现文字是否标了「观察期满」：这类信号的状态与数值停在窗口末日，不再随行情更新
+    （GOTCHAS ERR-20261117-006）。"""
+    return (desc or "").startswith(WINDOW_FULL_TAG)
+
+
+def status_zh(status, desc=""):
+    """状态的页面用词。观察窗口已走完、状态仍是观察中或兑现中的，改叫「观察期满」；其余照 STATUS_ZH。"""
+    if status in ("open", "closing") and window_full(desc):
+        return WINDOW_FULL_TAG
+    return STATUS_ZH.get(status, status)
+
+
 def fulfill_of(status, desc, excess_cum=None):
     """兑现度卡结构化字段（不硬造百分比：只在有口径时展示数值）。
     返回 dict(v=主值, d=副文案, w=条宽%, sent=弹窗一句话)"""
@@ -440,6 +456,15 @@ def fulfill_of(status, desc, excess_cum=None):
     cum = m_cum.group(1) if m_cum else (
         f"{excess_cum * 100:+.1f}" if isinstance(excess_cum, (int, float)) else None)
     m_dd = re.search(r"回撤([+-]?[\d.]+)%", desc)
+    if window_full(desc) and status in ("open", "closing"):
+        # 观察窗口已走完：数值是窗口末日的，不写「现」「仍需观察」这类说法
+        if status == "open":
+            return dict(v="未启动", d=f"{WINDOW_FULL_TAG} · 未启动", w=12,
+                        sent="观察窗口已走完，窗口内价格兑现没有展开；数值停在窗口末日，不再更新。")
+        d = f"{WINDOW_FULL_TAG} · 期末累计{cum}%" if cum else WINDOW_FULL_TAG
+        sent = (f"观察窗口已走完，期末累计 {cum}%；数值停在窗口末日，不再更新。" if cum
+                else "观察窗口已走完；数值停在窗口末日，不再更新。")
+        return dict(v=WINDOW_FULL_TAG, d=d, w=52, sent=sent)
     if status == "open":
         d = f"潜伏期 · 出现{days}日" if days else "潜伏期 · 未启动"
         return dict(v="未启动", d=d, w=12, sent="价格兑现尚未展开，继续观察锚点是否出现。")
@@ -3559,7 +3584,7 @@ def render(D):
             _lag = None
         _TZ = {"supply_shock": "供给冲击", "demand_surge": "需求爆发", "persistent_imbalance": "持续失衡"}
         _styz = "·".join(_TZ.get(x.strip(), x.strip()) for x in (yt0["stype"] or "").split(",") if x.strip())
-        _zh0 = STATUS_ZH.get(yt0["status"], yt0["status"])
+        _zh0 = status_zh(yt0["status"], yt0.get("desc", ""))
         _fresh = (f"已 {_lag} 日" if _lag else "当日新入") if _lag is not None else ""
         # 「最新」≠「新鲜」：带信号日 + 入图谱天数 + 状态，避免误读为当天新增
         p0_gap_v = f"最新线索：{chain_short}"
@@ -3737,7 +3762,7 @@ def render(D):
 
     def _sig_modal(g, gid, sc, meta_tail):
         # 渊图信号二级卡模板（兑现状态/兑现度/受益标的/小鲍印证/图谱节点）·多处复用
-        zh = STATUS_ZH.get(g.get("status", ""), g.get("status", ""))
+        zh = status_zh(g.get("status", ""), g.get("desc", ""))
         fl = fulfill_of(g.get("status", "no_data"), g.get("desc", ""), g.get("excess_cum"))
         echo = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if g.get("echo")
                 else '<span class="tag">小鲍未提及</span>')
@@ -3812,7 +3837,7 @@ def render(D):
     if dh:
         items_b = ""
         for i, g in enumerate(dh):
-            meta_tail = "｜" + STATUS_ZH.get(g["status"], g["status"])
+            meta_tail = "｜" + status_zh(g["status"], g.get("desc", ""))
             items_b += _prio_item(g, f"pb{i}", "#17a2b8", meta_tail)
         body_b = f'<ul class="prio-list">{items_b}</ul>'
     else:
@@ -3894,7 +3919,7 @@ def render(D):
             bene = "、".join(b.strip() for b in g["bene"].split("/") if b.strip()) or "—（待标的解析）"
             echo = ('<span class="tag" style="color:var(--gold)">小鲍同步✓</span>' if g["echo"]
                     else '<span class="tag">小鲍未提及</span>')
-            zh = STATUS_ZH.get(g["status"], g["status"])
+            zh = status_zh(g["status"], g.get("desc", ""))
             fl = g["fulfill"]
             cards += f"""
 <div class="scard glass" style="--sc:{sc}" onclick="openModal('{gid}')">
@@ -3955,7 +3980,7 @@ def render(D):
             items = ""
             for li, g in lst:
                 fl = g["fulfill"]
-                zh = STATUS_ZH.get(g["status"], g["status"])
+                zh = status_zh(g["status"], g.get("desc", ""))
                 relit_tag = '<span class="tag" style="color:var(--gold)">二段</span>' if g.get("relit") else ''
                 lag = f'{g["lag"]}天' if g["lag"] is not None else '—'
                 items += (f'<div class="lm-item" onclick="openModal(\'lmdet_{li}\')"><div class="lm-r1">'
@@ -4070,7 +4095,7 @@ def render(D):
         for si, g in enumerate(day["sigs"]):
             gid = f"xb{si}"
             sc = THEME_COLOR.get(g["theme"], "#8aa0c8")
-            zh = STATUS_ZH.get(g["status"], g["status"])
+            zh = status_zh(g["status"], g.get("desc", ""))
             lvl_sub = f' ｜ 信息差等级 {g["lvl"]}/5（未校准·入选门槛）' if g["lvl"] else ""
             tmpl = (f'<template id="{gid}"><div class="modal-title" style="--sc:{sc}">{g["kw"]}'
                     f'<span class="sub">{iso(day["date"])} ｜ {g["theme_full"]}{lvl_sub} ｜ 置信度 {g["conf"]}</span></div>'
