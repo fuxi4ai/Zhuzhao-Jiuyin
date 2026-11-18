@@ -283,5 +283,55 @@ class ReportWording(unittest.TestCase):
         self.assertEqual(G.fulfill_of("dormant", "观察期满（截至 2026-07-30）·暗态·已兑现候二段（峰值+9.0%→期末+5.0%）")["v"], "暗态")
 
 
+class PageCountNotes(unittest.TestCase):
+    """页面上「二段点亮」「在途」条数后面的期满注记：条数与名单不变，只加一句。"""
+
+    FULL = "观察期满（截至 2026-07-30）·二段兑现中·回撤近警戒（峰值+19.3%→期末+7.0%）"
+    LIVE = "二段兑现进行（20日，累计+3.0%）"
+
+    def test_chain_is_full_only_when_every_row_is(self):
+        rows = [("甲", self.FULL), ("甲", self.FULL),      # 两条都期满 → 算
+                ("乙", self.FULL), ("乙", self.LIVE),      # 还有一条在走 → 不算
+                ("丙", self.LIVE), ("丁", None), ("戊", "")]
+        self.assertEqual(G.chains_all_full(rows), {"甲"})
+        self.assertEqual(G.chains_all_full([]), set())
+        self.assertEqual(G.chains_all_full(iter([("甲", self.FULL)])), {"甲"})   # 生成器也行
+
+    def test_order_does_not_matter(self):
+        self.assertEqual(G.chains_all_full([("乙", self.LIVE), ("乙", self.FULL)]), set())
+
+    def test_note_wording(self):
+        self.assertEqual(G.full_note(0), "")
+        self.assertEqual(G.full_note(None), "")
+        self.assertEqual(G.full_note(4), "，其中 4 条观察期满")
+        self.assertEqual(G.full_note(3, short=True), "（其中期满 3）")
+        self.assertEqual(G.full_note(0, short=True), "")
+
+    def test_counts_per_mechanism(self):
+        F, L = self.FULL, self.LIVE
+        rows = [("铝", "persistent_imbalance,supply_shock", F),     # 组合链，全部期满
+                ("电网", "supply_shock", F),
+                ("磷化铟", "supply_shock", F), ("磷化铟", "supply_shock", L),   # 还有一条在走
+                ("光模块", "supply_shock", L),
+                ("电力", "persistent_imbalance", F),                 # 纯持续失衡，期满
+                ("存储", "persistent_imbalance", L),
+                ("光纤", "demand_surge", F)]
+        keys = ("supply_shock", "event_driven", "persistent_imbalance")
+        got = G.mech_full_counts(rows, keys, pure_persist={"电力", "存储"})
+        # 供给冲击：铝、电网两条链；持续失衡只在纯持续失衡那批里数，铝是组合链不算
+        self.assertEqual(got, {"supply_shock": 2, "event_driven": 0, "persistent_imbalance": 1})
+
+    def test_counts_ignore_rows_of_other_mechanisms(self):
+        # 同一条链，供给冲击那行期满、别的机制那行还在走：供给冲击这一栏仍算期满（与在途条数的数法一致）
+        rows = [("甲", "supply_shock", self.FULL), ("甲", "demand_surge", self.LIVE)]
+        self.assertEqual(G.mech_full_counts(rows, ("supply_shock",), set()), {"supply_shock": 1})
+
+    def test_counts_safe_on_empty_and_null(self):
+        self.assertEqual(G.mech_full_counts([], ("supply_shock", "persistent_imbalance"), set()),
+                         {"supply_shock": 0, "persistent_imbalance": 0})
+        self.assertEqual(G.mech_full_counts([("甲", None, None)], ("supply_shock",), set()), {"supply_shock": 0})
+        self.assertEqual(G.mech_full_counts([("甲", "supply_shock", self.FULL)], (), set()), {})
+
+
 if __name__ == "__main__":
     unittest.main()

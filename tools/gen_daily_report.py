@@ -446,6 +446,36 @@ def status_zh(status, desc=""):
     return STATUS_ZH.get(status, status)
 
 
+def chains_all_full(rows):
+    """rows：(链名, 兑现文字) 的序列。返回「每一条都已观察期满」的链名集合；
+    一条链只要还有一条没期满，就不算期满。"""
+    ok = {}
+    for chain, desc in rows:
+        ok[chain] = ok.get(chain, True) and window_full(desc)
+    return {c for c, v in ok.items() if v}
+
+
+def mech_full_counts(rows, keys, pure_persist):
+    """各机制的在途链里，在途信号已全部观察期满的链数。口径与在途条数的数法对齐：
+    rows＝在途信号的 (链名, 机制串, 兑现文字)；持续失衡只在「整链纯持续失衡」那批链里数，
+    其余机制看机制串里含该机制的行。返回 {机制: 链数}。"""
+    out = {}
+    for key in keys:
+        if key == "persistent_imbalance":
+            full = chains_all_full((ch, d) for ch, _t, d in rows if ch in pure_persist)
+        else:
+            full = chains_all_full((ch, d) for ch, t, d in rows if key in (t or ""))
+        out[key] = len(full)
+    return out
+
+
+def full_note(k, short=False):
+    """条数后面的期满注记：k 为 0 或缺失时不加。short 用于位置窄的地方。"""
+    if not k:
+        return ""
+    return f"（其中期满 {k}）" if short else f"，其中 {k} 条观察期满"
+
+
 def fulfill_of(status, desc, excess_cum=None):
     """兑现度卡结构化字段（不硬造百分比：只在有口径时展示数值）。
     返回 dict(v=主值, d=副文案, w=条宽%, sent=弹窗一句话)"""
@@ -1001,9 +1031,10 @@ def gather(date_cap=None):
     # A1（PRD 2026-07-16）：当前处于二段点亮态的信号 → 中性观察列表（不进强信号栏）
     try:
         D["relit_active"] = [
-            dict(chain=r[0] or r[1], node=r[1] or "", relit_date=r[2] or "", relit_count=r[3] or 0)
+            dict(chain=r[0] or r[1], node=r[1] or "", relit_date=r[2] or "", relit_count=r[3] or 0,
+                 full=window_full(r[4]))
             for r in rc.execute(
-                "SELECT industry_chain, signal_node, relit_date, relit_count FROM yuantu_buy_signals "
+                "SELECT industry_chain, signal_node, relit_date, relit_count, gap_desc FROM yuantu_buy_signals "
                 "WHERE gap_status='closing' AND relit_count>0 ORDER BY relit_date DESC").fetchall()]
     except Exception:
         D["relit_active"] = []
@@ -1100,6 +1131,15 @@ def gather(date_cap=None):
     except Exception:
         mech_n = {}
     D["mech_inflight_n"] = mech_n
+    # 上面各机制的在途条数里，有几条链的在途信号已全部观察期满（只作注记，不改条数与名单）
+    mech_full = {}
+    try:
+        _rows = rc.execute("SELECT industry_chain, signal_type, gap_desc FROM yuantu_buy_signals "
+                           "WHERE length(date)=10 AND gap_status IN ('open','closing')").fetchall()
+        mech_full = mech_full_counts(_rows, mech_n, _pure_persist)
+    except Exception:
+        mech_full = {}
+    D["mech_inflight_full_n"] = mech_full
 
     # 供给冲击/持续失衡 在途信号明细（机制排行横向 chip）——含受益标的字段
     #   持续失衡组只留「整链纯持续失衡」；供给冲击含组合（LIKE）
@@ -3877,12 +3917,13 @@ def render(D):
     rank_rows = ""
     for key, zh, n, wr, aexc, flag in BT_LOGIC:
         cur = D.get("mech_inflight_n", {}).get(key, 0)
+        cur_full = full_note(D.get("mech_inflight_full_n", {}).get(key, 0), short=True)
         line_cls = " rank-risk" if flag else ""
         flag_s = f'<span class="rank-flag">{flag}</span>' if flag else ""
         line = (f'<div class="rank-line{line_cls}"><span class="rank-win">{wr:.1f}%</span>'
                 f'<span class="rank-name">{zh}{flag_s}</span>'
                 f'<span class="rank-exc">均超额 {aexc:+.2f}%</span>'
-                f'<span class="rank-cur">在途 {cur} · n={n}</span></div>')
+                f'<span class="rank-cur">在途 {cur}{cur_full} · n={n}</span></div>')
         sc = SC_MECH.get(key, "#8aa0c8")
         sigs = D.get("mech_signals", {}).get(key, [])
         if key != "persistent_imbalance":
@@ -4066,7 +4107,8 @@ def render(D):
     _rl_note = _rl.get("text_tpl", "点亮后10日历史转负·中性观察非买点").format(
         sample_period=SAMPLE_PERIOD, **{k: v for k, v in _rl.items() if k not in ("text_tpl", "title")})
     relit_html = (
-        '<div class="dormant-note">🔆 二段点亮 ' + str(len(_ra)) + ' 条（中性观察·不进强信号栏）：'
+        '<div class="dormant-note">🔆 二段点亮 ' + str(len(_ra)) + ' 条'
+        + full_note(sum(1 for x in _ra if x.get("full"))) + '（中性观察·不进强信号栏）：'
         + '、'.join(x["chain"] for x in _ra[:6]) + ('…' if len(_ra) > 6 else '')
         + f'<br><span style="opacity:.8">{_rl_note}</span></div>'
         if _ra else "")
