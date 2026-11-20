@@ -99,9 +99,11 @@ cd ~/Documents/Claude/Projects/Financial/烛照九阴
 2. 编排器**只调现成脚本 + 只读核对**，不改任何取数脚本、不改任何判定逻辑。
 3. **失败可见**：任一步非零退出 → 日志标 ❌ 且退出码非 0，绝不静默重试到超时。
 4. 只写 `us_anchor_daily` / `intl_index_daily`，不碰 recap.db、不生成日报。
-5. 验收基准 **19 票 / 5 条美股腿**（`NASDAQ SPCX NVDA AVGO LITE`）硬编码在
+5. 验收基准 **19 票 / 6 条美股腿**（`NASDAQ SPCX NVDA AVGO LITE SOX`）硬编码在
    `mac_us_close_backfill.py` 顶部常量。**改票池时必须同步改这里**，否则正常扩票会被误报成 ❌。
    硬编码是刻意的——代价是扩票要记得改，好处是少一票一定看得见。
+   （2026-11-19 加 `SOX`：Doctor 当日裁「收盘班验收清单加 SOX」，见 GOTCHAS NOTE-20261119-001。
+   Cowork 只读看门狗 SKILL 里另有一份清单副本，仍是原来 5 条，待 Cowork 侧同步。）
 6. `US10Y` / `BRENT` / `JP_FUT` 属 **macro 读数语义腿**，按设计不开盘中守卫（服务日报 F5 外部
    紧缩因子，越新鲜越好），其 `close` 本就可能是取数时点快照而非收盘价——**这是刻意分层、
    不是缺陷**，见 GOTCHAS G033。本班只检查它们在不在，不核收盘，也不"修正"它们。

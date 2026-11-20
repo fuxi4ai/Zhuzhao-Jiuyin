@@ -44,11 +44,16 @@ os.makedirs(LOGDIR, exist_ok=True)
 LOG = os.path.join(LOGDIR, f"mac_usclose_{datetime.now():%Y%m%d}.log")
 STATUS = os.path.join(ZZ, "ops", ".last_run_status_usclose")
 
-# 验收基准：美股锚 19 票、intl_index 美股腿 5 条。
+# 验收基准：美股锚 19 票、intl_index 美股腿 6 条。
 # 这两个数字是**验收标准**不是取数清单——取哪些票由脚本自己的配置决定，
 # 改票池时记得同步这里，否则本班会把「正常扩票」误报成 ❌。
+# 2026-11-19 加 SOX（Doctor 当日裁「收盘班验收清单加 SOX」）：SOX 同日进了取数清单
+# （fetch_intl_index.INDICES · kind=overnight · 只供风险日报资金结构状态机「跟随」读数）。
+# 取数脚本单条取不到时仍退出码 0，不列进这里就没有任何一班会发现 SOX 停更；
+# 列进来后，最新日缺 SOX 行 → 本班报 ❌、退出码 1（GOTCHAS NOTE-20261119-001）。
+# Cowork 只读看门狗 SKILL 里另有一份清单副本，改这里要同步那边。
 EXPECT_ANCHOR_N = 19
-US_LEG_CODES = {"NASDAQ", "SPCX", "NVDA", "AVGO", "LITE"}
+US_LEG_CODES = {"NASDAQ", "SPCX", "NVDA", "AVGO", "LITE", "SOX"}
 US_LEG_KINDS = ("overnight", "us_stock")
 
 # —— 陈旧告警阈值（自然日）——
