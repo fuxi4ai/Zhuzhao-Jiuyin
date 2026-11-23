@@ -30,3 +30,6 @@ tools/_fix_九儿_*.py
 # 运行态（每次 launchd 跑都变）
 ops/.last_run_status
 ops/.last_run_status_usclose
+
+# 日报产出目录（2026-11-23 迁出 AI4ME；HTML 报告不入库）
+outputs/

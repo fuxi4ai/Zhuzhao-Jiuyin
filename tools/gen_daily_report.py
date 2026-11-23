@@ -13,10 +13,10 @@
   季节字沿用桌面绝对居中（50%/50%）、日期右侧竖排——全宽度统一构图，跨断点零跳变；
   ≤520px 仅留 190px 高度地板防季节块裁切 + 冬字号 76。桌面变量区仍锁定不动。
 
-输出：AI4ME/烛照九阴-outputs/烛照九阴日报_{数据日}.html（根目录最新；旧报自动移 archived/，永不删）
+输出：outputs/烛照九阴日报_{数据日}.html（根目录最新；旧报自动移 archived/，永不删）
 
 用法：
-    python3 tools/gen_daily_report.py                       # 正式输出（写 AI4ME + 归档旧报）
+    python3 tools/gen_daily_report.py                       # 正式输出（写 outputs/ + 归档旧报）
     python3 tools/gen_daily_report.py --output /tmp/x       # 测试输出（不碰正式目录）
     python3 tools/gen_daily_report.py --no-archive          # 不移动旧报
     python3 tools/gen_daily_report.py --date 20260609       # 指定数据日（≤该日数据）
@@ -37,7 +37,7 @@ _sys.path.insert(0, str(config.PROJECT_ROOT / "scripts"))
 from fetch_theme_etf import THEME_ETF, BENCHMARK
 from fetch_us_anchor import THEME_US, BENCHMARK_US
 
-OUT_DIR = config.OUTPUT_ROOT / "烛照九阴-outputs"
+OUT_DIR = config.REPORT_DIR
 RECORDS = config.DATABASE_ROOT / "龙鱼-标的分析库" / "records"
 ASSETS = config.PROJECT_ROOT / "assets"
 FONT_SEASONS = ASSETS / "zikutang-shike-seasons.ttf"          # 字酷堂石刻体子集（春夏秋冬）
@@ -2531,7 +2531,7 @@ def _deploy_to_artifact(html, dd):
     """
     art_dir = ARTIFACT_PATH.parent
     if not art_dir.exists():
-        logger.warning(f"⚠️ Cowork artifact 目录不存在：{art_dir}（跳过部署，仅写 AI4ME）")
+        logger.warning(f"⚠️ Cowork artifact 目录不存在：{art_dir}（跳过部署，仅写 outputs/）")
         return
     meta = {
         "name": "烛照九阴复盘日报",
@@ -4257,9 +4257,9 @@ def render(D):
 
 def main():
     ap = argparse.ArgumentParser(description="烛照九阴 · 暖色日报生成器 v2")
-    ap.add_argument("--output", help="输出目录覆盖（测试用；不写正式 AI4ME 目录）")
+    ap.add_argument("--output", help="输出目录覆盖（测试用；不写正式 outputs/ 目录）")
     ap.add_argument("--no-archive", action="store_true", help="不移动旧报到 archived/")
-    ap.add_argument("--no-deploy", action="store_true", help="不部署到 Cowork artifact（仅写 AI4ME 产物）")
+    ap.add_argument("--no-deploy", action="store_true", help="不部署到 Cowork artifact（仅写 outputs/ 产物）")
     ap.add_argument("--date", help="数据日上限 YYYYMMDD（默认取最新行情日）")
     args = ap.parse_args()
 

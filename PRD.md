@@ -25,7 +25,7 @@
 | 行情/派生 | 句芒刷公共行情 → 四表 | Market-Data | `market-data-daily-update`（06:15） |
 | 情绪引擎 | emotion_cycle 评分/季节/周期 | emotion_cycle | 随日报链（emotion_engine_v2 --apply） |
 | 渊图入库+兑现 | 渊图买入信号 / info_gap 分 / 兑现状态机 / 标的池 | yuantu_buy_signals / industry_signals(gap) / stock_tracking | 随 07:00 日报链（closure auto-apply + 回滚锚） |
-| 日报 | 暖色日报 v2（gen_daily_report.py） | `AI4ME/烛照九阴-outputs/` | `zhuzhao-market-fetch-daily-report`（07:00） |
+| 日报 | 暖色日报 v2（gen_daily_report.py） | `outputs/`（2026-11-23 迁出 AI4ME，已 gitignore） | `zhuzhao-market-fetch-daily-report`（07:00） |
 
 ## 四 · 关键表（现状行数·2026-06-24 实测）
 

@@ -74,6 +74,8 @@ def _p(name, *rel) -> Path:
 # ─── 输出/产物根（沙箱平铺挂载下用 env 覆盖，见通用教训 G-X45）──────
 # AI4ME 报告输出根：ZZJY_OUTPUT_ROOT 覆盖；否则回退 <Documents>/AI4ME（parents[3]）
 OUTPUT_ROOT = Path(os.environ.get("ZZJY_OUTPUT_ROOT") or (PROJECT_ROOT.parents[3] / "AI4ME"))
+# 日报产出目录：2026-11-23 迁出 AI4ME，锚 PROJECT_ROOT（ZZJY_REPORT_DIR 可覆盖）；OUTPUT_ROOT 仍供回调级别判别等旧读方，另案修
+REPORT_DIR = Path(os.environ.get("ZZJY_REPORT_DIR") or (PROJECT_ROOT / "outputs"))
 # Cowork Artifacts 根：ZZJY_ARTIFACT_ROOT 覆盖；否则回退 <Documents>/Claude/Artifacts
 ARTIFACT_ROOT = Path(os.environ.get("ZZJY_ARTIFACT_ROOT") or (PROJECT_ROOT.parents[3] / "Claude" / "Artifacts"))
 
