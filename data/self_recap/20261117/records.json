@@ -1,0 +1,317 @@
+{
+ "schema_version": 1,
+ "trade_date": "20261117",
+ "session": "盘后",
+ "observed_at": "2026-11-17T17:39:16+00:00",
+ "inputs_sha256": "537ba0f2118b152a4158e5f026a55d51349dc1235f18d05b10f15ccc0010d219",
+ "author": "句芒（定时班影子运行）",
+ "selection_rule": "按输入包数值挑对象：20 日超额最深的光通信、当日唯一明显逆势上涨的芯片、5 日超额最弱的商业航天、锚与本地方向背离的电力，加一条外围环境记录",
+ "blind": true,
+ "blind_note": "写成于打开当日课件、recap.db 当日入库与九儿当日入库日志之前",
+ "data_notes": [
+  "AI算力/AI硬件/科技硬件 篮子的当日涨跌 −2.08 与光通信单只完全相同，而芯片 ETF 当日 +1.11，篮子当日值疑似只取了首个代码，未核；本期不对该篮子出记录",
+  "资讯全部只读了标题，没有读正文；社交媒体帖子按传闻层处理",
+  "输入包未提供离岸人民币与国内债市读数"
+ ],
+ "records": [
+  {
+   "id": "20261117-01",
+   "theme": "光模块/CPO/光通信/光纤",
+   "object": "A 股光通信链",
+   "main_issue": "海外算力链继续下跌，锚在 11 月 16 日美股时段跌 8.5%；A 股收盘后又出现针对中国光模块进口的限制传闻，主矛盾从需求端转向出口端的政策风险",
+   "anchor": {
+    "name": "Lumentum（LITE）",
+    "card": "卡一",
+    "role": "同向印证"
+   },
+   "evidence": [
+    {
+     "kind": "inputs",
+     "ref": "inputs.json:local.themes[光模块/CPO/光通信/光纤]",
+     "asof": "20261117",
+     "value": {
+      "当日": -2.08,
+      "e5": -8.84,
+      "e20": -26.89,
+      "锚20日超额_截至1116": -31.2
+     }
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:intl_index_daily:LITE:20261116",
+     "asof": "20261116",
+     "value": -8.4845
+    },
+    {
+     "kind": "url",
+     "ref": "https://x.com/aleabitoreddit/status/2122660925488718046",
+     "asof": "2026-11-17T11:59Z",
+     "note": "社交媒体帖称美国政府将推进禁止进口中国新型光模块等 AI 数据中心设备（标题级，正文未核；来源为个人账号，属传闻层，未见官方原文）"
+    },
+    {
+     "kind": "url",
+     "ref": "https://bloomberg.com/news/articles/2026-11-16/us-moves-to-limit-remote-access-to-advanced-ai-chips",
+     "asof": "2026-11-16T16:55Z",
+     "note": "美国出台规则限制境外远程访问美国 AI 芯片与服务器（标题级，正文未核）"
+    }
+   ],
+   "change": {
+    "baseline": "基线未核：上一期自复盘已对本线给出宜减，锚与本地 20 日超额同为深度负值",
+    "delta": "锚续跌 8.5%；本地当日再跌 2.08%，20 日超额从 −23.5 扩到 −26.9 个百分点；进口限制传闻是新出现的，但尚未核实"
+   },
+   "direction": "宜减",
+   "local_confirmation": {
+    "status": "已确认",
+    "basis": "本地 5 日超额 −8.8、20 日超额 −26.9 个百分点，与锚的 −31.2 同向，当日继续下跌"
+   },
+   "priced_in": "锚 11 月 16 日的下跌，本地 11 月 17 日跟跌反映了一部分；进口限制传闻发布于北京时间 11 月 17 日 19:59，在 A 股收盘之后，本地还没有反映，且它本身是否属实未核",
+   "invalidation": "进口限制被官方否认或未落地，且锚的 20 日超额止跌回升、本地 5 日超额转正",
+   "next_check": "核美国商务部或白宫是否有正式文件；下一交易日看锚收盘与本地开盘后是否继续跟跌"
+  },
+  {
+   "id": "20261117-02",
+   "theme": "半导体/芯片/半导体材料",
+   "object": "A 股半导体与设备材料",
+   "main_issue": "美国对华芯片管制继续收紧（限制境外远程访问规则、国会两党支持更严立法），海外芯片龙头大跌，本地芯片反而收涨，读法是国产替代预期压过全球半导体下行",
+   "anchor": {
+    "name": "台积电（TSM）",
+    "card": "卡一",
+    "role": "温度计"
+   },
+   "evidence": [
+    {
+     "kind": "inputs",
+     "ref": "inputs.json:local.themes[半导体/芯片/半导体材料]",
+     "asof": "20261117",
+     "value": {
+      "当日": 1.11,
+      "e5": 0.15,
+      "e20": -3.72,
+      "锚20日超额_截至1116": -6.81
+     }
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:us_anchor_daily:TSM:20261116",
+     "asof": "20261116",
+     "value": -6.3401
+    },
+    {
+     "kind": "url",
+     "ref": "https://bloomberg.com/news/articles/2026-11-16/us-moves-to-limit-remote-access-to-advanced-ai-chips",
+     "asof": "2026-11-16T16:55Z",
+     "note": "限制远程访问美国 AI 芯片的规则，北京时间 11 月 17 日 00:55 发布，早于 A 股开盘（标题级，正文未核）"
+    },
+    {
+     "kind": "url",
+     "ref": "https://ft.com/content/3062790a-553d-41b8-9c7d-bae17b9d2e29",
+     "asof": "2026-11-16T09:05Z",
+     "note": "更严的芯片出口规则在国会获两党支持（标题级，正文未核）"
+    }
+   ],
+   "change": {
+    "baseline": "基线未核",
+    "delta": "锚跌 6.3% 而本地当日涨 1.11%，5 日超额由负转为 +0.15 个百分点；同日大盘与创业板指下跌"
+   },
+   "direction": "观察",
+   "local_confirmation": {
+    "status": "待确认",
+    "basis": "只有一天的逆势上涨，20 日超额仍为 −3.7 个百分点；没有核心股与扩散数据，替代逻辑没有订单层面的证据"
+   },
+   "priced_in": "管制规则在本地开盘前已公开，本地当日的上涨可能已经反映了替代预期的第一段；锚是温度计，只说明全球半导体环境偏冷，不用来推本地方向",
+   "invalidation": "本地 5 日超额重新转负，或后续管制被证明对国产设备材料供应链同样构成限制",
+   "next_check": "看本地能否连续两个交易日相对沪深 300 走强；核管制规则正文对国产链的适用范围"
+  },
+  {
+   "id": "20261117-03",
+   "theme": "商业航天/卫星",
+   "object": "A 股商业航天与卫星链",
+   "main_issue": "海外同业 20 日仍明显强于大盘，周末又有星舰回收成功的消息，但本地连续走弱，锚强而本地不跟",
+   "anchor": {
+    "name": "Rocket Lab（RKLB）",
+    "card": "卡一",
+    "role": "本地确认的测试"
+   },
+   "evidence": [
+    {
+     "kind": "inputs",
+     "ref": "inputs.json:local.themes[商业航天/卫星]",
+     "asof": "20261117",
+     "value": {
+      "当日": -2.03,
+      "e5": -10.02,
+      "e20": -7.18,
+      "锚20日超额_截至1116": 18.78
+     }
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:us_anchor_daily:RKLB:20261116",
+     "asof": "20261116",
+     "value": -6.7609
+    },
+    {
+     "kind": "url",
+     "ref": "https://x.com/zerohedge/status/2122434181904924817",
+     "asof": "2026-11-16T20:58Z",
+     "note": "星舰第二级回收意义的转述（标题级，正文未核；社交媒体转述）"
+    },
+    {
+     "kind": "url",
+     "ref": "https://reuters.com/business/aerospace-defense/us-rocket-fails-after-launch-payload-amazon-internet-satellites-destroyed-2026-11-15",
+     "asof": "2026-11-16T01:35Z",
+     "note": "联合发射联盟火箭失败导致亚马逊 40 颗低轨卫星损失（标题级，正文未核）"
+    }
+   ],
+   "change": {
+    "baseline": "基线未核",
+    "delta": "本地 5 日超额 −10.0 个百分点，是 18 条主线里最弱的；锚 20 日超额 +18.8 但 11 月 16 日跌 6.8%"
+   },
+   "direction": "观察",
+   "local_confirmation": {
+    "status": "未确认",
+    "basis": "锚 20 日走强期间本地 20 日超额 −7.2 个百分点，国内资金没有认这条映射"
+   },
+   "priced_in": "星舰回收是周末事件，本地 11 月 16、17 日两个交易日都已能看到，没有跟涨；锚 11 月 16 日的下跌本地 11 月 17 日同向下跌",
+   "invalidation": "本地 5 日超额转正且与锚同步走强，才重新评估；若锚的 20 日超额也转负，则本线降为宜减",
+   "next_check": "看锚 20 日超额是否回落；看本地是否止跌"
+  },
+  {
+   "id": "20261117-04",
+   "theme": "电力/电网/算电协同/燃气轮机",
+   "object": "A 股电力与电网设备",
+   "main_issue": "本地强而锚弱：海外燃气轮机与电网设备龙头 20 日明显跑输，本地电力 20 日仍跑赢；海外有数据中心用电受地方限制的报道",
+   "anchor": {
+    "name": "GE Vernova（GEV）",
+    "card": "卡一",
+    "role": "同向印证"
+   },
+   "evidence": [
+    {
+     "kind": "inputs",
+     "ref": "inputs.json:local.themes[电力/电网/算电协同/燃气轮机]",
+     "asof": "20261117",
+     "value": {
+      "当日": -0.1,
+      "e5": 2.27,
+      "e20": 4.34,
+      "锚20日超额_截至1116": -11.53
+     }
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:us_anchor_daily:GEV:20261116",
+     "asof": "20261116",
+     "value": -4.9257
+    },
+    {
+     "kind": "url",
+     "ref": "https://ft.com/content/e95adad4-b428-477d-9716-92172bbd199f",
+     "asof": "2026-11-17T08:40Z",
+     "note": "中期选举通过的限制措施使亚马逊俄亥俄数据中心投资存在风险（标题级，正文未核）"
+    },
+    {
+     "kind": "url",
+     "ref": "https://ft.com/content/d5adde7e-68cc-455b-ba78-b39cc3676b7a",
+     "asof": "2026-11-16T12:20Z",
+     "note": "自 6 月以来全球制造、公用事业与矿业公司市值蒸发，AI 上游交易反转（标题级，正文未核）"
+    }
+   ],
+   "change": {
+    "baseline": "基线未核",
+    "delta": "锚 20 日超额 −11.5 个百分点、当日跌 4.9%；本地当日 −0.10%，5 日超额 +2.3、20 日超额 +4.3 个百分点"
+   },
+   "direction": "观察",
+   "local_confirmation": {
+    "status": "待确认",
+    "basis": "本地仍强，但这份强度是否来自国内电网投资而与海外算电需求无关，没有证据区分"
+   },
+   "priced_in": "海外的算电回撤本地尚未跟随；若本地强度主要来自海外算电映射，则这段差额还没有反映",
+   "invalidation": "本地 5 日超额转负则改为宜减；锚的 20 日超额回升到正值则背离解除",
+   "next_check": "核国内电网投资的最新官方数据，区分本地强度的来源"
+  },
+  {
+   "id": "20261117-05",
+   "theme": null,
+   "object": "外围环境",
+   "main_issue": "美股 11 月 16 日普跌，科技与半导体领跌；亚洲时段韩国存储股盘中续跌，日经期货偏弱；美债收益率小幅回落、原油持平",
+   "anchor": {
+    "name": "纳指 100、美债 10 年收益率、韩国存储股",
+    "card": "卡六",
+    "role": "温度计"
+   },
+   "evidence": [
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:intl_index_daily:NASDAQ:20261116",
+     "asof": "20261116",
+     "value": -2.6718
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:us_anchor_daily:SPY:20261116",
+     "asof": "20261116",
+     "value": -1.9115
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:intl_index_daily:US10Y:20261116",
+     "asof": "20261116",
+     "value": 5.12
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:intl_index_daily:BRENT:20261117",
+     "asof": "20261117",
+     "value": 92.49
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:intl_index_daily:KR_SAMSUNG:20261117",
+     "asof": "20261117",
+     "value": -3.3028
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:intl_index_daily:KR_HYNIX:20261117",
+     "asof": "20261117",
+     "value": -1.9643
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:daily_market:20261117",
+     "asof": "20261117",
+     "value": {
+      "上证": -0.4994,
+      "深成": -0.4888,
+      "创业板": -1.199,
+      "两市成交额_万亿": 1.468
+     }
+    }
+   ],
+   "change": {
+    "baseline": "基线未核",
+    "delta": "股指类读数同时走弱；利率与原油没有同步变坏。韩国两只存储股是北京时间 10:30 前后的盘中读数，日经与原油为取数时点快照，均不当收盘价用"
+   },
+   "direction": "观察",
+   "local_confirmation": {
+    "status": "已确认",
+    "basis": "A 股主要指数同日下跌，创业板跌幅大于主板，与外围科技领跌同向"
+   },
+   "priced_in": "美股 11 月 16 日的下跌，本地 11 月 17 日已反映；只有股指一类读数变坏，利率、汇率没有确认，不构成多项同时变坏",
+   "invalidation": "美债收益率与原油转为同时上行，则从观察改为宜减",
+   "next_check": "下一交易日看美股 11 月 17 日收盘与收益率；离岸人民币本输入包未提供，需补读"
+  }
+ ],
+ "local_only": [
+  {
+   "theme": "白酒/消费",
+   "value": {
+    "当日": 0.45,
+    "e5": 2.32,
+    "e20": 10.85
+   },
+   "note": "没有登记的外部锚，只记本地读数；20 日超额 +10.9 个百分点，是 18 条主线里最强的"
+  }
+ ]
+}

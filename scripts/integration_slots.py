@@ -176,7 +176,13 @@ def ensure_slots(date: str, docs_dir: Path = DOCS_DIR, write_back: bool = True):
     if not target.exists():
         return None, slots, info
     info["path"] = str(target)
-    intg = json.loads(target.read_text(encoding="utf-8"))
+    try:
+        intg = json.loads(target.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as e:
+        # fail-visible：坏 json / 读失败报文件名并跳过该件（不写回、不掩盖）——2026-11-07 Doctor 裁 15A
+        info["json_error"] = f"{target.name} 解析失败，跳过该件：{e}"
+        print(f"[integration_slots] ✗ {info['json_error']}", file=sys.stderr)
+        return None, slots, info
     if not isinstance(intg, dict):
         return None, slots, info
     changed = False

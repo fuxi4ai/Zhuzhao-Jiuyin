@@ -1,0 +1,2058 @@
+{
+ "schema_version": 2,
+ "kind": "self_recap_inputs",
+ "trade_date": "20261123",
+ "session": "盘后",
+ "observed_at_utc": "2026-11-23T17:36:41.653381+00:00",
+ "lesson_dependency": false,
+ "local": {
+  "market": {
+   "sh_close": 3538.948,
+   "sh_pct_chg": 0.1459,
+   "sz_pct_chg": 1.9303,
+   "cyb_pct_chg": 3.0774,
+   "amount_trillion": 1.564,
+   "source": "market_data.db:daily_market:20261123"
+  },
+  "themes": [
+   {
+    "theme": "光模块/CPO/光通信/光纤",
+    "etf_codes": [
+     "515880.SH"
+    ],
+    "e5": 0.0,
+    "e20": -19.69,
+    "pct_chg": 5.25,
+    "pct_chg_members": {
+     "515880.SH": 5.25
+    },
+    "source": "market_data.db:theme_etf_daily:515880.SH:20261123",
+    "us_anchor": {
+     "ticker": "LITE",
+     "kind": "echo",
+     "ex20": -31.91,
+     "window_end": "20261120",
+     "last_pct_chg": -13.9419,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:LITE:20261120"
+    }
+   },
+   {
+    "theme": "半导体/芯片/半导体材料",
+    "etf_codes": [
+     "159995.SZ"
+    ],
+    "e5": 1.01,
+    "e20": -2.06,
+    "pct_chg": -0.12,
+    "pct_chg_members": {
+     "159995.SZ": -0.12
+    },
+    "source": "market_data.db:theme_etf_daily:159995.SZ:20261123",
+    "us_anchor": {
+     "ticker": "TSM",
+     "kind": "thermo",
+     "ex20": -15.71,
+     "window_end": "20261120",
+     "last_pct_chg": -9.4805,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:TSM:20261120"
+    }
+   },
+   {
+    "theme": "机器人",
+    "etf_codes": [
+     "562500.SH"
+    ],
+    "e5": -0.61,
+    "e20": -2.8,
+    "pct_chg": 6.68,
+    "pct_chg_members": {
+     "562500.SH": 6.68
+    },
+    "source": "market_data.db:theme_etf_daily:562500.SH:20261123",
+    "us_anchor": {
+     "ticker": "TSLA",
+     "kind": "echo",
+     "ex20": 3.64,
+     "window_end": "20261120",
+     "last_pct_chg": -7.636,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:TSLA:20261120"
+    }
+   },
+   {
+    "theme": "光伏",
+    "etf_codes": [
+     "515790.SH"
+    ],
+    "e5": -4.32,
+    "e20": -6.07,
+    "pct_chg": 1.26,
+    "pct_chg_members": {
+     "515790.SH": 1.26
+    },
+    "source": "market_data.db:theme_etf_daily:515790.SH:20261123",
+    "us_anchor": {
+     "ticker": "FSLR",
+     "kind": "echo",
+     "ex20": -11.37,
+     "window_end": "20261120",
+     "last_pct_chg": -9.4505,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:FSLR:20261120"
+    }
+   },
+   {
+    "theme": "新能源电池/锂电/储能/固态",
+    "etf_codes": [
+     "159566.SZ"
+    ],
+    "e5": -4.76,
+    "e20": -5.93,
+    "pct_chg": 2.17,
+    "pct_chg_members": {
+     "159566.SZ": 2.17
+    },
+    "source": "market_data.db:theme_etf_daily:159566.SZ:20261123",
+    "us_anchor": {
+     "ticker": "ALB",
+     "kind": "echo",
+     "ex20": -5.81,
+     "window_end": "20261120",
+     "last_pct_chg": -3.8949,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:ALB:20261120"
+    }
+   },
+   {
+    "theme": "电力/电网/算电协同/燃气轮机",
+    "etf_codes": [
+     "159611.SZ"
+    ],
+    "e5": -0.19,
+    "e20": 4.17,
+    "pct_chg": -1.43,
+    "pct_chg_members": {
+     "159611.SZ": -1.43
+    },
+    "source": "market_data.db:theme_etf_daily:159611.SZ:20261123",
+    "us_anchor": {
+     "ticker": "GEV",
+     "kind": "echo",
+     "ex20": -3.75,
+     "window_end": "20261120",
+     "last_pct_chg": -7.5303,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:GEV:20261120"
+    }
+   },
+   {
+    "theme": "创新药/医药/CRO",
+    "etf_codes": [
+     "159992.SZ"
+    ],
+    "e5": -1.56,
+    "e20": -0.64,
+    "pct_chg": 3.33,
+    "pct_chg_members": {
+     "159992.SZ": 3.33
+    },
+    "source": "market_data.db:theme_etf_daily:159992.SZ:20261123",
+    "us_anchor": {
+     "ticker": "LLY",
+     "kind": "thermo",
+     "ex20": 15.66,
+     "window_end": "20261120",
+     "last_pct_chg": -0.2968,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:LLY:20261120"
+    }
+   },
+   {
+    "theme": "军工",
+    "etf_codes": [
+     "512660.SH"
+    ],
+    "e5": -5.11,
+    "e20": -10.63,
+    "pct_chg": 1.45,
+    "pct_chg_members": {
+     "512660.SH": 1.45
+    },
+    "source": "market_data.db:theme_etf_daily:512660.SH:20261123",
+    "us_anchor": {
+     "ticker": "LMT",
+     "kind": "thermo",
+     "ex20": 3.46,
+     "window_end": "20261120",
+     "last_pct_chg": -1.1104,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:LMT:20261120"
+    }
+   },
+   {
+    "theme": "商业航天/卫星",
+    "etf_codes": [
+     "563230.SH"
+    ],
+    "e5": -6.87,
+    "e20": -10.96,
+    "pct_chg": 2.89,
+    "pct_chg_members": {
+     "563230.SH": 2.89
+    },
+    "source": "market_data.db:theme_etf_daily:563230.SH:20261123",
+    "us_anchor": {
+     "ticker": "RKLB",
+     "kind": "echo",
+     "ex20": -0.3,
+     "window_end": "20261120",
+     "last_pct_chg": -10.9237,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:RKLB:20261120"
+    }
+   },
+   {
+    "theme": "消费电子/华为/鸿蒙",
+    "etf_codes": [
+     "561600.SH"
+    ],
+    "e5": -0.09,
+    "e20": -7.69,
+    "pct_chg": 2.17,
+    "pct_chg_members": {
+     "561600.SH": 2.17
+    },
+    "source": "market_data.db:theme_etf_daily:561600.SH:20261123",
+    "us_anchor": {
+     "ticker": "AAPL",
+     "kind": "thermo",
+     "ex20": 8.28,
+     "window_end": "20261120",
+     "last_pct_chg": -1.9043,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:AAPL:20261120"
+    }
+   },
+   {
+    "theme": "AI软件/应用",
+    "etf_codes": [
+     "515230.SH"
+    ],
+    "e5": -3.29,
+    "e20": -10.32,
+    "pct_chg": 2.26,
+    "pct_chg_members": {
+     "515230.SH": 2.26
+    },
+    "source": "market_data.db:theme_etf_daily:515230.SH:20261123",
+    "us_anchor": {
+     "ticker": "PLTR",
+     "kind": "echo",
+     "ex20": -20.73,
+     "window_end": "20261120",
+     "last_pct_chg": -6.6307,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:PLTR:20261120"
+    }
+   },
+   {
+    "theme": "白酒/消费",
+    "etf_codes": [
+     "512690.SH"
+    ],
+    "e5": -1.96,
+    "e20": 6.64,
+    "pct_chg": 0.23,
+    "pct_chg_members": {
+     "512690.SH": 0.23
+    },
+    "source": "market_data.db:theme_etf_daily:512690.SH:20261123",
+    "us_anchor": null
+   },
+   {
+    "theme": "券商/金融",
+    "etf_codes": [
+     "512880.SH"
+    ],
+    "e5": 0.66,
+    "e20": 0.2,
+    "pct_chg": 0.31,
+    "pct_chg_members": {
+     "512880.SH": 0.31
+    },
+    "source": "market_data.db:theme_etf_daily:512880.SH:20261123",
+    "us_anchor": {
+     "ticker": "GS",
+     "kind": "thermo",
+     "ex20": 0.05,
+     "window_end": "20261120",
+     "last_pct_chg": -6.7066,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:GS:20261120"
+    }
+   },
+   {
+    "theme": "黄金/贵金属",
+    "etf_codes": [
+     "518880.SH"
+    ],
+    "e5": -5.08,
+    "e20": -6.06,
+    "pct_chg": 1.57,
+    "pct_chg_members": {
+     "518880.SH": 1.57
+    },
+    "source": "market_data.db:theme_etf_daily:518880.SH:20261123",
+    "us_anchor": {
+     "ticker": "NEM",
+     "kind": "echo",
+     "ex20": -3.14,
+     "window_end": "20261120",
+     "last_pct_chg": -5.3673,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:NEM:20261120"
+    }
+   },
+   {
+    "theme": "稀土",
+    "etf_codes": [
+     "516780.SH"
+    ],
+    "e5": -4.27,
+    "e20": -8.0,
+    "pct_chg": 3.08,
+    "pct_chg_members": {
+     "516780.SH": 3.08
+    },
+    "source": "market_data.db:theme_etf_daily:516780.SH:20261123",
+    "us_anchor": {
+     "ticker": "MP",
+     "kind": "echo",
+     "ex20": -0.59,
+     "window_end": "20261120",
+     "last_pct_chg": -7.3923,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:MP:20261120"
+    }
+   },
+   {
+    "theme": "钨/小金属",
+    "etf_codes": [
+     "159608.SZ"
+    ],
+    "e5": -3.69,
+    "e20": -8.04,
+    "pct_chg": 3.05,
+    "pct_chg_members": {
+     "159608.SZ": 3.05
+    },
+    "source": "market_data.db:theme_etf_daily:159608.SZ:20261123",
+    "us_anchor": {
+     "ticker": "ALM",
+     "kind": "echo",
+     "ex20": -19.79,
+     "window_end": "20261120",
+     "last_pct_chg": -15.4762,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:ALM:20261120"
+    }
+   },
+   {
+    "theme": "有色金属",
+    "etf_codes": [
+     "512400.SH"
+    ],
+    "e5": -2.93,
+    "e20": -8.05,
+    "pct_chg": 3.22,
+    "pct_chg_members": {
+     "512400.SH": 3.22
+    },
+    "source": "market_data.db:theme_etf_daily:512400.SH:20261123",
+    "us_anchor": {
+     "ticker": "FCX",
+     "kind": "echo",
+     "ex20": -23.85,
+     "window_end": "20261120",
+     "last_pct_chg": -6.3721,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:FCX:20261120"
+    }
+   },
+   {
+    "theme": "AI算力/AI硬件/科技硬件",
+    "etf_codes": [
+     "515880.SH",
+     "159995.SZ"
+    ],
+    "e5": 0.51,
+    "e20": -10.88,
+    "pct_chg": 2.56,
+    "pct_chg_members": {
+     "515880.SH": 5.25,
+     "159995.SZ": -0.12
+    },
+    "source": "market_data.db:theme_etf_daily:515880.SH+159995.SZ:20261123",
+    "us_anchor": {
+     "ticker": "NVDA",
+     "kind": "echo",
+     "ex20": -40.12,
+     "window_end": "20261120",
+     "last_pct_chg": -14.0088,
+     "last_date": "20261120",
+     "source": "market_data.db:us_anchor_daily:NVDA:20261120"
+    }
+   }
+  ],
+  "windows": {
+   "a5": [
+    "20261117",
+    "20261123"
+   ],
+   "a20": [
+    "20261027",
+    "20261123"
+   ],
+   "us20": [
+    "20261026",
+    "20261120"
+   ]
+  },
+  "basket_rule": "主线含多只 ETF 时取等权均值；任何一只缺数，该主线这一项为空并记缺口",
+  "us_clock": "美股锚只取严格早于 A 股交易日的美国日期"
+ },
+ "local_gaps": [],
+ "external_clock": "external 是运行时刻的最新行，可能晚于 A 股收盘；不是当日口径，不得用来解释此前的 A 股表现，补做历史日期时不得当作当日证据",
+ "external": {
+  "schema_version": 1,
+  "status": "research_inputs",
+  "observed_at_utc": "2026-11-23T17:36:41.591316+00:00",
+  "observation_timezone": "UTC",
+  "database_root": "/sessions/rcw-0149okhpsaew52tmbfnngp1n/mnt/Documents/Database",
+  "lesson_dependency": false,
+  "historical_replay_supported": false,
+  "market": [
+   {
+    "table": "us_anchor_daily",
+    "rows": [
+     {
+      "trade_date": "20261120",
+      "ticker": "AAPL",
+      "close_adj": 342.55999755859375,
+      "pct_chg": -1.9043,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:04",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:AAPL:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "ALB",
+      "close_adj": 79.69999694824219,
+      "pct_chg": -3.8949,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:05",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:ALB:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "ALM",
+      "close_adj": 6.389999866485596,
+      "pct_chg": -15.4762,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:06",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:ALM:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "FCX",
+      "close_adj": 45.9900016784668,
+      "pct_chg": -6.3721,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:07",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:FCX:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "FSLR",
+      "close_adj": 137.58999633789062,
+      "pct_chg": -9.4505,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:08",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:FSLR:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "GEV",
+      "close_adj": 699.3300170898438,
+      "pct_chg": -7.5303,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:09",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:GEV:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "GS",
+      "close_adj": 790.6900024414062,
+      "pct_chg": -6.7066,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:10",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:GS:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "LITE",
+      "close_adj": 460.5400085449219,
+      "pct_chg": -13.9419,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:11",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:LITE:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "LLY",
+      "close_adj": 1347.1099853515625,
+      "pct_chg": -0.2968,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:12",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:LLY:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "LMT",
+      "close_adj": 565.5,
+      "pct_chg": -1.1104,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:14",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:LMT:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "MP",
+      "close_adj": 33.95000076293945,
+      "pct_chg": -7.3923,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:15",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:MP:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "NEM",
+      "close_adj": 94.68000030517578,
+      "pct_chg": -5.3673,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:16",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:NEM:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "NVDA",
+      "close_adj": 125.52999877929688,
+      "pct_chg": -14.0088,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:17",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:NVDA:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "PLTR",
+      "close_adj": 143.49000549316406,
+      "pct_chg": -6.6307,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:18",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:PLTR:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "QQQ",
+      "close_adj": 608.4500122070312,
+      "pct_chg": -5.6725,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:19",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:QQQ:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "RKLB",
+      "close_adj": 45.41999816894531,
+      "pct_chg": -10.9237,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:20",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:RKLB:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "SPY",
+      "close_adj": 689.8099975585938,
+      "pct_chg": -3.6403,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:21",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:SPY:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "TSLA",
+      "close_adj": 345.82000732421875,
+      "pct_chg": -7.636,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:22",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:TSLA:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "ticker": "TSM",
+      "close_adj": 318.7099914550781,
+      "pct_chg": -9.4805,
+      "source": "yahoo",
+      "updated_at": "2026-11-20 22:00:23",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:TSM:20261120"
+     }
+    ],
+    "row_count": 19,
+    "future_rows_excluded": 0,
+    "age_policy": "calendar_days_only; not an exchange calendar",
+    "source_note": "local values not independently rechecked in this tool"
+   },
+   {
+    "table": "intl_index_daily",
+    "rows": [
+     {
+      "trade_date": "20261120",
+      "code": "AVGO",
+      "close": 304.41,
+      "symbol": "AVGO",
+      "name": "博通",
+      "kind": "us_stock",
+      "pct_chg": -12.1852,
+      "source": "yahoo",
+      "updated_at": "2026-11-23 10:30:27",
+      "note": "AI 网络 / ASIC",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:AVGO:20261120"
+     },
+     {
+      "trade_date": "20261123",
+      "code": "BRENT",
+      "close": 89.25,
+      "symbol": "BZ=F",
+      "name": "布伦特原油",
+      "kind": "macro_commodity",
+      "pct_chg": -3.5865,
+      "source": "yahoo",
+      "updated_at": "2026-11-23 10:30:29",
+      "note": "ICE Brent 期货 · ↑=输入型通胀/地缘扰动 · F5 · ⚠读数语义腿（无盘中守卫）：close 可能是取数时点快照、非收盘价；归因/回测取收盘请用官方结算价",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:BRENT:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "code": "JP_FUT",
+      "close": 56445.0,
+      "symbol": "NKD=F",
+      "name": "日经225期货",
+      "kind": "futures",
+      "pct_chg": 3.3981,
+      "source": "yahoo",
+      "updated_at": "2026-11-23 10:30:28",
+      "note": "CME · 亚盘开盘前远期 · 含半导体设备权重 · ⚠读数语义腿（无盘中守卫）：close 可能是取数时点快照、非收盘价",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:JP_FUT:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "code": "KR_HYNIX",
+      "close": 1085000.0,
+      "symbol": "000660.KS",
+      "name": "SK海力士",
+      "kind": "kr_stock",
+      "pct_chg": -2.5157,
+      "source": "yahoo",
+      "updated_at": "2026-11-23T02:30:31",
+      "note": "HBM/存储 · KOSPI 龙头",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:KR_HYNIX:20261123"
+     },
+     {
+      "trade_date": "20260626",
+      "code": "KR_PROXY",
+      "close": 197.31,
+      "symbol": "EWY",
+      "name": "韩国(EWY代理)",
+      "kind": "etf_proxy",
+      "pct_chg": -3.75,
+      "source": "stockanalysis",
+      "updated_at": "2026-06-29 23:14:21",
+      "note": "MSCI韩国ETF · 三星/SK海力士存储芯 · 隔夜代理",
+      "calendar_age_days": 151,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "stale",
+      "evidence_ref": "intl_index_daily:KR_PROXY:20260626"
+     },
+     {
+      "trade_date": "20261123",
+      "code": "KR_SAMSUNG",
+      "close": 177500.0,
+      "symbol": "005930.KS",
+      "name": "三星电子",
+      "kind": "kr_stock",
+      "pct_chg": -3.0584,
+      "source": "yahoo",
+      "updated_at": "2026-11-23T02:30:31",
+      "note": "存储/半导体 · KOSPI 龙头",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:KR_SAMSUNG:20261123"
+     },
+     {
+      "trade_date": "20261120",
+      "code": "LITE",
+      "close": 460.54,
+      "symbol": "LITE",
+      "name": "Lumentum",
+      "kind": "us_stock",
+      "pct_chg": -13.9419,
+      "source": "yahoo",
+      "updated_at": "2026-11-23 10:30:27",
+      "note": "光模块 / CPO",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:LITE:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "code": "NASDAQ",
+      "close": 25028.98,
+      "symbol": "^NDX",
+      "name": "纳指100指数",
+      "kind": "overnight",
+      "pct_chg": -5.6117,
+      "source": "yahoo",
+      "updated_at": "2026-11-23 10:30:26",
+      "note": "美股隔夜 · Nasdaq-100 指数（2026-08-25 Doctor 裁：QQQ ETF 代理退役·改指数本身）",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:NASDAQ:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "code": "NVDA",
+      "close": 125.53,
+      "symbol": "NVDA",
+      "name": "英伟达",
+      "kind": "us_stock",
+      "pct_chg": -14.0088,
+      "source": "yahoo",
+      "updated_at": "2026-11-23 10:30:26",
+      "note": "AI 算力",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:NVDA:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "code": "SOX",
+      "close": 8408.59,
+      "symbol": "^SOX",
+      "name": "费城半导体指数",
+      "kind": "overnight",
+      "pct_chg": -10.7342,
+      "source": "yahoo",
+      "updated_at": "2026-11-23 10:30:30",
+      "note": "PHLX Semiconductor Index · 2026-11-19 加入 · 只供数：风险日报资金结构状态机「跟随」读数（Doctor 2026-11-19 裁「改读 SOX」）· 不入烛照日报外盘展示区 · 2026-06-29「美国不取硬件纯读数 SOX，用纳指」的展示裁定不变 · 收盘语义（开盘中守卫，close 即收盘价）",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:SOX:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "code": "SPCX",
+      "close": 127.79,
+      "symbol": "SPCX",
+      "name": "SpaceX",
+      "kind": "us_stock",
+      "pct_chg": -7.6862,
+      "source": "yahoo",
+      "updated_at": "2026-11-23 10:30:28",
+      "note": "商业航天 · 2026-06-12 纳指新上市（历史短·波动大）",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:SPCX:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "code": "US10Y",
+      "close": 4.91,
+      "symbol": "^TNX",
+      "name": "美债10年期收益率",
+      "kind": "macro_rate",
+      "pct_chg": -2.7712,
+      "source": "yahoo",
+      "updated_at": "2026-11-23 10:30:29",
+      "note": "CBOE 10Y Yield · close 即收益率%（非价格）· ↑=外部紧缩 · F5 · ⚠读数语义腿（无盘中守卫）：close 可能是盘中快照、非收盘价；归因/回测取收盘请用 H.15 或 FRED DGS10",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:US10Y:20261120"
+     },
+     {
+      "trade_date": "20261120",
+      "code": "US30Y",
+      "close": 5.3,
+      "symbol": "^TYX",
+      "name": "美债30年期收益率",
+      "kind": "macro_rate",
+      "pct_chg": -1.8145,
+      "source": "yahoo",
+      "updated_at": "2026-11-23 10:30:29",
+      "note": "CBOE 30Y Yield · close 即收益率%（非价格）· ↑=外部紧缩 · 汇率栏底部展示（2026-08-25 Doctor 令）· ⚠读数语义腿（无盘中守卫）：close 可能是盘中快照、非收盘价",
+      "calendar_age_days": 4,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:US30Y:20261120"
+     }
+    ],
+    "row_count": 13,
+    "future_rows_excluded": 0,
+    "age_policy": "calendar_days_only; not an exchange calendar",
+    "source_note": "local values not independently rechecked in this tool"
+   },
+   {
+    "table": "theme_etf_daily",
+    "rows": [
+     {
+      "trade_date": "20261123",
+      "etf_code": "159566.SZ",
+      "close": 1.318,
+      "pct_chg": 2.17,
+      "updated_at": "2026-11-23 10:30:04",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:159566.SZ:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "159608.SZ",
+      "close": 0.743,
+      "pct_chg": 3.05,
+      "updated_at": "2026-11-23 10:30:04",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:159608.SZ:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "159611.SZ",
+      "close": 1.031,
+      "pct_chg": -1.43,
+      "updated_at": "2026-11-23 10:30:05",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:159611.SZ:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "159992.SZ",
+      "close": 0.775,
+      "pct_chg": 3.33,
+      "updated_at": "2026-11-23 10:30:06",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:159992.SZ:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "159995.SZ",
+      "close": 0.813,
+      "pct_chg": -0.12,
+      "updated_at": "2026-11-23 10:30:07",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:159995.SZ:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "510300.SH",
+      "close": 4.023,
+      "pct_chg": 0.12,
+      "updated_at": "2026-11-23 10:30:08",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:510300.SH:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "512400.SH",
+      "close": 1.282,
+      "pct_chg": 3.22,
+      "updated_at": "2026-11-23 10:30:08",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:512400.SH:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "512660.SH",
+      "close": 0.909,
+      "pct_chg": 1.45,
+      "updated_at": "2026-11-23 10:30:09",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:512660.SH:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "512690.SH",
+      "close": 0.432,
+      "pct_chg": 0.23,
+      "updated_at": "2026-11-23 10:30:10",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:512690.SH:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "512880.SH",
+      "close": 0.984,
+      "pct_chg": 0.31,
+      "updated_at": "2026-11-23 10:30:11",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:512880.SH:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "515230.SH",
+      "close": 0.588,
+      "pct_chg": 2.26,
+      "updated_at": "2026-11-23 10:30:11",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:515230.SH:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "515790.SH",
+      "close": 0.643,
+      "pct_chg": 1.26,
+      "updated_at": "2026-11-23 10:30:12",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:515790.SH:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "515880.SH",
+      "close": 0.381,
+      "pct_chg": 5.25,
+      "updated_at": "2026-11-23 10:30:13",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:515880.SH:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "516780.SH",
+      "close": 0.636,
+      "pct_chg": 3.08,
+      "updated_at": "2026-11-23 10:30:13",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:516780.SH:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "518880.SH",
+      "close": 7.396,
+      "pct_chg": 1.57,
+      "updated_at": "2026-11-23 10:30:14",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:518880.SH:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "561600.SH",
+      "close": 0.519,
+      "pct_chg": 2.17,
+      "updated_at": "2026-11-23 10:30:15",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:561600.SH:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "562500.SH",
+      "close": 0.815,
+      "pct_chg": 6.68,
+      "updated_at": "2026-11-23 10:30:15",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:562500.SH:20261123"
+     },
+     {
+      "trade_date": "20261123",
+      "etf_code": "563230.SH",
+      "close": 0.818,
+      "pct_chg": 2.89,
+      "updated_at": "2026-11-23 10:30:16",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:563230.SH:20261123"
+     }
+    ],
+    "row_count": 18,
+    "future_rows_excluded": 0,
+    "age_policy": "calendar_days_only; not an exchange calendar",
+    "source_note": "local values not independently rechecked in this tool"
+   }
+  ],
+  "news": {
+   "status": "available",
+   "snapshot_id": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2",
+   "payload_sha256": "27a8bb8c79898efd78627a30e95f504ef129cb9fa43256d53478a8229ea68a39",
+   "published_at": "2026-11-23T13:31:24.794Z",
+   "generated_at": "2026-11-23T13:27:22.056Z",
+   "publication_id": "board-27a8bb8c79898efd78627a30e95f504ef129cb9fa43256d53478a8229ea68a39",
+   "source_item_count": 80,
+   "unique_url_count": 80,
+   "duplicate_urls_removed": 0,
+   "calendar_age_hours": 4.09,
+   "publisher_stale_flag": false,
+   "items": [
+    {
+     "id": "991d719140632cd2954a5de8",
+     "original_title": "President Trump hosted a dinner on Sunday for the top $TRUMP collectors; an analysis finds the entry cost was as low as $518, down from its $55K peak in 2025",
+     "url": "https://washingtonpost.com/politics/2026/11/22/trump-hosts-crypto-traders-demand-his-meme-coin-fades",
+     "source": "techmeme",
+     "source_name": "Washington Post",
+     "published_at": "2026-11-23T12:55:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:991d719140632cd2954a5de8"
+    },
+    {
+     "id": "983c3ad98ce5ad43ce2466ae",
+     "original_title": "Chinese civilian and military studies show a growing concern that US AI advances may cut nuclear decision-making to 90 seconds, undermining Beijing's deterrent",
+     "url": "https://nytimes.com/2026/11/23/world/asia/china-us-nuclear-ai.html?smid=url-share&unlocked_article_code=1.SlE.7MPS.E8d7eCsFiexw",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-23T12:30:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:983c3ad98ce5ad43ce2466ae"
+    },
+    {
+     "id": "32203d503c89b20f80b3d3e3",
+     "original_title": "The National Governors Association proposes a split of AI regulation roles, asking the US government to review AI models while letting states protect consumers",
+     "url": "https://bloomberg.com/news/articles/2026-11-22/governors-call-for-federal-ai-rules-without-sidelining-states",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T12:15:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:32203d503c89b20f80b3d3e3"
+    },
+    {
+     "id": "487ae34b4e647b5db906db19",
+     "original_title": "A look at AECJ, an Amazon employee group with over 1,000 members that is stepping up efforts to slow Amazon's data center expansion and spark debate over AI use",
+     "url": "https://ft.com/content/d194e93b-8d3c-42eb-85dd-46d58c4f2a80",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-23T12:05:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:487ae34b4e647b5db906db19"
+    },
+    {
+     "id": "00c84f65f6cf329d3c71dedc",
+     "original_title": "Boston-based Aevius, whose foundation models analyze patient health using medical records, imaging, and other data, raised a $22M seed led by Insight Partners",
+     "url": "https://axios.com/pro/biotech-deals/2026/11/17/aevius-22m-clinical-intelligence-platform",
+     "source": "techmeme",
+     "source_name": "Axios",
+     "published_at": "2026-11-23T11:45:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:00c84f65f6cf329d3c71dedc"
+    },
+    {
+     "id": "67a032b4e80f417301927709",
+     "original_title": "Chinese physical AI startup Simplexity Robotics raised a $100M pre-Series A led by Ant Group, with Alibaba, Tencent, and others joining, at a $1.6B valuation",
+     "url": "https://bloomberg.com/news/articles/2026-11-22/ant-group-bets-on-simplexity-to-thrive-in-china-s-humanoid-race",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T10:01:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:67a032b4e80f417301927709"
+    },
+    {
+     "id": "57767f1a7d7d477c8553f7bf",
+     "original_title": "Compute Desk, which is building capital markets infrastructure to price, trade, hedge, and clear compute, raised a $45M seed led by Lightspeed",
+     "url": "https://axios.com/pro/all-deals/2026/11/17/compute-pricing-startup-compute-desk-45-million-lightspeed",
+     "source": "techmeme",
+     "source_name": "Axios",
+     "published_at": "2026-11-23T09:40:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:57767f1a7d7d477c8553f7bf"
+    },
+    {
+     "id": "019bf0b8226bc541aeb034ec",
+     "original_title": "New US chip export rules threaten SEA's data center boom, risking incomplete and abandoned projects and forcing neoclouds to replace their Chinese customers",
+     "url": "https://bloomberg.com/news/features/2026-11-22/trump-s-ai-chip-crackdown-on-china-after-nvidia-crisis-squeezes-southeast-asia",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T09:02:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:019bf0b8226bc541aeb034ec"
+    },
+    {
+     "id": "fdea22cf1576ac0719b65430",
+     "original_title": "London-based Alecto, which uses AI and legal experts to help consumers understand UK property law, raised a $20M seed led by Insight Partners",
+     "url": "https://siliconangle.com/2026/11/16/alecto-raises-20m-seed-funding-to-make-uk-property-law-more-accessible-to-consumers-with-ai",
+     "source": "techmeme",
+     "source_name": "SiliconANGLE",
+     "published_at": "2026-11-23T08:30:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:fdea22cf1576ac0719b65430"
+    },
+    {
+     "id": "cd3f30c27c7d6286647d2f45",
+     "original_title": "South Korean PE firm MBK Partners agrees to take Japan's Wacom private, in a deal valuing the digital pen tech company at ~$860M, with Samsung participating",
+     "url": "https://biz.chosun.com/en/en-international/2026/11/21/ARGP75AUBRFRJOU4M7PGDQTPOI",
+     "source": "techmeme",
+     "source_name": "CHOSUNBIZ",
+     "published_at": "2026-11-23T07:40:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:cd3f30c27c7d6286647d2f45"
+    },
+    {
+     "id": "592053427f065b3fbe352504",
+     "original_title": "Alexandr Wang says the Riemann Hypothesis proof shows AI will surpass humans in every field, including AI research, and calls for AI safety and alignment",
+     "url": "https://x.com/alexandr_wang/status/2124636606959345776",
+     "source": "techmeme",
+     "source_name": "@alexandr_wang",
+     "published_at": "2026-11-23T07:00:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:592053427f065b3fbe352504"
+    },
+    {
+     "id": "081f3b654844c9c44c08abf7",
+     "original_title": "Arva AI, which builds AI agents for banks' financial-crime compliance teams and counts Wise as a customer, raised a $20M Series A led by Arthur Ventures",
+     "url": "https://axios.com/pro/fintech-deals/2026/11/17/arva-ai-20-million-series-a-bank-compliance",
+     "source": "techmeme",
+     "source_name": "Axios",
+     "published_at": "2026-11-23T06:25:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:081f3b654844c9c44c08abf7"
+    },
+    {
+     "id": "cbc276fca67605ac01478158",
+     "original_title": "Also I fucked up my codenames, labeled bel wrong. Won't fix tho",
+     "url": "https://x.com/dylan522p/status/2124748061159084304",
+     "source": "x",
+     "source_name": "Dylan Patel",
+     "published_at": "2026-11-23T06:13:08.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:cbc276fca67605ac01478158"
+    },
+    {
+     "id": "66e96bd7d1a0fcb1b1bcde1f",
+     "original_title": "TPG and Corpay agree to acquire and take private BILL Holdings, whose cloud-based software lets SMBs automate financial operations, in a deal valued at ~$6B",
+     "url": "https://reuters.com/legal/transactional/bill-holdings-be-taken-private-by-tpg-6-billion-equity-value-2026-11-19",
+     "source": "techmeme",
+     "source_name": "Reuters",
+     "published_at": "2026-11-23T05:35:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:66e96bd7d1a0fcb1b1bcde1f"
+    },
+    {
+     "id": "707a8290f12b4d1d74ee5aa1",
+     "original_title": "GPT-6.2 Astra vs. Claude Fable 5.2 hands-on: nearly tied on three custom accounting, coding, and data tasks, but Fable used far more tokens and cost 5x+ as much",
+     "url": "https://thenewstack.io/gpt-6-2-astra-vs-claude-fable-5-2",
+     "source": "techmeme",
+     "source_name": "The New Stack",
+     "published_at": "2026-11-23T04:45:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:707a8290f12b4d1d74ee5aa1"
+    },
+    {
+     "id": "91e36f9151cfe7fa09d0b276",
+     "original_title": "President Trump: \"I hope the Board of Nvidia rehires Jensen Huang\" Jensen's return to $NVDA is looking a lot more likely. Especially with the support from the US president. https://t.co/0J9GEmGSJD",
+     "url": "https://x.com/aleabitoreddit/status/2124715837533859857",
+     "source": "x",
+     "source_name": "Serenity",
+     "published_at": "2026-11-23T04:05:05.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:91e36f9151cfe7fa09d0b276"
+    },
+    {
+     "id": "40b63abb9a961259859db031",
+     "original_title": "Sources: Jay Clayton, director of national intelligence and AI czar, will also be acting national cyber director pending Kirsten A. Davies' Senate confirmation",
+     "url": "https://axios.com/2026/11/23/jay-clayton-acting-national-cyber-director",
+     "source": "techmeme",
+     "source_name": "Axios",
+     "published_at": "2026-11-23T03:55:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:40b63abb9a961259859db031"
+    },
+    {
+     "id": "7139868f3f65f6f0c716698c",
+     "original_title": "A profile of siblings Dario and Daniela Amodei; while at OpenAI, Dario suggested immersive videogames might ease political strife from AI-induced joblessness",
+     "url": "https://wsj.com/tech/ai/anthropic-dario-daniela-amodei-siblings-ipo-be84ad11?reflink=desktopwebshare_permalink&st=UKriCU",
+     "source": "techmeme",
+     "source_name": "Wall Street Journal",
+     "published_at": "2026-11-23T03:45:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:7139868f3f65f6f0c716698c"
+    },
+    {
+     "id": "eacde0b44591bd561960c8ed",
+     "original_title": "Sources: Alice Huang was in touch with an officer of China's spy agency MSS from spring 2025 until this fall; her business partner Kang Wei also worked with MSS",
+     "url": "https://nytimes.com/2026/11/22/us/politics/alice-huang-china-spy-agency-nvidia.html?smid=url-share&unlocked_article_code=1.SlE.mMaV._G76gCoFrg-4",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-23T03:30:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:eacde0b44591bd561960c8ed"
+    },
+    {
+     "id": "0d782f4237e433b08efbaf1b",
+     "original_title": "How Dario Amodei built Anthropic's tightly knit culture with essays, Slack memos, and “Vision Quest” talks, as Anthropic seeds his ideas with opinion-makers",
+     "url": "https://washingtonpost.com/technology/2026/11/22/inside-an-ai-prophets-secretive-plans-humanitys-future?itid=gfta&pwapi_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyZWFzb24iOiJnaWZ0IiwibmJmIjoxNzk1MzIzNjAwLCJpc3MiOiJzdWJzY3JpcHRpb25zIiwiZXhwIjoxNzk2NzA1OTk5LCJpYXQiOjE3OTUzMjM2MDAsImp0aSI6Ijk5ZmVmZjUzLTFhNGQtNGUyYy04OTc2LTExMzI3OTY5YWQwOCIsInVybCI6Imh0dHBzOi8vd3d3Lndhc2hpbmd0b25wb3N0LmNvbS90ZWNobm9sb2d5LzIwMjYvMTEvMjIvaW5zaWRlLWFuLWFpLXByb3BoZXRzLXNlY3JldGl2ZS1wbGFucy1odW1hbml0eXMtZnV0dXJlLyJ9.QMKPkoAM4BCMZu1B31lkK38QVtCyp1tud0o9KvcKB3o",
+     "source": "techmeme",
+     "source_name": "Washington Post",
+     "published_at": "2026-11-23T02:20:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:0d782f4237e433b08efbaf1b"
+    },
+    {
+     "id": "d91e13e65f74495f07808062",
+     "original_title": "😂",
+     "url": "https://x.com/elonmusk/status/2124674295246811586",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T01:20:01.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:d91e13e65f74495f07808062"
+    },
+    {
+     "id": "b35f20f3862ace4cfe9400e5",
+     "original_title": "The rate of change of technology is so quick these days that being on X very quickly compounds to a huge amount of alpha. Talking to people who aren’t feels like stepping in a time machine into the distant past. X is truly the town square for discussing technological progress.",
+     "url": "https://x.com/deedydas/status/2124655797879894316",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T00:06:31.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:b35f20f3862ace4cfe9400e5"
+    },
+    {
+     "id": "49ca9c9ecff6ebc8354d1d8d",
+     "original_title": "After the FAA, Microsoft, and bank outages, DNI Jay Clayton says Americans should prepare for “bumps in the road” as systems are upgraded to adapt to the AI age",
+     "url": "https://cnbc.com/2026/11/22/jay-clayton-tech-outages-faa-microsoft-thanksgiving.html",
+     "source": "techmeme",
+     "source_name": "CNBC",
+     "published_at": "2026-11-22T23:35:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:49ca9c9ecff6ebc8354d1d8d"
+    },
+    {
+     "id": "de22ccaaa254b5688849d6bf",
+     "original_title": "A week after urging an Nvidia shake-up, Scott Bessent says Jensen Huang's return should depend on probes of its China chip sales and presses Nvidia for answers",
+     "url": "https://nytimes.com/2026/11/22/business/scott-bessent-jensen-huang-nvidia.html",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-22T22:50:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:de22ccaaa254b5688849d6bf"
+    },
+    {
+     "id": "5025247062e44d63a92b7b4d",
+     "original_title": "The small details are so good",
+     "url": "https://x.com/elonmusk/status/2124624263214662097",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T22:01:12.000Z",
+     "collected_at": "2026-11-23T01:28:13.910Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:5025247062e44d63a92b7b4d"
+    },
+    {
+     "id": "c7c2444b9227372c720d3e64",
+     "original_title": "Jessica Tarlov says when she finally decided to listen to the full audio of Trump's \"Fine People\" comments -- she found out he wasn't talking about Nazis. \"That was illuminating for me.\" Wow. How big of her to admit it was a lie all these years later...after actually listening to it. Democrats still regurgitate this hoax to this day.",
+     "url": "https://x.com/WesternLensman/status/2124620232287277091",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T21:45:11.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:c7c2444b9227372c720d3e64"
+    },
+    {
+     "id": "b9403541e41ad2b84c1cd644",
+     "original_title": "Try Grok Bot today! https://t.co/5OhVzihRTb",
+     "url": "https://x.com/iam_smx/status/2124615281901486219",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T21:25:31.000Z",
+     "collected_at": "2026-11-23T01:28:13.910Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:b9403541e41ad2b84c1cd644"
+    },
+    {
+     "id": "739e97dfcd36244d3d8c73cb",
+     "original_title": "OpenAI shares its models' perplexity, or how well they predict data, and urges pacing limits based on such metrics, citing a possible 2027 avalanche of AI gains",
+     "url": "https://openai.com/index/perplexity-and-intelligence",
+     "source": "techmeme",
+     "source_name": "OpenAI",
+     "published_at": "2026-11-22T21:25:00.000Z",
+     "collected_at": "2026-11-23T01:28:13.910Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:739e97dfcd36244d3d8c73cb"
+    },
+    {
+     "id": "cc8f83d99ba6327ad0ed2c38",
+     "original_title": "Sources: amid leak fears, Anthropic limited some IPO banks to four-person teams, used a view-logging file platform, and sought six-month bans on advising rivals",
+     "url": "https://reuters.com/world/like-spacex-anthropic-ran-an-unusual-ipo-process-chafing-some-bankers-2026-11-22",
+     "source": "techmeme",
+     "source_name": "Reuters",
+     "published_at": "2026-11-22T20:15:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:cc8f83d99ba6327ad0ed2c38"
+    },
+    {
+     "id": "1e36144648cdc01b5367b73c",
+     "original_title": "I warned Iceland in June 2025 but they chose to ignore me…",
+     "url": "https://x.com/GadSaad/status/2124596352256819377",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T20:10:18.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:1e36144648cdc01b5367b73c"
+    },
+    {
+     "id": "fb37ecdce575ebfed7c7fca1",
+     "original_title": "Treasury Secretary Bessent on $NVDA, AI crash, and circular financing: Q: On Trump wanting Jensen Huang back. A: \"Well, I said they should go to the outside, but he's on the outside now\" Q: On AI market crash: A: \"The Democratic position on the SI buildout has spooked a lot of investors in terms of slowing\" \" hawkish remarks from the Federal Reserve... people believe they may be making a policy mistake if they over-tighten\" \"substantial tightening in financial conditions over the past few months\" Q: On circular financing: A: \"No, as Nvidia continues to be fantastically profitable, and there is near unlimited demand for their chips worldwide.\" Looks like the chances of Jensen returning and improving AI sentiment... have gone up materially with more support from Washington.",
+     "url": "https://x.com/aleabitoreddit/status/2124582975455318147",
+     "source": "x",
+     "source_name": "Serenity",
+     "published_at": "2026-11-22T19:17:08.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:fb37ecdce575ebfed7c7fca1"
+    },
+    {
+     "id": "dae1be229bc731130a709a20",
+     "original_title": "Jk pacing is a legit thing and I am very sympathetic to the argument because it's exponentially easier to become misaligned in fewer RL steps during post training as pretraining gets more efficient.",
+     "url": "https://x.com/dylan522p/status/2124577270602100791",
+     "source": "x",
+     "source_name": "Dylan Patel",
+     "published_at": "2026-11-22T18:54:28.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:dae1be229bc731130a709a20"
+    },
+    {
+     "id": "07e6cbbe1a2fbcdf6e8cec79",
+     "original_title": "Alternative Explanation: We are finally back on track with Bel and wanted to gloat https://t.co/DWAEPtE02z",
+     "url": "https://x.com/dylan522p/status/2124576956872339643",
+     "source": "x",
+     "source_name": "Dylan Patel",
+     "published_at": "2026-11-22T18:53:13.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:07e6cbbe1a2fbcdf6e8cec79"
+    },
+    {
+     "id": "d96fea1ca18ecba391e05c77",
+     "original_title": "I've been using @bot to help my fiancée and me plan our wedding, and it honestly feels like we have a hired full-time wedding planner. Over the last month, it helped us figure out our hotel room block. It found 15 hotels within 35 minutes of our venue, handled all the email correspondence, and got proposals with the details we needed to decide. Then it created a comparison sheet with the criteria we cared about and recommended a shortlist. Once we picked one, it helped us review the contract, negotiated with the hotel, and even signed it (w/ my permission, of course). The day after we signed, @bot proactively researched a shortlist of shuttle services and welcome-party venues, with emails already drafted for my review. I can't imagine planning a wedding without it. It's truly an amazing time to be alive.",
+     "url": "https://x.com/danny_graziosi/status/2124570651755204813",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T18:28:10.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:d96fea1ca18ecba391e05c77"
+    },
+    {
+     "id": "1dbfa624f964fc378b06064d",
+     "original_title": "Jony Ive, ex-OpenAI product designer Joey Flynn, and others on Silicon Valley's obsession with “taste” as a moat against AI slop and whether AI can learn it",
+     "url": "https://nytimes.com/2026/11/20/magazine/ai-slop-taste-aesthetic-silicon-valley.html?smid=url-share&unlocked_article_code=1.SFE.1a6T.-kpbFF_tJYZx",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-22T18:00:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:1dbfa624f964fc378b06064d"
+    },
+    {
+     "id": "33509d8b0d123aa1e6504c2b",
+     "original_title": "It’s almost unbelievable to have a CEO that works on so many things but still has this level of understanding of technical details at Tesla. Every time I’m fortunate enough to present to Elon, I’m blown away by how dedicated he is to learn about the technical progress and how much he cares about the low-level details while respecting each engineer’s work. Elon is so unique and It’s such an honor to work for him.",
+     "url": "https://x.com/yilun_chen_/status/2124558617231925447",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T17:40:21.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:33509d8b0d123aa1e6504c2b"
+    },
+    {
+     "id": "14dbd9b6d2b49d91a87e6488",
+     "original_title": "F.03 humanoid robots at Formula 1 https://t.co/J3WRhkEOxw",
+     "url": "https://x.com/adcock_brett/status/2124558274058150257",
+     "source": "x",
+     "source_name": "Brett Adcock",
+     "published_at": "2026-11-22T17:38:59.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:14dbd9b6d2b49d91a87e6488"
+    },
+    {
+     "id": "78a8fba6abae8c628b1d126c",
+     "original_title": "Experts say AI has made planning cyberattacks on industrial equipment faster by helping attackers read manuals and research past accidents more quickly",
+     "url": "https://ft.com/content/3cf882c6-0be6-43f5-b01e-b6f765686c8b?sharetype=gift&token=78da349b-c4b7-48c6-8dfa-5cf8d65ca0f1",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-22T14:01:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:78a8fba6abae8c628b1d126c"
+    },
+    {
+     "id": "d58356f4dce6d240e4f28960",
+     "original_title": "I think we moved past this a little too quickly … SpaceX literally caught a rocket in mid air last week https://t.co/vldLXKOWiq",
+     "url": "https://x.com/StockMKTNewz/status/2124498163050713287",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T13:40:07.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:d58356f4dce6d240e4f28960"
+    },
+    {
+     "id": "0db33666694eaff455ae6dd5",
+     "original_title": "Starlink saves lives",
+     "url": "https://x.com/elonmusk/status/2124477713142665551",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T12:18:52.000Z",
+     "collected_at": "2026-11-22T13:35:25.874Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:0db33666694eaff455ae6dd5"
+    },
+    {
+     "id": "d3e95ad1b1abcdc805a997c7",
+     "original_title": "@Liv_Boeree Unequivocal super intelligence has arrived. Welcome to the Singularity.",
+     "url": "https://x.com/elonmusk/status/2124464633490850164",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T11:26:53.000Z",
+     "collected_at": "2026-11-23T01:28:13.910Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:d3e95ad1b1abcdc805a997c7"
+    },
+    {
+     "id": "9730a9fb44c84ee286e4aee1",
+     "original_title": "@stevenmarkryan I cannot believe how new Grok Bot is and how integrated it already is in not only my businesses but my personal life. 2027 is going to be life-changing for anyone actually using this technology. I feel bad for those on the sidelines or with their head in the sand.",
+     "url": "https://x.com/FreeAndBuilding/status/2124460802774372833",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T11:11:40.000Z",
+     "collected_at": "2026-11-22T13:35:25.874Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:9730a9fb44c84ee286e4aee1"
+    },
+    {
+     "id": "1488b470d233b631e2f8277e",
+     "original_title": "Current and former officials from the US and other countries describe the Chinese spy agency MSS' campaign to help Chinese companies acquire advanced AI chips",
+     "url": "https://nytimes.com/2026/11/21/world/asia/china-nvidia-spy-chips-state-security.html?smid=url-share&unlocked_article_code=1.SVE.6AIw.4HHCTzFjtDId",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-22T10:00:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:1488b470d233b631e2f8277e"
+    },
+    {
+     "id": "1137ec194f079e3266dc7a6f",
+     "original_title": "Tesla rolls out FSD v15, featuring a photorealistic rendering of car surroundings; Elon Musk says it is real-time AI video generation without using game engines",
+     "url": "https://gizmodo.com/its-like-gta-musk-touts-video-game-like-update-to-tesla-fsd-2000843584",
+     "source": "techmeme",
+     "source_name": "Gizmodo",
+     "published_at": "2026-11-22T09:40:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:1137ec194f079e3266dc7a6f"
+    },
+    {
+     "id": "f236e3944cd971f91fd80fd7",
+     "original_title": "“Ice cream is an amazing invention.” — Elon Musk https://t.co/XQJeSOE3sU",
+     "url": "https://x.com/cb_doge/status/2124436902661197916",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T09:36:42.000Z",
+     "collected_at": "2026-11-22T13:35:25.874Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:f236e3944cd971f91fd80fd7"
+    },
+    {
+     "id": "8c7cf716bf782a634ae411ff",
+     "original_title": "A joint statement by the Lean and Mathlib communities says “we have full confidence that Alp&ouml;ge's proof of the Riemann Hypothesis is correct”",
+     "url": "https://leanprover-community.github.io/blog/posts/riemann-hypothesis",
+     "source": "techmeme",
+     "source_name": "Lean community blog",
+     "published_at": "2026-11-22T09:00:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:8c7cf716bf782a634ae411ff"
+    },
+    {
+     "id": "0305600a67eae5d9956edb0c",
+     "original_title": "Sources: AI server suppliers like Dell, HPE, Lenovo, and Supermicro are demanding substantially higher prices from buyers, months after contracts were signed",
+     "url": "https://ft.com/content/dd2a6594-6146-4ff1-ac8e-54749c1fc99f",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-22T08:50:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:0305600a67eae5d9956edb0c"
+    },
+    {
+     "id": "3de7e767744fa62f073757a0",
+     "original_title": "Sources: Alice Huang associate Li Ming, whom Singapore charged with fraud in 2025, was central to smuggling restricted AI chips from Southeast Asia to China",
+     "url": "https://wsj.com/tech/li-ming-megaspeed-nvidia-chips-china-6260d836?st=HzXMZU",
+     "source": "techmeme",
+     "source_name": "Wall Street Journal",
+     "published_at": "2026-11-22T08:45:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:3de7e767744fa62f073757a0"
+    },
+    {
+     "id": "6a8287c16bd611bd94f509e5",
+     "original_title": "Had lunch with two friends I told to use Grok Bot in their businesses a few weeks ago. The verdict? \"Can't live without Grok Bot now\".",
+     "url": "https://x.com/stevenmarkryan/status/2124410626701512759",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T07:52:17.000Z",
+     "collected_at": "2026-11-22T13:35:25.874Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:6a8287c16bd611bd94f509e5"
+    },
+    {
+     "id": "5b3b4dbb1991d09c12f6214f",
+     "original_title": "Tesla FSD v15 is gta in real life https://t.co/x98PgD8OF1",
+     "url": "https://x.com/Teslaconomics/status/2124359751815590236",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T04:30:08.000Z",
+     "collected_at": "2026-11-22T13:35:25.874Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:5b3b4dbb1991d09c12f6214f"
+    },
+    {
+     "id": "bd71a71c769371cb75ce817c",
+     "original_title": "BREAKING: Coinbase says Grok Bot is its most popular AI agent. Grok Bot led Coinbase for Agents with 40.4% of notional trading volume for Nov. 9–15, more than Claude and ChatGPT combined. Together, Grok Bot and Grok captured 56.8%. https://t.co/9ReOlE93k2",
+     "url": "https://x.com/cb_doge/status/2124342583531081741",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T03:21:54.000Z",
+     "collected_at": "2026-11-22T13:35:25.874Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:bd71a71c769371cb75ce817c"
+    },
+    {
+     "id": "7d72a4c40707527fde228f00",
+     "original_title": "Matchmakers say more tech workers fear romantic espionage after the Jensen Huang scandal; an AI companion app pitches “zero espionage” executive girlfriends",
+     "url": "https://wired.com/story/regular-tech-bros-are-worried-about-honeypots",
+     "source": "techmeme",
+     "source_name": "Wired",
+     "published_at": "2026-11-22T03:10:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:7d72a4c40707527fde228f00"
+    },
+    {
+     "id": "6caa9c94560c4e0a222f1597",
+     "original_title": "Google CEO Sundar Pichai on Elon's ability to bring future technologies into existence: \"I think it's just unparalleled.\" https://t.co/A91E8FMbK2",
+     "url": "https://x.com/teslaownersSV/status/2124320652501143556",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T01:54:46.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:6caa9c94560c4e0a222f1597"
+    },
+    {
+     "id": "fcc66f9f3faadf31904f37ff",
+     "original_title": "It's very interesting $ORCL can put out statements about being fully funded for OpenAI. Or $SNDK / Micron can put out statements reassuring investors about signed LTAs + price floors. Yet there's extraordinary levels of distrust toward disclosures and durability. Either everyone is excessively bearish, and this creates a generational buying opportunity on AI if contracts + projections hold... or they're skeptical for a good reason.",
+     "url": "https://x.com/aleabitoreddit/status/2124315829202493468",
+     "source": "x",
+     "source_name": "Serenity",
+     "published_at": "2026-11-22T01:35:36.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:fcc66f9f3faadf31904f37ff"
+    },
+    {
+     "id": "ff69727fb7f1761696c2097d",
+     "original_title": "If you zoom out a little further, you can see our simulation playing on the screen of the creators.",
+     "url": "https://x.com/shivon/status/2124306728514949325",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T00:59:26.000Z",
+     "collected_at": "2026-11-22T01:27:44.607Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:ff69727fb7f1761696c2097d"
+    },
+    {
+     "id": "e0b3f73e6334daf719708354",
+     "original_title": "Out of everything posted about FSD v15 so far, one line from @elonmusk deserves way more attention than it's getting: \"This is real-time AI video generation (no gaming engine!) using just half of one AI4 TRIP accelerator. Let that sink in …\" 🔥 Half of one accelerator is the part worth sitting with. Once you see the numbers behind it, Reality View stops looking like a fancy new screen and starts looking like one of the most impressive things Tesla has ever shipped. 🎬 THE SCREEN IS NOW GENERATED LIVE For years, FSD's screen worked like a video game. Software took a list of what the car detected and dropped stock 3D models in the right spots: a gray car here, a lane line there. Reality View tosses that playbook out the window. The car's AI now generates the video itself, frame after frame, as you drive, with no game engine anywhere in the loop. Better yet, the picture comes from the same end-to-end model that's doing the driving. That's the single neural network that turns camera video into steering and braking, and now it paints your screen, too. ⚙️ WHAT A TRIP ACTUALLY IS The standard AI4 computer carries two self-driving chips, and each chip packs three custom neural processors Tesla calls TRIP accelerators. That's six in all. And that's where Reality View gets made: right on the self-driving computer, instead of the infotainment chip that runs your maps and music. Each TRIP is basically an arena packed with tiny calculators, all cranking through the multiply-and-add math that neural networks run on. Teardowns count 9,216 of them per TRIP, lined up in a 96-by-96 grid and firing 2.2 billion times a second. Each calculator handles two operations per tick, so one TRIP works out to 9,216 × 2 × 2.2 billion, or roughly 40 trillion operations every second. Half of one comes to about 20 trillion, roughly a twelfth of the whole computer's neural muscle. 📏 WHY THAT NUMBER IS RIDICULOUS Twenty trillion operations per second sounds enormous, until you see what else runs on that kind of budget. The Neural Engine inside Apple's iPhone 15 Pro is rated at 35 trillion operations per second. So on paper, the slice of compute painting Reality View has less raw AI muscle than the AI chip in a 2023 phone. Companies don't all count these numbers the same way, so it's a ballpark, but it shows just how little compute this is. At the other end of the scale sits Nvidia's H100, one of the data-center workhorses powering today's AI boom. It's rated at about 1,979 trillion 8-bit operations per second in its standard mode, the same kind of math a TRIP runs, which puts half a TRIP at roughly 1% of one H100. That gap matters because AI video is one of the toughest jobs in AI. Many AI video generators still take minutes to produce a single clip, as the researchers behind the real-time system MotionStream point out. Even MotionStream, built specifically for speed, streams roughly 17 to 29 frames per second at 480p, and about 10 at 720p, while eating up an entire H100. Meanwhile, Tesla is streaming a live, photorealistic view of the real road on roughly 1% of that chip's rated power, inside a moving car. In other words, Reality View runs on less compute than a phone's AI chip, inside a computer whose main job is driving. There's a fair asterisk here. Those research models dream up whole scenes from a prompt or a single image, while Tesla's renderer starts with a driving brain that already knows exactly what's around the car. Tesla also hasn't shared the view's resolution or frame rate. And even on the most generous estimates of AI4's power, half a TRIP still works out to only about 2% of one H100. Either way, live generated video on a sliver of a car computer would have sounded like science fiction not long ago. 🔍 HOW IT CAN BE THIS CHEAP Tesla hasn't spelled out how it works, but it has left plenty of breadcrumbs. FSD's network has been building its own 3D picture of the world for a while now, something Tesla showed off at the ICCV conference in October 2025. That picture includes 3D Gaussians, millions of soft little blobs of color that can rebuild a scene you can view from any angle. Tesla also built its own Gaussian splatting system that can rebuild a scene from the car's cameras in a fraction of a second. Reality View streams its picture from a virtual camera that can sit anywhere above the car, and showing a scene from an angle no real camera has is exactly what those 3D blobs are great at. Even Elon seems to like that theory: he called a description of Reality View as a neural, Gaussian-splat digital twin \"pretty accurate\", and it lines up with every other clue. If that's the trick, the hard part is done before the screen ever needs a picture. The driving brain understands the scene, and the visualization just paints what it already knows. That would explain the other shocker. Reality View swapped every separate signal behind the old screen for one end-to-end visualization, and it still uses less compute than the bare-bones 2020 visualization did. 🚗 WHY TESLA CARES SO MUCH v15 is Tesla's large model, built to squeeze every ounce of performance out of HW4. On a chip working that hard, a screen that costs half of one TRIP leaves nearly everything else for the driving. And it's a flex, too. The AI4 computer costs about $650 by Elon's own figure, and that same box now drives the car and paints live video of the world at the same time. This is only the start. Elon says Tesla vehicles will share traffic knowledge and combine it with Grok's real-time 𝕏 feed, even giving you a heads-up about what's happening at your destination. A view this cheap to generate is the perfect canvas for that kind of shared knowledge. Elon asked everyone to let that sink in, and the math earns it: half of one accelerator in a $650 computer is painting the real world live while FSD drives.",
+     "url": "https://x.com/tslaming/status/2124301719798731119",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T00:39:32.000Z",
+     "collected_at": "2026-11-22T13:35:25.874Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:e0b3f73e6334daf719708354"
+    },
+    {
+     "id": "60a4e5fe4fae66212150db25",
+     "original_title": "Overheard in Palo Alto: GTA 6’s real-world mode just dropped on Teslas. https://t.co/eeqXD9f6pz",
+     "url": "https://x.com/pduan/status/2124298543427203084",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T00:26:54.000Z",
+     "collected_at": "2026-11-22T01:27:44.607Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:60a4e5fe4fae66212150db25"
+    },
+    {
+     "id": "526be0b2e6259e2cb6b981d2",
+     "original_title": "This is so fun that it’s worth just having your car drive you around for the sake of driving around",
+     "url": "https://x.com/elonmusk/status/2124295793280450870",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T00:15:59.000Z",
+     "collected_at": "2026-11-22T01:27:44.607Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:526be0b2e6259e2cb6b981d2"
+    },
+    {
+     "id": "7e9c5e845cc5be7dfb6ca640",
+     "original_title": "Tesla FSD V15 is a banger release! Completely new architecture that deserves being called “super” intelligence, as it drives better than human intelligence.",
+     "url": "https://x.com/elonmusk/status/2124294755316310346",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T00:11:51.000Z",
+     "collected_at": "2026-11-22T01:27:44.607Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:7e9c5e845cc5be7dfb6ca640"
+    },
+    {
+     "id": "bf2df2f4d42ff4d1e9c5623c",
+     "original_title": "@jamesdouma It is mesmerizing to watch. Where this is actually useful is when you want to tap the exact drop-off or parking location on the screen that you want your car to target.",
+     "url": "https://x.com/elonmusk/status/2124293720728346919",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T00:07:45.000Z",
+     "collected_at": "2026-11-22T01:27:44.607Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:bf2df2f4d42ff4d1e9c5623c"
+    },
+    {
+     "id": "18f67b6edd2f7a941d0b16d3",
+     "original_title": "@Scobleizer Pretty accurate. Tesla vehicles will share traffic knowledge and combine that with Grok’s real-time 𝕏 feed to give you the optimal transport experience, even giving you a heads up about what’s happening at your destination!",
+     "url": "https://x.com/elonmusk/status/2124293036418990381",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-22T00:05:01.000Z",
+     "collected_at": "2026-11-22T01:27:44.607Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:18f67b6edd2f7a941d0b16d3"
+    },
+    {
+     "id": "de0ee1b3cfdfa709a671b0ea",
+     "original_title": "@tobi Crazy work. https://t.co/YKmN5oHMYD",
+     "url": "https://x.com/RafelineK/status/2124285994073809252",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-21T23:37:02.000Z",
+     "collected_at": "2026-11-22T01:27:44.607Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:de0ee1b3cfdfa709a671b0ea"
+    },
+    {
+     "id": "670b609819d07179edf908e6",
+     "original_title": "Little known fact about the man of the hour Levant @__alpoge__, is that he cooks at Age of Empires 2",
+     "url": "https://x.com/dylan522p/status/2124284118276186177",
+     "source": "x",
+     "source_name": "Dylan Patel",
+     "published_at": "2026-11-21T23:29:35.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:670b609819d07179edf908e6"
+    },
+    {
+     "id": "193c8a26c0271def4c20ca77",
+     "original_title": "Give Grok @Bot your hardest tasks",
+     "url": "https://x.com/elonmusk/status/2124280710747840889",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-21T23:16:03.000Z",
+     "collected_at": "2026-11-22T01:27:44.607Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:193c8a26c0271def4c20ca77"
+    },
+    {
+     "id": "2e682cfa97e6ea70b12d6577",
+     "original_title": "Researchers used canary credentials in requests to AI routers like OpenRouter and Vercel, even under “ZDR” policies, and saw “privacy” often broken, keys stolen",
+     "url": "https://arstechnica.com/security/2026/11/a-leaky-ai-supply-chain-is-exposing-secret-user-data-at-an-alarming-rate",
+     "source": "techmeme",
+     "source_name": "Ars Technica",
+     "published_at": "2026-11-21T23:10:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:2e682cfa97e6ea70b12d6577"
+    },
+    {
+     "id": "89f60c2edc947965587e91cc",
+     "original_title": "Absolutely true",
+     "url": "https://x.com/GavinSBaker/status/2124278542347440636",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-21T23:07:26.000Z",
+     "collected_at": "2026-11-22T13:35:25.874Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:89f60c2edc947965587e91cc"
+    },
+    {
+     "id": "28c4496862a64ba90bdbd3ad",
+     "original_title": "Tesla FSD V15 is officially downloading on my Model Y! https://t.co/aC3hP42iib",
+     "url": "https://x.com/SawyerMerritt/status/2124271378073530460",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-21T22:38:58.000Z",
+     "collected_at": "2026-11-22T01:27:44.607Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:28c4496862a64ba90bdbd3ad"
+    },
+    {
+     "id": "a8efe01f7a3c9bb324ab1bbd",
+     "original_title": "v15 is 25x safer than v14 across the fleet. That’s hard to notice on any individual drive because most drives are already very safe. The difference only becomes clear when you aggregate millions of miles. All credit goes to the incredibly talented and dedicated @TeslaSI engineers who made this possible. It’s an honor to work alongside them.",
+     "url": "https://x.com/pduan/status/2124265867336966182",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-21T22:17:04.000Z",
+     "collected_at": "2026-11-22T01:27:44.607Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:a8efe01f7a3c9bb324ab1bbd"
+    },
+    {
+     "id": "cb47a7df2421877fe05c0e11",
+     "original_title": "Investigation: Alice Huang had ties to gaming firms, alleged Prince Group figures, and hundreds of shell companies in a network moving Nvidia chips to China",
+     "url": "https://ft.com/content/f3ad8a81-3890-4a8a-8853-ff0a94b08ba9",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-21T21:55:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:cb47a7df2421877fe05c0e11"
+    },
+    {
+     "id": "411917b0addfd24454bb8aa6",
+     "original_title": "Sources: Amazon is nearing a $7.5B deal to buy AI startup Decart; talks are at an advanced stage and a deal could come together as soon as next week",
+     "url": "https://ft.com/content/dc7749dc-0f40-44a6-80bc-7f747d383616",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-21T20:55:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:411917b0addfd24454bb8aa6"
+    },
+    {
+     "id": "83d4ff6b49c62bbb1e9284ce",
+     "original_title": "FSD went from bounding boxes to Reality View in less than half a GTA https://t.co/C1fOsc0myz",
+     "url": "https://x.com/battleangelviv/status/2124233719078965484",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-21T20:09:19.000Z",
+     "collected_at": "2026-11-22T13:35:25.874Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:83d4ff6b49c62bbb1e9284ce"
+    },
+    {
+     "id": "f47a6b7e78f7c678c57ac1ce",
+     "original_title": "FSD visualizations 6 years apart https://t.co/rhQY2hZ5sX",
+     "url": "https://x.com/SawyerMerritt/status/2124231512237249008",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-21T20:00:33.000Z",
+     "collected_at": "2026-11-22T01:27:44.607Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:f47a6b7e78f7c678c57ac1ce"
+    },
+    {
+     "id": "5cc4e4bf5b27c60836c11c4f",
+     "original_title": "https://t.co/GMYNFjcEa2",
+     "url": "https://x.com/adcock_brett/status/2124226382184300566",
+     "source": "x",
+     "source_name": "Brett Adcock",
+     "published_at": "2026-11-21T19:40:10.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:5cc4e4bf5b27c60836c11c4f"
+    },
+    {
+     "id": "d414ba606ab2cb20d69cf1d0",
+     "original_title": "Grok Bot is getting very good…",
+     "url": "https://x.com/alx/status/2124220635928985646",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-21T19:17:20.000Z",
+     "collected_at": "2026-11-22T13:35:25.874Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:d414ba606ab2cb20d69cf1d0"
+    },
+    {
+     "id": "02af07b8a939f31e0ae44780",
+     "original_title": "Rhodium: China's biggest tech companies are set to double capex to $139B in 2026 with AI lab revenue under 8% of it, a gap that may matter more than chip curbs",
+     "url": "https://nytimes.com/2026/11/20/business/china-ai-investment-spending.html?smid=url-share&unlocked_article_code=1.SFE.jZ7m.KdwX3UsrRw18",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-21T18:10:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:02af07b8a939f31e0ae44780"
+    },
+    {
+     "id": "8319e4c48ab1129e56fe0deb",
+     "original_title": "SpaceX is planning an absolutely massive 6-gigawatt supercomputing campus in Arizona, designed to operate with ZERO industrial water consumption And the engineering behind this is absolutely insane The proposed campus near Willcox includes: • 747 acres of land • Nine supercomputing buildings, each ~493,000 sq ft • Up to 6 GW of electrical demand across four phases • Up to 24 GWh of battery energy storage • Dry cooling without conventional cooling towers • ZERO industrial groundwater use under its proposed operating plan • Just 7–10 acre-feet of estimated annual operational water consumption • ~$3.6 BILLION in planned grid infrastructure upgrades • ~1,000 permanent jobs and up to 5,500 construction workers All of this is being planned in the middle of the Arizona desert Building superintelligence infrastructure at this scale goes far beyond installing millions of GPUs It means securing enormous amounts of electricity, building advanced cooling systems, expanding the power grid and solving engineering challenges that come with operating at gigawatt scale A single 6 GW campus with 24 GWh of battery storage, designed to operate with minimal on-site water consumption SpaceX is taking superintelligence infrastructure to an entirely different level",
+     "url": "https://x.com/XFreeze/status/2124203543242719564",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-21T18:09:25.000Z",
+     "collected_at": "2026-11-22T13:35:25.874Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:8319e4c48ab1129e56fe0deb"
+    },
+    {
+     "id": "f83c6d81e6e9c08b0b140c50",
+     "original_title": "FSD V12 Introduced end-to-end neural-network driving. FSD V13 built on that and reduced interventions. FSD V14 brought point-to-point travel and a huge leap in capability, helping FSD start to go mainstream. FSD V15 will bring: • Pothole avoidance • AI-based mapping and navigation rather than relying on conventional third-party maps. • A new user interface that will re-render reality in a \"mind-bending way.\" • Fleet intelligence that incorporates driving information collected across Tesla vehicles. • Voice integration, allowing drivers to request different routes conversationally (likely through Grok). • Improved parking, destination handling and trip planning. • 10x parameter count increase • New lane change and exiting behavior • And eventually (2027 for Model Y), FSD Unsupervised for personal cars (Tesla's robotaxis already run V15, and the personal Cybercabs being delivered next month likely will too).",
+     "url": "https://x.com/SawyerMerritt/status/2124183811202187404",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-21T16:51:00.000Z",
+     "collected_at": "2026-11-22T01:27:44.607Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:f83c6d81e6e9c08b0b140c50"
+    },
+    {
+     "id": "dd22dab5450f2581bb4a4568",
+     "original_title": "Iceland is considered “the most gender-equal country in the world” but it doesn’t seem “equal” to me… Currently, they have a female President, Prime Minister, the head of every political party is a woman and the majority of cabinet is women. 68.8% of students who graduated college last year were women. This list goes on about how “gender equality” actually seems to mean female dominance today. Yesterday I spoke with the former First Lady of Iceland. She did seem concerned about the college student stat, but she insisted there was still so much to do to fight for gender equality for women there. I think it might be time to look at the disadvantages of both sexes when it comes to addressing “gender equality.” No?",
+     "url": "https://x.com/LisaBritton/status/2124178525221466306",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-21T16:30:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:dd22dab5450f2581bb4a4568"
+    },
+    {
+     "id": "0865bcccf618ef0664d34679",
+     "original_title": "An interview with Google DeepMind in-house philosopher Henry Shevlin on being hired to work on machine consciousness, human-AI relationships, and AGI readiness",
+     "url": "https://ft.com/content/6f807d57-f0ea-4251-9f4d-75a6edc8d49a?sharetype=gift&token=956073db-4440-473e-97bd-a0af2932464c",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-21T14:30:00.000Z",
+     "collected_at": "2026-11-23T13:27:12.088Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:0865bcccf618ef0664d34679"
+    },
+    {
+     "id": "564ba1eb53e41f644b5ec9e5",
+     "original_title": "Starlink helped save a young man’s life in remote Myanmar. After a landmine blast in Kayah State, his injuries were beyond what the medic on the ground could treat alone. Using Starlink, the team sent photos and videos to a surgeon in Germany, who guided the medic through emergency procedures. Free Burma Rangers says this helped save his life and what remained of his leg. For remote communities with no mobile signal, Starlink can put life-saving expertise within reach, even when the surgeon is thousands of miles away.",
+     "url": "https://x.com/cb_doge/status/2124140238587211891",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-21T13:57:52.000Z",
+     "collected_at": "2026-11-22T13:35:25.874Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261123132722056-dd45ee9b-dbe6-4597-8ecd-550bb70a0af2:564ba1eb53e41f644b5ec9e5"
+    }
+   ],
+   "semantic_event_dedup": "required_by_analysis_skill"
+  },
+  "gaps": [
+   "dynamic industry/customer/commodity anchors require primary-source lookup",
+   "historical first-known times unavailable; no historical point-in-time replay",
+   "no intraday auction/local-core feed; premarket confirmation is conditional",
+   "intl_index_daily:KR_PROXY:20260626:stale"
+  ],
+  "limitations": [
+   "Source dates and database updated_at are not first-known timestamps.",
+   "Close/session completeness and raw news articles must be verified by the skill.",
+   "Prices, pct_chg units, FX/futures kind and contract identity retain source semantics.",
+   "No trade signal, position or predictive-performance certification is generated."
+  ]
+ }
+}

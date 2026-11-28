@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-09",
+  "notes": [
+    {
+      "text": "FOMC 市场隐含预期（下一场）：hike 78.0% / hold 22.0% / cut 0%——较 11-06 快照（hike 72.8%）回升约 5pp；为 10 月非农后周末读数（北京时 11-09 06:02-06:04），两源均为中文快讯、或共引同一上游，独立性有限",
+      "source": "风险日报·fomc_market_exp",
+      "as_of": "2026-11-09"
+    },
+    {
+      "text": "仓位四态信号 hold：000688.SH V2.5-ET双波（T 无需减仓，建议档=现档 4；E 暂无合格事件；下一交易日 11-10 无待执行订单；模型账非真实持仓）",
+      "source": "剑酒青丘·v25_et_position_signal",
+      "as_of": "2026-11-09"
+    },
+    {
+      "text": "白泽哨兵：铜 yoy +22.8% 处均线上方（above）；原油SC(人民币代理) yoy +37.0% 仍 above；碳酸锂 yoy +6.3% 仍在均线下（较 11-06 的 +15.4% 明显收窄）；黄金 yoy -4.2% 均线下",
+      "source": "白泽大宗·哨兵",
+      "as_of": "2026-11-09"
+    }
+  ],
+  "eal": {
+    "text": "无（attribution.db 不可读）",
+    "source": "EAL·attribution.db（macro_event_releases ⋈ macro_standardized_surprises）",
+    "as_of": "2026-11-09"
+  },
+  "starry_ne": {
+    "text": "无",
+    "source": "渊图星空·Newly Emerged（render-archive 渲染产物 starscape-data）",
+    "as_of": "2026-11-09",
+    "note": "渲染产物（2026-11-05）内无 signal_emerged_at=2026-11-09 的信号节点"
+  }
+}

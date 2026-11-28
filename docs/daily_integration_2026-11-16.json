@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-16",
+  "notes": [
+    {
+      "text": "FOMC 市场隐含预期（12/8-9 会次）：hike 100%（+25bp 95% / +50bp 5%）/ hold 0% / cut 0%——两源为 FX168速递与界面新闻快讯转述，非 CME 官方页直读；+50bp 档较 11-13（13~15.3%）明显回落",
+      "source": "风险日报·fomc_market_exp",
+      "as_of": "2026-11-16"
+    },
+    {
+      "text": "仓位四态信号 hold：000688.SH V2.5-ET双波（T 无需减仓，模型名义档位 100%〔档 4〕，实际权重 92.80%；下一交易日 2026-11-17；模型账非真实持仓）",
+      "source": "剑酒青丘·v25_et_position_signal",
+      "as_of": "2026-11-16"
+    },
+    {
+      "text": "白泽哨兵：铜 yoy +19.8% 转至均线下方（11-13 仍 above）；原油SC(人民币代理) yoy +35.7% 仍 above；碳酸锂 yoy +1.0% 仍在均线下；黄金 yoy -13.1% 均线下（较 11-13 的 -12.7% 续弱）",
+      "source": "白泽大宗·哨兵",
+      "as_of": "2026-11-16"
+    },
+    {
+      "text": "白泽观星 Fed 会前读数：判定 hike（p_hike 25 / p_hold 75 / p_cut 0）；输入 CPI 同比 4.08%（滞后 46 天）· 10Y 5.1% · 2Y 4.86%；模型为预注册候选、回测仅 8 样本，非生产判定",
+      "source": "白泽观星·fed_prediction",
+      "as_of": "2026-11-16"
+    }
+  ],
+  "eal": {
+    "text": "无",
+    "source": "EAL·attribution.db（macro_event_releases ⋈ macro_standardized_surprises）",
+    "as_of": "2026-11-16",
+    "note": "窗口 2026-11-15~2026-11-16 无 macro_* 发布/惊奇记录 · DB 最新发布 2026-09-04"
+  },
+  "starry_ne": {
+    "text": "无",
+    "source": "渊图星空·Newly Emerged（render-archive 渲染产物 starscape-data）",
+    "as_of": "2026-11-16",
+    "note": "渲染产物（2026-11-04）内无 signal_emerged_at=2026-11-16 的信号节点"
+  }
+}

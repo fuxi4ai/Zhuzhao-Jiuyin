@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-03",
+  "notes": [
+    {"text": "FOMC 市场隐含预期：12 月会定价 hold 25.1% / hike 74.9% / cut 0%（双源对拍通过）；1 月累计 +25bp 61.2% / hold 18.2% / +50bp 20.7%——加息预期高位维持", "source": "风险日报·fomc_market_exp", "as_of": "2026-11-03"},
+    {"text": "仓位四态信号 hold：000688.SH V2.5-ET双波（剑酒青丘仓位模型）", "source": "剑酒青丘·v25_et_position_signal", "as_of": "2026-11-03"},
+    {"text": "白泽哨兵：铜 yoy +21.5% 站上 60 日均线（above）；原油SC(人民币代理) yoy +49.2% 仍 above；碳酸锂 10-27 上穿事件仍 pending_confirm 但最新读数已回落均线下（yoy +8.5%）；钨(SMM) yoy +18.2% 事件 active（结构性）", "source": "白泽大宗·哨兵", "as_of": "2026-11-03"},
+    {"text": "X Board 综合研判：大摩援引数据称对冲基金近期降杠杆规模创十年最高（全球风险偏好）；Marvell-LITE 收购处最后阶段，交割等待压制 LITE 股价", "source": "X Board", "as_of": "2026-11-02"}
+  ]
+}

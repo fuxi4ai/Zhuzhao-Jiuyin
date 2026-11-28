@@ -1,0 +1,521 @@
+{
+ "schema_version": 2,
+ "trade_date": "20261119",
+ "session": "盘后",
+ "observed_at": "2026-11-19T17:39:42+00:00",
+ "inputs_sha256": "990b65d6419af515cabc2db6e493e51b1c3f243a7b489926fa401305795ac54e",
+ "author": "句芒（定时班影子运行）",
+ "selection_rule": "按输入包数值挑对象：接上一期五条（光通信、芯片、商业航天、电力、外围环境），新增锚单日大跌且 20 日超额深度为负的有色金属，以及当日跌幅最大的锂电储能",
+ "blind": true,
+ "blind_note": "写成于打开当日课件、复盘库当日入库与九儿当日入库日志之前",
+ "data_notes": [
+  "资讯全部只读了标题，没有读正文；社交媒体帖子按传闻或观点层处理",
+  "输入包没有铜、碳酸锂等商品读数，也没有离岸人民币与国内债市读数",
+  "11 月 18 日没有单独的自复盘记录（上一班运行时行情库还停在 11 月 17 日），本期直接承接 11 月 17 日"
+ ],
+ "records": [
+  {
+   "id": "20261119-01",
+   "theme": "光模块/CPO/光通信/光纤",
+   "object": "A 股光通信链",
+   "main_issue": "出口端政策风险从传闻升级为权威媒体标题：路透称美国政府在推进 FCC 禁止进口中国新型号光模块的提案；海外锚 20 日仍深度跑输",
+   "anchor": {
+    "name": "Lumentum（LITE）",
+    "card": "卡一",
+    "role": "同向印证"
+   },
+   "evidence": [
+    {
+     "kind": "inputs",
+     "ref": "inputs.json:local.themes[光模块/CPO/光通信/光纤]",
+     "asof": "20261119",
+     "value": {
+      "当日": -0.52,
+      "e5": -13.5,
+      "e20": -24.37,
+      "锚20日超额_截至1118": -30.04
+     }
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:theme_etf_daily:515880.SH:20261118",
+     "asof": "20261118",
+     "value": 1.33
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:us_anchor_daily:LITE:20261118",
+     "asof": "20261118",
+     "value": -1.5894
+    },
+    {
+     "kind": "url",
+     "ref": "https://reuters.com/world/trumps-china-data-center-curb-advances-despite-amazon-google-meta-lobbying-2026-11-17",
+     "asof": "2026-11-17T15:20Z",
+     "body_read": "仅标题",
+     "first_public_at": "未核",
+     "note": "标题称特朗普政府不顾大型科技公司游说，推进 FCC 禁止进口中国新型号光模块的提案（仅标题，正文未读；提案阶段，未见最终规则原文）"
+    },
+    {
+     "kind": "url",
+     "ref": "https://x.com/aleabitoreddit/status/2123401652782923980",
+     "asof": "2026-11-19T13:02Z",
+     "body_read": "仅标题",
+     "first_public_at": "未核",
+     "note": "个人账号称 Coherent 新增 20 亿美元回购，并看多光通信周期（社交媒体，属观点层，回购本身未核公司公告）"
+    }
+   ],
+   "transmission": {
+    "chain": "美国禁止进口中国新型号光模块 → A 股光模块厂对美直接出货受限、需经海外产能转运 → 对美收入与毛利承压",
+    "exposure": "各公司对美收入占比、海外产能比例本轮未核",
+    "status": "未核"
+   },
+   "change": {
+    "baseline": "上一期（11 月 17 日）已给宜减，进口限制当时只是社交媒体传闻",
+    "delta": "限制从个人账号传闻变为路透标题所称的政府推进提案；本地 11 月 18 日反而收涨 1.33%（同日沪深 300ETF +0.40%），11 月 19 日回落 0.52%；锚 20 日超额由 −31.2 收窄到 −30.0"
+   },
+   "direction": "宜减",
+   "stage": "条件草案",
+   "stage_basis": "方向依赖：本地 20 日超额继续为深度负值，且锚 20 日超额不回正；FCC 提案没有被撤回。还差：路透正文、FCC 提案原文及适用的产品型号范围，A 股光模块公司对美收入占比",
+   "local_confirmation": {
+    "status": "已确认",
+    "basis": "本地 20 日超额 −24.4、5 日超额 −13.5 个百分点，与锚 −30.0 同向；但 11 月 18 日出现单日相对走强，短线是否继续跟跌未定"
+   },
+   "priced_in": "FCC 消息北京时间 11 月 17 日 23:20 前后出现，11 月 18 日 A 股已有机会反映，本地当日却收涨，说明这一消息要么已被此前的下跌提前反映，要么市场不认；两种解释本轮无法区分，待核",
+   "invalidation": "FCC 提案被撤回或明确不涵盖现有型号，且本地 5 日超额转正、锚 20 日超额回升",
+   "next_check": "读路透正文与 FCC 公示文件；看 COHR、LITE 下一交易日收盘；看本地 5 日超额能否止跌",
+   "prior": {
+    "ref": "20261117-01",
+    "carry": "上一期留下的验证点是“核正式文件、看本地是否继续跟跌”。正式文件本轮仍未核，只拿到路透标题；本地 11 月 18 日没有跟跌而是收涨，上一期“下一交易日继续跟跌”的预期落空，20 日维度的宜减判断仍成立"
+   }
+  },
+  {
+   "id": "20261119-02",
+   "theme": "半导体/芯片/半导体材料",
+   "object": "A 股半导体与设备材料",
+   "main_issue": "海外对华芯片供给继续收紧（英伟达临时 CEO 称停止在华销售 H200、腾讯称远程访问新规拖慢国内模型训练），本地芯片连续两日相对沪深 300 走强，替代预期在延续",
+   "anchor": {
+    "name": "台积电（TSM）",
+    "card": "卡一",
+    "role": "温度计"
+   },
+   "evidence": [
+    {
+     "kind": "inputs",
+     "ref": "inputs.json:local.themes[半导体/芯片/半导体材料]",
+     "asof": "20261119",
+     "value": {
+      "当日": 1.07,
+      "e5": -2.15,
+      "e20": -1.16,
+      "锚20日超额_截至1118": -10.26
+     }
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:theme_etf_daily:159995.SZ:20261118",
+     "asof": "20261118",
+     "value": 2.31
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:theme_etf_daily:510300.SH:20261119",
+     "asof": "20261119",
+     "value": 0.05
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:us_anchor_daily:TSM:20261118",
+     "asof": "20261118",
+     "value": 0.8146
+    },
+    {
+     "kind": "url",
+     "ref": "https://techcrunch.com/2026/11/17/nvidia-is-abandoning-china-after-jensen-huangs-ouster",
+     "asof": "2026-11-18T03:00Z",
+     "body_read": "仅标题",
+     "first_public_at": "未核",
+     "note": "标题称英伟达临时 CEO 表示不再在中国销售 H200（仅标题，正文未读）"
+    },
+    {
+     "kind": "url",
+     "ref": "https://theinformation.com/briefings/tencent-president-new-u-s-chip-rule-sets-everyone-back-china",
+     "asof": "2026-11-18T18:10Z",
+     "body_read": "仅标题",
+     "first_public_at": "未核",
+     "note": "标题称腾讯总裁表示美国远程访问新规让国内模型训练整体倒退（仅标题，正文未读）"
+    }
+   ],
+   "transmission": {
+    "chain": "台积电只作全球半导体景气温度计，与本地设备材料没有直接订单关系",
+    "exposure": "温度计不适用；国产替代的订单层证据本轮未核",
+    "status": "不适用"
+   },
+   "change": {
+    "baseline": "上一期为观察，验证点是本地能否连续两个交易日相对沪深 300 走强",
+    "delta": "本地 11 月 18 日 +2.31%、11 月 19 日 +1.07%，同期沪深 300ETF +0.40%、+0.05%，连续两日相对走强；但 5 日超额因窗口滚动由 +0.15 变为 −2.15，20 日超额由 −3.72 收窄到 −1.16"
+   },
+   "direction": "观察",
+   "stage": "观察",
+   "local_confirmation": {
+    "status": "待确认",
+    "basis": "日度相对强度已连续两日，20 日超额接近转正，但 5 日超额为负；没有订单或核心公司层面的证据"
+   },
+   "priced_in": "H200 停售消息北京时间 11 月 18 日 11:00 前后出现，本地 11 月 18 日、19 日都在上涨，替代预期的这一段大概率已在价格里；腾讯表态在 11 月 18 日 A 股收盘后，11 月 19 日的上涨可能含其反映，待核",
+   "invalidation": "20 日超额重新扩大为负，或管制细则证明对国产设备材料供应链同样构成限制",
+   "next_check": "看 20 日超额能否转正；核 H200 停售与远程访问规则正文对国产链的适用范围",
+   "prior": {
+    "ref": "20261117-02",
+    "carry": "上一期两条：一是“连续两个交易日相对沪深 300 走强”，本期已兑现；二是失效条件“5 日超额重新转负”，按读数也已触发（−2.15），但这是窗口滚动所致，与日度走强并存。两个信号互相矛盾，维持观察，不升级也不撤"
+   }
+  },
+  {
+   "id": "20261119-03",
+   "theme": "商业航天/卫星",
+   "object": "A 股商业航天与卫星链",
+   "main_issue": "锚强而本地不跟的背离在收敛：海外锚 20 日超额由 +18.8 降到 +8.8，本地继续走弱；星舰第 15 次飞行完成上面级回收，本地次日仍下跌",
+   "anchor": {
+    "name": "Rocket Lab（RKLB）",
+    "card": "卡一",
+    "role": "同向印证"
+   },
+   "evidence": [
+    {
+     "kind": "inputs",
+     "ref": "inputs.json:local.themes[商业航天/卫星]",
+     "asof": "20261119",
+     "value": {
+      "当日": -1.64,
+      "e5": -11.87,
+      "e20": -11.63,
+      "锚20日超额_截至1118": 8.77
+     }
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:theme_etf_daily:563230.SH:20261118",
+     "asof": "20261118",
+     "value": -1.27
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:us_anchor_daily:RKLB:20261118",
+     "asof": "20261118",
+     "value": -3.5967
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:intl_index_daily:SPCX:20261118",
+     "asof": "20261118",
+     "value": 1.2703
+    },
+    {
+     "kind": "url",
+     "ref": "https://x.com/Nasdaq/status/2123102665752158402",
+     "asof": "2026-11-18T17:14Z",
+     "body_read": "仅标题",
+     "first_public_at": "未核",
+     "note": "纳斯达克官方账号称星舰第 15 次飞行完成上面级首次捕获并部署 26 颗星链 V3 卫星（仅标题；事件首次公开时刻未核）"
+    }
+   ],
+   "transmission": {
+    "chain": "海外发射能力与卫星部署进展 → 国内商业航天估值映射；对 A 股公司的订单或供应链关系不成立",
+    "exposure": "A 股公司与 SpaceX、Rocket Lab 的直接商业关系本轮未核，按无直接暴露处理",
+    "status": "未核"
+   },
+   "change": {
+    "baseline": "上一期为观察，本地 5 日超额 −10.0",
+    "delta": "本地 5 日超额 −11.9、20 日超额 −11.6，继续是最弱一档；锚 11 月 18 日跌 3.6%，20 日超额收窄 10 个百分点"
+   },
+   "direction": "观察",
+   "stage": "观察",
+   "local_confirmation": {
+    "status": "未确认",
+    "basis": "锚 20 日仍为正而本地 20 日超额 −11.6，国内资金不认这条映射"
+   },
+   "priced_in": "星舰消息在 11 月 18 日 A 股收盘后，本地 11 月 19 日已能反映，没有跟涨；锚的回落本地已同向",
+   "invalidation": "锚 20 日超额转负则改为宜减；本地 5 日超额转正且与锚同步才重新评估",
+   "next_check": "看锚 20 日超额是否继续回落直至转负",
+   "prior": {
+    "ref": "20261117-03",
+    "carry": "上一期验证点“看锚 20 日超额是否回落、本地是否止跌”：锚已回落到 +8.8 但未转负，宜减条件未满足；本地没有止跌"
+   }
+  },
+  {
+   "id": "20261119-04",
+   "theme": "电力/电网/算电协同/燃气轮机",
+   "object": "A 股电力与电网设备",
+   "main_issue": "本地强而锚弱的背离持续：海外燃气轮机龙头 20 日跑输 10 个百分点，本地 5 日、20 日超额都在 +3 附近",
+   "anchor": {
+    "name": "GE Vernova（GEV）",
+    "card": "卡一",
+    "role": "同向印证"
+   },
+   "evidence": [
+    {
+     "kind": "inputs",
+     "ref": "inputs.json:local.themes[电力/电网/算电协同/燃气轮机]",
+     "asof": "20261119",
+     "value": {
+      "当日": -0.48,
+      "e5": 2.95,
+      "e20": 2.94,
+      "锚20日超额_截至1118": -10.19
+     }
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:theme_etf_daily:159611.SZ:20261118",
+     "asof": "20261118",
+     "value": 0.96
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:us_anchor_daily:GEV:20261118",
+     "asof": "20261118",
+     "value": -0.986
+    },
+    {
+     "kind": "url",
+     "ref": "https://bloomberg.com/news/articles/2026-11-19/google-ruth--porat-pledges-data-center-local-support-amid-backlash",
+     "asof": "2026-11-19T10:35Z",
+     "body_read": "仅标题",
+     "first_public_at": "未核",
+     "note": "标题称谷歌首席投资官回应各地对数据中心的反弹，承诺投入当地就业（仅标题，正文未读）"
+    }
+   ],
+   "transmission": {
+    "chain": "海外数据中心电力需求 → 燃气轮机与电网设备订单 → 若本地强度来自海外算电映射，应随锚回落",
+    "exposure": "A 股电力设备公司海外收入占比、国内电网投资贡献本轮均未核",
+    "status": "未核"
+   },
+   "change": {
+    "baseline": "上一期为观察，本地 5 日超额 +2.27、20 日超额 +4.34",
+    "delta": "本地 5 日超额升到 +2.95、20 日超额降到 +2.94；锚 20 日超额由 −11.5 小幅回升到 −10.2"
+   },
+   "direction": "观察",
+   "stage": "观察",
+   "local_confirmation": {
+    "status": "待确认",
+    "basis": "本地仍强，但强度来源（国内电网投资还是海外算电映射）仍无证据区分"
+   },
+   "priced_in": "海外数据中心反弹的报道持续，锚已反映；本地没有跟随，差额是否会补跌取决于本地强度来源，待核",
+   "invalidation": "本地 5 日超额转负则改为宜减；锚 20 日超额回正则背离解除",
+   "next_check": "核国家能源局或国家电网最新电网投资数据",
+   "prior": {
+    "ref": "20261117-04",
+    "carry": "上一期验证点“核国内电网投资官方数据”本轮仍未核；本地 5 日超额没有转负，失效条件未触发"
+   }
+  },
+  {
+   "id": "20261119-05",
+   "theme": null,
+   "object": "外围环境",
+   "main_issue": "外围企稳而本地走弱：美股 11 月 18 日纳指 100 小涨、标普小跌，美债收益率与原油回落，亚洲时段韩国存储股与日经期货走强；A 股三大指数同日收跌",
+   "anchor": {
+    "name": "纳指 100、美债 10 年收益率、布伦特原油、韩国存储股",
+    "card": "卡六",
+    "role": "温度计"
+   },
+   "evidence": [
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:intl_index_daily:NASDAQ:20261118",
+     "asof": "20261118",
+     "value": 0.424
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:us_anchor_daily:SPY:20261118",
+     "asof": "20261118",
+     "value": -0.3058
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:intl_index_daily:US10Y:20261118",
+     "asof": "20261118",
+     "value": 5.07
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:intl_index_daily:BRENT:20261119",
+     "asof": "20261119",
+     "value": 89.69
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:intl_index_daily:KR_HYNIX:20261119",
+     "asof": "20261119",
+     "value": 3.4091
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:intl_index_daily:KR_SAMSUNG:20261119",
+     "asof": "20261119",
+     "value": 1.1299
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:daily_market:20261119",
+     "asof": "20261119",
+     "value": {
+      "上证": -0.2847,
+      "深成": -0.7149,
+      "创业板": -0.7908,
+      "两市成交额_万亿": 1.315,
+      "前一日成交额_万亿": 1.38
+     }
+    }
+   ],
+   "transmission": {
+    "chain": "外围股指、利率与原油作环境温度计，与 A 股没有直接商业关系",
+    "exposure": "温度计不适用",
+    "status": "不适用"
+   },
+   "change": {
+    "baseline": "上一期：股指类读数走弱，利率与原油未同步变坏",
+    "delta": "美债 10 年收益率由 5.12 降到 5.07，原油快照由 92.49 降到 89.69；股指类外围读数转稳。韩国两只存储股为北京时间 10:30 前后的盘中读数，日经期货与原油为取数时点快照，不当收盘价用"
+   },
+   "direction": "观察",
+   "stage": "观察",
+   "local_confirmation": {
+    "status": "未确认",
+    "basis": "外围转稳的同日，A 股上证 −0.28%、深成 −0.71%、创业板 −0.79%，成交额较前一日减少，本地没有跟随外围"
+   },
+   "priced_in": "美股 11 月 18 日收盘本地 11 月 19 日已能反映；外围转稳没有传到本地，本地的走弱应另有原因，本次检索没有找到已核的解释",
+   "invalidation": "美债收益率与原油转为同时上行，则从观察改为宜减",
+   "next_check": "看美股 11 月 19 日收盘；离岸人民币本输入包仍未提供，需补读",
+   "prior": {
+    "ref": "20261117-05",
+    "carry": "上一期失效条件“美债收益率与原油同时上行”没有发生，两者都回落；上一期认为股指单项变坏、不构成多项同时变坏，本期股指也已转稳"
+   }
+  },
+  {
+   "id": "20261119-06",
+   "theme": "有色金属",
+   "object": "A 股有色金属（铜为主）",
+   "main_issue": "海外铜矿龙头 11 月 18 日大跌近 7%，20 日超额 −22.2；本地同向走弱，20 日超额 −11.4。下跌原因本次检索没有找到已核的消息",
+   "anchor": {
+    "name": "Freeport-McMoRan（FCX）",
+    "card": "卡一",
+    "role": "同向印证"
+   },
+   "evidence": [
+    {
+     "kind": "inputs",
+     "ref": "inputs.json:local.themes[有色金属]",
+     "asof": "20261119",
+     "value": {
+      "当日": -1.16,
+      "e5": -8.39,
+      "e20": -11.4,
+      "锚20日超额_截至1118": -22.19
+     }
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:theme_etf_daily:512400.SH:20261118",
+     "asof": "20261118",
+     "value": -2.71
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:us_anchor_daily:FCX:20261118",
+     "asof": "20261118",
+     "value": -6.962
+    }
+   ],
+   "transmission": {
+    "chain": "铜价或铜矿供需预期 → 海外铜矿股与 A 股铜矿、冶炼公司利润预期",
+    "exposure": "输入包没有铜期货与现货读数，A 股公司的铜业务占比本轮未核",
+    "status": "未核"
+   },
+   "change": {
+    "baseline": "基线未核：上一期未对本线出记录",
+    "delta": "锚单日 −7.0%；本地 11 月 18 日 −2.71%、11 月 19 日 −1.16%，连续两日下跌"
+   },
+   "direction": "观察",
+   "stage": "观察",
+   "local_confirmation": {
+    "status": "已确认",
+    "basis": "本地 5 日超额 −8.4、20 日超额 −11.4，与锚同向"
+   },
+   "priced_in": "锚 11 月 18 日的下跌本地 11 月 19 日已同向反映一部分；没有铜价读数，无法判断是商品端还是公司端的冲击，待核",
+   "invalidation": "铜价读数显示商品端没有走弱、锚的下跌是公司个别事件，则本线与锚脱钩，撤回本条",
+   "next_check": "补读铜期货收盘与 FCX 下跌原因；看锚 20 日超额是否继续扩大",
+   "prior": {
+    "ref": null,
+    "carry": "首次出现"
+   }
+  },
+  {
+   "id": "20261119-07",
+   "theme": "新能源电池/锂电/储能/固态",
+   "object": "A 股锂电与储能",
+   "main_issue": "本地当日跌 2.53%，是 18 条主线里最大的单日跌幅；海外锂矿锚同日跌 2.1%，两边同向但本地幅度更大，本次检索没有找到已核的行业消息",
+   "anchor": {
+    "name": "Albemarle（ALB）",
+    "card": "卡一",
+    "role": "同向印证"
+   },
+   "evidence": [
+    {
+     "kind": "inputs",
+     "ref": "inputs.json:local.themes[新能源电池/锂电/储能/固态]",
+     "asof": "20261119",
+     "value": {
+      "当日": -2.53,
+      "e5": -7.31,
+      "e20": -3.76,
+      "锚20日超额_截至1118": -3.27
+     }
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:theme_etf_daily:159566.SZ:20261118",
+     "asof": "20261118",
+     "value": 0.29
+    },
+    {
+     "kind": "market_data",
+     "ref": "market_data.db:us_anchor_daily:ALB:20261118",
+     "asof": "20261118",
+     "value": -2.1102
+    }
+   ],
+   "transmission": {
+    "chain": "锂价预期 → 锂矿与电池材料利润；储能需求另有国内招标一条线，与锚无关",
+    "exposure": "输入包没有碳酸锂价格与储能招标数据，传导本轮未核",
+    "status": "未核"
+   },
+   "change": {
+    "baseline": "基线未核：上一期未对本线出记录",
+    "delta": "本地 11 月 18 日 +0.29%、11 月 19 日 −2.53%；锚 20 日超额 −3.3，本地 −3.8，幅度相近"
+   },
+   "direction": "观察",
+   "stage": "观察",
+   "local_confirmation": {
+    "status": "待确认",
+    "basis": "只有一天的大跌，20 日维度与锚接近，尚不能说明出现新的冲击"
+   },
+   "priced_in": "锚 11 月 18 日的下跌本地 11 月 19 日已同向反映；本地额外的跌幅原因未核",
+   "invalidation": "本地下一交易日收复当日跌幅且 5 日超额收窄，则视为单日波动，撤回本条",
+   "next_check": "补读碳酸锂期货与储能招标消息；看本地 5 日超额",
+   "prior": {
+    "ref": null,
+    "carry": "首次出现"
+   }
+  }
+ ],
+ "local_only": [
+  {
+   "theme": "白酒/消费",
+   "value": {
+    "当日": 0.0,
+    "e5": 2.7,
+    "e20": 9.97
+   },
+   "note": "没有登记的外部锚，只记本地读数；20 日超额 +10.0 个百分点，仍是 18 条主线里最强的"
+  }
+ ]
+}

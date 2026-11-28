@@ -1,0 +1,3155 @@
+{
+ "schema_version": 2,
+ "kind": "self_recap_inputs",
+ "trade_date": "20261125",
+ "session": "盘后",
+ "observed_at_utc": "2026-11-25T17:36:20.568545+00:00",
+ "lesson_dependency": false,
+ "local": {
+  "market": {
+   "sh_close": 3476.4697,
+   "sh_pct_chg": -2.0263,
+   "sz_pct_chg": -3.2354,
+   "cyb_pct_chg": -4.1865,
+   "amount_trillion": 1.393,
+   "source": "market_data.db:daily_market:20261125"
+  },
+  "themes": [
+   {
+    "theme": "光模块/CPO/光通信/光纤",
+    "etf_codes": [
+     "515880.SH"
+    ],
+    "e5": 0.08,
+    "e20": -22.91,
+    "pct_chg": -2.87,
+    "pct_chg_members": {
+     "515880.SH": -2.87
+    },
+    "source": "market_data.db:theme_etf_daily:515880.SH:20261125",
+    "us_anchor": {
+     "ticker": "LITE",
+     "kind": "echo",
+     "ex20": -41.25,
+     "window_end": "20261124",
+     "last_pct_chg": -10.5184,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:LITE:20261124"
+    }
+   },
+   {
+    "theme": "半导体/芯片/半导体材料",
+    "etf_codes": [
+     "159995.SZ"
+    ],
+    "e5": -5.85,
+    "e20": -5.63,
+    "pct_chg": -6.08,
+    "pct_chg_members": {
+     "159995.SZ": -6.08
+    },
+    "source": "market_data.db:theme_etf_daily:159995.SZ:20261125",
+    "us_anchor": {
+     "ticker": "TSM",
+     "kind": "thermo",
+     "ex20": -12.88,
+     "window_end": "20261124",
+     "last_pct_chg": -3.9604,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:TSM:20261124"
+    }
+   },
+   {
+    "theme": "机器人",
+    "etf_codes": [
+     "562500.SH"
+    ],
+    "e5": -0.45,
+    "e20": -8.3,
+    "pct_chg": -4.9,
+    "pct_chg_members": {
+     "562500.SH": -4.9
+    },
+    "source": "market_data.db:theme_etf_daily:562500.SH:20261125",
+    "us_anchor": {
+     "ticker": "TSLA",
+     "kind": "echo",
+     "ex20": 2.7,
+     "window_end": "20261124",
+     "last_pct_chg": -0.2024,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:TSLA:20261124"
+    }
+   },
+   {
+    "theme": "光伏",
+    "etf_codes": [
+     "515790.SH"
+    ],
+    "e5": -3.34,
+    "e20": -6.97,
+    "pct_chg": -2.96,
+    "pct_chg_members": {
+     "515790.SH": -2.96
+    },
+    "source": "market_data.db:theme_etf_daily:515790.SH:20261125",
+    "us_anchor": {
+     "ticker": "FSLR",
+     "kind": "echo",
+     "ex20": -9.17,
+     "window_end": "20261124",
+     "last_pct_chg": 1.0032,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:FSLR:20261124"
+    }
+   },
+   {
+    "theme": "新能源电池/锂电/储能/固态",
+    "etf_codes": [
+     "159566.SZ"
+    ],
+    "e5": -7.37,
+    "e20": -8.75,
+    "pct_chg": -5.57,
+    "pct_chg_members": {
+     "159566.SZ": -5.57
+    },
+    "source": "market_data.db:theme_etf_daily:159566.SZ:20261125",
+    "us_anchor": {
+     "ticker": "ALB",
+     "kind": "echo",
+     "ex20": -13.17,
+     "window_end": "20261124",
+     "last_pct_chg": -2.3614,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:ALB:20261124"
+    }
+   },
+   {
+    "theme": "电力/电网/算电协同/燃气轮机",
+    "etf_codes": [
+     "159611.SZ"
+    ],
+    "e5": -0.9,
+    "e20": 3.77,
+    "pct_chg": -0.97,
+    "pct_chg_members": {
+     "159611.SZ": -0.97
+    },
+    "source": "market_data.db:theme_etf_daily:159611.SZ:20261125",
+    "us_anchor": {
+     "ticker": "GEV",
+     "kind": "echo",
+     "ex20": -12.92,
+     "window_end": "20261124",
+     "last_pct_chg": -4.7654,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:GEV:20261124"
+    }
+   },
+   {
+    "theme": "创新药/医药/CRO",
+    "etf_codes": [
+     "159992.SZ"
+    ],
+    "e5": -0.06,
+    "e20": 0.75,
+    "pct_chg": -0.65,
+    "pct_chg_members": {
+     "159992.SZ": -0.65
+    },
+    "source": "market_data.db:theme_etf_daily:159992.SZ:20261125",
+    "us_anchor": {
+     "ticker": "LLY",
+     "kind": "thermo",
+     "ex20": 16.49,
+     "window_end": "20261124",
+     "last_pct_chg": 3.1504,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:LLY:20261124"
+    }
+   },
+   {
+    "theme": "军工",
+    "etf_codes": [
+     "512660.SH"
+    ],
+    "e5": -3.44,
+    "e20": -8.9,
+    "pct_chg": -3.47,
+    "pct_chg_members": {
+     "512660.SH": -3.47
+    },
+    "source": "market_data.db:theme_etf_daily:512660.SH:20261125",
+    "us_anchor": {
+     "ticker": "LMT",
+     "kind": "thermo",
+     "ex20": 1.0,
+     "window_end": "20261124",
+     "last_pct_chg": 2.6169,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:LMT:20261124"
+    }
+   },
+   {
+    "theme": "商业航天/卫星",
+    "etf_codes": [
+     "563230.SH"
+    ],
+    "e5": -5.48,
+    "e20": -12.17,
+    "pct_chg": -5.28,
+    "pct_chg_members": {
+     "563230.SH": -5.28
+    },
+    "source": "market_data.db:theme_etf_daily:563230.SH:20261125",
+    "us_anchor": {
+     "ticker": "RKLB",
+     "kind": "echo",
+     "ex20": -12.0,
+     "window_end": "20261124",
+     "last_pct_chg": -7.3544,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:RKLB:20261124"
+    }
+   },
+   {
+    "theme": "消费电子/华为/鸿蒙",
+    "etf_codes": [
+     "561600.SH"
+    ],
+    "e5": -1.67,
+    "e20": -10.55,
+    "pct_chg": -4.52,
+    "pct_chg_members": {
+     "561600.SH": -4.52
+    },
+    "source": "market_data.db:theme_etf_daily:561600.SH:20261125",
+    "us_anchor": {
+     "ticker": "AAPL",
+     "kind": "thermo",
+     "ex20": 8.83,
+     "window_end": "20261124",
+     "last_pct_chg": 1.4295,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:AAPL:20261124"
+    }
+   },
+   {
+    "theme": "AI软件/应用",
+    "etf_codes": [
+     "515230.SH"
+    ],
+    "e5": -5.52,
+    "e20": -9.68,
+    "pct_chg": -2.93,
+    "pct_chg_members": {
+     "515230.SH": -2.93
+    },
+    "source": "market_data.db:theme_etf_daily:515230.SH:20261125",
+    "us_anchor": {
+     "ticker": "PLTR",
+     "kind": "echo",
+     "ex20": -12.48,
+     "window_end": "20261124",
+     "last_pct_chg": 1.1421,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:PLTR:20261124"
+    }
+   },
+   {
+    "theme": "白酒/消费",
+    "etf_codes": [
+     "512690.SH"
+    ],
+    "e5": 1.05,
+    "e20": 11.37,
+    "pct_chg": 0.93,
+    "pct_chg_members": {
+     "512690.SH": 0.93
+    },
+    "source": "market_data.db:theme_etf_daily:512690.SH:20261125",
+    "us_anchor": null
+   },
+   {
+    "theme": "券商/金融",
+    "etf_codes": [
+     "512880.SH"
+    ],
+    "e5": -0.59,
+    "e20": 0.76,
+    "pct_chg": -1.45,
+    "pct_chg_members": {
+     "512880.SH": -1.45
+    },
+    "source": "market_data.db:theme_etf_daily:512880.SH:20261125",
+    "us_anchor": {
+     "ticker": "GS",
+     "kind": "thermo",
+     "ex20": -4.96,
+     "window_end": "20261124",
+     "last_pct_chg": -2.1369,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:GS:20261124"
+    }
+   },
+   {
+    "theme": "黄金/贵金属",
+    "etf_codes": [
+     "518880.SH"
+    ],
+    "e5": -4.9,
+    "e20": -8.96,
+    "pct_chg": -3.0,
+    "pct_chg_members": {
+     "518880.SH": -3.0
+    },
+    "source": "market_data.db:theme_etf_daily:518880.SH:20261125",
+    "us_anchor": {
+     "ticker": "NEM",
+     "kind": "echo",
+     "ex20": -4.16,
+     "window_end": "20261124",
+     "last_pct_chg": -1.0325,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:NEM:20261124"
+    }
+   },
+   {
+    "theme": "稀土",
+    "etf_codes": [
+     "516780.SH"
+    ],
+    "e5": -4.01,
+    "e20": -11.7,
+    "pct_chg": -3.5,
+    "pct_chg_members": {
+     "516780.SH": -3.5
+    },
+    "source": "market_data.db:theme_etf_daily:516780.SH:20261125",
+    "us_anchor": {
+     "ticker": "MP",
+     "kind": "echo",
+     "ex20": -4.73,
+     "window_end": "20261124",
+     "last_pct_chg": 1.0411,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:MP:20261124"
+    }
+   },
+   {
+    "theme": "钨/小金属",
+    "etf_codes": [
+     "159608.SZ"
+    ],
+    "e5": -4.56,
+    "e20": -11.54,
+    "pct_chg": -3.8,
+    "pct_chg_members": {
+     "159608.SZ": -3.8
+    },
+    "source": "market_data.db:theme_etf_daily:159608.SZ:20261125",
+    "us_anchor": {
+     "ticker": "ALM",
+     "kind": "echo",
+     "ex20": -23.92,
+     "window_end": "20261124",
+     "last_pct_chg": -5.5788,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:ALM:20261124"
+    }
+   },
+   {
+    "theme": "有色金属",
+    "etf_codes": [
+     "512400.SH"
+    ],
+    "e5": -4.12,
+    "e20": -13.18,
+    "pct_chg": -2.65,
+    "pct_chg_members": {
+     "512400.SH": -2.65
+    },
+    "source": "market_data.db:theme_etf_daily:512400.SH:20261125",
+    "us_anchor": {
+     "ticker": "FCX",
+     "kind": "echo",
+     "ex20": -23.88,
+     "window_end": "20261124",
+     "last_pct_chg": -3.9831,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:FCX:20261124"
+    }
+   },
+   {
+    "theme": "AI算力/AI硬件/科技硬件",
+    "etf_codes": [
+     "515880.SH",
+     "159995.SZ"
+    ],
+    "e5": -2.88,
+    "e20": -14.27,
+    "pct_chg": -4.47,
+    "pct_chg_members": {
+     "515880.SH": -2.87,
+     "159995.SZ": -6.08
+    },
+    "source": "market_data.db:theme_etf_daily:515880.SH+159995.SZ:20261125",
+    "us_anchor": {
+     "ticker": "NVDA",
+     "kind": "echo",
+     "ex20": -20.74,
+     "window_end": "20261124",
+     "last_pct_chg": -5.8588,
+     "last_date": "20261124",
+     "source": "market_data.db:us_anchor_daily:NVDA:20261124"
+    }
+   }
+  ],
+  "windows": {
+   "a5": [
+    "20261119",
+    "20261125"
+   ],
+   "a20": [
+    "20261029",
+    "20261125"
+   ],
+   "us20": [
+    "20261028",
+    "20261124"
+   ]
+  },
+  "basket_rule": "主线含多只 ETF 时取等权均值；任何一只缺数，该主线这一项为空并记缺口",
+  "us_clock": "美股锚只取严格早于 A 股交易日的美国日期"
+ },
+ "local_gaps": [],
+ "external_clock": "external 是运行时刻的最新行，可能晚于 A 股收盘；不是当日口径，不得用来解释此前的 A 股表现，补做历史日期时不得当作当日证据",
+ "external": {
+  "schema_version": 1,
+  "status": "research_inputs",
+  "observed_at_utc": "2026-11-25T17:36:20.499767+00:00",
+  "observation_timezone": "UTC",
+  "database_root": "/sessions/rcw-0149okhppuygq3quaw4p8lth/mnt/Documents/Database",
+  "lesson_dependency": false,
+  "historical_replay_supported": false,
+  "market": [
+   {
+    "table": "us_anchor_daily",
+    "rows": [
+     {
+      "trade_date": "20261124",
+      "ticker": "AAPL",
+      "close_adj": 354.07000732421875,
+      "pct_chg": 1.4295,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:01",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:AAPL:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "ALB",
+      "close_adj": 80.62999725341797,
+      "pct_chg": -2.3614,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:02",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:ALB:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "ALM",
+      "close_adj": 6.769999980926514,
+      "pct_chg": -5.5788,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:03",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:ALM:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "FCX",
+      "close_adj": 47.72999954223633,
+      "pct_chg": -3.9831,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:04",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:FCX:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "FSLR",
+      "close_adj": 148.0,
+      "pct_chg": 1.0032,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:05",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:FSLR:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "GEV",
+      "close_adj": 720.6500244140625,
+      "pct_chg": -4.7654,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:06",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:GEV:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "GS",
+      "close_adj": 806.02001953125,
+      "pct_chg": -2.1369,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:07",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:GS:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "LITE",
+      "close_adj": 487.1199951171875,
+      "pct_chg": -10.5184,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:08",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:LITE:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "LLY",
+      "close_adj": 1407.5899658203125,
+      "pct_chg": 3.1504,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:09",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:LLY:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "LMT",
+      "close_adj": 586.6300048828125,
+      "pct_chg": 2.6169,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:10",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:LMT:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "MP",
+      "close_adj": 35.90999984741211,
+      "pct_chg": 1.0411,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:11",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:MP:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "NEM",
+      "close_adj": 99.69000244140625,
+      "pct_chg": -1.0325,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:12",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:NEM:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "NVDA",
+      "close_adj": 155.3800048828125,
+      "pct_chg": -5.8588,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:13",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:NVDA:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "PLTR",
+      "close_adj": 161.17999267578125,
+      "pct_chg": 1.1421,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:14",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:PLTR:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "QQQ",
+      "close_adj": 638.0999755859375,
+      "pct_chg": -1.9861,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:16",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:QQQ:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "RKLB",
+      "close_adj": 45.97999954223633,
+      "pct_chg": -7.3544,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:17",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:RKLB:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "SPY",
+      "close_adj": 718.780029296875,
+      "pct_chg": -0.4859,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:18",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:SPY:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "TSLA",
+      "close_adj": 384.67999267578125,
+      "pct_chg": -0.2024,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:19",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:TSLA:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "ticker": "TSM",
+      "close_adj": 349.20001220703125,
+      "pct_chg": -3.9604,
+      "source": "yahoo",
+      "updated_at": "2026-11-24 22:00:20",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "us_anchor_daily:TSM:20261124"
+     }
+    ],
+    "row_count": 19,
+    "future_rows_excluded": 0,
+    "age_policy": "calendar_days_only; not an exchange calendar",
+    "source_note": "local values not independently rechecked in this tool"
+   },
+   {
+    "table": "intl_index_daily",
+    "rows": [
+     {
+      "trade_date": "20261124",
+      "code": "ANT",
+      "close": 81.91,
+      "symbol": "ANT",
+      "name": "Anthropic",
+      "kind": "us_stock",
+      "pct_chg": -6.5381,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:31",
+      "note": "只供数 · 风险日报美国科技基本面估值（2026-11-23 加入 · 2026-11-19 纳斯达克上市，历史短）",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:ANT:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "code": "AVGO",
+      "close": 301.08,
+      "symbol": "AVGO",
+      "name": "博通",
+      "kind": "us_stock",
+      "pct_chg": -3.977,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:26",
+      "note": "AI 网络 / ASIC",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:AVGO:20261124"
+     },
+     {
+      "trade_date": "20261125",
+      "code": "BRENT",
+      "close": 88.4,
+      "symbol": "BZ=F",
+      "name": "布伦特原油",
+      "kind": "macro_commodity",
+      "pct_chg": -3.2823,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:29",
+      "note": "ICE Brent 期货 · ↑=输入型通胀/地缘扰动 · F5 · ⚠读数语义腿（无盘中守卫）：close 可能是取数时点快照、非收盘价；归因/回测取收盘请用官方结算价",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:BRENT:20261125"
+     },
+     {
+      "trade_date": "20261124",
+      "code": "COHR",
+      "close": 196.24,
+      "symbol": "COHR",
+      "name": "Coherent",
+      "kind": "us_stock",
+      "pct_chg": -9.0682,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:31",
+      "note": "只供数 · 风险日报美国科技基本面估值（2026-11-23 加入）",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:COHR:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "code": "CRWV",
+      "close": 42.6,
+      "symbol": "CRWV",
+      "name": "CoreWeave",
+      "kind": "us_stock",
+      "pct_chg": -11.8456,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:31",
+      "note": "只供数 · 风险日报美国科技基本面估值（2026-11-23 加入 · 2025-03-28 上市）",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:CRWV:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "code": "GOOG",
+      "close": 276.58,
+      "symbol": "GOOG",
+      "name": "Alphabet",
+      "kind": "us_stock",
+      "pct_chg": -1.0553,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:30",
+      "note": "只供数 · 风险日报美国科技基本面估值（2026-11-23 加入）",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:GOOG:20261124"
+     },
+     {
+      "trade_date": "20261125",
+      "code": "JP_FUT",
+      "close": 56580.0,
+      "symbol": "NKD=F",
+      "name": "日经225期货",
+      "kind": "futures",
+      "pct_chg": -1.4457,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:28",
+      "note": "CME · 亚盘开盘前远期 · 含半导体设备权重 · ⚠读数语义腿（无盘中守卫）：close 可能是取数时点快照、非收盘价",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:JP_FUT:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "code": "KR_HYNIX",
+      "close": 1030000.0,
+      "symbol": "000660.KS",
+      "name": "SK海力士",
+      "kind": "kr_stock",
+      "pct_chg": -11.0535,
+      "source": "yahoo",
+      "updated_at": "2026-11-25T02:30:32",
+      "note": "HBM/存储 · KOSPI 龙头",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:KR_HYNIX:20261125"
+     },
+     {
+      "trade_date": "20260626",
+      "code": "KR_PROXY",
+      "close": 197.31,
+      "symbol": "EWY",
+      "name": "韩国(EWY代理)",
+      "kind": "etf_proxy",
+      "pct_chg": -3.75,
+      "source": "stockanalysis",
+      "updated_at": "2026-06-29 23:14:21",
+      "note": "MSCI韩国ETF · 三星/SK海力士存储芯 · 隔夜代理",
+      "calendar_age_days": 153,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "stale",
+      "evidence_ref": "intl_index_daily:KR_PROXY:20260626"
+     },
+     {
+      "trade_date": "20261125",
+      "code": "KR_SAMSUNG",
+      "close": 170700.0,
+      "symbol": "005930.KS",
+      "name": "三星电子",
+      "kind": "kr_stock",
+      "pct_chg": -9.8733,
+      "source": "yahoo",
+      "updated_at": "2026-11-25T02:30:32",
+      "note": "存储/半导体 · KOSPI 龙头",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:KR_SAMSUNG:20261125"
+     },
+     {
+      "trade_date": "20261124",
+      "code": "LITE",
+      "close": 487.12,
+      "symbol": "LITE",
+      "name": "Lumentum",
+      "kind": "us_stock",
+      "pct_chg": -10.5184,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:27",
+      "note": "光模块 / CPO",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:LITE:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "code": "MU",
+      "close": 629.79,
+      "symbol": "MU",
+      "name": "美光",
+      "kind": "us_stock",
+      "pct_chg": -11.0089,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:30",
+      "note": "只供数 · 风险日报美国科技基本面估值（2026-11-23 加入）",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:MU:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "code": "NASDAQ",
+      "close": 26214.17,
+      "symbol": "^NDX",
+      "name": "纳指100指数",
+      "kind": "overnight",
+      "pct_chg": -1.9888,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:26",
+      "note": "美股隔夜 · Nasdaq-100 指数（2026-08-25 Doctor 裁：QQQ ETF 代理退役·改指数本身）",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:NASDAQ:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "code": "NVDA",
+      "close": 155.38,
+      "symbol": "NVDA",
+      "name": "英伟达",
+      "kind": "us_stock",
+      "pct_chg": -5.8588,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:26",
+      "note": "AI 算力",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:NVDA:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "code": "SOX",
+      "close": 8832.5,
+      "symbol": "^SOX",
+      "name": "费城半导体指数",
+      "kind": "overnight",
+      "pct_chg": -7.8801,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:29",
+      "note": "PHLX Semiconductor Index · 2026-11-19 加入 · 只供数：风险日报资金结构状态机「跟随」读数（Doctor 2026-11-19 裁「改读 SOX」）· 不入烛照日报外盘展示区 · 2026-06-29「美国不取硬件纯读数 SOX，用纳指」的展示裁定不变 · 收盘语义（开盘中守卫，close 即收盘价）",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:SOX:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "code": "SPCX",
+      "close": 125.81,
+      "symbol": "SPCX",
+      "name": "SpaceX",
+      "kind": "us_stock",
+      "pct_chg": -5.6543,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:27",
+      "note": "商业航天 · 2026-06-12 纳指新上市（历史短·波动大）",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:SPCX:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "code": "US10Y",
+      "close": 4.9,
+      "symbol": "^TNX",
+      "name": "美债10年期收益率",
+      "kind": "macro_rate",
+      "pct_chg": -0.2847,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:28",
+      "note": "CBOE 10Y Yield · close 即收益率%（非价格）· ↑=外部紧缩 · F5 · ⚠读数语义腿（无盘中守卫）：close 可能是盘中快照、非收盘价；归因/回测取收盘请用 H.15 或 FRED DGS10",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:US10Y:20261124"
+     },
+     {
+      "trade_date": "20261124",
+      "code": "US30Y",
+      "close": 5.29,
+      "symbol": "^TYX",
+      "name": "美债30年期收益率",
+      "kind": "macro_rate",
+      "pct_chg": -0.0378,
+      "source": "yahoo",
+      "updated_at": "2026-11-25 10:30:28",
+      "note": "CBOE 30Y Yield · close 即收益率%（非价格）· ↑=外部紧缩 · 汇率栏底部展示（2026-08-25 Doctor 令）· ⚠读数语义腿（无盘中守卫）：close 可能是盘中快照、非收盘价",
+      "calendar_age_days": 2,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "intl_index_daily:US30Y:20261124"
+     }
+    ],
+    "row_count": 18,
+    "future_rows_excluded": 0,
+    "age_policy": "calendar_days_only; not an exchange calendar",
+    "source_note": "local values not independently rechecked in this tool"
+   },
+   {
+    "table": "theme_etf_daily",
+    "rows": [
+     {
+      "trade_date": "20261125",
+      "etf_code": "159566.SZ",
+      "close": 1.254,
+      "pct_chg": -5.57,
+      "updated_at": "2026-11-25 10:30:04",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:159566.SZ:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "159608.SZ",
+      "close": 0.708,
+      "pct_chg": -3.8,
+      "updated_at": "2026-11-25 10:30:05",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:159608.SZ:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "159611.SZ",
+      "close": 1.018,
+      "pct_chg": -0.97,
+      "updated_at": "2026-11-25 10:30:05",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:159611.SZ:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "159992.SZ",
+      "close": 0.759,
+      "pct_chg": -0.65,
+      "updated_at": "2026-11-25 10:30:06",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:159992.SZ:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "159995.SZ",
+      "close": 0.773,
+      "pct_chg": -6.08,
+      "updated_at": "2026-11-25 10:30:07",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:159995.SZ:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "510300.SH",
+      "close": 3.97,
+      "pct_chg": -1.56,
+      "updated_at": "2026-11-25 10:30:08",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:510300.SH:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "512400.SH",
+      "close": 1.213,
+      "pct_chg": -2.65,
+      "updated_at": "2026-11-25 10:30:08",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:512400.SH:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "512660.SH",
+      "close": 0.89,
+      "pct_chg": -3.47,
+      "updated_at": "2026-11-25 10:30:09",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:512660.SH:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "512690.SH",
+      "close": 0.435,
+      "pct_chg": 0.93,
+      "updated_at": "2026-11-25 10:30:10",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:512690.SH:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "512880.SH",
+      "close": 0.955,
+      "pct_chg": -1.45,
+      "updated_at": "2026-11-25 10:30:11",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:512880.SH:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "515230.SH",
+      "close": 0.563,
+      "pct_chg": -2.93,
+      "updated_at": "2026-11-25 10:30:11",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:515230.SH:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "515790.SH",
+      "close": 0.624,
+      "pct_chg": -2.96,
+      "updated_at": "2026-11-25 10:30:12",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:515790.SH:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "515880.SH",
+      "close": 0.373,
+      "pct_chg": -2.87,
+      "updated_at": "2026-11-25 10:30:12",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:515880.SH:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "516780.SH",
+      "close": 0.606,
+      "pct_chg": -3.5,
+      "updated_at": "2026-11-25 10:30:13",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:516780.SH:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "518880.SH",
+      "close": 7.169,
+      "pct_chg": -3.0,
+      "updated_at": "2026-11-25 10:30:14",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:518880.SH:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "561600.SH",
+      "close": 0.507,
+      "pct_chg": -4.52,
+      "updated_at": "2026-11-25 10:30:14",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:561600.SH:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "562500.SH",
+      "close": 0.776,
+      "pct_chg": -4.9,
+      "updated_at": "2026-11-25 10:30:15",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:562500.SH:20261125"
+     },
+     {
+      "trade_date": "20261125",
+      "etf_code": "563230.SH",
+      "close": 0.79,
+      "pct_chg": -5.28,
+      "updated_at": "2026-11-25 10:30:16",
+      "calendar_age_days": 1,
+      "known_at": null,
+      "session_status": "not_verified",
+      "freshness": "requires_session_check",
+      "evidence_ref": "theme_etf_daily:563230.SH:20261125"
+     }
+    ],
+    "row_count": 18,
+    "future_rows_excluded": 0,
+    "age_policy": "calendar_days_only; not an exchange calendar",
+    "source_note": "local values not independently rechecked in this tool"
+   }
+  ],
+  "news": {
+   "status": "available",
+   "snapshot_id": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a",
+   "payload_sha256": "9db24e30bba6515a98654d25b67d141ef9844a23a08714a9e86a07d9228ad728",
+   "published_at": "2026-11-25T13:40:48.534Z",
+   "generated_at": "2026-11-25T13:34:33.185Z",
+   "publication_id": "board-9db24e30bba6515a98654d25b67d141ef9844a23a08714a9e86a07d9228ad728",
+   "source_item_count": 172,
+   "unique_url_count": 172,
+   "duplicate_urls_removed": 0,
+   "calendar_age_hours": 3.93,
+   "publisher_stale_flag": false,
+   "items": [
+    {
+     "id": "b6bbc248346f2f9bf77a64f9",
+     "original_title": "Sources: Meta and Amazon are discussing a potential deal to connect Muse to Amazon, ending Amazon's block; any deal would require a sign-off from both CEOs",
+     "url": "https://fortune.com/2026/11/25/exclusive-amazon-meta-talks-deal-muse-ai-shopping-agent-blockade",
+     "source": "techmeme",
+     "source_name": "Fortune",
+     "published_at": "2026-11-25T13:15:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:b6bbc248346f2f9bf77a64f9"
+    },
+    {
+     "id": "381ac1ff471db43317399ff0",
+     "original_title": "Hmm",
+     "url": "https://x.com/elonmusk/status/2125576951364731018",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-25T13:06:51.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:381ac1ff471db43317399ff0"
+    },
+    {
+     "id": "84ccc106e9a1a668867f67b2",
+     "original_title": "Australia passes the Digital Duty of Care Act, an online safety law that exposes Big Tech to multibillion-dollar fines for failing to prevent foreseeable harms",
+     "url": "https://apnews.com/article/australia-digital-duty-care-law-tech-harm-b3f044575e9d8106f30a14eee2b89a81",
+     "source": "techmeme",
+     "source_name": "Associated Press",
+     "published_at": "2026-11-25T13:05:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:84ccc106e9a1a668867f67b2"
+    },
+    {
+     "id": "907f0588c74e4a59a32cd986",
+     "original_title": "Yes",
+     "url": "https://x.com/elonmusk/status/2125576163720642762",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-25T13:03:43.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:907f0588c74e4a59a32cd986"
+    },
+    {
+     "id": "6abee2ad9ae6a8e8ee16b268",
+     "original_title": "Walmart says Kalyan Krishnamurthy, CEO of Walmart-owned Flipkart, India's largest online retailer, plans to leave on December 4 and names its CTO as interim CEO",
+     "url": "https://bloomberg.com/news/articles/2026-11-25/flipkart-ceo-to-exit-after-transforming-walmart-s-india-play",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-25T12:40:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6abee2ad9ae6a8e8ee16b268"
+    },
+    {
+     "id": "ca835627a66e3eee16ebd933",
+     "original_title": "VW's ID. Era 5S sedan, built in China for China with VW's most advanced automated-driving system, reflects China's rise as a source of cutting-edge auto tech",
+     "url": "https://bloomberg.com/news/articles/2026-11-25/vw-s-18-000-self-driving-sedan-shows-how-china-leads-on-car-tech",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-25T10:35:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:ca835627a66e3eee16ebd933"
+    },
+    {
+     "id": "c78322360bc24981e2cc9b1d",
+     "original_title": "Chinese EDA software provider Phlexing says it has been collaborating with Huawei since 2019 to develop a suite of EDA tools based on Huawei's Tau Scaling Law",
+     "url": "https://asia.nikkei.com/spotlight/huawei-crackdown/china-s-huawei-says-it-has-homegrown-answer-to-us-chip-design-tool-curbs",
+     "source": "techmeme",
+     "source_name": "Nikkei Asia",
+     "published_at": "2026-11-25T10:25:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:c78322360bc24981e2cc9b1d"
+    },
+    {
+     "id": "fdd44dac0e0e05c987f173b9",
+     "original_title": "EU officials say the EC is pressing Pornhub, Stripchat, XNXX, and XVideos to introduce tougher age checks as it develops a bloc-wide age verification app",
+     "url": "https://ft.com/content/049151e8-f97f-4d63-9a6e-5a6d1fcc9dd8",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-25T10:20:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:fdd44dac0e0e05c987f173b9"
+    },
+    {
+     "id": "56726ed578e3bc3d4fa40b8b",
+     "original_title": "Huawei says HarmonyOS has surpassed 100M installations across smartphones, tablets, and PCs, offering 460K+ apps and services from 12M+ registered developers",
+     "url": "https://scmp.com/tech/big-tech/article/3375680/huaweis-home-grown-harmonyos-passes-100-million-device-mark-landmark-moment",
+     "source": "techmeme",
+     "source_name": "South China Morning Post",
+     "published_at": "2026-11-25T10:10:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:56726ed578e3bc3d4fa40b8b"
+    },
+    {
+     "id": "f48741f380760ba7a46da234",
+     "original_title": "Sources: Samsung and SK Hynix agree to adopt parts of YMTC's “Xtacking” tech for 3D NAND flash via cross-licensing deals, signaling YMTC's rapid tech progress",
+     "url": "https://asia.nikkei.com/business/tech/semiconductors/china-s-ymtc-boosted-by-samsung-and-sk-hynix-adopting-its-memory-technology",
+     "source": "techmeme",
+     "source_name": "Nikkei Asia",
+     "published_at": "2026-11-25T10:00:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:f48741f380760ba7a46da234"
+    },
+    {
+     "id": "a21e6e6e472307f93cca563e",
+     "original_title": "OpenAI just dropped a 111-page proof of a 57-year old math problem: the matrix multiplication exponent (&omega;) is exactly 9/4. This problem ranks #31 on ProofAtlas' top 500 open problems in math and is arguably 2nd only to P = NP in algorithms. The problem: How many steps does it take t...",
+     "url": "https://x.com/deedydas/status/2125445769629204816",
+     "source": "techmeme",
+     "source_name": "@deedydas",
+     "published_at": "2026-11-25T09:55:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:a21e6e6e472307f93cca563e"
+    },
+    {
+     "id": "233f299a7e4ac16a3ffb9f78",
+     "original_title": "Amazon plans to start selling cars online in the UK in early 2027, expanding beyond the US, where it offers new and used cars from 35 brands in 150+ cities",
+     "url": "https://bloomberg.com/news/articles/2026-11-25/amazon-targets-uk-car-buyers-being-reeled-in-by-chinese-brands",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-25T09:30:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:233f299a7e4ac16a3ffb9f78"
+    },
+    {
+     "id": "0fe838006863b3cdeffba28e",
+     "original_title": "@LorienEllen I am having some of the most fun with programming ever. I am creating things I haven't seen any one else make. I THINK I am going have a game that I sell to people at the end of all this, for sure, and i'm convinced some of this passion will shine through. yay more airplanes",
+     "url": "https://x.com/notch/status/2125516788473467263",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-25T09:07:47.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:0fe838006863b3cdeffba28e"
+    },
+    {
+     "id": "e67f3c7005455836a1a23e0a",
+     "original_title": "Starlink",
+     "url": "https://x.com/elonmusk/status/2125516563277328690",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-25T09:06:53.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:e67f3c7005455836a1a23e0a"
+    },
+    {
+     "id": "aed5f917058a7bc29fd1620d",
+     "original_title": "Grok is so much fun on Tesla road trips!",
+     "url": "https://x.com/elonmusk/status/2125516475712844116",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-25T09:06:32.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:aed5f917058a7bc29fd1620d"
+    },
+    {
+     "id": "a1b5ccc0d495f4e7a0a3050d",
+     "original_title": "Trump's tech allies reasserted their power in DC by lobbying the president to defy US intelligence agencies and pressure Nvidia to reinstate Jensen Huang as CEO",
+     "url": "https://ft.com/content/a1374617-d3a2-415a-8490-72b164eefc0e?segmentId=7d4bcc2e-e664-92ba-62e3-5590579f1902",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-25T09:05:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:a1b5ccc0d495f4e7a0a3050d"
+    },
+    {
+     "id": "576ae29121ba66ec23aae74d",
+     "original_title": "@jacobeverly @richgel999 It’s garbage and blocked some set theory work I was doing, accusing me of distillation. This was with 1-2 hours a day of promoting on a company account. Anthropic can’t keep sabotaging customers’ work like this.",
+     "url": "https://x.com/TimSweeneyEpic/status/2125513144353411115",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-25T08:53:18.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:576ae29121ba66ec23aae74d"
+    },
+    {
+     "id": "e95aae166aab0b42eeebad41",
+     "original_title": "NJ-based AidenAI, which helps enterprises integrate AI into apps, data infrastructure, and business workflows, raised a $32M Series A led by A91 Partners",
+     "url": "https://inc42.com/buzz/aidenai-nets-32-mn-to-scale-enterprise-ai-workflows",
+     "source": "techmeme",
+     "source_name": "Inc42",
+     "published_at": "2026-11-25T08:50:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:e95aae166aab0b42eeebad41"
+    },
+    {
+     "id": "59e622e8f322d4cd55a4001f",
+     "original_title": "Sources: the EU plans to mobilize up to &euro;50B for its Sovereign Tech Equity Fund to make long-term, high-risk bets on European AI and quantum computing companies",
+     "url": "https://ft.com/content/53d4b629-7ae4-4d63-ac37-e773b1dd3af0",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-25T08:40:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:59e622e8f322d4cd55a4001f"
+    },
+    {
+     "id": "54e563b1e36333834d5f876d",
+     "original_title": "Sources: Muse boosts Meta's ad business by prompting Instagram users to organize saved posts in Muse, reducing shopping friction and increasing advertisers' ROI",
+     "url": "https://cnbc.com/2026/11/24/meta-instagram-muse-ad-revenue.html",
+     "source": "techmeme",
+     "source_name": "CNBC",
+     "published_at": "2026-11-25T07:30:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:54e563b1e36333834d5f876d"
+    },
+    {
+     "id": "4fb8d02821b629df1c6f1cc5",
+     "original_title": "Sources: US intelligence officials told congressional aides Alice Huang wasn't directed by China's MSS on Jensen Huang affair, but may have passed intel to MSS",
+     "url": "https://nytimes.com/2026/11/24/us/politics/intelligence-nvidia-affair-congressional-briefing.html?smid=url-share&unlocked_article_code=1.TFE.MS4i.jx4l5m-ldOYd",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-25T07:15:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:4fb8d02821b629df1c6f1cc5"
+    },
+    {
+     "id": "7d00d591c468ca3056f40b0e",
+     "original_title": "A solo developer just vibe-coded his first game and made $1.33 million on Steam in just one week. His game, Slotbound, has sold over 200,000 copies in six days and has a 91% Very Positive rating. The dev openly admitted using AI for coding and parts of the game’s visuals. “AI was involved throughout the project, especially with coding and parts of the visual workflow.”",
+     "url": "https://x.com/Pirat_Nation/status/2125485386009084378",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-25T07:03:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:7d00d591c468ca3056f40b0e"
+    },
+    {
+     "id": "6882ef86509131288b185985",
+     "original_title": "Nutanix CEO Rajiv Ramaswami announces plans to step down and become a senior adviser, but will remain as CEO until a successor is named; he joined in late 2020",
+     "url": "https://siliconangle.com/2026/11/24/rajiv-ramaswami-to-step-down-as-nutanix-begins-hunt-for-its-next-ceo",
+     "source": "techmeme",
+     "source_name": "SiliconANGLE",
+     "published_at": "2026-11-25T06:15:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6882ef86509131288b185985"
+    },
+    {
+     "id": "4492e96eab07867fe2778aa7",
+     "original_title": "HP reports Q4 revenue up 9.3% YoY to $16B, above $15.3B est., gives “prudent” fiscal 2027 guidance above estimates, and says AI PCs reached ~60% of shipments",
+     "url": "https://bloomberg.com/news/articles/2026-11-24/hp-gives-profit-forecast-signaling-better-handle-on-memory-costs",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-25T05:30:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:4492e96eab07867fe2778aa7"
+    },
+    {
+     "id": "cd17dcafb1c97130e2aae070",
+     "original_title": "A history professor says GPT-6.2 Astra solved a historical mystery in 22 minutes by identifying the creator of an anonymous 1808 sketchbook held at Yale",
+     "url": "https://generativehistory.substack.com/p/gpt-62-astra-solves-a-historical",
+     "source": "techmeme",
+     "source_name": "Generative History",
+     "published_at": "2026-11-25T05:00:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:cd17dcafb1c97130e2aae070"
+    },
+    {
+     "id": "9628167bc349b6603b33d000",
+     "original_title": "The US Treasury's FinCEN says it is investigating a cybersecurity incident that “resulted in unauthorized access to a limited subset of its systems”",
+     "url": "https://theverge.com/policy/1041957/fincen-treasury-cybersecurity-incident",
+     "source": "techmeme",
+     "source_name": "The Verge",
+     "published_at": "2026-11-25T04:20:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:9628167bc349b6603b33d000"
+    },
+    {
+     "id": "6081f373f36233905bad545b",
+     "original_title": "Asian tech stocks tumble, led by Japanese chip stocks, after a US tech sell-off; Advantest falls 12%+, Tokyo Electron 7%+, Samsung and SK Hynix 6%+",
+     "url": "https://cnbc.com/2026/11/25/tech-stocks-softbank-group-advantest-sk-hynix-samsung.html",
+     "source": "techmeme",
+     "source_name": "CNBC",
+     "published_at": "2026-11-25T04:16:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6081f373f36233905bad545b"
+    },
+    {
+     "id": "82e43f4e14bbaaa5d1082e92",
+     "original_title": "USAID sounded nice. US AID. As in the US is aiding the poor in need. That’s not what USAID was. It was the US Agency for International Development. Funding Leftist causes and silencing opposition. It spread Communism. It wasn’t about feeding the poor. It created the poor.",
+     "url": "https://x.com/C_3C_3/status/2125431028655542285",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-25T03:27:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:82e43f4e14bbaaa5d1082e92"
+    },
+    {
+     "id": "c57c816782ac66bb74138cfc",
+     "original_title": "Workday reports Q3 revenue up 11% YoY to $2.71B, above $2.69B est., and forecasts Q4 subscription revenue of $2.6B, below $2.61B est.; WDAY drops 6%+",
+     "url": "https://siliconangle.com/2026/11/24/workday-shares-fall-as-soft-subscription-forecast-overshadows-third-quarter-beat",
+     "source": "techmeme",
+     "source_name": "SiliconANGLE",
+     "published_at": "2026-11-25T03:15:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:c57c816782ac66bb74138cfc"
+    },
+    {
+     "id": "1727e73b014c0187641714db",
+     "original_title": "Utah prosecutors drop criminal charges against Kalshi and co-founders Tarek Mansour and Luana Lopes Lara, one day after Kalshi halted operations in the state",
+     "url": "https://cnn.com/2026/11/24/politics/utah-criminal-charges-kalshi-dropped",
+     "source": "techmeme",
+     "source_name": "CNN",
+     "published_at": "2026-11-25T02:45:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:1727e73b014c0187641714db"
+    },
+    {
+     "id": "08be894ccbe9617a39e55d34",
+     "original_title": "OpenAI says GPT-6 models can design new protein shapes and sequences using only reasoning and code, without calling specialized biology models to generate them",
+     "url": "https://openai.com/index/gpt-6-models-demonstrate-intrinsic-protein-design-capabilities",
+     "source": "techmeme",
+     "source_name": "OpenAI",
+     "published_at": "2026-11-25T02:40:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:08be894ccbe9617a39e55d34"
+    },
+    {
+     "id": "f7960ca795953e2c887eca60",
+     "original_title": "WiseTech says Australian police took no action against founder Richard White after probing allegations he exploited a woman's immigration status for sex",
+     "url": "https://bloomberg.com/news/articles/2026-11-24/wisetech-s-white-cleared-in-human-trafficking-probe-by-police",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-25T02:25:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:f7960ca795953e2c887eca60"
+    },
+    {
+     "id": "9147cfa7b076907725731b18",
+     "original_title": "Trump says a pardon for Jensen Huang is “always an option” but likely unnecessary, and it's “probably not too late” for the US to take an equity stake in Nvidia",
+     "url": "https://nypost.com/2026/11/24/us-news/trump-leaves-door-open-to-jensen-huang-pardon-and-urges-him-not-to-plead-5th-to-congress-next-week",
+     "source": "techmeme",
+     "source_name": "New York Post",
+     "published_at": "2026-11-25T02:10:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:9147cfa7b076907725731b18"
+    },
+    {
+     "id": "3205ea46399acf958431f9ab",
+     "original_title": "Jensen Huang's return is greeted with relief in China, with state media saying “The king is back!”, as Asian stocks jump; Taiwan hailed him as a hometown hero",
+     "url": "https://washingtonpost.com/world/2026/11/24/king-is-back-huangs-return-nvidia-is-greeted-with-relief-asia",
+     "source": "techmeme",
+     "source_name": "Washington Post",
+     "published_at": "2026-11-25T01:45:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:3205ea46399acf958431f9ab"
+    },
+    {
+     "id": "fc64f9eee4489c6137623870",
+     "original_title": "Anthropic rolls out “Install as app” in beta, which turns Claude artifacts into Mac and Windows apps with notifications, optional full computer access, and more",
+     "url": "https://claude.com/resources/articles/install-as-app",
+     "source": "techmeme",
+     "source_name": "Claude",
+     "published_at": "2026-11-25T01:05:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:fc64f9eee4489c6137623870"
+    },
+    {
+     "id": "b526ae77791b18bdfe4369ed",
+     "original_title": "Dell reports Q3 revenue up 103% YoY to $54.94B, above $49.32B est., and raises its annual revenue and profit forecasts for the third time in 2026; DELL falls 8%",
+     "url": "https://reuters.com/business/dell-lifts-annual-forecasts-after-record-quarter-surging-ai-server-demand-2026-11-24",
+     "source": "techmeme",
+     "source_name": "Reuters",
+     "published_at": "2026-11-25T00:45:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:b526ae77791b18bdfe4369ed"
+    },
+    {
+     "id": "37ebda4537213bac4de1fa6f",
+     "original_title": "Anthropic details Siren, a honeypot test that tempts AI agents to escape sandboxes; its newer models fell for it 0.6%-1.6% of the time, vs. 25.8% for Mythos 5",
+     "url": "https://wired.com/story/ai-agents-can-get-honeypotted-too-aw",
+     "source": "techmeme",
+     "source_name": "Wired",
+     "published_at": "2026-11-25T00:35:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:37ebda4537213bac4de1fa6f"
+    },
+    {
+     "id": "c4d257f1d5563a3f6de531be",
+     "original_title": "Docs: Grubhub is on track for ~$6.4B in GTV and a $97M EBITDA loss in 2026, reflecting heavy marketing and operating costs; Wonder says it's not pursuing a sale",
+     "url": "https://theinformation.com/articles/grubhub-track-lose-100-million-2026",
+     "source": "techmeme",
+     "source_name": "The Information",
+     "published_at": "2026-11-25T00:30:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:c4d257f1d5563a3f6de531be"
+    },
+    {
+     "id": "fb025a17371a38b19a1e2c86",
+     "original_title": "Starlink is now approved in 30 of 54 countries in Africa!",
+     "url": "https://x.com/elonmusk/status/2125383859592479201",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-25T00:19:34.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:fb025a17371a38b19a1e2c86"
+    },
+    {
+     "id": "875b42507473c7d18b0672e6",
+     "original_title": "Don’t mess with 𝕏",
+     "url": "https://x.com/elonmusk/status/2125383610266157090",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-25T00:18:35.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:875b42507473c7d18b0672e6"
+    },
+    {
+     "id": "67dc066a32dae5ec76701499",
+     "original_title": "The news is accurate",
+     "url": "https://x.com/elonmusk/status/2125381945672761599",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-25T00:11:58.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:67dc066a32dae5ec76701499"
+    },
+    {
+     "id": "7d601cd597a0e400cf3af0bf",
+     "original_title": "A judge orders the ex-OpenAI staffer charged with bugging an exec conference room released on $1M bond, finding prosecutors lack evidence to keep him in custody",
+     "url": "https://bloomberg.com/news/articles/2026-11-24/openai-staffer-charged-with-planting-bug-released-on-bond",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-25T00:01:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:7d601cd597a0e400cf3af0bf"
+    },
+    {
+     "id": "fffff229cf5587f949872781",
+     "original_title": "A US jury finds Huawei guilty of conspiracy to steal trade secrets and bank fraud but acquits it of the most severe charge of criminal racketeering conspiracy",
+     "url": "https://apnews.com/article/huawei-racketeering-trial-verdict-b39ac780e2e31140015a1be02f0329ab",
+     "source": "techmeme",
+     "source_name": "Associated Press",
+     "published_at": "2026-11-24T23:45:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:fffff229cf5587f949872781"
+    },
+    {
+     "id": "5f6e7e6bd7d4c1ad8e86b73c",
+     "original_title": "@NaveenGRao sold Nervana to Intel and MosaicML to Databricks. His third company, @unconvai, is building something that looks nothing like a GPU. His argument: AI is now limited by energy, so the number that matters is joules per token. Getting there means dropping the von Neumann split between memory and compute and building a machine that is \"programmed by weights.\" To learn fast, they tape out a new chip roughly every three months. Their first test chip, a system of coupled oscillators, generated small images at about 900 nanojoules each, against about 50 millijoules on a GPU. @dylan522p asks why so many analog chips blew their lead once you count the conversion costs, whether programmability still matters when NVIDIA is king, and whether we will stop buying computers and start buying intelligence tokens. Tape Out is a new SemiAnalysis series with the founders building AI hardware. This is episode one. 0:00 Cold Open 0:20 Naveen's Background 5:03 Unconventional AI 6:42 Beyond von Neumann 11:11 Analog vs Digital 20:02 Chips Every 3 Months 21:35 The Oscillator Chip 25:39 Biggest Challenges 27:59 Does Programmability Matter? 31:14 Charting the Path 37:23 Hardware vs Tokens 40:44 Hiring and AI Chip Design",
+     "url": "https://x.com/SemiAnalysis_/status/2125371388743565562",
+     "source": "x",
+     "source_name": "Dylan Patel",
+     "published_at": "2026-11-24T23:30:01.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:5f6e7e6bd7d4c1ad8e86b73c"
+    },
+    {
+     "id": "8b03069c37ac65af2a4aeac2",
+     "original_title": "Sources: Jensen Huang says Nvidia doesn't need a succession plan because it operates a unique business model and such a plan would create unnecessary hierarchy",
+     "url": "https://cnbc.com/2026/11/24/jensen-huang-nvidia-employee-meeting.html",
+     "source": "techmeme",
+     "source_name": "CNBC",
+     "published_at": "2026-11-24T23:10:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:8b03069c37ac65af2a4aeac2"
+    },
+    {
+     "id": "32b0284926717db48346d30c",
+     "original_title": "Sources: the CIA, ODNI, and NGA found a breach of an open-source intelligence system that exposed some unclassified info; hackers likely used the AI tool Artex",
+     "url": "https://nytimes.com/2026/11/24/us/politics/spy-agencies-computer-network-breaches.html?smid=url-share&unlocked_article_code=1.S1E.8Ak8.1m2taItvN8OT",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-24T23:05:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:32b0284926717db48346d30c"
+    },
+    {
+     "id": "34acc37de1deddc2388d1d37",
+     "original_title": "Starlink",
+     "url": "https://x.com/elonmusk/status/2125363942977597554",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-24T23:00:26.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:34acc37de1deddc2388d1d37"
+    },
+    {
+     "id": "6570862366a8b83cccf5d415",
+     "original_title": "We’re adding another 10,000 users right now - at this pace another 20min and we’ll hit all 20k",
+     "url": "https://x.com/adcock_brett/status/2125360619864113583",
+     "source": "x",
+     "source_name": "Brett Adcock",
+     "published_at": "2026-11-24T22:47:13.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6570862366a8b83cccf5d415"
+    },
+    {
+     "id": "5312c86ae250b6ddbc2a8b6f",
+     "original_title": "President Trump finds himself isolated in DC over his moves to reinstate Jensen Huang as even some of his staunchest allies vow to probe Huang and Nvidia",
+     "url": "https://cnbc.com/2026/11/24/trump-jensen-huang-nvidia.html",
+     "source": "techmeme",
+     "source_name": "CNBC",
+     "published_at": "2026-11-24T22:35:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:5312c86ae250b6ddbc2a8b6f"
+    },
+    {
+     "id": "e557ef192e99a684222d4961",
+     "original_title": "Jensen Huang says he is back not as a “tech bro” or due to Trump's pressure, but because Nvidia's board “evaluated the entire situation” and “gathered facts”",
+     "url": "https://nytimes.com/2026/11/24/technology/jensen-huang-apology-nvidia-ceo.html?smid=url-share&unlocked_article_code=1.S1E.xNC-.8GeedDSv6d1J",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-24T22:25:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:e557ef192e99a684222d4961"
+    },
+    {
+     "id": "6cf238fef56d74d1e9324f08",
+     "original_title": "US AG Todd Blanche and FBI Director Kash Patel dodge reporters' questions on a purported probe that led Trump to push Nvidia's board to bring back Jensen Huang",
+     "url": "https://cnbc.com/2026/11/24/nvidia-jensen-huang-fbi-doj-patel-blanche.html",
+     "source": "techmeme",
+     "source_name": "CNBC",
+     "published_at": "2026-11-24T22:05:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6cf238fef56d74d1e9324f08"
+    },
+    {
+     "id": "7d04166163f9df2f4800e0e9",
+     "original_title": "Tidal will ban fully AI-generated music starting December 9 and says such content accounted for ~43% of tracks distributed to its platform over the past 90 days",
+     "url": "https://hollywoodreporter.com/music/music-industry-news/tidal-bans-wholly-ai-generated-music-1236762171",
+     "source": "techmeme",
+     "source_name": "The Hollywood Reporter",
+     "published_at": "2026-11-24T21:20:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:7d04166163f9df2f4800e0e9"
+    },
+    {
+     "id": "be25a2cb2397073a58af9646",
+     "original_title": "In an Nvidia all-hands, Jensen Huang apologized for violating Nvidia's code of conduct, saying he is in therapy after making “very serious personal mistakes”",
+     "url": "https://wired.com/story/jensen-huang-apologizes-to-nvidia-employees-in-first-all-hands-since-his-return",
+     "source": "techmeme",
+     "source_name": "Wired",
+     "published_at": "2026-11-24T21:01:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:be25a2cb2397073a58af9646"
+    },
+    {
+     "id": "45a8db4d79b68b88dc796198",
+     "original_title": "To order yours: 1. Only available through our App in the U.S., one per account 2. Download Hark Pro on iOS or Android, and type “free groceries” in chat: https://t.co/272Nrs0rhX 3. You'll then be prompted to login to Doordash to pass along your $30 gift card. If you don't have an account, Hark can create one for you 4. Hark will attach the gift card to your account automatically 5. From here you can use the $30 for anything on Doordash. Tell Hark what you need and it builds your order We're doing this until we hit 10,000 user redemptions. Terms at https://t.co/Sq65CSDfdF",
+     "url": "https://x.com/adcock_brett/status/2125328253665804640",
+     "source": "x",
+     "source_name": "Brett Adcock",
+     "published_at": "2026-11-24T20:38:37.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:45a8db4d79b68b88dc796198"
+    },
+    {
+     "id": "75950e492c7c43e1c3b3dbe6",
+     "original_title": "Today we're giving away $30 of free groceries to 10,000 users ahead of Thanksgiving Download and order from the Hark app: https://t.co/gXfv7WktGR Ask Hark for \"free groceries\" in chat. First-come, first-served, delivered via DoorDash in the U.S. (details below) https://t.co/YQFoIXO50V",
+     "url": "https://x.com/adcock_brett/status/2125328241439518963",
+     "source": "x",
+     "source_name": "Brett Adcock",
+     "published_at": "2026-11-24T20:38:34.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:75950e492c7c43e1c3b3dbe6"
+    },
+    {
+     "id": "de2b2835332126a11e7a2707",
+     "original_title": "Three xAI founding members launch Epochal to build AI agents that achieve “superhuman prediction”; source: co-founder Guodong Zhang personally invested $100M",
+     "url": "https://bloomberg.com/news/articles/2026-11-24/xai-founders-unveil-new-ai-startup-to-predict-future-events",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-24T20:25:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:de2b2835332126a11e7a2707"
+    },
+    {
+     "id": "d41c701a4d68a8947cb4f584",
+     "original_title": "Jensen Huang was reinstated because his failure to build a management structure fit for Nvidia's size, plus Trump's support, left Nvidia with no other options",
+     "url": "https://ft.com/content/611430d0-9aec-4e5e-95d7-615e86f692ce?segmentId=e95a9ae7-622c-6235-5f87-51e412b47e97&shareId=7a634a5c-6c03-492a-8b55-763c32ceb632&shareType=enterprise&syn-25a6b1a6=1",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-24T20:10:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:d41c701a4d68a8947cb4f584"
+    },
+    {
+     "id": "2b9a9314520af00f888bccbb",
+     "original_title": "A familiar city, reimagined for #NVIDIAGTC. Carlos Carmonamedina shares the inspiration behind our GTC Washington, D.C. T-shirt, bringing together the city’s landmarks and his vision for its future in one illustration. Swipe for a look at his creative process. ￼ https://t.co/ijOjiGmhvW",
+     "url": "https://x.com/nvidia/status/2125320533172682962",
+     "source": "x",
+     "source_name": "NVIDIA",
+     "published_at": "2026-11-24T20:07:56.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:2b9a9314520af00f888bccbb"
+    },
+    {
+     "id": "c0143186b32fbeb4aa476c14",
+     "original_title": "A US FTC official says Shein agreed to pay $100M to settle US claims that it misled consumers on shipping times, manipulated product reviews, and more",
+     "url": "https://reuters.com/world/shein-pay-100-million-settle-us-claims-ftc-official-says-2026-11-24",
+     "source": "techmeme",
+     "source_name": "Reuters",
+     "published_at": "2026-11-24T20:01:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:c0143186b32fbeb4aa476c14"
+    },
+    {
+     "id": "769506993e07916e82624d0d",
+     "original_title": "SpaceX has agreed to forgo $738 million in U.S. federal broadband subsidies and instead provide free @Starlink hardware to eligible American households. NTIA: \"To ensure that no consumer at a Covered BSL is left behind, the provider (SpaceX) will serve the covered BSLs as this agreement provides. This includes providing customer premises equipment at no cost to new subscribers, so that households at covered BSL do not face the upfront equipment costs. Additionally, the provider’s broadband service will be subject to the same delivery timelines and performance testing requirements applicable to all recipients of BEAD funds.\" Under the new agreement, SpaceX would: • Provide free Starlink hardware to eligible households. • Guarantee minimum download speeds of 100 Mbps and upload speeds of 20 Mbps. • Offer a low-cost monthly internet plan. • Commit to providing service for 10 years. • Continue to comply with federal performance testing requirements. The agreement will save American taxpayers hundreds of millions of dollars while accelerating high-speed internet access in underserved rural communities. In exchange, SpaceX would be exempt from most BEAD-related financial audits, procurement requirements and administrative reporting, while remaining subject to network performance testing.",
+     "url": "https://x.com/SawyerMerritt/status/2125314062997467640",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-24T19:42:13.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:769506993e07916e82624d0d"
+    },
+    {
+     "id": "74d32f66a60852beb79b5896",
+     "original_title": "Internal memos: Microsoft declared a “Code Red” drive to overhaul how it prevents and responds to major service failures after the 24-hour Microsoft 365 outage",
+     "url": "https://reuters.com/business/microsoft-declares-code-red-after-historic-outage-internal-memos-show-2026-11-24",
+     "source": "techmeme",
+     "source_name": "Reuters",
+     "published_at": "2026-11-24T19:35:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:74d32f66a60852beb79b5896"
+    },
+    {
+     "id": "c92f0e3fd5057dfa83968377",
+     "original_title": "Wow, memory names like $SNDK just keep on dropping. At a $89B MC they have: > $89B minimum in LTAs with contractual price floors supporting at least 80% gross margins \"The floor pricing for those contracts, we said in aggregate, will deliver at least 80% gross margin for every single year\" > Not including HBF and uncommited capacity (~50% for 2027, ~33% for 2028) > Customers placing billions in deposits for 2029-2031 capacity already (Morgan Stanley) I really disagree with the notion that you need need NAND pricing to keep exponentially increasing Q/Q. At long as pricing remains elevated and you have duration visibility, lot of these memory companies look very undervalued.",
+     "url": "https://x.com/aleabitoreddit/status/2125311224242164185",
+     "source": "x",
+     "source_name": "Serenity",
+     "published_at": "2026-11-24T19:30:56.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:c92f0e3fd5057dfa83968377"
+    },
+    {
+     "id": "6d8e195983cbe6b744ebc865",
+     "original_title": "Experts say Trump effectively overrode Nvidia's board, and reinstating Jensen Huang before its probe ends could invite shareholder suits and political scrutiny",
+     "url": "https://nytimes.com/2026/11/23/technology/jensen-huang-nvidia-board-trump.html?smid=tw-share&unlocked_article_code=1.S1E.egnY.QfAUEI4qFyhS",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-24T19:01:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6d8e195983cbe6b744ebc865"
+    },
+    {
+     "id": "e1a72b161d26e5903ef47c5d",
+     "original_title": "Iceland claims it still has \"power imbalances\" that negatively affect women. 7/9 of Iceland's top positions are held by women. The leaders of its three major political parties are women. https://t.co/0AxikYjbOr",
+     "url": "https://x.com/libsoftiktok/status/2125300169977807284",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-24T18:47:01.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:e1a72b161d26e5903ef47c5d"
+    },
+    {
+     "id": "a32c219ca96aed404b4c620f",
+     "original_title": "Nvidia closed down 6%, paring its 31% jump on Jensen Huang's return as CEO; CoreWeave and Iren closed down 12%, Micron 11%, and AMD, Arm, and Marvell 9%",
+     "url": "https://cnbc.com/2026/11/24/nvidia-stock-jensen-huang-return.html",
+     "source": "techmeme",
+     "source_name": "CNBC",
+     "published_at": "2026-11-24T18:25:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:a32c219ca96aed404b4c620f"
+    },
+    {
+     "id": "f7d0fe35374aed271e96f49d",
+     "original_title": "Always a fun time for markets: \"Trump administration set to unveil new tariffs\" - Japan, South Korea, and the EU could face incremental increases of 2.5-5% percentage points, with potentially steeper increases for Vietnam to India - \"The Trump administration has singled out China as the biggest source of excess industrial capacity\", complicating US-China trade truce - New tariff announcement could come as soon as Tuesday",
+     "url": "https://x.com/aleabitoreddit/status/2125289945367707945",
+     "source": "x",
+     "source_name": "Serenity",
+     "published_at": "2026-11-24T18:06:23.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:f7d0fe35374aed271e96f49d"
+    },
+    {
+     "id": "6513bbe1093a28bf270b2522",
+     "original_title": "Anthropic closed down 6.54% at $81.91, below its $83 IPO price; filing: Dario and Daniela Amodei each sold 3.37M+ shares worth $280M+ to the IPO's underwriters",
+     "url": "https://reuters.com/business/anthropic-breaks-below-83-ipo-price-debut-rally-unravels-2026-11-24",
+     "source": "techmeme",
+     "source_name": "Reuters",
+     "published_at": "2026-11-24T17:45:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6513bbe1093a28bf270b2522"
+    },
+    {
+     "id": "21427dd591b45e8d2be5f978",
+     "original_title": "Sources: Stripe is in discussions for an employee share tender offer that would value it above $200B, up from $159B earlier in 2026, set to close in early 2027",
+     "url": "https://wsj.com/business/stripes-valuation-set-to-top-200-billion-in-latest-investor-talks-122c9027?reflink=desktopwebshare_permalink&st=LbwnEk",
+     "source": "techmeme",
+     "source_name": "Wall Street Journal",
+     "published_at": "2026-11-24T17:35:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:21427dd591b45e8d2be5f978"
+    },
+    {
+     "id": "fa1f8058059d21b25fc0fa23",
+     "original_title": "I wonder if we'll see an AI quantum discovery theme emerge in the future, following biotech discovery. $GOOGL Deepmind: \"Finding faster quantum algorithms with agents\": 1. The timeline by which quantum computers can solve breakthrough problems in science depend as much on better algorithms as on better hardware. 2. LLMs have accelerated progress through automated discovery loops 3. AI lets researchers design algorithms that today's classical and quantum computers cannot test, shortening the path to practical quantum computation. $ANT has also been recently working on other applications in this field as well: \"Designing more efficient quantum circuits with Claude\" Just found this paper interesting, there might be some interesting beneficiaries if AI could pull forward quantum commercialization timelines.",
+     "url": "https://x.com/aleabitoreddit/status/2125276382909566982",
+     "source": "x",
+     "source_name": "Serenity",
+     "published_at": "2026-11-24T17:12:30.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:fa1f8058059d21b25fc0fa23"
+    },
+    {
+     "id": "95043f692d3a2ed9f9ead9bf",
+     "original_title": "Zipher, which uses AI agents to handle data workload execution and resource allocation, raised $53M across seed and Series A from TLV Partners and others",
+     "url": "https://siliconangle.com/2026/11/24/zipher-lands-53m-to-put-ai-agents-not-data-engineers-in-charge-of-data-workloads",
+     "source": "techmeme",
+     "source_name": "SiliconANGLE",
+     "published_at": "2026-11-24T16:35:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:95043f692d3a2ed9f9ead9bf"
+    },
+    {
+     "id": "84bcd1e228179dc4167f31bc",
+     "original_title": "Congrats to Prof. Yuke Zhu!! Princeton is so lucky to have you 🙌",
+     "url": "https://x.com/DrJimFan/status/2125265607491047793",
+     "source": "x",
+     "source_name": "Jim Fan",
+     "published_at": "2026-11-24T16:29:41.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:84bcd1e228179dc4167f31bc"
+    },
+    {
+     "id": "ab3ceddd714ae408dbee6a30",
+     "original_title": "The OpenClaw Foundation launches ShellBench to test 12 frontier AI models across five harnesses on 100 tasks; top AI models hit only a ~60% completion rate",
+     "url": "https://thedeepview.com/articles/exclusive-openclaw-offers-an-agent-reality-check",
+     "source": "techmeme",
+     "source_name": "The Deep View",
+     "published_at": "2026-11-24T16:25:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:ab3ceddd714ae408dbee6a30"
+    },
+    {
+     "id": "acaa46e2a0bf34550711cd00",
+     "original_title": "Uber, Nuro, and Lucid begin robotaxi testing without human safety operators across four South Bay cities ahead of a planned commercial debut in Q1 2027",
+     "url": "https://theverge.com/transportation/1040676/uber-nuro-lucid-driverless-robotaxi-testing-bay-area",
+     "source": "techmeme",
+     "source_name": "The Verge",
+     "published_at": "2026-11-24T16:15:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:acaa46e2a0bf34550711cd00"
+    },
+    {
+     "id": "6cda104ade23d6c7de6a86af",
+     "original_title": "Liftoff! https://t.co/9wGDVxiG4O",
+     "url": "https://x.com/SpaceX/status/2125260653560562086",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-24T16:09:59.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6cda104ade23d6c7de6a86af"
+    },
+    {
+     "id": "d7892661b43878185dd0fcb6",
+     "original_title": "Watch Falcon 9 launch the USSF-266 mission from pad 4E in California https://t.co/4fplvapUs8",
+     "url": "https://x.com/SpaceX/status/2125257116449648858",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-24T15:55:56.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:d7892661b43878185dd0fcb6"
+    },
+    {
+     "id": "728d1779c405dfceaa2abdb5",
+     "original_title": "What can decades of Linux teach us about securing AI agents? @RedHat CTO @kernelcdub joins NVIDIA’s AI Podcast to talk transparency, open collaboration, and how clear rules help people put AI agents to work with confidence. 0:00 How Linux earned enterprise trust 2:28 Why AI agents need layers of security 3:52 OpenShell and building security together 6:38 AI security as an engineering problem 8:26 Bringing OpenClaw into the enterprise 9:43 How governance helps teams move faster 10:45 Why transparency matters for security 11:23 Using AI to find vulnerabilities 13:06 Giving agents clear limits 14:07 What personal AI agents could unlock",
+     "url": "https://x.com/nvidia/status/2125257102796959954",
+     "source": "x",
+     "source_name": "NVIDIA",
+     "published_at": "2026-11-24T15:55:53.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:728d1779c405dfceaa2abdb5"
+    },
+    {
+     "id": "a4e86b2dca049cc25433de7d",
+     "original_title": "The secrecy of the USAID grant database is by design. Look up the addresses of entities receiving millions of dollars on Google maps and you’ll find shacks or empty land. It’s pure money laundering. https://t.co/aBZPqLMfgo",
+     "url": "https://x.com/DeepLeaksHQ/status/2125256663741714676",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-24T15:54:08.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:a4e86b2dca049cc25433de7d"
+    },
+    {
+     "id": "61f13bc802db9520206ada35",
+     "original_title": "A profile of Levent Alp&ouml;ge, the Anthropic mathematician who found a Riemann hypothesis proof with Claude and held off releasing it until after Anthropic's IPO",
+     "url": "https://wsj.com/tech/ai/riemann-hypothesis-anthropic-math-levent-alpoge-75351bcb?reflink=desktopwebshare_permalink&st=waZnXv",
+     "source": "techmeme",
+     "source_name": "Wall Street Journal",
+     "published_at": "2026-11-24T15:50:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:61f13bc802db9520206ada35"
+    },
+    {
+     "id": "aee1458d4e8fd79f34bf0570",
+     "original_title": "Arianespace's Ariane 6 rocket launches 36 Amazon Leo satellites from ESA's spaceport in French Guiana, its fourth Amazon mission and the rocket's 10th flight",
+     "url": "https://bloomberg.com/news/articles/2026-11-24/european-rocket-launches-satellites-for-amazon-s-starlink-rival",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-24T15:35:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:aee1458d4e8fd79f34bf0570"
+    },
+    {
+     "id": "8aff3ccfdff75b3e89877d76",
+     "original_title": "Make Grok Bot Do What You Saved for Later",
+     "url": "https://x.com/liam_fallen/status/2125248925334454647",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-24T15:23:23.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:8aff3ccfdff75b3e89877d76"
+    },
+    {
+     "id": "0820133e210acefcb64c2273",
+     "original_title": "All systems are looking good, and weather is favorable for liftoff. Propellant load is about to begin for Falcon 9’s launch of the USSF-266 mission from California → https://t.co/qMTrgf8mHf https://t.co/VhkDom1UBk",
+     "url": "https://x.com/SpaceX/status/2125247855409692869",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-24T15:19:08.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:0820133e210acefcb64c2273"
+    },
+    {
+     "id": "3ad6c05fa5c2a0d40e564133",
+     "original_title": "just added my work experience i love my very professional job https://t.co/AEOHoIde4s",
+     "url": "https://x.com/IterIntellectus/status/2125246814580592758",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-24T15:15:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:3ad6c05fa5c2a0d40e564133"
+    },
+    {
+     "id": "74f436e3807f5f54d5c2b7df",
+     "original_title": "Researchers find two separate, unsecured databases exposing 3.5B+ combined records, login credentials, and personal documents; 1.64B relate to Chinese citizens",
+     "url": "https://wired.com/story/3-billion-usernames-passwords-and-documents-leaked-online",
+     "source": "techmeme",
+     "source_name": "Wired",
+     "published_at": "2026-11-24T15:10:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:74f436e3807f5f54d5c2b7df"
+    },
+    {
+     "id": "2f1bde90ab3767dd35d92641",
+     "original_title": "How frontier AI labs and Big Tech companies are combatting rising state-sponsored espionage threats: recruiting CIA talent, limiting staff movements, and more",
+     "url": "https://ft.com/content/c96c40c5-6b07-4433-b65f-19105e9ccb44",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-24T14:55:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:2f1bde90ab3767dd35d92641"
+    },
+    {
+     "id": "ba52db082c0e6f42a05c83ff",
+     "original_title": "Study: most AI deployments derive value by expanding and accelerating output rather than reducing costs, with 80% of 100 AI-built apps automating manual tasks",
+     "url": "https://anthropic.com/research/working-with-ai",
+     "source": "techmeme",
+     "source_name": "Anthropic",
+     "published_at": "2026-11-24T14:40:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:ba52db082c0e6f42a05c83ff"
+    },
+    {
+     "id": "da627eda4b888c9b5033f302",
+     "original_title": "Sources: Anthropic and OpenAI employees warn that internal, unreleased models have achieved rapid advances in reasoning, making them unsafe to release publicly",
+     "url": "https://axios.com/2026/11/24/anthropic-openai-unreleased-ai-safety-risks",
+     "source": "techmeme",
+     "source_name": "Axios",
+     "published_at": "2026-11-24T14:20:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:da627eda4b888c9b5033f302"
+    },
+    {
+     "id": "23ba7f45b7b567710b2d9e13",
+     "original_title": "Filing: the US Commerce Department adds Alibaba's Singaporean subsidiary, Apex Enterprise Solutions, to its Entity List alongside Megaspeed and five affiliates",
+     "url": "https://bloomberg.com/news/articles/2026-11-24/us-blacklists-alibaba-owned-company-in-setback-to-ai-ambitions",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-24T14:10:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:23ba7f45b7b567710b2d9e13"
+    },
+    {
+     "id": "7553984a53a0f79957f70bab",
+     "original_title": "Trump dismissed US intelligence warnings when pressing Nvidia to reinstate Huang, saying he acted after seeing market losses; he had $12M+ in NVDA at 2025's end",
+     "url": "https://nytimes.com/2026/11/23/us/politics/trump-nvidia-national-security.html?smid=url-share&unlocked_article_code=1.S1E.Kgj2.0MiuBqGVK4xy",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-24T14:00:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:7553984a53a0f79957f70bab"
+    },
+    {
+     "id": "7cbe87354e376656e7847a63",
+     "original_title": "Sources: SpaceX and Tesla are negotiating an all-stock, $3.5T merger led by two special committees of five “disinterested” directors, all with ties to Elon Musk",
+     "url": "https://ft.com/content/2585e45e-9133-4215-a2d8-e1275e1033b9",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-24T13:50:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:7cbe87354e376656e7847a63"
+    },
+    {
+     "id": "06c8fb75665ff64ace5ccec9",
+     "original_title": "Xiaomi reports Q3 revenue down 5.2% YoY to ~$16.1B, its third straight quarter of decline, and net income down 68% to ~$585M, as memory shortages weigh on sales",
+     "url": "https://bloomberg.com/news/articles/2026-11-24/xiaomi-s-sales-slip-after-memory-shortages-weigh-on-smartphones",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-24T13:40:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:06c8fb75665ff64ace5ccec9"
+    },
+    {
+     "id": "8476c6ce8f7316d28435d9ad",
+     "original_title": "Sources: a Silicon Valley war room, including Travis Kalanick, Gavin Baker, Brad Gerstner, and Marc Andreessen, lobbied Trump and JD Vance to reinstate Huang",
+     "url": "https://ft.com/content/82d3be02-8ac7-4acb-aefa-6e3722ee05cc",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-24T13:35:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:8476c6ce8f7316d28435d9ad"
+    },
+    {
+     "id": "9d7700e2bc6d95a31b09ca4b",
+     "original_title": "$AAOI signs $2.2B LTA with hyperscaler customer. - $1.5 billion of 800G transceivers in 2027 - $0.7 billion in lasers between 2028 and 2029 \"Customer forecast indicates demand that could exceed $10 billion over the four-year term\". https://t.co/1qHK90LlfA",
+     "url": "https://x.com/aleabitoreddit/status/2125215193139663292",
+     "source": "x",
+     "source_name": "Serenity",
+     "published_at": "2026-11-24T13:09:21.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:9d7700e2bc6d95a31b09ca4b"
+    },
+    {
+     "id": "868718f33f4fa45e3c9a80ba",
+     "original_title": "Sony says GTA VI is the biggest launch in PlayStation history across five generations, with 39M+ unique PS5 players logging 683M hours from November 19 to 22",
+     "url": "https://blog.playstation.com/2026/11/23/thank-you-for-making-grand-theft-auto-vi-the-biggest-launch-in-playstation-history",
+     "source": "techmeme",
+     "source_name": "PlayStation.Blog",
+     "published_at": "2026-11-24T12:45:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:868718f33f4fa45e3c9a80ba"
+    },
+    {
+     "id": "c08fe208cd7faa37fb635369",
+     "original_title": "Meta rolls out Muse to UK adults to help with everyday tasks, the first Big Tech company to launch an AI agent in the UK; UK watchdogs have warned about agents",
+     "url": "https://politico.eu/article/meta-ai-agent-muse-launch-uk",
+     "source": "techmeme",
+     "source_name": "Politico",
+     "published_at": "2026-11-24T10:50:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:c08fe208cd7faa37fb635369"
+    },
+    {
+     "id": "4076e457481ffa5d9870bcb7",
+     "original_title": "Bullseye",
+     "url": "https://x.com/elonmusk/status/2125178828943184363",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-24T10:44:51.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:4076e457481ffa5d9870bcb7"
+    },
+    {
+     "id": "f0b2447b517bd56e028ba182",
+     "original_title": "Novartis CEO and Anthropic board member Vas Narasimhan doubts AI will cure cancer in 5-10 years, arguing tech's “engineering mindset” overlooks human biology",
+     "url": "https://ft.com/content/1e5a9d70-221d-461d-ae03-dc235b1db340",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-24T10:30:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:f0b2447b517bd56e028ba182"
+    },
+    {
+     "id": "8611f31c8e0e1513956f0fb0",
+     "original_title": "OpenRouter removes Together AI, Phala, and Novita over data policy violations; Novita says a misconfiguration sent some MiniMax requests to MiniMax official API",
+     "url": "https://bleepingcomputer.com/news/security/openrouter-drops-ai-providers-over-leaked-prompts-and-secrets",
+     "source": "techmeme",
+     "source_name": "BleepingComputer",
+     "published_at": "2026-11-24T09:55:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:8611f31c8e0e1513956f0fb0"
+    },
+    {
+     "id": "1a0fe8005c9df4a0cde9d1f8",
+     "original_title": "Singapore PM Lawrence Wong says he doesn't want Singapore used to circumvent US chip export controls, as authorities probe Megaspeed's purchases of Nvidia chips",
+     "url": "https://bloomberg.com/news/articles/2026-11-24/singapore-won-t-be-conduit-to-skirt-us-chip-curbs-wong-says",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-24T08:05:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:1a0fe8005c9df4a0cde9d1f8"
+    },
+    {
+     "id": "8aefd0f51c2d26f12ef9fb9f",
+     "original_title": "AWS debuts Strands Decider v2, a family of five open decision models based on Google's Gemma 4, ranging from 2B to 31B parameters, under the Apache 2.0 license",
+     "url": "https://thenewstack.io/aws-strands-decider-v2",
+     "source": "techmeme",
+     "source_name": "The New Stack",
+     "published_at": "2026-11-24T07:25:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:8aefd0f51c2d26f12ef9fb9f"
+    },
+    {
+     "id": "ecd19d0cd9614fca0c6170ad",
+     "original_title": "OpenAI and Cisco launch Shirudo, an open-source runtime that helps teams protect running Linux systems without a reboot while they roll out patches",
+     "url": "https://siliconangle.com/2026/11/23/cisco-and-openai-launch-shirudo-an-open-source-infrastructure-shield-to-protect-against-ai-driven-cyberattacks",
+     "source": "techmeme",
+     "source_name": "SiliconANGLE",
+     "published_at": "2026-11-24T07:15:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:ecd19d0cd9614fca0c6170ad"
+    },
+    {
+     "id": "3bc81441426155c7984668c6",
+     "original_title": "Sources: a Google product manager spent years updating Maps to better serve Palestinians in the West Bank, but Google retracted key parts after Israeli pressure",
+     "url": "https://wired.com/story/inside-googles-failure-to-make-google-maps-work-for-palestinians",
+     "source": "techmeme",
+     "source_name": "Wired",
+     "published_at": "2026-11-24T07:00:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:3bc81441426155c7984668c6"
+    },
+    {
+     "id": "cddf69e1526c1ba07b2793c0",
+     "original_title": "Colby Adcock on Shawn Ryan",
+     "url": "https://x.com/adcock_brett/status/2125120566646669816",
+     "source": "x",
+     "source_name": "Brett Adcock",
+     "published_at": "2026-11-24T06:53:20.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:cddf69e1526c1ba07b2793c0"
+    },
+    {
+     "id": "a761fb2bf32279330bbb10b0",
+     "original_title": "OpenAI rolls out a version of GPT-6.2 Sol that is “optimized for everyday conversation” to the Chat tab for Plus, Pro, Business, and Enterprise users",
+     "url": "https://9to5mac.com/2026/11/23/chatgpt-expands-gpt-6-2-sol-as-openai-sets-retirement-date-for-two-models",
+     "source": "techmeme",
+     "source_name": "9to5Mac",
+     "published_at": "2026-11-24T06:45:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:a761fb2bf32279330bbb10b0"
+    },
+    {
+     "id": "5ab8b441a8179a0d9d4882ec",
+     "original_title": "Who said Neoclouds don't have a technical moat? High confidence this statement is about $NBIS. Databricks co-founder: \"We are VERY CAREFUL about where compute runs and so far we've only found a *single* neocloud we think has robust enough isolation to ever have a chance at running our customer workloads.\" - Databricks selected Nebius AI Cloud (shareholder letter) following a rigorous evaluation (November 12)",
+     "url": "https://x.com/aleabitoreddit/status/2125115492935549060",
+     "source": "x",
+     "source_name": "Serenity",
+     "published_at": "2026-11-24T06:33:10.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:5ab8b441a8179a0d9d4882ec"
+    },
+    {
+     "id": "aadbcf1dd01d02a782b1deab",
+     "original_title": "Sources: Jensen Huang disclosed additional affairs beyond the two already reported during his Sunday meeting with Nvidia's board, but was remorseful about them",
+     "url": "https://wsj.com/business/nvidia-jensen-huang-white-house-9ad03961?st=HzeUyV",
+     "source": "techmeme",
+     "source_name": "Wall Street Journal",
+     "published_at": "2026-11-24T06:15:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:aadbcf1dd01d02a782b1deab"
+    },
+    {
+     "id": "7f02080065d7960b29887080",
+     "original_title": "Filing: ex-OpenAI engineer Abdulrahman Alfozan recorded a meeting with foreign government reps and photographed a confidential term sheet with another company",
+     "url": "https://nytimes.com/2026/11/23/technology/openai-engineer-secret-recordings.html?smid=url-share&unlocked_article_code=1.S1E.uEk0.4ODfUv_FRPyx",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-24T05:35:00.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:7f02080065d7960b29887080"
+    },
+    {
+     "id": "939ff4d1b9a2a63b4189a70d",
+     "original_title": "US prosecutors say the ex-OpenAI engineer charged with bugging an exec conference room had dozens of OpenAI meeting recordings, many on possible trade secrets",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/openai-staffer-likely-captured-secrets-on-hidden-bug-us-says",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-24T05:10:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:939ff4d1b9a2a63b4189a70d"
+    },
+    {
+     "id": "504a3626bcd49ec43bdf159f",
+     "original_title": "Sources: the US is investigating Iran's possible role in cyberattacks on up to 50 energy tankers via a Fortinet router flaw; Russia is also a possible culprit",
+     "url": "https://wsj.com/politics/national-security/iran-us-cyberattack-suspect-fed78942?reflink=desktopwebshare_permalink&st=rS4p4u",
+     "source": "techmeme",
+     "source_name": "Wall Street Journal",
+     "published_at": "2026-11-24T04:40:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:504a3626bcd49ec43bdf159f"
+    },
+    {
+     "id": "6b673fcbad783aa551431db6",
+     "original_title": "Kalshi pauses operations in Utah, where it has 177K+ users, citing a federal court loss over a state gambling law; Kalshi also faces criminal charges in Utah",
+     "url": "https://utahnewsdispatch.com/2026/11/23/kalshi-blocks-operations-in-utah-legal-challenges-ongoing",
+     "source": "techmeme",
+     "source_name": "Utah News Dispatch",
+     "published_at": "2026-11-24T03:55:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6b673fcbad783aa551431db6"
+    },
+    {
+     "id": "3641be072fbe41a914075a27",
+     "original_title": "Supertake, which uses AI agents to turn users' market predictions into investment portfolios via Coinbase and Robinhood, raised a $20M seed led by Adjacent",
+     "url": "https://techcrunch.com/2026/11/23/supertake-raises-20m-to-let-ai-agents-turn-your-market-predictions-into-stock-portfolios",
+     "source": "techmeme",
+     "source_name": "TechCrunch",
+     "published_at": "2026-11-24T03:25:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:3641be072fbe41a914075a27"
+    },
+    {
+     "id": "225287ef8c2dce63a9328a6a",
+     "original_title": "I'd personally revise AI capex estimates back up (beyond accelerators), after Jensen's return to $NVDA. A lot of revised forecasts where made off him leaving, but his return, can be a lot more confidence in spend with upstream supply chains + bottlenecks. Jensen my ideal game theory troll, he just secures all the capacity of things other programs like $GOOGL or Amazon needs. > Testing? (Nvidia just secures all the capacity) > Substrates? (Nvidia just secures all the capacity) > Lasers? (Nvidia just secures all the capacity) > Memory? (Nvidia just secures all the capacity) Before there was a lot of uncertainty (to the point I had to model major capex cuts)... But Jensen's return forces hyperscalers to be much more aggressive again in supply procurement.",
+     "url": "https://x.com/aleabitoreddit/status/2125058643154632845",
+     "source": "x",
+     "source_name": "Serenity",
+     "published_at": "2026-11-24T02:47:16.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:225287ef8c2dce63a9328a6a"
+    },
+    {
+     "id": "8d2174fa3d41c11cd18872cc",
+     "original_title": "Ooo found $SMTC laser disclosures in earnings interesting after their HieFo acquisition: - UHP 400mW lasers under development (further behind $AAOI in this aspect since AOI has been doing quals). In terms of laser revenue: - 3-4x capacity expansion EOY, another 3-4x end of next year. -> $25M/quarter EOY after 3x -> ~$$100M quarter after 4x - NPO engagement with 4 US hyperscalers and 3 Chinese hyperscalers (Aug 2027–Jan 2028 initial revenue for NPO for timelines) - \"developing CPO scale-up lasers, but that's a contribution of potential revenue beyond 2027\" in terms of timeline - \"NPO represents a great near-term opportunity\" relative to CPO - \"We wanted to catch the next wave, so that is a 3.2T\" (from previous earnings) It would be nice if $SIVE learned a thing or two about doing economic disclosures similar to this ($ scale of capacity, engagement scale. Semtech's strat is probably VHP/UHP lasers for NPO/CPO and 3.2T for pluggables since they missed the initial wave. Anyway, they look commercially behind compared to the rest (100-150mW only sampling now)... but very credible and interesting competitor emerging in 2028 + additional TAM expansion on top of TIA/Drivers. TLDR: HieFo acquisition might be goated (~$300m-$400m exit 2027 annualized capacity revenue opportunity, probably a lot more for 2028)... If it were standalone under Semtech I could see it being $1B-$2B+ just based on opportunity alone, but they got it for like ~$34M from US Gov forced divestiture.",
+     "url": "https://x.com/aleabitoreddit/status/2125056333045219562",
+     "source": "x",
+     "source_name": "Serenity",
+     "published_at": "2026-11-24T02:38:06.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:8d2174fa3d41c11cd18872cc"
+    },
+    {
+     "id": "60eb4108435072ddec73036e",
+     "original_title": "Australia-based Myriota, which provides low-cost, low-power satellite connectivity for industrial IoT, raised roughly $40M in the first close of its Series C",
+     "url": "https://wsj.com/pro/venture-capital/australian-iot-startup-aims-to-help-bridge-the-gap-between-ai-and-the-real-world-83864d54",
+     "source": "techmeme",
+     "source_name": "Wall Street Journal",
+     "published_at": "2026-11-24T02:25:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:60eb4108435072ddec73036e"
+    },
+    {
+     "id": "358e7a1c32befa0b704b794f",
+     "original_title": "HPE reports Q4 revenue up 50% YoY to $14.5B, above $14.3B est., and forecasts Q1 revenue above the average estimates but below the highest; HPE drops 6%+",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/hpe-gives-forecast-that-falls-short-of-most-optimistic-estimates",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-24T02:05:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:358e7a1c32befa0b704b794f"
+    },
+    {
+     "id": "c651d59f0a635132d717e734",
+     "original_title": "Analysis of Jensen Huang's return as Nvidia CEO: 1. Uncertainty removed: Mainly company strategy, product roadmap, tech development, and supply chain management. This overhang weighed on tech stocks over the past 1–2 weeks, so shares surged as soon as it was removed. But whether they return to prior highs depends not only on each company's position in the AI supply chain and Nvidia's ecosystem, but also on the two points below. 2. Uncertainties that remain: (1) Sales: The impact on Nvidia's shipments and revenue after tighter US controls on AI GPU exports and overseas compute leasing. (2) Circular financing: The impact of higher compliance costs and stricter reviews on ongoing and future deals. (3) Investigations, lawsuits, and stricter oversight: Jensen and Nvidia are still under investigation. Future public comments, internal decisions, and external interactions will all become part of the investigation and new evidence for questioning. This also adds to the sales and circular financing uncertainty above. 3. Real-world bottlenecks that can't be changed: (1) Data center buildout challenges (power, labor, etc.) and stricter related regulations ahead. (2) CSP capex peaking one by one in 2027–2028. (3) Manufacturing tech limits (e.g., next-gen advanced packaging yields).",
+     "url": "https://x.com/mingchikuo/status/2125047213416206638",
+     "source": "x",
+     "source_name": "郭明錤｜Ming-Chi Kuo",
+     "published_at": "2026-11-24T02:01:51.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:c651d59f0a635132d717e734"
+    },
+    {
+     "id": "dde5d2da27b6413500ce68cf",
+     "original_title": "黃仁勳恢復 Nvidia CEO 職位的分析： 1. 被移除的不確定性： 主要是公司策略、產品規劃、技術發展與供應鏈管理等。上述不確定性曾在過去 1-2 週對科技股造成壓力，因此不確定性被移除後股價立刻大漲。但能否回到過去股價高點，除了取決於個別公司在 AI 供應鏈與 Nvidia 生態體系的定位外，還要看以下兩點。 2. 仍存在的不確定性： (1) 銷售面：在美國更嚴格管制 AI GPU 出口與海外算力租賃後，對 Nvidia 出貨與營收造成的影響。 (2) 循環融資：更高合規成本與更嚴格審核機制下，對進行中的循環融資與未來新案的影響。 (3) 調查訴訟與更嚴格的監管：黃仁勳與 Nvidia 仍在接受調查中，未來的公開發言、內部決策與對外互動，都會被納入後續調查並成為質詢的新證據，而這也會強化上述銷售面與循環融資的不確定性。 3. 無法被改變的現實瓶頸： (1) 資料中心建置的挑戰 (包括供電、人力等)，與未來相關法規更趨於嚴格。 (2) CSP 資本支出陸續在 2027‒2028 見頂。 (3) 製造技術限制 (如次世代先進封裝良率等)。",
+     "url": "https://x.com/mingchikuo/status/2125047199667278075",
+     "source": "x",
+     "source_name": "郭明錤｜Ming-Chi Kuo",
+     "published_at": "2026-11-24T02:01:48.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:dde5d2da27b6413500ce68cf"
+    },
+    {
+     "id": "d82ca79174cc27fdd7fc0cce",
+     "original_title": "Zoom reports Q3 revenue up 4.9% YoY to $1.29B, above $1.28B est., enterprise revenue up 8.6% to $805.4M, and forecasts Q4 revenue below estimates",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/zoom-projects-revenue-that-misses-estimates-on-stagnant-growth",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-24T01:50:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:d82ca79174cc27fdd7fc0cce"
+    },
+    {
+     "id": "7a698247538a3d3baf99ab7a",
+     "original_title": "https://t.co/v926NNCrQw",
+     "url": "https://x.com/nvidia/status/2125030292440191362",
+     "source": "x",
+     "source_name": "NVIDIA",
+     "published_at": "2026-11-24T00:54:37.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:7a698247538a3d3baf99ab7a"
+    },
+    {
+     "id": "d6cde539aeef7ccee1fbcfd2",
+     "original_title": "Tech stocks rally as Jensen Huang returns as Nvidia CEO; the Nasdaq 100 jumped 7%, a Magnificent Seven basket rose 8%, CoreWeave 22%, Tesla 11%, and AMD 7%",
+     "url": "https://bloomberg.com/news/articles/2026-11-22/stock-traders-brace-for-more-volatility-after-tech-driven-rout",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-24T00:40:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:d6cde539aeef7ccee1fbcfd2"
+    },
+    {
+     "id": "1e3099cfd11460712c0c5f54",
+     "original_title": "Anthropic unveils Claude Ship, letting Claude review, fix, and approve GitHub pull requests based on team policies, in beta for Claude Team and Enterprise tiers",
+     "url": "https://zdnet.com/innovation/claude-ship-code-how-to-try",
+     "source": "techmeme",
+     "source_name": "ZDNET",
+     "published_at": "2026-11-24T00:25:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:1e3099cfd11460712c0c5f54"
+    },
+    {
+     "id": "ff1fc6b96fac0bf760b04e48",
+     "original_title": "Filing: the US Commerce Department added Megaspeed and six other companies to its Entity List on November 23, barring US chip sales to them without a license",
+     "url": "https://semafor.com/article/11/23/2026/commerce-to-add-megaspeed-to-trade-blacklist",
+     "source": "techmeme",
+     "source_name": "Semafor",
+     "published_at": "2026-11-23T23:10:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:ff1fc6b96fac0bf760b04e48"
+    },
+    {
+     "id": "6e961173899bd17ad26c43e2",
+     "original_title": "Sources: Trump pushed Nvidia to reinstate Jensen Huang after allies argued he was “too big to fail” for the US economy and a victim of “deep state” maneuvering",
+     "url": "https://axios.com/2026/11/23/trump-vance-jensen-huang-nvidia-ceo-return",
+     "source": "techmeme",
+     "source_name": "Axios",
+     "published_at": "2026-11-23T23:01:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6e961173899bd17ad26c43e2"
+    },
+    {
+     "id": "167d2bfb3096586d80867c01",
+     "original_title": "Sources: Trump and JD Vance were convinced Jensen Huang alone protected US-made open-weight AI models; Nvidia bought Hugging Face and invested in Reflection AI",
+     "url": "https://reuters.com/world/us/trump-saw-nvidias-huang-protector-open-weight-ai-models-sources-say-2026-11-23",
+     "source": "techmeme",
+     "source_name": "Reuters",
+     "published_at": "2026-11-23T22:30:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:167d2bfb3096586d80867c01"
+    },
+    {
+     "id": "7bf0db57ae37e4ad558d5cbc",
+     "original_title": "Jensen Huang returned to Nvidia's Santa Clara headquarters on Monday to cheers from employees and said “I'm gonna be a better CEO the second time around”",
+     "url": "https://businessinsider.com/jensen-huang-returns-to-nvidia-hq-im-terribly-sorry-2026-11",
+     "source": "techmeme",
+     "source_name": "Business Insider",
+     "published_at": "2026-11-23T22:05:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:7bf0db57ae37e4ad558d5cbc"
+    },
+    {
+     "id": "9acd255c4b4c2c36ef72e735",
+     "original_title": "If an AI buys your plane ticket, it shouldn’t come back with a new car. Red Hat’s @kernelcdub explains why AI agents need clear limits. Tomorrow on the NVIDIA AI Podcast. https://t.co/6vZEKD0vI3",
+     "url": "https://x.com/nvidia/status/2124987020464329090",
+     "source": "x",
+     "source_name": "NVIDIA",
+     "published_at": "2026-11-23T22:02:40.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:9acd255c4b4c2c36ef72e735"
+    },
+    {
+     "id": "50350b69871f9b5917dcb0e1",
+     "original_title": "Dutch payment company Adyen says co-CEO Pieter van der Does plans to step down at the end of the year; co-CEO Ingo Uytdehaage will become the sole chief",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/adyen-co-ceo-pieter-van-der-does-to-retire-from-payments-firm",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T22:01:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:50350b69871f9b5917dcb0e1"
+    },
+    {
+     "id": "be420fdafc9e89488f2f9308",
+     "original_title": "My favorite product we’ve ever made. The dream from V1 was a Starlink smaller and thinner than a tablet that works for hours and delivers incredible performance. So proud of the team that made it real.",
+     "url": "https://x.com/johnfederspiel/status/2124985724210712664",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T21:57:31.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:be420fdafc9e89488f2f9308"
+    },
+    {
+     "id": "4bda76c0587dddc34f2d9b41",
+     "original_title": "AWS CEO Matt Garman says AI safety can't rely on an “emergency brake” and that the same engineering discipline behind decades of secure systems applies to AI",
+     "url": "https://aboutamazon.com/news/aws/aws-ceo-ai-safety-engineering",
+     "source": "techmeme",
+     "source_name": "About Amazon",
+     "published_at": "2026-11-23T21:25:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:4bda76c0587dddc34f2d9b41"
+    },
+    {
+     "id": "d4aa352d1fb8c5e9d5517d6b",
+     "original_title": "Hacking gang CyberLeek claims it released all files for the Xbox build of GTA VI, including an executable program that could help modders port the game to PC",
+     "url": "https://pcmag.com/news/gta-6-leaker-releases-all-files-for-alleged-xbox-build-of-game",
+     "source": "techmeme",
+     "source_name": "PCMag",
+     "published_at": "2026-11-23T21:10:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:d4aa352d1fb8c5e9d5517d6b"
+    },
+    {
+     "id": "dfec16e99c38816be346e45f",
+     "original_title": "Sources: Nvidia board's decision to reinstate Jensen Huang was made without consulting Nvidia's senior leadership, who were only informed at the last minute",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/nvidia-s-about-face-on-huang-made-without-consulting-leadership",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T21:01:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:dfec16e99c38816be346e45f"
+    },
+    {
+     "id": "ef97bfd1ede7fc97ebb274f6",
+     "original_title": "Getting online with Mini 2 is simple. Press the button and you're connected in 60 seconds, with a rechargeable battery that lasts up to 4.5 hours, or plug in with USB-C. Preorders are open by invitation in the US. Get notified when it's available → https://t.co/UirXPKXYHa https://t.co/TzSoLFC15D",
+     "url": "https://x.com/Starlink/status/2124970272327602448",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T20:56:07.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:ef97bfd1ede7fc97ebb274f6"
+    },
+    {
+     "id": "04f80e94c65b2c8be7b7f955",
+     "original_title": "US Senate Banking Committee Chairman Tim Scott says Jensen Huang is still set to testify publicly on December 3, focusing on oversight of US export controls",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/jensen-huang-will-testify-publicly-before-us-senators-next-week",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T20:50:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:04f80e94c65b2c8be7b7f955"
+    },
+    {
+     "id": "d94e49f31c591e1d253043a2",
+     "original_title": "Sources: Elon Musk told staff that SpaceX is falling behind in AI, making it more lucrative to rent out computing than use it to improve SpaceX's own products",
+     "url": "https://nytimes.com/2026/11/23/business/elon-musk-ai-anthropic-google.html?smid=url-share&unlocked_article_code=1.SlE.aCYC.YU6IyUKPOOHb",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-23T20:35:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:d94e49f31c591e1d253043a2"
+    },
+    {
+     "id": "50836e2b7a57576700a2d2e2",
+     "original_title": "\"If you ask, \"Go pick up an apple,\" and then you move the table, it won't be able to pick up the apple anymore\" Here's Figure running Helix, zero shot and fully autonomous https://t.co/MMwbnmFjT3",
+     "url": "https://x.com/adcock_brett/status/2124963178916524276",
+     "source": "x",
+     "source_name": "Brett Adcock",
+     "published_at": "2026-11-23T20:27:56.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:50836e2b7a57576700a2d2e2"
+    },
+    {
+     "id": "d3a3c77f6e59b75506a81462",
+     "original_title": "Filing: the US DOJ is seeking forfeiture of $1B+ in cryptocurrency stolen from Binance by hackers linked to North Korea",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/us-seeks-to-recover-more-than-1-billion-from-binance-hack",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T20:25:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:d3a3c77f6e59b75506a81462"
+    },
+    {
+     "id": "4b5aeb00b37d9e5e6f5d10ae",
+     "original_title": "Sources: Trump had JD Vance lead the push to reinstate Jensen Huang, including working to assure Nvidia's board that Huang was not facing criminal charges",
+     "url": "https://nytimes.com/2026/11/23/technology/trump-nvidia-huang.html?smid=url-share&unlocked_article_code=1.SlE.plCA.zs7Mh9MXa5RG",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-23T20:10:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:4b5aeb00b37d9e5e6f5d10ae"
+    },
+    {
+     "id": "632a24190b0d8dfd053538d3",
+     "original_title": "Nvidia's board says it is starting a search to fill a new position, Chief Compliance Officer, reporting to the Nominating and Corporate Governance Committee",
+     "url": "https://reuters.com/technology/nvidia-reinstates-jensen-huang-ceo-2026-11-23",
+     "source": "techmeme",
+     "source_name": "Reuters",
+     "published_at": "2026-11-23T19:40:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:632a24190b0d8dfd053538d3"
+    },
+    {
+     "id": "740ab9bc929ce82e695ed732",
+     "original_title": "It was the worst of times, it is the best of times. It was the season of Darkness, it is the season of Light. It was the Winter of despair, it is the Spring of hope. Today is, perhaps, the end of the beginning. Summer is coming. Congrats to humanity. 💚💚💚 https://t.co/1EyXipf6th",
+     "url": "https://x.com/DrJimFan/status/2124950255003476279",
+     "source": "x",
+     "source_name": "Jim Fan",
+     "published_at": "2026-11-23T19:36:35.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:740ab9bc929ce82e695ed732"
+    },
+    {
+     "id": "3c60ba3807b64f9772527520",
+     "original_title": "US lawmakers from both parties criticize Nvidia for reinstating Jensen Huang and say Congress must pass legislation to crack down on US chip exports to China",
+     "url": "https://reuters.com/business/lawmakers-criticize-nvidia-decision-reinstate-huang-ceo-2026-11-23",
+     "source": "techmeme",
+     "source_name": "Reuters",
+     "published_at": "2026-11-23T19:25:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:3c60ba3807b64f9772527520"
+    },
+    {
+     "id": "ef478dc68f182d641f386c3c",
+     "original_title": "Welcome to the PvP of social media. https://t.co/YTPtgaZKA9",
+     "url": "https://x.com/cb_doge/status/2124945497152794908",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T19:17:40.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:ef478dc68f182d641f386c3c"
+    },
+    {
+     "id": "2bed71ea610f5dbcead31847",
+     "original_title": "Beautiful shot by Andrew McCarthy",
+     "url": "https://x.com/elonmusk/status/2124944467119747335",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T19:13:35.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:2bed71ea610f5dbcead31847"
+    },
+    {
+     "id": "6c13e0ff9e589f3ba8837717",
+     "original_title": "Everyone I know at Nvidia wanted Jensen back and it shows",
+     "url": "https://x.com/elonmusk/status/2124942828274925651",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T19:07:04.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6c13e0ff9e589f3ba8837717"
+    },
+    {
+     "id": "af22ed3e192e5788cd5c105a",
+     "original_title": "Unwrap new possibilities. 🎁 From a new game to a creative project or your first robot, find holiday inspiration for the gamers, creators and makers on your list with NVIDIA. Explore the blog: https://t.co/zOijrLSqLJ https://t.co/SRuusbLqiP",
+     "url": "https://x.com/nvidia/status/2124941625935667510",
+     "source": "x",
+     "source_name": "NVIDIA",
+     "published_at": "2026-11-23T19:02:17.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:af22ed3e192e5788cd5c105a"
+    },
+    {
+     "id": "e1496e9c7d526f47c213b9fa",
+     "original_title": "It's my X birthday, been here now 20 years. X is best for AI. And AI's best here on X is here. Very awesome to watch on high-news days, like today. Or, even better, have your GrokBot watch it, along with any of my other 65 lists (most complete here on X of AI, tech, news): https://t.co/qyxF8in0sP My GrokBot watches them all here (updates every three hours): https://t.co/oZyfpVOvpM All my lists: https://t.co/9eRY65x3IQ (I've put thousands of hours into building them over the past 20 years). And that is used to build the AI news site at https://t.co/zleMXMaSi9 70,000 people in AI alone, and tens of thousands of others. 10,100 AI companies. All the world's news too. When @biz and @ev started Twitter, I was the first to get to 1,000 followers back 20 years ago and @biz says I'm the first influencer. Every once in a while I look at the other social networks and there's no way I could do this anywhere else.",
+     "url": "https://x.com/Scobleizer/status/2124934262915055677",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T18:33:02.000Z",
+     "collected_at": "2026-11-24T01:33:21.561Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:e1496e9c7d526f47c213b9fa"
+    },
+    {
+     "id": "117ff3f41581e2289665b34c",
+     "original_title": "Trump says “I made the deal” for Jensen Huang's return, Nvidia's board asked for guarantees he wasn't a national security threat, and “we gave them assurances”",
+     "url": "https://cnbc.com/2026/11/23/trump-nvidia-jensen-huang.html",
+     "source": "techmeme",
+     "source_name": "CNBC",
+     "published_at": "2026-11-23T18:20:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:117ff3f41581e2289665b34c"
+    },
+    {
+     "id": "8793b6fcdfd266132a9845f7",
+     "original_title": "Sources: Trump dialed into Nvidia's Sunday board meeting to argue for Huang's return; the White House communications director says Trump “was totally involved”",
+     "url": "https://semafor.com/article/11/23/2026/jensen-huang-reinstated-as-nvidia-ceo",
+     "source": "techmeme",
+     "source_name": "Semafor",
+     "published_at": "2026-11-23T18:14:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:8793b6fcdfd266132a9845f7"
+    },
+    {
+     "id": "6e30484889523451a9922cd2",
+     "original_title": "Andrej Karpathy on Elon Musk: \"Elon is a very efficient warrior in the fight against entropy in organizations.\" https://t.co/NvsItJzNwe",
+     "url": "https://x.com/teslaownersSV/status/2124928801553428777",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T18:11:20.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6e30484889523451a9922cd2"
+    },
+    {
+     "id": "0caf5f63ba79caa77faf4c8a",
+     "original_title": "Analysis: GTA VI has sold 44.9M copies, not including unsold retail inventory, with the PS5 accounting for 33.7M units, and generated $4B+ in gross revenue",
+     "url": "https://alineaanalytics.substack.com/p/gta-6-sells-449m-copies-makes-40b",
+     "source": "techmeme",
+     "source_name": "Alinea",
+     "published_at": "2026-11-23T18:01:00.000Z",
+     "collected_at": "2026-11-25T01:31:15.882Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:0caf5f63ba79caa77faf4c8a"
+    },
+    {
+     "id": "13eb0717591c69dd2a0b5665",
+     "original_title": "Amazon agrees to acquire much of startup Decart, including the Decart Optimization Stack and its founding team and AI researchers, a source says for ~$7.5B",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/amazon-is-said-to-pay-7-5-billion-for-ai-startup-decart-s-tech",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T17:50:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:13eb0717591c69dd2a0b5665"
+    },
+    {
+     "id": "6e1d89e9c61a33d1cf0d1ba9",
+     "original_title": "Hark users have created 113,122 Panels since we launched last month These are AI-generated spaces that live on the Hark homepage Today we're rolling out a major overhaul of Panels: they're much faster, more real-time, and can now track to-do lists https://t.co/w5tkz89gGg",
+     "url": "https://x.com/adcock_brett/status/2124921186627051769",
+     "source": "x",
+     "source_name": "Brett Adcock",
+     "published_at": "2026-11-23T17:41:04.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:6e1d89e9c61a33d1cf0d1ba9"
+    },
+    {
+     "id": "66a122f0106f03c8432b884f",
+     "original_title": "Nvidia's board says it voted to reinstate Jensen Huang after receiving input from “senior levels” of the US government; a probe into his conduct is ongoing",
+     "url": "https://ft.com/content/08914b05-bbfa-478d-b38a-549acfc1aae6",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-23T17:24:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:66a122f0106f03c8432b884f"
+    },
+    {
+     "id": "162591fc9dc5e54b581c5dfb",
+     "original_title": "President Trump says Nvidia “made the correct and proper decision”, the US “needs Jensen's leadership”, and the US AG found no evidence of “unlawful conduct”",
+     "url": "https://truthsocial.com/@realDonaldTrump/117666141823845971",
+     "source": "techmeme",
+     "source_name": "@realDonaldTrump",
+     "published_at": "2026-11-23T17:11:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:162591fc9dc5e54b581c5dfb"
+    },
+    {
+     "id": "5eb3a4591dcd835dd4894eba",
+     "original_title": "Nvidia's board unanimously votes to reinstate Jensen Huang as CEO, president, and board director, after finding “no national security risk”; NVDA closes up 31%",
+     "url": "https://nvidianews.nvidia.com/news/nvidia-board-reinstates-jensen-huang-as-president-ceo-and-board-director",
+     "source": "techmeme",
+     "source_name": "Nvidia Newsroom",
+     "published_at": "2026-11-23T17:03:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:5eb3a4591dcd835dd4894eba"
+    },
+    {
+     "id": "07c0b33ead7c94eab676d3d6",
+     "original_title": "Oregon and Virginia sue SpaceX, alleging Grok Imagine's “spicy mode” violated consumer laws by creating 1.8M+ sexualized images of women and 65+ of children",
+     "url": "https://nytimes.com/2026/11/23/technology/spacex-lawsuit-ai-sexualized-images.html",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-23T16:55:00.000Z",
+     "collected_at": "2026-11-24T01:33:21.561Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:07c0b33ead7c94eab676d3d6"
+    },
+    {
+     "id": "a3e8d4a182699c11c8ca9999",
+     "original_title": "Oregon and Virginia sue SpaceX, alleging Grok Imagine's “spicy mode” violated consumer laws by creating 1.8M+ sexualized images of women and 65+ of children",
+     "url": "https://nytimes.com/2026/11/23/technology/spacex-lawsuit-ai-sexualized-images.html?smid=url-share&unlocked_article_code=1.SlE.cKBF.U6MXMmzj-hKt",
+     "source": "techmeme",
+     "source_name": "New York Times",
+     "published_at": "2026-11-23T16:55:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:a3e8d4a182699c11c8ca9999"
+    },
+    {
+     "id": "f1e07b16b5fd442e9762a205",
+     "original_title": "no one man should have this much power",
+     "url": "https://x.com/TrungTPhan/status/2124898598626455822",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T16:11:19.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:f1e07b16b5fd442e9762a205"
+    },
+    {
+     "id": "2f38aea987c6ee709a9c543d",
+     "original_title": "Q&A with Bret Taylor on his long career, co-founding Sierra, working with ex-Googlers, X's influence, AI call center agents, working as OpenAI chair, and more",
+     "url": "https://colossus.com/article/bret-taylor-founder-guy",
+     "source": "techmeme",
+     "source_name": "Colossus",
+     "published_at": "2026-11-23T16:10:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:2f38aea987c6ee709a9c543d"
+    },
+    {
+     "id": "68c2a12c953ec56cb4f6206b",
+     "original_title": "BREAKING: Aer Lingus launches FREE Starlink Wi-Fi on European flights, with 29 short-haul aircraft to be connected in early 2027. • The expansion follows a “fantastic” response from passengers on its North American routes. • Spain, Portugal and Morocco are among the destinations planned for the rollout. • Passengers connected to Starlink on Aer Lingus’s A330 fleet used an average of 1.8 GB per device in October.",
+     "url": "https://x.com/cb_doge/status/2124897838656262339",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T16:08:18.000Z",
+     "collected_at": "2026-11-24T01:33:21.561Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:68c2a12c953ec56cb4f6206b"
+    },
+    {
+     "id": "99d2fda7450b1bc88500a984",
+     "original_title": "My composite image I created from this event was made into a limited number of gorgeous fine art prints. I still have some available, but they come off my shop tonight. Get a print as a memento of this incredible event: https://t.co/UWjrfHlKVj https://t.co/wcDTDdYT6I",
+     "url": "https://x.com/AJamesMcCarthy/status/2124892596749378029",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T15:47:28.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:99d2fda7450b1bc88500a984"
+    },
+    {
+     "id": "8dbf87677adc071e83aca370",
+     "original_title": "@stablequan We don’t dumb down our engineering meeting with Elon.",
+     "url": "https://x.com/yunta_tsai/status/2124890893975204334",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T15:40:42.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:8dbf87677adc071e83aca370"
+    },
+    {
+     "id": "46bc16eb3562d9e75817a905",
+     "original_title": "Arm CEO Rene Haas extends his contract through 2033 and will become SoftBank vice chair on December 1; a recruiting firm approached him over becoming Nvidia CEO",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/arm-ceo-extends-contract-through-2033-after-nvidia-approach",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T15:30:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:46bc16eb3562d9e75817a905"
+    },
+    {
+     "id": "dc0ef921c77143b9d3874b80",
+     "original_title": "Marlowe, which develops cloud infrastructure and performance tools to optimize non-Nvidia AI chips, raised a $277M seed led by Accel at a $1.15B valuation",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/marlowe-raises-277-million-to-bolster-alternatives-to-nvidia-chips",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T15:15:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:dc0ef921c77143b9d3874b80"
+    },
+    {
+     "id": "e4fb0b2c55fc3b484bf94af2",
+     "original_title": "Bret Taylor's customer service AI startup Sierra says it's finalizing a $1.75B+ round led by Lightspeed and Greenoaks at a $30B valuation, up from $15.8B in May",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/bret-taylor-s-sierra-finalizing-more-than-1-75-billion-round",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T15:10:00.000Z",
+     "collected_at": "2026-11-24T01:33:21.561Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:e4fb0b2c55fc3b484bf94af2"
+    },
+    {
+     "id": "cbb7c7df3ee8c0b19cf087ec",
+     "original_title": "Jensen 2.0 LFG!!! 💚💚💚",
+     "url": "https://x.com/DrJimFan/status/2124879047578865925",
+     "source": "x",
+     "source_name": "Jim Fan",
+     "published_at": "2026-11-23T14:53:37.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:cbb7c7df3ee8c0b19cf087ec"
+    },
+    {
+     "id": "d4c33c2540cb1e679a0d8ebc",
+     "original_title": "Jensen Huang says he loves working with Elon Musk And he explains why. Musk uses Nvidia's technology three ways at once. Training his own AI models. Deploying them, like Grok, where demand is skyrocketing. And renting it out. Very few companies do all three. Musk also loves the place where computing meets the physical build-out. Jensen: \"Nobody knows more about energy than he does.\" So they went after a new market together. Data centers in space. Their two engineering teams were working super closely to create a new type of server. A new architecture that might work great in space, and on Earth. https://t.co/QRnADSt7kN",
+     "url": "https://x.com/NarutoNolimits/status/2124877757817704933",
+     "source": "x",
+     "source_name": "Elon Musk",
+     "published_at": "2026-11-23T14:48:30.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:d4c33c2540cb1e679a0d8ebc"
+    },
+    {
+     "id": "eafc5ac6d1cfac26b8113093",
+     "original_title": "Sources: Jensen Huang developed a close relationship with Trump and made lobbying calls to secure AI chip sales to China, which he called a $50B per year market",
+     "url": "https://washingtonpost.com/technology/2026/11/23/how-nvidia-fought-years-washington-sell-its-prized-chips-china",
+     "source": "techmeme",
+     "source_name": "Washington Post",
+     "published_at": "2026-11-23T14:40:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:eafc5ac6d1cfac26b8113093"
+    },
+    {
+     "id": "2ea1220c32077925f2834152",
+     "original_title": "US ports are facing an escalating volume of cyber threats; the Port of LA logged 120M thwarted attempts in August alone, nearly double its 2023 monthly average",
+     "url": "https://ft.com/content/c269cf3e-2275-4244-9a86-f412c8521b4f",
+     "source": "techmeme",
+     "source_name": "Financial Times",
+     "published_at": "2026-11-23T14:25:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:2ea1220c32077925f2834152"
+    },
+    {
+     "id": "dd8e553d1c5be49ec15a1bea",
+     "original_title": "THE AI TRADE IS BACK $NVDA Board Reinstates Jensen Huang as CEO https://t.co/8s5s4AdkL2",
+     "url": "https://x.com/aleabitoreddit/status/2124865722342085117",
+     "source": "x",
+     "source_name": "Serenity",
+     "published_at": "2026-11-23T14:00:40.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:dd8e553d1c5be49ec15a1bea"
+    },
+    {
+     "id": "e95f36b6d1183b34666731e0",
+     "original_title": "NVIDIA Board reinstates Jensen Huang as President, CEO and Board Director. Read the release: https://t.co/x4bnjiSVil",
+     "url": "https://x.com/nvidianewsroom/status/2124865060397019480",
+     "source": "x",
+     "source_name": "NVIDIA",
+     "published_at": "2026-11-23T13:58:03.000Z",
+     "collected_at": "2026-11-25T13:34:23.393Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:e95f36b6d1183b34666731e0"
+    },
+    {
+     "id": "e96df15a41b0207701bcf1b4",
+     "original_title": "CrowdStrike agrees to acquire network security company Zscaler in a ~$43.9B all-stock deal, at a ~34% premium to Friday's close; CRWD closes down 9%, ZS up 18%",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/crowdstrike-reaches-44-billion-cybersecurity-deal-for-zscaler",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T13:55:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:e96df15a41b0207701bcf1b4"
+    },
+    {
+     "id": "030feba613da7e998485dc6a",
+     "original_title": "Z.ai launches GLM-5.4, a 750B-parameter flagship model built on the Loop Transformer architecture, reaching intelligence levels comparable to 2T-3T models",
+     "url": "https://z.ai/blog/glm-5.4",
+     "source": "techmeme",
+     "source_name": "Z.ai",
+     "published_at": "2026-11-23T13:50:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:030feba613da7e998485dc6a"
+    },
+    {
+     "id": "da7661eaa33932924d295076",
+     "original_title": "London-based defense simulation software startup Agon raised $70M led by Northzone at a $450M valuation, after emerging from stealth with $30M earlier in 2026",
+     "url": "https://bloomberg.com/news/articles/2026-11-23/defense-ai-startup-agon-raises-70-million-series-a-from-vcs-ex-sequoia-boss",
+     "source": "techmeme",
+     "source_name": "Bloomberg",
+     "published_at": "2026-11-23T13:45:00.000Z",
+     "collected_at": "2026-11-24T13:27:30.356Z",
+     "verification": "original_article_not_read_by_tool",
+     "evidence_ref": "20261125133433185-b6f0c2df-3f00-41e4-8c81-749dc025058a:da7661eaa33932924d295076"
+    }
+   ],
+   "semantic_event_dedup": "required_by_analysis_skill"
+  },
+  "gaps": [
+   "dynamic industry/customer/commodity anchors require primary-source lookup",
+   "historical first-known times unavailable; no historical point-in-time replay",
+   "no intraday auction/local-core feed; premarket confirmation is conditional",
+   "intl_index_daily:KR_PROXY:20260626:stale"
+  ],
+  "limitations": [
+   "Source dates and database updated_at are not first-known timestamps.",
+   "Close/session completeness and raw news articles must be verified by the skill.",
+   "Prices, pct_chg units, FX/futures kind and contract identity retain source semantics.",
+   "No trade signal, position or predictive-performance certification is generated."
+  ]
+ }
+}

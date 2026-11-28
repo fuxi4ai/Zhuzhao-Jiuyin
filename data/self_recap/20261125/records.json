@@ -1,0 +1,781 @@
+{
+  "schema_version": 2,
+  "trade_date": "20261125",
+  "session": "盘后",
+  "observed_at": "2026-11-25T17:39:17+00:00",
+  "inputs_sha256": "f2361cbe5143760bf9629bc227ff3db372e375e2f51588824b3c2c6f4c5b02c6",
+  "author": "句芒（定时班影子运行）",
+  "selection_rule": "按输入包数值挑对象：接上一期十二条中的十条，另两条按失效条件已结；新增当日锚与本地同时大跌、原因清楚的 AI 算力",
+  "blind": true,
+  "blind_note": "写成于打开当日课件、复盘库当日入库与九儿当日入库日志之前",
+  "data_notes": [
+    "资讯全部只读了标题，没有读正文；社交媒体帖子未作证据",
+    "输入包没有铜、碳酸锂、黄金等商品读数，也没有离岸人民币与国内债市读数",
+    "原油、日经期货为取数时点快照，美债收益率可能为盘中快照",
+    "韩国 EWY 代理读数停在 2026-06-26，未使用；改用同日三星、SK 海力士个股读数",
+    "部分美股锚 20 日超额单日变动远大于当日涨跌（如 MP、RKLB），来自窗口滚动，不是当日事件"
+  ],
+  "records": [
+    {
+      "id": "20261125-01",
+      "theme": "光模块/CPO/光通信/光纤",
+      "object": "A 股光模块与光通信",
+      "main_issue": "锚 LITE 11 月 24 日 −10.5%，回吐前一日大部分涨幅，20 日超额由 −25.9 扩大到 −41.3；本地 11 月 25 日 −2.87%，比沪深 300ETF（−1.56%）弱约 1.3 个百分点，5 日超额由 +2.3 降到 +0.1，20 日超额由 −16.9 扩大到 −22.9。这一次本地与锚同向下跌",
+      "anchor": {
+        "name": "Lumentum（LITE）",
+        "card": "卡一",
+        "role": "同向印证"
+      },
+      "evidence": [
+        {
+          "kind": "inputs",
+          "ref": "inputs.json:local.themes[光模块/CPO/光通信/光纤]",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:us_anchor_daily:LITE:20261124",
+          "asof": "20261124"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:515880.SH:20261125",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:510300.SH:20261125",
+          "asof": "20261125",
+          "note": "沪深 300ETF 当日 −1.56%，各主线超额的基准"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:COHR:20261124",
+          "asof": "20261124",
+          "note": "Coherent 同日 −9.1%"
+        }
+      ],
+      "transmission": {
+        "chain": "海外光模块龙头的估值与订单预期 → 同产业链国产光模块的估值参照与海外客户需求",
+        "exposure": "国产光模块对海外云厂商的收入占比本轮未核",
+        "status": "未核"
+      },
+      "change": {
+        "baseline": "上一期判断：两天都没有贴着锚走，改为观察",
+        "delta": "本日本地跟锚同向下跌，5 日超额几乎归零"
+      },
+      "direction": "观察",
+      "stage": "观察",
+      "local_confirmation": {
+        "status": "待确认",
+        "basis": "本地今日跟随锚走弱，但 5 日超额仍略为正，上一期写的恢复宜减条件（5 日超额转负且继续不跟锚）没有成立"
+      },
+      "priced_in": "锚 11 月 24 日的回吐本地今日已有反应；external 里没有晚于 11 月 24 日的美股读数，后续段待核",
+      "invalidation": "本地 5 日超额转负且锚继续走弱，则改为宜减；锚 20 日超额收窄、本地跟涨，则按同向印证重评",
+      "next_check": "看本地 5 日超额是否转负；看 LITE 是否继续回吐；对华光模块进口限制原文仍未读",
+      "prior": {
+        "ref": "20261124-01",
+        "carry": "上一期留下的验证点：本地 5 日超额能否保持为正——今日 +0.08，勉强为正；LITE 是否回吐——11 月 24 日 −10.5%，已回吐大部分。上一期写的两天不贴锚，今天变成同向"
+      }
+    },
+    {
+      "id": "20261125-02",
+      "theme": "半导体/芯片/半导体材料",
+      "object": "A 股半导体与半导体材料",
+      "main_issue": "海外半导体 11 月 24 日大跌（费城半导体 −7.9%、台积电 −4.0%、美光 −11.0%、英伟达 −5.9%），11 月 25 日三星 −9.9%、SK 海力士 −11.1%；本地 −6.08%，18 条主线跌幅最大，5 日超额由 +0.6 转为 −5.9，20 日超额由 +2.3 转为 −5.6",
+      "anchor": {
+        "name": "台积电（TSM）",
+        "card": "卡一",
+        "role": "温度计"
+      },
+      "evidence": [
+        {
+          "kind": "inputs",
+          "ref": "inputs.json:local.themes[半导体/芯片/半导体材料]",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:us_anchor_daily:TSM:20261124",
+          "asof": "20261124"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:SOX:20261124",
+          "asof": "20261124",
+          "note": "费城半导体 −7.88%"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:MU:20261124",
+          "asof": "20261124",
+          "note": "美光 −11.0%"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:KR_SAMSUNG:20261125",
+          "asof": "20261125",
+          "note": "三星电子 −9.87%"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:KR_HYNIX:20261125",
+          "asof": "20261125",
+          "note": "SK 海力士 −11.05%"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:159995.SZ:20261125",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:510300.SH:20261125",
+          "asof": "20261125",
+          "note": "沪深 300ETF 当日 −1.56%，各主线超额的基准"
+        },
+        {
+          "kind": "url",
+          "ref": "https://cnbc.com/2026/11/25/tech-stocks-softbank-group-advantest-sk-hynix-samsung.html",
+          "asof": "2026-11-25T04:16:00+00:00",
+          "body_read": "仅标题",
+          "first_public_at": "未核",
+          "note": "聚合站标题称美股科技抛售后亚洲芯片股大跌，爱德万跌超 12%；只读标题"
+        }
+      ],
+      "transmission": {
+        "chain": "台积电只作环境温度计，与本地半导体 ETF 成分没有直接商业关系",
+        "exposure": "不适用",
+        "status": "不适用"
+      },
+      "change": {
+        "baseline": "上一期读法：海外大跌本地不跟、海外大涨本地小涨，两地分化",
+        "delta": "本日本地跟随海外大跌，且跌幅在本地各主线中最大；分化读法撤回"
+      },
+      "direction": "观察",
+      "stage": "观察",
+      "local_confirmation": {
+        "status": "已确认",
+        "basis": "本地 5 日、20 日超额同日转负，跟随海外下行"
+      },
+      "priced_in": "海外 11 月 24 日与韩国 11 月 25 日的跌幅本地今日已有反应；锚是温度计，不据此推方向",
+      "invalidation": "本地 5 日超额重新转正、海外继续走弱而本地不跟，则恢复分化读法",
+      "next_check": "看本地 5 日超额是否继续扩大；读实体清单与出口规则正文核限制范围",
+      "prior": {
+        "ref": "20261124-02",
+        "carry": "上一期失效条件「本地 5 日超额转负并跟随海外下行则撤回分化读法」今日成立，撤回分化读法。上一期写分化，一天后即被推翻"
+      }
+    },
+    {
+      "id": "20261125-03",
+      "theme": "商业航天/卫星",
+      "object": "A 股商业航天与卫星",
+      "main_issue": "锚 RKLB 11 月 24 日 −7.4%，20 日超额由 +2.65 转为 −12.0；本地 11 月 25 日 −5.28%，比沪深 300ETF 弱约 3.7 个百分点，5 日超额由 −3.4 扩大到 −5.5，20 日超额由 −6.3 扩大到 −12.2",
+      "anchor": {
+        "name": "Rocket Lab（RKLB）",
+        "card": "卡一",
+        "role": "同向印证"
+      },
+      "evidence": [
+        {
+          "kind": "inputs",
+          "ref": "inputs.json:local.themes[商业航天/卫星]",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:us_anchor_daily:RKLB:20261124",
+          "asof": "20261124"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:SPCX:20261124",
+          "asof": "20261124",
+          "note": "SpaceX 同日 −5.65%"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:563230.SH:20261125",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:510300.SH:20261125",
+          "asof": "20261125",
+          "note": "沪深 300ETF 当日 −1.56%，各主线超额的基准"
+        }
+      ],
+      "transmission": {
+        "chain": "海外商业航天公司的估值与发射需求预期 → 国内商业航天板块的估值参照",
+        "exposure": "国内标的与海外锚之间的订单或客户关系本轮未核",
+        "status": "未核"
+      },
+      "change": {
+        "baseline": "上一期：锚 20 日超额回正，撤回宜减，改为观察",
+        "delta": "锚 20 日超额重新转负，本地 5 日超额停止收窄转而扩大"
+      },
+      "direction": "宜减",
+      "stage": "条件草案",
+      "stage_basis": "依赖两条可观察的条件：锚 20 日超额为负、本地 5 日超额继续扩大，今日两条都成立。还差：国内商业航天已核的订单或政策消息，以及锚与本地的商业关系核实",
+      "local_confirmation": {
+        "status": "已确认",
+        "basis": "本地今日下跌并跑输沪深 300ETF，5 日、20 日超额同时扩大"
+      },
+      "priced_in": "锚 11 月 24 日的下跌本地今日已有反应；更晚的美股读数输入包没有，待核",
+      "invalidation": "锚 20 日超额重新回正，或本地 5 日超额收窄，则撤回宜减",
+      "next_check": "看 RKLB 20 日超额；看本地 5 日超额；国内商业航天已核消息本次检索没有找到",
+      "prior": {
+        "ref": "20261124-03",
+        "carry": "上一期失效条件「锚 20 日超额重新转负且本地 5 日超额停止收窄则恢复宜减」今日两条同时成立，恢复宜减"
+      }
+    },
+    {
+      "id": "20261125-04",
+      "theme": "电力/电网/算电协同/燃气轮机",
+      "object": "A 股电力与电网设备",
+      "main_issue": "锚 GEV 11 月 24 日 −4.8%，20 日超额由 −4.5 扩大到 −12.9；本地 11 月 25 日 −0.97%，比沪深 300ETF 强约 0.6 个百分点，在普跌日相对抗跌，5 日超额 −0.9 基本持平，20 日超额由 +3.2 升到 +3.8",
+      "anchor": {
+        "name": "GE Vernova（GEV）",
+        "card": "卡一",
+        "role": "同向印证"
+      },
+      "evidence": [
+        {
+          "kind": "inputs",
+          "ref": "inputs.json:local.themes[电力/电网/算电协同/燃气轮机]",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:us_anchor_daily:GEV:20261124",
+          "asof": "20261124"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:159611.SZ:20261125",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:510300.SH:20261125",
+          "asof": "20261125",
+          "note": "沪深 300ETF 当日 −1.56%，各主线超额的基准"
+        }
+      ],
+      "transmission": {
+        "chain": "海外燃气轮机与电网设备需求（数据中心用电） → 国内电力设备出口与估值参照",
+        "exposure": "国内标的对海外燃气轮机或电网订单的收入占比本轮未核",
+        "status": "未核"
+      },
+      "change": {
+        "baseline": "上一期：宜减·条件草案（锚涨而本地反跌，5 日超额扩大）",
+        "delta": "锚转为大跌，本地今日反而相对抗跌；两地仍不同步，只是方向换了"
+      },
+      "direction": "宜减",
+      "stage": "条件草案",
+      "stage_basis": "依赖：本地 5 日超额为负、锚 20 日超额为负，两条今日仍成立。但本地今日相对抗跌，两地连续不同步，这条线越来越像本地自身因素主导，锚的解释力存疑；还差国家能源局或国家电网电网投资数据",
+      "local_confirmation": {
+        "status": "未确认",
+        "basis": "本地今日跑赢沪深 300ETF，20 日超额为正，没有确认走弱"
+      },
+      "priced_in": "待核：锚与本地连续两日方向不一致，无法判断哪一段已反映",
+      "invalidation": "本地 5 日超额重新转正，或锚 20 日超额回正，则撤回宜减；两地再背离一个交易日，则改为不挂锚的本地观察",
+      "next_check": "看本地 5 日超额是否转正；核电网投资数据",
+      "prior": {
+        "ref": "20261124-04",
+        "carry": "上一期两条撤回条件今日都没有发生，维持宜减；但本地今日相对抗跌，与宜减的读法不一致，照实记下"
+      }
+    },
+    {
+      "id": "20261125-05",
+      "theme": null,
+      "object": "A 股整体与外围环境",
+      "main_issue": "外围 11 月 24 日回落（纳指 100 −2.0%、标普 500ETF −0.5%、费城半导体 −7.9%、英伟达 −5.9%），11 月 25 日日经期货快照 −1.4%、三星 −9.9%、SK 海力士 −11.1%；A 股 11 月 25 日上证 −2.03%、深成 −3.24%、创业板 −4.19%，18 条主线只有白酒/消费上涨。前一日外围大涨 A 股不跟，本日外围回落 A 股跟跌且跌幅更大，表现不对称",
+      "anchor": {
+        "name": "纳指 100、费城半导体、美债 10 年收益率、布伦特原油、韩国存储股",
+        "card": "卡六",
+        "role": "温度计"
+      },
+      "evidence": [
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:daily_market:20261125",
+          "asof": "20261125",
+          "note": "上证 −2.03%、深成 −3.24%、创业板 −4.19%；成交额 1.393 万亿元，前一日 1.668 万亿元，较前一日减少"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:daily_market:20261124",
+          "asof": "20261124"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:NASDAQ:20261124",
+          "asof": "20261124",
+          "note": "纳指 100 −1.99%"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:us_anchor_daily:SPY:20261124",
+          "asof": "20261124",
+          "note": "标普 500ETF −0.49%"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:SOX:20261124",
+          "asof": "20261124"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:US10Y:20261124",
+          "asof": "20261124",
+          "note": "4.90，基本持平；可能为盘中快照"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:BRENT:20261125",
+          "asof": "20261125",
+          "note": "快照 −3.28%，非收盘价"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:JP_FUT:20261125",
+          "asof": "20261125",
+          "note": "快照 −1.45%，非收盘价"
+        },
+        {
+          "kind": "url",
+          "ref": "https://cnbc.com/2026/11/24/nvidia-stock-jensen-huang-return.html",
+          "asof": "2026-11-24T18:25:00+00:00",
+          "body_read": "仅标题",
+          "first_public_at": "未核",
+          "note": "聚合站标题称英伟达收跌约 6%，回吐前一日的大涨；只读标题"
+        }
+      ],
+      "transmission": {
+        "chain": "外围读数只作环境温度计",
+        "exposure": "不适用",
+        "status": "不适用"
+      },
+      "change": {
+        "baseline": "上一期：外围两个方向 A 股都不跟，脱钩",
+        "delta": "今日外围回落而 A 股跟跌、跌幅更大：涨不跟、跌跟，不对称"
+      },
+      "direction": "观察",
+      "stage": "观察",
+      "local_confirmation": {
+        "status": "已确认",
+        "basis": "A 股三大指数同日下跌，18 条主线 17 条下跌"
+      },
+      "priced_in": "外围 11 月 24 日的回落本地今日已有反应；美债收益率持平、原油快照下跌，宏观多项同时变坏的条件没有出现",
+      "invalidation": "美债收益率与原油同时上行，则改为宜减；外围企稳而 A 股继续单边走弱，则改按本地因素重写",
+      "next_check": "看外围是否继续回落；离岸人民币本输入包仍未提供；社交媒体有关于美国对日韩新关税的帖子，未作证据，待核一手来源",
+      "prior": {
+        "ref": "20261124-05",
+        "carry": "上一期失效条件「外围继续单边走、A 股连续两日转为跟随」没有原样成立：外围是反转而非单边，A 股只跟了一天。但两个方向都不跟的脱钩读法已不准确，改为不对称"
+      }
+    },
+    {
+      "id": "20261125-06",
+      "theme": "有色金属",
+      "object": "A 股有色金属",
+      "main_issue": "锚 FCX 11 月 24 日 −4.0%，20 日超额由 −19.7 扩大到 −23.9；本地 11 月 25 日 −2.65%，比沪深 300ETF 弱约 1.1 个百分点，20 日超额由 −12.2 扩大到 −13.2，5 日超额由 −6.1 收窄到 −4.1。两地本日同向下跌",
+      "anchor": {
+        "name": "Freeport-McMoRan（FCX）",
+        "card": "卡一",
+        "role": "同向印证"
+      },
+      "evidence": [
+        {
+          "kind": "inputs",
+          "ref": "inputs.json:local.themes[有色金属]",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:us_anchor_daily:FCX:20261124",
+          "asof": "20261124"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:512400.SH:20261125",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:510300.SH:20261125",
+          "asof": "20261125",
+          "note": "沪深 300ETF 当日 −1.56%，各主线超额的基准"
+        }
+      ],
+      "transmission": {
+        "chain": "铜价与海外铜矿商估值 → 国内铜矿与冶炼企业利润预期",
+        "exposure": "本轮未核",
+        "status": "未核"
+      },
+      "change": {
+        "baseline": "上一期：两地当日方向相反，观察",
+        "delta": "本日两地同向下跌"
+      },
+      "direction": "观察",
+      "stage": "观察",
+      "local_confirmation": {
+        "status": "待确认",
+        "basis": "铜价读数仍缺，无法区分商品端与情绪端"
+      },
+      "priced_in": "待核：缺铜价收盘",
+      "invalidation": "铜价读数显示商品端没有走弱、两地重新背离，则本线与锚脱钩，撤回本条",
+      "next_check": "补读铜期货收盘；看本地 20 日超额",
+      "prior": {
+        "ref": "20261124-06",
+        "carry": "上一期留的铜期货收盘仍没有读数；本地 20 日超额继续扩大；两地方向从相反变为同向"
+      }
+    },
+    {
+      "id": "20261125-07",
+      "theme": "新能源电池/锂电/储能/固态",
+      "object": "A 股锂电与储能",
+      "main_issue": "本地 11 月 25 日 −5.57%，比沪深 300ETF 弱约 4.0 个百分点，5 日超额由 −3.5 扩大到 −7.4，20 日超额由 −3.8 扩大到 −8.8；锚 ALB 11 月 24 日 −2.4%，20 日超额由 −5.9 扩大到 −13.2",
+      "anchor": {
+        "name": "Albemarle（ALB）",
+        "card": "卡一",
+        "role": "同向印证"
+      },
+      "evidence": [
+        {
+          "kind": "inputs",
+          "ref": "inputs.json:local.themes[新能源电池/锂电/储能/固态]",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:us_anchor_daily:ALB:20261124",
+          "asof": "20261124"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:159566.SZ:20261125",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:510300.SH:20261125",
+          "asof": "20261125",
+          "note": "沪深 300ETF 当日 −1.56%，各主线超额的基准"
+        }
+      ],
+      "transmission": {
+        "chain": "锂价与海外锂矿商估值 → 国内锂电材料与电池企业成本、利润预期",
+        "exposure": "国内标的锂资源自给与锂价敏感度本轮未核",
+        "status": "未核"
+      },
+      "change": {
+        "baseline": "上一期：本地 5 日超额收窄，走弱观察",
+        "delta": "本地 5 日超额重新扩大一倍，锚 20 日超额同步扩大"
+      },
+      "direction": "宜减",
+      "stage": "条件草案",
+      "stage_basis": "依赖：锚 20 日超额为负且扩大、本地 5 日超额扩大，今日都成立。还差：碳酸锂期货读数与储能招标消息，无法区分是商品端还是情绪端",
+      "local_confirmation": {
+        "status": "已确认",
+        "basis": "本地今日大幅跑输沪深 300ETF，5 日、20 日超额同时扩大"
+      },
+      "priced_in": "锚 11 月 24 日的下跌本地今日已有反应；锂价本身无读数，待核",
+      "invalidation": "本地 5 日超额收窄、锚 20 日超额也收窄，则撤回宜减；碳酸锂读数显示商品端走强，则改回观察",
+      "next_check": "补读碳酸锂期货；看本地 5 日超额",
+      "prior": {
+        "ref": "20261124-07",
+        "carry": "上一期撤回条件「本地 5 日超额转正」没有发生，反而扩大；由观察升为宜减条件草案"
+      }
+    },
+    {
+      "id": "20261125-08",
+      "theme": "黄金/贵金属",
+      "object": "A 股黄金 ETF",
+      "main_issue": "本地黄金 ETF 11 月 25 日 −3.00%，比沪深 300ETF 弱约 1.4 个百分点，20 日超额由 −7.5 扩大到 −9.0；锚 NEM 11 月 24 日 −1.0%；金价本身仍无读数",
+      "anchor": {
+        "name": "Newmont（NEM）",
+        "card": "卡一",
+        "role": "同向印证"
+      },
+      "evidence": [
+        {
+          "kind": "inputs",
+          "ref": "inputs.json:local.themes[黄金/贵金属]",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:us_anchor_daily:NEM:20261124",
+          "asof": "20261124"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:518880.SH:20261125",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:510300.SH:20261125",
+          "asof": "20261125",
+          "note": "沪深 300ETF 当日 −1.56%，各主线超额的基准"
+        }
+      ],
+      "transmission": {
+        "chain": "金价 → 黄金 ETF 净值；NEM 只是金价的间接读数",
+        "exposure": "不适用于 ETF，净值直接跟金价",
+        "status": "部分已核"
+      },
+      "change": {
+        "baseline": "上一期：金价无读数，观察",
+        "delta": "本地单日跌 3%，在缺金价读数的情况下无法判断来自金价还是汇率"
+      },
+      "direction": "观察",
+      "stage": "观察",
+      "local_confirmation": {
+        "status": "待确认",
+        "basis": "缺金价与离岸人民币读数"
+      },
+      "priced_in": "待核：缺金价收盘",
+      "invalidation": "补到金价读数后，若本地变动主要来自汇率或折溢价，则撤回本条",
+      "next_check": "补读伦敦金或 COMEX 黄金收盘与离岸人民币",
+      "prior": {
+        "ref": "20261124-08",
+        "carry": "上一期留的金价与离岸人民币读数仍未补到"
+      }
+    },
+    {
+      "id": "20261125-09",
+      "theme": "稀土",
+      "object": "A 股稀土",
+      "main_issue": "本地与锚当日方向第四次相反：锚 MP 11 月 24 日 +1.0%，20 日超额却由 +2.3 转为 −4.7（窗口滚动）；本地 11 月 25 日 −3.50%，比沪深 300ETF 弱约 1.9 个百分点，20 日超额由 −8.9 扩大到 −11.7",
+      "anchor": {
+        "name": "MP Materials（MP）",
+        "card": "卡一",
+        "role": "同向印证"
+      },
+      "evidence": [
+        {
+          "kind": "inputs",
+          "ref": "inputs.json:local.themes[稀土]",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:us_anchor_daily:MP:20261124",
+          "asof": "20261124"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:516780.SH:20261125",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:510300.SH:20261125",
+          "asof": "20261125",
+          "note": "沪深 300ETF 当日 −1.56%，各主线超额的基准"
+        }
+      ],
+      "transmission": {
+        "chain": "海外稀土供应商估值 → 国内稀土企业；两者可能是替代而非同向关系",
+        "exposure": "本轮未核",
+        "status": "未核"
+      },
+      "change": {
+        "baseline": "上一期：方向第三次相反，建议先核两地关系",
+        "delta": "第四次相反"
+      },
+      "direction": "观察",
+      "stage": "观察",
+      "local_confirmation": {
+        "status": "待确认",
+        "basis": "两地关系没有核实，无法判断本地是否确认"
+      },
+      "priced_in": "待核",
+      "invalidation": "核实海外稀土与国内稀土是替代关系后，本条改按反向锚重写；本地 5 日超额转正则撤回",
+      "next_check": "优先核两地关系；补读国内稀土价格与出口管制已核消息",
+      "prior": {
+        "ref": "20261124-09",
+        "carry": "上一期说若背离再持续则优先核两地关系，今日背离持续，两地关系本轮仍未核"
+      }
+    },
+    {
+      "id": "20261125-10",
+      "theme": "AI软件/应用",
+      "object": "A 股 AI 软件与应用",
+      "main_issue": "锚 PLTR 11 月 24 日 +1.1%，20 日超额由 −14.7 收窄到 −12.5；本地 11 月 25 日 −2.93%，比沪深 300ETF 弱约 1.4 个百分点，5 日超额由 −4.2 扩大到 −5.5，20 日超额 −9.7",
+      "anchor": {
+        "name": "Palantir（PLTR）",
+        "card": "卡一",
+        "role": "同向印证"
+      },
+      "evidence": [
+        {
+          "kind": "inputs",
+          "ref": "inputs.json:local.themes[AI软件/应用]",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:us_anchor_daily:PLTR:20261124",
+          "asof": "20261124"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:515230.SH:20261125",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:510300.SH:20261125",
+          "asof": "20261125",
+          "note": "沪深 300ETF 当日 −1.56%，各主线超额的基准"
+        }
+      ],
+      "transmission": {
+        "chain": "海外 AI 软件公司估值 → 国内 AI 应用板块估值参照",
+        "exposure": "国内标的与海外锚没有直接客户关系，本轮未核",
+        "status": "未核"
+      },
+      "change": {
+        "baseline": "上一期：锚强本地弱，观察",
+        "delta": "锚仍小涨，本地继续走弱，5 日超额扩大"
+      },
+      "direction": "观察",
+      "stage": "观察",
+      "local_confirmation": {
+        "status": "未确认",
+        "basis": "本地不跟锚"
+      },
+      "priced_in": "待核：锚 20 日超额仍为负，锚自身也不算强",
+      "invalidation": "本地下一交易日跟涨且 5 日超额收窄，则撤回锚强本地弱的读法",
+      "next_check": "看本地 5 日超额；看锚是否回吐",
+      "prior": {
+        "ref": "20261124-12",
+        "carry": "上一期撤回条件「本地跟涨且 5 日超额收窄」没有发生，锚强本地弱持续第二日"
+      }
+    },
+    {
+      "id": "20261125-11",
+      "theme": "AI算力/AI硬件/科技硬件",
+      "object": "A 股 AI 算力与硬件（光模块与半导体等权）",
+      "main_issue": "英伟达 CEO 复职引发的 11 月 23 日大涨，11 月 24 日开始回吐：锚 NVDA −5.9%，20 日超额由 −15.0 扩大到 −20.7；本地两只成分 11 月 25 日等权 −4.47%（光模块 −2.87%、半导体 −6.08%），20 日超额由 −7.3 扩大到 −14.3",
+      "anchor": {
+        "name": "英伟达（NVDA）",
+        "card": "卡一",
+        "role": "同向印证"
+      },
+      "evidence": [
+        {
+          "kind": "inputs",
+          "ref": "inputs.json:local.themes[AI算力/AI硬件/科技硬件]",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:us_anchor_daily:NVDA:20261124",
+          "asof": "20261124"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:CRWV:20261124",
+          "asof": "20261124",
+          "note": "CoreWeave −11.8%"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:intl_index_daily:AVGO:20261124",
+          "asof": "20261124",
+          "note": "博通 −4.0%"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:515880.SH:20261125",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:159995.SZ:20261125",
+          "asof": "20261125"
+        },
+        {
+          "kind": "market_data",
+          "ref": "market_data.db:theme_etf_daily:510300.SH:20261125",
+          "asof": "20261125",
+          "note": "沪深 300ETF 当日 −1.56%，各主线超额的基准"
+        },
+        {
+          "kind": "url",
+          "ref": "https://cnbc.com/2026/11/24/nvidia-stock-jensen-huang-return.html",
+          "asof": "2026-11-24T18:25:00+00:00",
+          "body_read": "仅标题",
+          "first_public_at": "未核",
+          "note": "聚合站标题称英伟达收跌约 6%，回吐复职当日的大涨；只读标题"
+        },
+        {
+          "kind": "url",
+          "ref": "https://reuters.com/business/dell-lifts-annual-forecasts-after-record-quarter-surging-ai-s",
+          "asof": "2026-11-25T00:45:00+00:00",
+          "body_read": "仅标题",
+          "first_public_at": "未核",
+          "note": "聚合站标题称戴尔三季度收入同比翻倍并上调全年指引；发生在 A 股 11 月 25 日开盘前，只读标题，未作方向依据"
+        }
+      ],
+      "transmission": {
+        "chain": "英伟达及海外云厂商资本开支预期 → 国内光模块、算力硬件订单预期",
+        "exposure": "国内标的对英伟达链的收入占比本轮未核",
+        "status": "未核"
+      },
+      "change": {
+        "baseline": "首次作为独立记录；此前英伟达事件散在半导体与环境两条记录里",
+        "delta": "锚的变动来自英伟达 CEO 个人事件，属于个股性原因，不外推为行业需求变化"
+      },
+      "direction": "观察",
+      "stage": "观察",
+      "local_confirmation": {
+        "status": "待确认",
+        "basis": "本地今日跟随下跌，但锚的变动原因是个股性事件，跟跌不等于行业需求已变"
+      },
+      "priced_in": "锚 11 月 24 日的回吐本地今日已有反应；锚 11 月 23 日的大涨本地当时没有跟",
+      "invalidation": "海外云厂商或英伟达给出已核的资本开支下修，则改为宜减；锚回到复职当日收盘之上且本地跟涨，则按同向重评",
+      "next_check": "看英伟达是否继续回吐；读戴尔财报原文核 AI 服务器订单",
+      "prior": {
+        "ref": null,
+        "carry": "首次出现：本期按锚与本地都在当日大幅下跌、且锚的变动原因清楚而新增"
+      }
+    }
+  ],
+  "carried_over": [
+    {
+      "ref": "20261124-10",
+      "outcome": "已结",
+      "note": "机器人：上一期失效条件「本地下一交易日明显回吐、5 日超额转负」今日成立（本地 −4.90%，5 日超额由 +1.25 转为 −0.45），按单日波动撤回"
+    },
+    {
+      "ref": "20261124-11",
+      "outcome": "已结",
+      "note": "消费电子：上一期失效条件「本地下一交易日回吐、5 日超额转负」今日成立（本地 −4.52%，5 日超额由 +2.6 转为 −1.7），撤回"
+    }
+  ],
+  "local_only": [
+    {
+      "theme": "白酒/消费",
+      "value": {
+        "当日": 0.93,
+        "e5": 1.05,
+        "e20": 11.37
+      },
+      "note": "没有登记的外部锚，只记本地读数；18 条主线中唯一上涨，5 日超额由 −3.2 转为 +1.1，20 日超额由 +6.3 升到 +11.4"
+    },
+    {
+      "theme": "创新药/医药/CRO",
+      "value": {
+        "当日": -0.65,
+        "e5": -0.06,
+        "e20": 0.75
+      },
+      "note": "有温度计锚 LLY（11 月 24 日 +3.2%，20 日超额 +16.5），但只记读数不立记录：本地普跌日相对抗跌"
+    }
+  ]
+}
